@@ -7,27 +7,52 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:local": "prisma dev --name algosprint",
+    "seed:validate": "node --import tsx scripts/validate-seeds.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prebuild": "prisma generate",
+    "pretypecheck": "prisma generate",
+    "predev": "prisma generate",
+    "test:integration": "vitest run --config vitest.integration.config.mts"
   },
   "engines": {
     "node": ">=24 <25"
   },
   "dependencies": {
+    "@next/env": "16.3.5",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "clsx": "2.1.1",
     "lucide-react": "1.45.0",
     "next": "16.3.5",
+    "pg": "8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "tailwind-merge": "3.6.0"
+    "server-only": "0.0.1",
+    "tailwind-merge": "3.6.0",
+    "zod": "4.6.4"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.4.3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "24.13.4",
+    "@types/pg": "8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "prisma": "7.10.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "4.23.13",
+    "typescript": "^5",
+    "vitest": "5.0.0"
   }
 }

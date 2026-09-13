@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "slug": "quiet-badge",
+  "title": "Quiet Badge",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "frequency-count",
+  "statement": "A workshop records the lowercase letter printed on each arriving attendee badge in the string badges. Return the zero-based position of the earliest arrival whose badge letter appears exactly once in the complete record. Return -1 if no badge letter is unique. An empty record also returns -1.",
+  "constraints": [
+    "0 <= badges.length <= 100000",
+    "badges contains only lowercase English letters a through z."
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "strings",
+    "hash-maps"
+  ],
+  "tags": [
+    "frequency-count",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "badges": "abacbd"
+      },
+      "output": 3,
+      "explanation": "a and b each appear twice. c is the earliest letter that appears once, at index 3."
+    },
+    {
+      "position": 2,
+      "input": {
+        "badges": "aabb"
+      },
+      "output": -1,
+      "explanation": "Every recorded badge letter occurs more than once."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "A letter can look unique early in the record and appear again later."
+    },
+    {
+      "position": 2,
+      "content": "Separate learning how often letters occur from choosing the earliest arrival."
+    },
+    {
+      "position": 3,
+      "content": "Store a frequency for each badge letter."
+    },
+    {
+      "position": 4,
+      "content": "Count the complete record, then scan its positions from left to right."
+    },
+    {
+      "position": 5,
+      "content": "Return the first index whose letter has frequency one; otherwise return -1."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "quietBadge",
+      "code": "function quietBadge(badges) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "badges": "abacbd"
+      },
+      "output": 3,
+      "explanation": "a and b each appear twice. c is the earliest letter that appears once, at index 3."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "badges": "aabb"
+      },
+      "output": -1,
+      "explanation": "Every recorded badge letter occurs more than once."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "badges": ""
+      },
+      "output": -1,
+      "explanation": "There are no arrivals."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "badges": "z"
+      },
+      "output": 0,
+      "explanation": "The only arrival is unique."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "badges": "xxyzz"
+      },
+      "output": 2,
+      "explanation": "Only y occurs once, at index 2."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "badges": "abca"
+      },
+      "output": 1,
+      "explanation": "Both b and c are unique; b arrived earlier."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Count around each arrival",
+      "intuition": "An arrival qualifies only when its letter has exactly one occurrence in the entire record.",
+      "approach": "For each position, count that position’s letter in the full string. Return the first position with count one.",
+      "pseudocode": "For each index i: count occurrences of badges[i]; if count equals one return i; return -1.",
+      "code": "function quietBadge(badges) {\n    for (let i = 0; i < badges.length; i++) {\n        let count = 0;\n        for (const badge of badges)\n            if (badge === badges[i])\n                count++;\n        if (count === 1)\n            return i;\n    }\n    return -1;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Returning a letter before reading the whole record can miss a later duplicate.",
+        "Returning an arbitrary unique map entry can ignore the required arrival order."
+      ],
+      "interviewExplanation": "I count every badge letter first, then scan the record in its original order. This preserves the earliest-arrival requirement while avoiding a full recount for each position. Two linear scans are O(n), and the fixed alphabet bounds the map size.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "An arrival qualifies only when its letter has exactly one occurrence in the entire record."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "For each position, count that position’s letter in the full string. Return the first position with count one."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Count once, choose once",
+      "intuition": "The same frequency can answer the uniqueness question for every occurrence of a letter.",
+      "approach": "Build one frequency map. A second scan follows arrival order and returns the first index with frequency one.",
+      "pseudocode": "Count every letter in a map; scan indices in increasing order; return first letter with count one, else -1.",
+      "code": "function quietBadge(badges) {\n    const counts = new Map();\n    for (const badge of badges)\n        counts.set(badge, (counts.get(badge) ?? 0) + 1);\n    for (let i = 0; i < badges.length; i++)\n        if (counts.get(badges[i]) === 1)\n            return i;\n    return -1;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1), because there are at most 26 distinct letters",
+      "commonMistakes": [
+        "Returning a letter before reading the whole record can miss a later duplicate.",
+        "Returning an arbitrary unique map entry can ignore the required arrival order."
+      ],
+      "interviewExplanation": "I count every badge letter first, then scan the record in its original order. This preserves the earliest-arrival requirement while avoiding a full recount for each position. Two linear scans are O(n), and the fixed alphabet bounds the map size.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For abacbd, the frequencies are a:2, b:2, c:1, and d:1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Indices 0, 1, and 2 contain repeated letters."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Index 3 contains c, whose count is one, so the result is 3."
+        }
+      ]
+    }
+  ]
+}

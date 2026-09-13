@@ -1,94 +1,83 @@
 # AlgoSprint
 
-An original coding interview preparation platform, built incrementally with Next.js, React, TypeScript, and Tailwind CSS.
+An original coding interview preparation platform built with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, and Zod.
 
-## 🟦 Current milestone: Phase 1
+## 🟦 Current milestone: Phase 2
 
-This version implements the local project foundation and landing page. It includes shared layout components, a dark theme, responsive CSS, keyboard navigation, a static original practice illustration, public constants, environment documentation, and reserved folders for later phases.
-
-Only `/` is an implemented application page. The favicon is generated from `src/app/icon.svg`. Other feature folders are empty reservations; they do not create working routes. The practice illustration cannot accept or execute code. No accounts, database, user progress, or production deployment exist in this version.
+Phase 1 supplies the original dark landing page. Phase 2 adds the database foundation: 22 related models, a versioned PostgreSQL migration, private data access, validated taxonomy, and five original JavaScript coding problems. Accounts and interactive problem pages begin in the next phases. The landing page works without credentials.
 
 ## 🟩 Run locally
 
-Install Node.js 24 LTS with npm from [Node.js](https://nodejs.org/en/download). From this project folder:
+Use Node.js 24 and npm. From the repository root:
 
 ```bash
-node --version
-npm --version
 npm ci
 cp .env.example .env.local
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). Keep the terminal running; press Control+C to stop it. If you already have a configured `.env.local`, keep it instead of copying over it. An empty `.env.local` is also valid in Phase 1.
+Keep an existing configured `.env.local` instead of overwriting it. Open [localhost:3000](http://localhost:3000).
 
-For a fresh bootstrap without this archive, use the exact commands in `docs/PHASE-1-GUIDE.md`.
-
-## 🟩 Check the project
+To enable the database, set `DATABASE_URL` in `.env.local` using a development PostgreSQL database you control. For Supabase, use the appropriate URL from **Connect** and follow [the Phase 2 guide](docs/PHASE-2-GUIDE.md). If migrations require a different connection, set `DIRECT_URL` as well.
 
 ```bash
+npm run db:deploy
+npm run db:seed
+```
+
+`db:deploy` applies committed migrations. `db:migrate` creates future development migrations and may require a separate shadow database. Do not use development migration resets against a database containing valuable data.
+
+## 🟩 Validate
+
+```bash
+npm run db:validate
+npm run seed:validate
+npm test
 npm run lint
 npm run typecheck
 npm run build
-npm run start
 ```
 
-Run `start` after a successful `build`, with any development server on port 3000 stopped. It runs the production build locally; it does not deploy the project.
+The unit suite includes embedded PostgreSQL migration checks and differential algorithm tests. Real Prisma integration tests run separately against a **dedicated empty database whose name ends in `_test`**:
 
-| Command | Purpose |
+```bash
+# Set DATABASE_URL and TEST_DATABASE_URL to the same disposable test database.
+# Leave DIRECT_URL unset or point it at that same test database.
+npm run db:deploy
+npm run test:integration
+```
+
+GitHub Actions supplies its own disposable PostgreSQL service and runs these checks. Check the PR's actual Actions result before treating integration as verified.
+
+## 🟨 File map
+
+| Path | Purpose |
 | --- | --- |
-| `npm run dev` | Start the local development server with automatic refresh. |
-| `npm run lint` | Check source using the Next.js ESLint rules; reject lint warnings. |
-| `npm run typecheck` | Generate Next.js route types and check TypeScript without emitting JavaScript. |
-| `npm run build` | Create an optimized production build. |
-| `npm run start` | Serve the completed production build locally. |
+| `src/app/`, `src/components/` | Next.js pages and original UI. |
+| `prisma/schema.prisma` | Relational models, enums, indexes, and deletion behavior. |
+| `prisma/migrations/` | Committed schema, integrity constraints, and RLS. |
+| `prisma.config.ts` | Prisma 7 connection and CLI configuration. |
+| `src/lib/prisma.ts` | Lazy server-only database entry point. |
+| `src/data/seeds/` | Original problem JSON and taxonomy. |
+| `src/lib/validators/problem.ts` | Strict import contract. |
+| `scripts/lib/reference-problems.ts` | Trusted validators for expected outputs. |
+| `prisma/seed-data.ts` | Bounded, repeatable, insert-only seeding. |
+| `tests/` | Validation, algorithms, migration, and integration checks. |
+| `docs/PHASE-1-GUIDE.md` | Historical foundation walkthrough and source. |
+| `docs/PHASE-2-GUIDE.md` | Database walkthrough, commands, source, and pitfalls. |
 
-Check navigation links, visible keyboard focus, the skip link, small screens, and 200% browser zoom. The full manual checklist is in the phase guide.
+## 🟥 Data boundaries
 
-## 🟨 How the code is organized
+- Secrets belong in ignored `.env.local`; `.env.example` contains names only.
+- Only browser-safe Supabase configuration will use `NEXT_PUBLIC_`.
+- Database tables live in private `app`, with RLS and no grants to `PUBLIC`, `anon`, or `authenticated`.
+- The trusted Prisma connection owns this schema and can bypass RLS. Every future user-facing read and write must enforce identity and ownership on the server.
+- Hidden test cases are internal database content. Never serialize an entire problem record into client props or APIs.
+- Seed code strings are stored as content. They are never executed by the importer. Trusted, allowlisted algorithms validate fixtures.
+- Re-running the same seed preserves IDs and progress. A changed existing slug is rejected instead of silently replacing content.
 
-| Path | Responsibility |
-| --- | --- |
-| `src/app/layout.tsx` | HTML document, global stylesheet, and shared page metadata. |
-| `src/app/page.tsx` | Compose the landing page from components and display constants. |
-| `src/app/globals.css` | Tailwind v4 theme tokens, base accessibility styles, and reusable link styles. |
-| `src/app/icon.svg` | Original simple favicon matching the site colors. |
-| `src/components/layout/` | Brand, content container, header, and footer. |
-| `src/components/landing/` | Read-only landing-page practice illustration. |
-| `src/lib/constants.ts` | Public app name, navigation, and landing-page copy. |
-| `src/lib/utils.ts` | `cn()` for composing Tailwind class names. |
-| `src/features/` | Reserved domain folders for future application logic. |
-| `prisma/` | Reserved for Phase 2 schema, migrations, and seed code. |
-| `src/data/seeds/` | Reserved for validated original seed content. |
-| `scripts/` | Reserved for future import and content tools. |
-| `docs/PHASE-1-GUIDE.md` | Complete walkthrough, source listings, commands, and local checks. |
+## 🟪 Growth plan
 
-The public header and footer are composed in the landing page, so future dashboard layouts can use their own app shell. The root layout stays shared. Application source uses TypeScript and the `@/` alias maps to `src/`.
+Proceed through authentication, the app shell, problem browsing, guided solutions, the editor, safe execution, progress, analytics, roadmaps, admin tools, and interviews. Deployment is a later milestone. The content target grows from 5 to 20 to 100 and eventually 1,000 reviewed problems.
 
-## 🟨 Dependencies
-
-Runtime dependencies are `next`, `react`, `react-dom`, `lucide-react`, `clsx`, and `tailwind-merge`. Development dependencies are TypeScript, the React/Node type packages, ESLint with the matching Next.js configuration, Tailwind CSS, and its PostCSS plugin.
-
-`package-lock.json` records the resolved dependency tree. Commit it. Use `npm ci` when reproducing this version and `npm install` when intentionally changing dependencies. `.nvmrc` and `package.json` align this project on Node.js 24.
-
-Prisma, Supabase, Zod, Monaco, charts, and a runner will be installed in the phases that first use them.
-
-## 🟥 Environment and security
-
-- `.env.local` belongs at the project root and is ignored by Git.
-- `.env.example` is a shareable, credential-free template and is explicitly allowed by `.gitignore`.
-- Phase 1 requires no environment variables. All future names in the template are commented out.
-- `NEXT_PUBLIC_` values may be exposed to the browser. Never use this prefix for database passwords, service-role keys, or runner secrets.
-- Server-only naming does not stop a developer from accidentally exposing a secret through a response or prop; review those boundaries when backend work begins.
-- Do not run untrusted code with `eval`, `new Function`, or child processes on the application server. A browser mock will not be treated as a security sandbox.
-- Supabase authentication and server-side authorization will be implemented in Phase 3. Empty admin folders provide no authorization and are not working admin pages.
-
-## 🟪 Next milestone
-
-Phase 2 will define the PostgreSQL/Prisma data model, relationships, constraints, migrations, and initial validated seed content. Complete the Phase 1 local checklist before starting it. Deployment remains in Phase 16.
-
-The content target grows from 5 to 20 to 100 and eventually 1,000 reviewed problems. Those are future targets, not counts of content currently implemented.
-
-## 🟥 Content provenance
-
-The AlgoSprint page copy, layout, Relay Window wording, and theme were authored for this project. General algorithmic concepts may be shared with other learning resources; do not copy another platform's statements, hints, explanations, roadmap structure, branding, or interface. Dependencies retain their own licenses.
+All AlgoSprint statements, hints, explanations, roadmap names, branding, and UI must be original. General algorithmic concepts are shared knowledge; other platforms' written content and designs are not source material.

@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "slug": "parcel-checkpoints",
+  "title": "Parcel Checkpoints",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "prefix-sum",
+  "statement": "A depot stores the signed change in parcel count at each checkpoint in parcels. For every pair [start, end] in ranges, return the total change from index start up to but not including index end. Return the totals in the same order as ranges. A range with start equal to end is empty and has total zero.",
+  "constraints": [
+    "0 <= parcels.length <= 100000",
+    "-1000000 <= parcels[i] <= 1000000",
+    "0 <= ranges.length <= 100000",
+    "Each range satisfies 0 <= start <= end <= parcels.length."
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays"
+  ],
+  "tags": [
+    "prefix-sum"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "parcels": [
+          4,
+          -2,
+          7,
+          3
+        ],
+        "ranges": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            2
+          ]
+        ]
+      },
+      "output": [
+        2,
+        8,
+        0
+      ],
+      "explanation": "The requested slices are [4,-2], [-2,7,3], and an empty slice."
+    },
+    {
+      "position": 2,
+      "input": {
+        "parcels": [],
+        "ranges": [
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "output": [
+        0
+      ],
+      "explanation": "The only valid slice of an empty array is empty."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Solving one range by summing its entries is straightforward; many overlapping ranges repeat work."
+    },
+    {
+      "position": 2,
+      "content": "Can one stored cumulative total help answer several different ranges?"
+    },
+    {
+      "position": 3,
+      "content": "Let prefix[k] mean the sum of the first k entries."
+    },
+    {
+      "position": 4,
+      "content": "A range total is prefix[end] minus prefix[start]."
+    },
+    {
+      "position": 5,
+      "content": "Begin the prefix array with zero, accumulate every checkpoint once, and answer each range with one subtraction."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "parcelCheckpoints",
+      "code": "function parcelCheckpoints(parcels, ranges) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "parcels": [
+          4,
+          -2,
+          7,
+          3
+        ],
+        "ranges": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            2
+          ]
+        ]
+      },
+      "output": [
+        2,
+        8,
+        0
+      ],
+      "explanation": "The requested slices are [4,-2], [-2,7,3], and an empty slice."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "parcels": [],
+        "ranges": [
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "output": [
+        0
+      ],
+      "explanation": "The only valid slice of an empty array is empty."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "parcels": [
+          5
+        ],
+        "ranges": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "output": [
+        5
+      ],
+      "explanation": "The end index is exclusive."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "parcels": [
+          -3,
+          -1,
+          4
+        ],
+        "ranges": [
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "output": [
+        0,
+        -4
+      ],
+      "explanation": "Signed totals may be zero or negative."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "parcels": [
+          1,
+          1,
+          1
+        ],
+        "ranges": []
+      },
+      "output": [],
+      "explanation": "No requested ranges means no output entries."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "parcels": [
+          1000000,
+          1000000
+        ],
+        "ranges": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      "output": [
+        2000000,
+        1000000
+      ],
+      "explanation": "Each answer uses the requested half-open range."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Walk each requested range",
+      "intuition": "Every answer can be obtained directly from the checkpoint changes included in that range.",
+      "approach": "For each range, add the entries from start through end - 1 and append the result.",
+      "pseudocode": "For each [start, end): set total = 0; add each included parcel change; append total.",
+      "code": "function parcelCheckpoints(parcels, ranges) {\n    return ranges.map(([start, end]) => {\n        let sum = 0;\n        for (let i = start; i < end; i++)\n            sum += parcels[i];\n        return sum;\n    });\n}",
+      "timeComplexity": "O(n × q) in the worst case, for n checkpoints and q ranges",
+      "spaceComplexity": "O(q) for the returned answers; O(1) additional working space",
+      "commonMistakes": [
+        "Treating end as inclusive introduces an off-by-one error.",
+        "Forgetting the leading zero makes ranges beginning at index zero harder to handle correctly."
+      ],
+      "interviewExplanation": "With many overlapping queries, repeated summation wastes work. I preprocess the checkpoint changes into prefix totals and answer each query in constant time. The end-exclusive convention also makes empty ranges work without a special branch.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Every answer can be obtained directly from the checkpoint changes included in that range."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "For each range, add the entries from start through end - 1 and append the result."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Reuse cumulative totals",
+      "intuition": "The difference of two prefix totals removes exactly the entries before the requested start.",
+      "approach": "Create a prefix array of length n + 1 with prefix[0] = 0. Return prefix[end] - prefix[start] for each range.",
+      "pseudocode": "Build prefix starting at zero; for each range return prefix[end] - prefix[start].",
+      "code": "function parcelCheckpoints(parcels, ranges) {\n    const prefix = [0];\n    for (const count of parcels)\n        prefix.push(prefix[prefix.length - 1] + count);\n    return ranges.map(([start, end]) => prefix[end] - prefix[start]);\n}",
+      "timeComplexity": "O(n + q)",
+      "spaceComplexity": "O(n + q), including the returned answers",
+      "commonMistakes": [
+        "Treating end as inclusive introduces an off-by-one error.",
+        "Forgetting the leading zero makes ranges beginning at index zero harder to handle correctly."
+      ],
+      "interviewExplanation": "With many overlapping queries, repeated summation wastes work. I preprocess the checkpoint changes into prefix totals and answer each query in constant time. The end-exclusive convention also makes empty ranges work without a special branch.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [4,-2,7,3], the prefix totals are [0,4,2,9,12]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Range [0,2) totals prefix[2] - prefix[0] = 2; range [1,4) totals 12 - 4 = 8."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Range [2,2) subtracts the same prefix total from itself and returns zero."
+        }
+      ]
+    }
+  ]
+}
