@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+/* Tailwind v4 creates utilities such as bg-canvas from these theme tokens. */
+@theme {
+  --color-canvas: #090d16;
+  --color-surface: #101724;
+  --color-surface-raised: #172235;
+  --color-line: #2b3a50;
+  --color-ink: #f3f6fc;
+  --color-muted: #b2bdd0;
+  --color-accent: #8ab4ff;
+  --color-accent-strong: #bad2ff;
+  --color-warm: #f2c879;
+  --color-lilac: #c6b6fa;
+  --font-sans: "Avenir Next", "Segoe UI", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
+  }
+
+  body {
+    @apply min-h-dvh bg-canvas font-sans text-base text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent text-canvas;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-warm);
+    outline-offset: 5px;
+  }
+
+  /* Respect reduced motion for native scrolling and CSS transitions. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-mono text-sm font-medium tracking-[0.12em] uppercase;
+  }
+
+  .action-link {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl
+      border border-transparent px-5 py-3 text-base font-semibold transition-colors;
+  }
+
+  .action-link-primary {
+    @apply bg-accent text-canvas hover:bg-accent-strong;
+  }
+
+  .action-link-secondary {
+    @apply border-line bg-surface text-ink hover:border-accent hover:bg-surface-raised;
+  }
+
+  .preview-surface {
+    background:
+      radial-gradient(ellipse at top right, #28457340, transparent 65%),
+      var(--color-surface);
+    box-shadow: 0 24px 80px #00000040;
+  }
+}
