@@ -72,7 +72,7 @@ npm run test:integration
 
 The integration suite tests nested writes, rerun stability, preservation of user bookmarks, conflict handling, and full-batch validation. It refuses a database with existing problems and only cleans up its own fixture IDs/slugs. GitHub Actions provides PostgreSQL 17 for this suite, installs from the lockfile, and also runs validation, lint, types, and the production build. CI has read-only repository permissions and uses ephemeral test credentials. It never deploys or contacts a production database.
 
-A successful embedded test is not proof of a successful remote connection. This workspace has no Supabase project credentials. Verify the actual CI result and run the migration against your configured development Supabase project before using database-backed pages.
+The implementation passed [GitHub CI on PostgreSQL 17](https://github.com/zihadpcode/AlgoSprint/actions/runs/34775388055), including the four real Prisma seed lifecycle tests, lint, types, and the production build. That run verifies implementation commit `d0319c5d4108c60c7f323e6ac362954619e9451b`. This workspace has no Supabase project credentials; run the migration against your configured development Supabase project before using database-backed pages. See the session handoff for the current pause status.
 
 ## 🟥 Common mistakes
 

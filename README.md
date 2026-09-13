@@ -2,6 +2,10 @@
 
 An original coding interview preparation platform built with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, and Zod.
 
+## 🟦 Session paused — Phase 2 checkpoint
+
+Work is paused at the user’s request. Phase 1 is merged; [Phase 2 is saved in PR #2](https://github.com/zihadpcode/AlgoSprint/pull/2) with passing implementation CI. Authentication has not been implemented. Read [the session handoff](docs/SESSION-HANDOFF.md) before resuming and [the original brief](docs/PROJECT-BRIEF.md) for the full requirements.
+
 ## 🟦 Current milestone: Phase 2
 
 Phase 1 supplies the original dark landing page. Phase 2 adds the database foundation: 22 related models, a versioned PostgreSQL migration, private data access, validated taxonomy, and five original JavaScript coding problems. Accounts and interactive problem pages begin in the next phases. The landing page works without credentials.
