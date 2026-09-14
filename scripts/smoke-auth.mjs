@@ -5,18 +5,25 @@ import { setTimeout as delay } from "node:timers/promises";
 const origin = "http://127.0.0.1:3100";
 const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3100"], {
   env: { ...process.env, DATABASE_URL: "", DIRECT_URL: "", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "", APP_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
-  stdio: ["ignore", "ignore", "pipe"],
+  stdio: ["ignore", "pipe", "pipe"],
 });
 let diagnostic = "";
-server.stderr.on("data", (chunk) => { diagnostic = (diagnostic + chunk.toString()).slice(-3000); });
+const collect = (chunk) => { diagnostic = (diagnostic + chunk.toString()).slice(-5000); };
+server.stderr.on("data", collect);
+server.stdout.on("data", collect);
 try {
   let ready = false;
+  let lastFailure = "No response yet";
   for (let i = 0; i < 100; i++) {
     if (server.exitCode !== null) throw new Error(`Server exited: ${diagnostic}`);
-    try { if ((await fetch(origin)).ok) { ready = true; break; } } catch { /* Wait for the owned server. */ }
+    try {
+      const response = await fetch(origin, { signal: AbortSignal.timeout(2000) });
+      if (response.ok) { ready = true; break; }
+      lastFailure = `HTTP ${response.status}: ${(await response.text()).slice(0, 500)}`;
+    } catch (error) { lastFailure = String(error); }
     await delay(200);
   }
-  assert.ok(ready, "Production server must become ready");
+  assert.ok(ready, `Production server must become ready: ${lastFailure}\n${diagnostic}`);
   for (const path of ["/dashboard", "/profile", "/admin"]) {
     const response = await fetch(origin + path, { redirect: "manual", headers: { cookie: "sb-access-token=forged; role=ADMIN" } });
     assert.equal(response.status, 307, path);
