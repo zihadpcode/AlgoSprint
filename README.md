@@ -2,6 +2,12 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
+## 🟦 Session paused — 2026-09-14
+
+The user paused feature work. Phases 1 and 2 are merged. Authentication is in open [PR #3](https://github.com/zihadpcode/AlgoSprint/pull/3); its review and production-crash fix are in open [PR #4](https://github.com/zihadpcode/AlgoSprint/pull/4). PR #4's implementation passed CI, including PostgreSQL integration and production HTTP checks. The branches have diverged and need reconciliation before merging. Phase 4 work is partial and being saved separately. Live Supabase integration and deployment are pending.
+
+See [the session handoff](docs/SESSION-HANDOFF.md) for exact commits, test evidence, pending work, and resume instructions. Do not resume automatically.
+
 ## 🟦 Current milestone: Phase 3 — authentication
 
 Phase 1 provides the original dark landing page. Phase 2 adds 22 relational models, migrations, and five reviewed original problems. Phase 3 implements email/password registration, login, logout, session refresh, profile creation, protected dashboard/profile pages, and an admin access guard.

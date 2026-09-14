@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. Its initial Phase 1-only request applied to the first checkpoint. The user later authorized subsequent phases, paused on 2026-09-13, then resumed with standing approval on 2026-09-14. See [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for current status and the next steps.
+This is the original user-provided brief, preserved for continuity. The initial Phase 1-only request applied to the first checkpoint. After authorizing later phases, the user paused work again on 2026-09-14 and asked to update all information. This pause supersedes the earlier automatic-approval continuation. Read [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for exact status; do not resume feature work or merge until the user asks.
 
 ---
 
