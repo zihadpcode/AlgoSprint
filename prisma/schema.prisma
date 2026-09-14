@@ -1,0 +1,461 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["app"]
+}
+
+enum Role {
+  USER
+  ADMIN
+
+  @@schema("app")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+
+  @@schema("app")
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+
+  @@schema("app")
+}
+
+enum ProblemKind {
+  CODING
+  SQL
+  CONCEPTUAL
+  OBJECT_ORIENTED
+
+  @@schema("app")
+}
+
+enum Language {
+  JAVASCRIPT
+  TYPESCRIPT
+  PYTHON
+  JAVA
+  CPP
+  SQL
+
+  @@schema("app")
+}
+
+enum SolutionKind {
+  BRUTE_FORCE
+  BETTER
+  OPTIMAL
+  ALTERNATIVE
+
+  @@schema("app")
+}
+
+enum TestVisibility {
+  VISIBLE
+  HIDDEN
+
+  @@schema("app")
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  ATTEMPTED
+  SOLVED
+
+  @@schema("app")
+}
+
+enum SubmissionMode {
+  RUN
+  SUBMIT
+
+  @@schema("app")
+}
+
+enum SubmissionStatus {
+  QUEUED
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  COMPILE_ERROR
+  RUNTIME_ERROR
+  TIME_LIMIT
+  MEMORY_LIMIT
+  INTERNAL_ERROR
+
+  @@schema("app")
+}
+
+enum InterviewStatus {
+  CREATED
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+
+  @@schema("app")
+}
+
+enum QuestionKind {
+  CODING
+  CONCEPTUAL
+  DEBUGGING
+  OPTIMIZATION
+  BEHAVIORAL
+  SYSTEM_DESIGN
+
+  @@schema("app")
+}
+
+// The ID is supplied only after Supabase verifies the authenticated user.
+// Supabase owns passwords and authentication; Prisma never stores passwords.
+model User {
+  id          String           @id @db.Uuid
+  displayName String?          @db.VarChar(80)
+  role        Role             @default(USER)
+  timeZone    String           @default("UTC") @db.VarChar(80)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+  progress    UserProgress[]
+  submissions UserSubmission[]
+  notes       UserNote[]
+  interviews  MockInterview[]
+
+  @@schema("app")
+}
+
+model Problem {
+  id                 String                  @id @default(uuid()) @db.Uuid
+  slug               String                  @unique @db.VarChar(100)
+  title              String                  @db.VarChar(160)
+  difficulty         Difficulty
+  kind               ProblemKind             @default(CODING)
+  status             ContentStatus           @default(DRAFT)
+  pattern            String                  @db.VarChar(100)
+  statement          String                  @db.Text
+  constraints        String[]
+  estimatedMinutes   Int
+  timeLimitMs        Int                     @default(2000)
+  memoryLimitKb      Int                     @default(262144)
+  revision           Int                     @default(1)
+  seedHash           String?                 @db.VarChar(64)
+  publishedAt        DateTime?               @db.Timestamptz(6)
+  createdAt          DateTime                @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime                @updatedAt @db.Timestamptz(6)
+  examples           ProblemExample[]
+  hints              ProblemHint[]
+  solutions          ProblemSolution[]
+  starterCode        StarterCode[]
+  testCases          TestCase[]
+  categories         ProblemCategory[]
+  tags               ProblemTag[]
+  interviewStyles    ProblemInterviewStyle[]
+  related            ProblemRelation[]       @relation("RelatedFrom")
+  relatedTo          ProblemRelation[]       @relation("RelatedTo")
+  progress           UserProgress[]
+  submissions        UserSubmission[]
+  notes              UserNote[]
+  roadmapSteps       RoadmapStep[]
+  interviewQuestions MockInterviewQuestion[]
+
+  @@index([status, difficulty, slug])
+  @@index([status, pattern, slug])
+  @@index([status, estimatedMinutes])
+  @@schema("app")
+}
+
+model ProblemExample {
+  id          String  @id @default(uuid()) @db.Uuid
+  problemId   String  @db.Uuid
+  position    Int
+  input       Json
+  output      Json
+  explanation String  @db.Text
+  problem     Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, position])
+  @@schema("app")
+}
+
+model ProblemHint {
+  id        String  @id @default(uuid()) @db.Uuid
+  problemId String  @db.Uuid
+  position  Int
+  content   String  @db.Text
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, position])
+  @@schema("app")
+}
+
+model ProblemSolution {
+  id                   String         @id @default(uuid()) @db.Uuid
+  problemId            String         @db.Uuid
+  kind                 SolutionKind
+  language             Language
+  title                String         @db.VarChar(160)
+  intuition            String         @db.Text
+  approach             String         @db.Text
+  pseudocode           String         @db.Text
+  code                 String         @db.Text
+  timeComplexity       String         @db.VarChar(200)
+  spaceComplexity      String         @db.VarChar(200)
+  commonMistakes       String[]
+  interviewExplanation String         @db.Text
+  problem              Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  steps                SolutionStep[]
+
+  @@unique([problemId, kind, language])
+  @@schema("app")
+}
+
+model SolutionStep {
+  id         String          @id @default(uuid()) @db.Uuid
+  solutionId String          @db.Uuid
+  position   Int
+  title      String          @db.VarChar(160)
+  content    String          @db.Text
+  solution   ProblemSolution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@unique([solutionId, position])
+  @@schema("app")
+}
+
+model StarterCode {
+  id         String   @id @default(uuid()) @db.Uuid
+  problemId  String   @db.Uuid
+  language   Language
+  entryPoint String   @db.VarChar(100)
+  code       String   @db.Text
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, language])
+  @@schema("app")
+}
+
+// Never serialize this model wholesale into an API response or client props.
+model TestCase {
+  id          String         @id @default(uuid()) @db.Uuid
+  problemId   String         @db.Uuid
+  position    Int
+  visibility  TestVisibility
+  input       Json
+  output      Json
+  explanation String?        @db.Text
+  problem     Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, position])
+  @@index([problemId, visibility])
+  @@schema("app")
+}
+
+model Category {
+  id       String            @id @default(uuid()) @db.Uuid
+  slug     String            @unique @db.VarChar(100)
+  name     String            @unique @db.VarChar(100)
+  problems ProblemCategory[]
+
+  @@schema("app")
+}
+
+model Tag {
+  id       String       @id @default(uuid()) @db.Uuid
+  slug     String       @unique @db.VarChar(100)
+  name     String       @unique @db.VarChar(100)
+  problems ProblemTag[]
+
+  @@schema("app")
+}
+
+model InterviewStyle {
+  id       String                  @id @default(uuid()) @db.Uuid
+  slug     String                  @unique @db.VarChar(100)
+  name     String                  @unique @db.VarChar(100)
+  problems ProblemInterviewStyle[]
+
+  @@schema("app")
+}
+
+model ProblemCategory {
+  problemId  String   @db.Uuid
+  categoryId String   @db.Uuid
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@id([problemId, categoryId])
+  @@index([categoryId, problemId])
+  @@schema("app")
+}
+
+model ProblemTag {
+  problemId String  @db.Uuid
+  tagId     String  @db.Uuid
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Restrict)
+
+  @@id([problemId, tagId])
+  @@index([tagId, problemId])
+  @@schema("app")
+}
+
+model ProblemInterviewStyle {
+  problemId String         @db.Uuid
+  styleId   String         @db.Uuid
+  problem   Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  style     InterviewStyle @relation(fields: [styleId], references: [id], onDelete: Restrict)
+
+  @@id([problemId, styleId])
+  @@index([styleId, problemId])
+  @@schema("app")
+}
+
+model ProblemRelation {
+  problemId String  @db.Uuid
+  relatedId String  @db.Uuid
+  problem   Problem @relation("RelatedFrom", fields: [problemId], references: [id], onDelete: Cascade)
+  related   Problem @relation("RelatedTo", fields: [relatedId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, relatedId])
+  @@index([relatedId])
+  @@schema("app")
+}
+
+model UserProgress {
+  userId      String         @db.Uuid
+  problemId   String         @db.Uuid
+  status      ProgressStatus @default(NOT_STARTED)
+  bookmarked  Boolean        @default(false)
+  reviewLater Boolean        @default(false)
+  selfMarked  Boolean        @default(false)
+  attemptedAt DateTime?      @db.Timestamptz(6)
+  solvedAt    DateTime?      @db.Timestamptz(6)
+  createdAt   DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime       @updatedAt @db.Timestamptz(6)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem     Problem        @relation(fields: [problemId], references: [id], onDelete: Restrict)
+
+  @@id([userId, problemId])
+  @@index([userId, status, updatedAt])
+  @@index([userId, reviewLater])
+  @@index([problemId])
+  @@schema("app")
+}
+
+model UserSubmission {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @db.Uuid
+  problemId       String           @db.Uuid
+  problemRevision Int
+  language        Language
+  mode            SubmissionMode
+  status          SubmissionStatus @default(QUEUED)
+  code            String           @db.Text
+  passedCount     Int              @default(0)
+  totalCount      Int              @default(0)
+  runtimeMs       Int?
+  memoryKb        Int?
+  // Internal runner result; public DTOs must redact hidden-test data.
+  result          Json?
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  completedAt     DateTime?        @db.Timestamptz(6)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem         Problem          @relation(fields: [problemId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([userId, problemId, createdAt])
+  @@index([status, createdAt])
+  @@index([problemId])
+  @@schema("app")
+}
+
+model UserNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  problemId String   @db.Uuid
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, problemId])
+  @@index([userId, updatedAt])
+  @@index([problemId])
+  @@schema("app")
+}
+
+model Roadmap {
+  id               String        @id @default(uuid()) @db.Uuid
+  slug             String        @unique @db.VarChar(100)
+  title            String        @db.VarChar(160)
+  description      String        @db.Text
+  difficulty       Difficulty
+  estimatedMinutes Int
+  status           ContentStatus @default(DRAFT)
+  createdAt        DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime      @updatedAt @db.Timestamptz(6)
+  steps            RoadmapStep[]
+
+  @@index([status, difficulty])
+  @@schema("app")
+}
+
+model RoadmapStep {
+  id          String  @id @default(uuid()) @db.Uuid
+  roadmapId   String  @db.Uuid
+  problemId   String  @db.Uuid
+  position    Int
+  title       String  @db.VarChar(160)
+  description String? @db.Text
+  roadmap     Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  problem     Problem @relation(fields: [problemId], references: [id], onDelete: Restrict)
+
+  @@unique([roadmapId, position])
+  @@unique([roadmapId, problemId])
+  @@index([problemId])
+  @@schema("app")
+}
+
+model MockInterview {
+  id              String                  @id @default(uuid()) @db.Uuid
+  userId          String                  @db.Uuid
+  status          InterviewStatus         @default(CREATED)
+  durationMinutes Int
+  score           Int?
+  report          Json?
+  startedAt       DateTime?               @db.Timestamptz(6)
+  completedAt     DateTime?               @db.Timestamptz(6)
+  createdAt       DateTime                @default(now()) @db.Timestamptz(6)
+  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions       MockInterviewQuestion[]
+
+  @@index([userId, createdAt])
+  @@schema("app")
+}
+
+model MockInterviewQuestion {
+  id          String        @id @default(uuid()) @db.Uuid
+  interviewId String        @db.Uuid
+  problemId   String?       @db.Uuid
+  kind        QuestionKind
+  position    Int
+  prompt      String        @db.Text
+  answer      String?       @db.Text
+  score       Int?
+  feedback    String?       @db.Text
+  interview   MockInterview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  problem     Problem?      @relation(fields: [problemId], references: [id], onDelete: Restrict)
+
+  @@unique([interviewId, position])
+  @@index([problemId])
+  @@schema("app")
+}

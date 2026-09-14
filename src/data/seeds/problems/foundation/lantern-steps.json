@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "slug": "lantern-steps",
+  "title": "Lantern Steps",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "one-dimensional-dp",
+  "statement": "A trail has numbered platforms 0 through n - 1 and an exit at position n. Platform i requires costs[i] lantern tokens when you leave it. You may start on platform 0 or platform 1 without an initial fee. Each move advances one or two positions. Return the minimum total tokens required to reach the exit. The exit has no fee. You pay for every platform you leave, including your starting platform.",
+  "constraints": [
+    "2 <= costs.length <= 100000",
+    "0 <= costs[i] <= 1000",
+    "Every move advances one or two positions."
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays",
+    "dynamic-programming"
+  ],
+  "tags": [
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "costs": [
+          4,
+          9,
+          2,
+          7
+        ]
+      },
+      "output": 6,
+      "explanation": "Start at platform 0, pay 4 to move to platform 2, then pay 2 to reach exit 4."
+    },
+    {
+      "position": 2,
+      "input": {
+        "costs": [
+          8,
+          3
+        ]
+      },
+      "output": 3,
+      "explanation": "Start at platform 1 and pay 3 to reach the exit."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The cost to reach a position depends on the platform you used for the final move."
+    },
+    {
+      "position": 2,
+      "content": "There are only two possible previous positions."
+    },
+    {
+      "position": 3,
+      "content": "Define dp[k] as the minimum tokens paid before arriving at position k."
+    },
+    {
+      "position": 4,
+      "content": "The starting choices give dp[0] = dp[1] = 0. For k >= 2, compare arriving from k - 1 and from k - 2, paying the departure cost."
+    },
+    {
+      "position": 5,
+      "content": "Use dp[k] = min(dp[k-1] + costs[k-1], dp[k-2] + costs[k-2]); keep only the two most recent values and return dp[n]."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "lanternSteps",
+      "code": "function lanternSteps(costs) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "costs": [
+          4,
+          9,
+          2,
+          7
+        ]
+      },
+      "output": 6,
+      "explanation": "Start at platform 0, pay 4 to move to platform 2, then pay 2 to reach exit 4."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "costs": [
+          8,
+          3
+        ]
+      },
+      "output": 3,
+      "explanation": "Start at platform 1 and pay 3 to reach the exit."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "costs": [
+          0,
+          0,
+          0
+        ]
+      },
+      "output": 0,
+      "explanation": "A route through zero-cost platforms is free."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "costs": [
+          5,
+          1,
+          1,
+          5,
+          1
+        ]
+      },
+      "output": 3,
+      "explanation": "Platforms 1, 2, and 4 cost one token each before exit 5."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "costs": [
+          10,
+          15,
+          20
+        ]
+      },
+      "output": 15,
+      "explanation": "Starting at platform 1 reaches exit 3 in one two-position move."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "costs": [
+          2,
+          50,
+          3,
+          4,
+          2
+        ]
+      },
+      "output": 7,
+      "explanation": "One cheapest route leaves platforms 0, 2, and 4, for a total of 7."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Explore each route",
+      "intuition": "Every route is a sequence of one-position and two-position moves from one of the two starting platforms.",
+      "approach": "Recursively try both possible moves, add the departure fee, and choose the cheaper result. Compare the two starting positions.",
+      "pseudocode": "visit(i) = 0 at or beyond exit; otherwise costs[i] + min(visit(i+1), visit(i+2)); return min(visit(0), visit(1)).",
+      "code": "function lanternSteps(costs) {\n    function visit(step) {\n        if (step >= costs.length)\n            return 0;\n        return costs[step] + Math.min(visit(step + 1), visit(step + 2));\n    }\n    return Math.min(visit(0), visit(1));\n}",
+      "timeComplexity": "O(2^n) upper bound",
+      "spaceComplexity": "O(n) recursion depth",
+      "commonMistakes": [
+        "The state is the cost to arrive before paying to leave; mixing the two meanings double-counts fees.",
+        "The exit is at index n and must not read a nonexistent costs[n]."
+      ],
+      "interviewExplanation": "I define the state as the minimum cost to arrive at a position. The last move comes from one of two earlier platforms, including that platform’s departure fee. Computing each state once removes repeated recursion, and keeping only two states reduces extra space to constant.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Every route is a sequence of one-position and two-position moves from one of the two starting platforms."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Recursively try both possible moves, add the departure fee, and choose the cheaper result. Compare the two starting positions."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Keep two arrival costs",
+      "intuition": "Many routes reach the same platform. Once the cheapest arrival cost is known, more expensive arrivals need not be reconsidered.",
+      "approach": "Build the minimum arrival cost from left to right. Only the two preceding values are needed for the next transition.",
+      "pseudocode": "twoBack = oneBack = 0; for k from 2 through n: current = min(oneBack + costs[k-1], twoBack + costs[k-2]); shift the two stored costs.",
+      "code": "function lanternSteps(costs) {\n    let twoBack = 0;\n    let oneBack = 0;\n    for (let step = 2; step <= costs.length; step++) {\n        const current = Math.min(oneBack + costs[step - 1], twoBack + costs[step - 2]);\n        twoBack = oneBack;\n        oneBack = current;\n    }\n    return oneBack;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "The state is the cost to arrive before paying to leave; mixing the two meanings double-counts fees.",
+        "The exit is at index n and must not read a nonexistent costs[n]."
+      ],
+      "interviewExplanation": "I define the state as the minimum cost to arrive at a position. The last move comes from one of two earlier platforms, including that platform’s departure fee. Computing each state once removes repeated recursion, and keeping only two states reduces extra space to constant.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "The free starting choices give dp[0] = 0 and dp[1] = 0. For [4,9,2,7], dp[2] = min(9,4) = 4."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "dp[3] = min(dp[2]+2, dp[1]+9) = 6."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The exit is position 4: dp[4] = min(dp[3]+7, dp[2]+2) = 6."
+        }
+      ]
+    }
+  ]
+}

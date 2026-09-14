@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "slug": "dock-threshold",
+  "title": "Dock Threshold",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "lower-bound",
+  "statement": "A harbor lists dock capacities in nondecreasing order. Return the zero-based index of the first dock whose capacity is at least load. If every dock is too small, or the list is empty, return -1. Several docks may have the same capacity; choose the earliest qualifying index.",
+  "constraints": [
+    "0 <= capacities.length <= 100000",
+    "-1000000 <= capacities[i], load <= 1000000",
+    "capacities is sorted in nondecreasing order."
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays",
+    "binary-search"
+  ],
+  "tags": [
+    "monotone-search"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "capacities": [
+          2,
+          5,
+          5,
+          9
+        ],
+        "load": 5
+      },
+      "output": 1,
+      "explanation": "Both indices 1 and 2 have capacity 5, but index 1 is the first qualifying dock."
+    },
+    {
+      "position": 2,
+      "input": {
+        "capacities": [
+          2,
+          5,
+          9
+        ],
+        "load": 10
+      },
+      "output": -1,
+      "explanation": "No capacity reaches the required load."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The answer divides docks that are too small from docks that qualify."
+    },
+    {
+      "position": 2,
+      "content": "Because capacities are sorted, that boundary never moves backward."
+    },
+    {
+      "position": 3,
+      "content": "Binary search can locate the first true position of the condition capacity >= load."
+    },
+    {
+      "position": 4,
+      "content": "Keep a half-open search interval. When the middle qualifies, retain its left half including the middle."
+    },
+    {
+      "position": 5,
+      "content": "Start left at zero and right at the array length. Stop when they meet; return -1 if that position is past the final dock."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "dockThreshold",
+      "code": "function dockThreshold(capacities, load) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "capacities": [
+          2,
+          5,
+          5,
+          9
+        ],
+        "load": 5
+      },
+      "output": 1,
+      "explanation": "Both indices 1 and 2 have capacity 5, but index 1 is the first qualifying dock."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "capacities": [
+          2,
+          5,
+          9
+        ],
+        "load": 10
+      },
+      "output": -1,
+      "explanation": "No capacity reaches the required load."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacities": [],
+        "load": 1
+      },
+      "output": -1,
+      "explanation": "There are no docks."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacities": [
+          7
+        ],
+        "load": 7
+      },
+      "output": 0,
+      "explanation": "Equality qualifies."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacities": [
+          1,
+          1,
+          1
+        ],
+        "load": 1
+      },
+      "output": 0,
+      "explanation": "Return the earliest duplicate."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacities": [
+          -5,
+          -2,
+          0
+        ],
+        "load": -3
+      },
+      "output": 1,
+      "explanation": "The first qualifying capacity is -2."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Inspect docks in order",
+      "intuition": "Scanning left to right naturally finds the earliest qualifying dock.",
+      "approach": "Return the first index whose capacity is at least the load. If the scan ends, return -1.",
+      "pseudocode": "For each index in order: if capacity >= load return index; return -1.",
+      "code": "function dockThreshold(capacities, load) {\n    for (let i = 0; i < capacities.length; i++)\n        if (capacities[i] >= load)\n            return i;\n    return -1;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Returning immediately on equality may select a later duplicate.",
+        "When the midpoint fails, advance to mid + 1 so the search always shrinks."
+      ],
+      "interviewExplanation": "This is a search for the first qualifying position, not any matching value. I keep a half-open interval around the boundary and discard half of it at every comparison. Equal values remain on the qualifying side, which preserves the first-index requirement.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Scanning left to right naturally finds the earliest qualifying dock."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Return the first index whose capacity is at least the load. If the scan ends, return -1."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Find the qualifying boundary",
+      "intuition": "Sorted data lets each comparison discard a region that cannot contain the first qualifying dock.",
+      "approach": "Maintain [left,right). If the midpoint qualifies, move right to mid. Otherwise move left to mid + 1. At convergence, check whether the index exists.",
+      "pseudocode": "left = 0; right = n; while left < right: mid = left + floor((right-left)/2); if capacities[mid] >= load: right = mid; else: left = mid+1.",
+      "code": "function dockThreshold(capacities, load) {\n    let left = 0;\n    let right = capacities.length;\n    while (left < right) {\n        const mid = left + Math.floor((right - left) / 2);\n        if (capacities[mid] >= load)\n            right = mid;\n        else\n            left = mid + 1;\n    }\n    return left === capacities.length ? -1 : left;\n}",
+      "timeComplexity": "O(log n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Returning immediately on equality may select a later duplicate.",
+        "When the midpoint fails, advance to mid + 1 so the search always shrinks."
+      ],
+      "interviewExplanation": "This is a search for the first qualifying position, not any matching value. I keep a half-open interval around the boundary and discard half of it at every comparison. Equal values remain on the qualifying side, which preserves the first-index requirement.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2,5,5,9] and load 5, the first midpoint is index 2. It qualifies, so move right to 2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Index 1 also qualifies, so move right to 1. Index 0 is too small, so move left to 1."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The bounds meet at index 1, which is the first qualifying dock."
+        }
+      ]
+    }
+  ]
+}

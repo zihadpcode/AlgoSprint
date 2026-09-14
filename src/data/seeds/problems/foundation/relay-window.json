@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "slug": "relay-window",
+  "title": "Relay Window",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "fixed-window",
+  "statement": "A relay station records an integer load for each time slot in the array loads. You may reserve exactly width consecutive slots. Return the largest total load among all such reservations. Negative values represent load returned to the station, so a valid answer can be negative. Return the total, not the starting index.",
+  "constraints": [
+    "1 <= loads.length <= 100000",
+    "-1000000 <= loads[i] <= 1000000",
+    "1 <= width <= loads.length"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays",
+    "sliding-window"
+  ],
+  "tags": [
+    "fixed-window",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "loads": [
+          3,
+          1,
+          5,
+          2,
+          6,
+          1
+        ],
+        "width": 3
+      },
+      "output": 13,
+      "explanation": "Slots with zero-based indices 2 through 4 contain 5, 2, and 6; their sum is 13."
+    },
+    {
+      "position": 2,
+      "input": {
+        "loads": [
+          -4,
+          -2,
+          -7
+        ],
+        "width": 2
+      },
+      "output": -6,
+      "explanation": "The two valid totals are -6 and -9. Choosing no slots is not allowed."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Trace every possible reservation on a short array before writing code."
+    },
+    {
+      "position": 2,
+      "content": "Neighboring reservations share most of their values."
+    },
+    {
+      "position": 3,
+      "content": "Keep the sum of a fixed-width window while moving its right edge."
+    },
+    {
+      "position": 4,
+      "content": "Subtract the departing left value and add the arriving right value."
+    },
+    {
+      "position": 5,
+      "content": "Compute the first full window, initialize the best total to that value, and update the best after each shift."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "relayWindow",
+      "code": "function relayWindow(loads, width) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "loads": [
+          3,
+          1,
+          5,
+          2,
+          6,
+          1
+        ],
+        "width": 3
+      },
+      "output": 13,
+      "explanation": "Slots with zero-based indices 2 through 4 contain 5, 2, and 6; their sum is 13."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "loads": [
+          -4,
+          -2,
+          -7
+        ],
+        "width": 2
+      },
+      "output": -6,
+      "explanation": "The two valid totals are -6 and -9. Choosing no slots is not allowed."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "loads": [
+          -8
+        ],
+        "width": 1
+      },
+      "output": -8,
+      "explanation": "A single negative load must still be selected."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "loads": [
+          0,
+          0,
+          0
+        ],
+        "width": 2
+      },
+      "output": 0,
+      "explanation": "Both reservations have zero load."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "loads": [
+          9,
+          1,
+          2
+        ],
+        "width": 3
+      },
+      "output": 12,
+      "explanation": "Only the complete array fits."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "loads": [
+          4,
+          2,
+          9,
+          1
+        ],
+        "width": 1
+      },
+      "output": 9,
+      "explanation": "A one-slot reservation selects the largest element."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Recount each reservation",
+      "intuition": "Each possible start produces one valid reservation. Recomputing its total establishes a simple baseline.",
+      "approach": "Try each starting index whose full window fits, sum its width entries, and keep the largest sum.",
+      "pseudocode": "For each valid start: sum loads[start:start+width]; keep the maximum.",
+      "code": "function relayWindow(loads, width) {\n    let best = -Infinity;\n    for (let start = 0; start + width <= loads.length; start++) {\n        let total = 0;\n        for (let i = start; i < start + width; i++)\n            total += loads[i];\n        best = Math.max(best, total);\n    }\n    return best;\n}",
+      "timeComplexity": "O(n × width)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Initializing the best total to zero fails when every valid sum is negative.",
+        "Compare each full window, including the initial window and the last possible window."
+      ],
+      "interviewExplanation": "I first considered recomputing each reservation in O(n × width). Adjacent windows share width - 1 entries, so I maintain one running sum and update only the entering and leaving values. The algorithm takes linear time and constant extra space.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Each possible start produces one valid reservation. Recomputing its total establishes a simple baseline."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Try each starting index whose full window fits, sum its width entries, and keep the largest sum."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Move one window",
+      "intuition": "Two adjacent windows differ in exactly two positions: one leaves and one enters.",
+      "approach": "Sum the first width entries once. Shift the window by removing the outgoing value and adding the incoming value. Update the maximum after every shift.",
+      "pseudocode": "window = sum(first width values); best = window; for each next value: window += entering - leaving; best = max(best, window).",
+      "code": "function relayWindow(loads, width) {\n    let total = 0;\n    for (let i = 0; i < width; i++)\n        total += loads[i];\n    let best = total;\n    for (let i = width; i < loads.length; i++) {\n        total += loads[i] - loads[i - width];\n        best = Math.max(best, total);\n    }\n    return best;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Initializing the best total to zero fails when every valid sum is negative.",
+        "Compare each full window, including the initial window and the last possible window."
+      ],
+      "interviewExplanation": "I first considered recomputing each reservation in O(n × width). Adjacent windows share width - 1 entries, so I maintain one running sum and update only the entering and leaving values. The algorithm takes linear time and constant extra space.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "The first three values total 9. Initialize both the current sum and best sum to 9."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Move once: subtract 3 and add 2 to obtain 8. Move again: subtract 1 and add 6 to obtain 13."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The last shift totals 9. The best value remains 13."
+        }
+      ]
+    }
+  ]
+}
