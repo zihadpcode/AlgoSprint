@@ -4,7 +4,7 @@ An original coding interview preparation platform built incrementally with Next.
 
 ## 🟩 Current milestone: Phase 5 — problem library
 
-Phases 1–4 are merged. Phase 5 is implemented in [PR #6](https://github.com/zihadpcode/AlgoSprint/pull/6) adds the published-problem library with title search, difficulty/category/tag/pattern/time filters, sorting, pagination, and verified-viewer completion/review indicators.
+Phases 1–4 are merged. Phase 5 is implemented in [PR #6](https://github.com/zihadpcode/AlgoSprint/pull/6), which adds the published-problem library with title search, difficulty/category/tag/pattern/time filters, sorting, pagination, and verified-viewer completion/review indicators.
 
 Visit `/problems` after configuring PostgreSQL, applying migrations, and seeding. Browsing does not require a Supabase account. Without a database, the page shows an unavailable state. Personal filters require verified sign-in. Problem statements, guided solutions, and practice tools are Phase 6 onward; cards do not link to missing pages.
 

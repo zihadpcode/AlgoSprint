@@ -4,7 +4,7 @@
 
 A real PostgreSQL-backed `/problems` page, available to guests, with URL-based search and filters. It uses the Phase 4 shell and components. Phase 5 adds no package dependencies or schema migration. It reads the five reviewed seed problems already created in Phase 2.
 
-The code is published in PR #6. The implementation passed [CI run 34872547083](https://github.com/zihadpcode/AlgoSprint/actions/runs/34872547083) at commit bc463d95299ca119e3f52c47e8615fa0f5f2a452: 45 unit/migration tests, nine PostgreSQL integration tests, schema/seed validation, lint, types, build, and both production HTTP checks. The final queued-search/clear-button follow-up is gated on CI; PR #6 records its final result. The coding environment is unavailable; this session uses GitHub CI, not local command results. Browser and live Supabase validation remain unperformed.
+The code is published in PR #6. The implementation passed [CI run 34872547083](https://github.com/zihadpcode/AlgoSprint/actions/runs/34872547083) at commit bc463d95299ca119e3f52c47e8615fa0f5f2a452: 45 unit/migration tests, nine PostgreSQL integration tests, schema/seed validation, lint, types, build, and both production HTTP checks. The final queued-search/clear-button implementation at `2601397d005d99f3375767664ebd263c921c937b` also passed [CI run 34873039920](https://github.com/zihadpcode/AlgoSprint/actions/runs/34873039920). The closing commit changes documentation only; PR #6 records publication status. The coding environment is unavailable; this session uses GitHub CI, not local command results. Browser and live Supabase validation remain unperformed.
 
 ## 🟦 Run on your Mac
 
