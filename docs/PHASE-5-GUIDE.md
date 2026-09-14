@@ -4,7 +4,7 @@
 
 A real PostgreSQL-backed `/problems` page, available to guests, with URL-based search and filters. It uses the Phase 4 shell and components. Phase 5 adds no package dependencies or schema migration. It reads the five reviewed seed problems already created in Phase 2.
 
-The code is published in PR #6. Integrated verification is pending at this draft checkpoint. The coding environment is unavailable; this session uses GitHub CI, not local command results. Browser and live Supabase validation remain unperformed.
+The code is published in PR #6. The implementation passed [CI run 34872547083](https://github.com/zihadpcode/AlgoSprint/actions/runs/34872547083) at commit bc463d95299ca119e3f52c47e8615fa0f5f2a452: 45 unit/migration tests, nine PostgreSQL integration tests, schema/seed validation, lint, types, build, and both production HTTP checks. The final queued-search/clear-button follow-up is gated on CI; PR #6 records its final result. The coding environment is unavailable; this session uses GitHub CI, not local command results. Browser and live Supabase validation remain unperformed.
 
 ## 🟦 Run on your Mac
 
@@ -47,7 +47,7 @@ Title search is case-insensitive substring matching. PostgreSQL LIKE wildcard ch
 
 Category/tag/pattern options come from published records, so draft-only taxonomy does not leak through filters. All selected filters combine with AND. Each sort uses slug as a unique secondary key, avoiding duplicate or skipped rows when primary values match. Offset pagination provides familiar page numbers; future high-volume frequently changing collections may need cursor pagination.
 
-The Next.js Form component provides GET behavior and client navigation while preserving the no-JavaScript submit path. Inputs submit after a 350ms pause. Composition events defer submission until IME input completes; Enter and Apply filters submit immediately. Timers are cleared on submission, history changes, clearing, and unmount. Incoming results preserve a newer local draft. Popstate restores controls from the URL. Search updates replace the current history entry; pagination links create entries normally. Scroll stays stable during filtering.
+The Next.js Form component provides GET behavior and client navigation while preserving the no-JavaScript submit path. Inputs submit after a 350ms pause. Composition events defer submission until IME input completes; Enter and Apply filters submit immediately. Timers are cleared on submission, history changes, normal library link clicks, clearing, and unmount. Clearing also resets an unsubmitted draft immediately. Incoming results preserve a newer local draft. Popstate restores controls from the URL. Search updates replace the current history entry; pagination links create entries normally. Scroll stays stable during filtering.
 
 The form uses native labeled inputs/selects and the existing pending submit control. Results announce a short count. Cards display difficulty, time, categories, tags, pattern, and permitted status badges. The headings are intentionally not dead links: statement/hint/solution pages belong to Phase 6.
 
@@ -450,8 +450,24 @@ export function LibraryFiltersForm({ filters, facets, signedIn }: {
         syncForm(form.current, parseLibraryFilters(Object.fromEntries(new URLSearchParams(window.location.search))));
       }
     };
+    const cancelForLink = (event: MouseEvent) => {
+      if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      const anchor = event.target instanceof Element ? event.target.closest("a") : null;
+      if (!anchor) return;
+      const target = new URL(anchor.href, window.location.href);
+      if (target.origin === window.location.origin && target.pathname === "/problems") {
+        clearTimeout(timer.current);
+        timer.current = undefined;
+        submitted.current = null;
+      }
+    };
     window.addEventListener("popstate", restore);
-    return () => { clearTimeout(timer.current); window.removeEventListener("popstate", restore); };
+    window.addEventListener("click", cancelForLink, true);
+    return () => {
+      clearTimeout(timer.current);
+      window.removeEventListener("popstate", restore);
+      window.removeEventListener("click", cancelForLink, true);
+    };
   }, []);
 
   function schedule() {
@@ -497,7 +513,7 @@ export function LibraryFiltersForm({ filters, facets, signedIn }: {
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton pendingLabel="Searching…">Apply filters</SubmitButton>
-        <ButtonLink href="/problems" variant="quiet" onClick={() => { cancel(); submitted.current = null; }}>Clear filters</ButtonLink>
+        <ButtonLink href="/problems" variant="quiet" onClick={() => { cancel(); submitted.current = null; if (form.current) syncForm(form.current, parseLibraryFilters({})); }}>Clear filters</ButtonLink>
         {!signedIn && <ButtonLink variant="quiet" href={"/login?next=" + encodeURIComponent(libraryHref(filters))}>Sign in for progress</ButtonLink>}
       </div>
     </Form>

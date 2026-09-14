@@ -1,6 +1,6 @@
 # AlgoSprint session handoff
 
-**Resumed on 2026-09-14. Current checkpoint: Phase 5 problem library, in review.** Latest user instruction: “resume”. The earlier Phase 4 stop is superseded.
+**Resumed on 2026-09-14. Current checkpoint: Phase 5 problem library, implemented and documented.** Latest user instruction: “resume”. The earlier Phase 4 stop is superseded.
 
 ## 🟦 Repository and workflow
 
@@ -23,7 +23,7 @@ Phase 5 reads existing progress; it does not add progress mutations, problem-det
 
 ## 🟨 Verification
 
-**Integrated Phase 5 CI is pending at this checkpoint.** Expected suite: 45 unit/migration tests and nine PostgreSQL integration tests, plus schema/seed validation, lint, TypeScript, production build, existing auth HTTP smoke, and new seeded-library HTTP smoke. Report the actual result and exact implementation commit before closeout.
+**Phase 5 implementation CI passed:** commit `bc463d95299ca119e3f52c47e8615fa0f5f2a452`, [run 34872547083](https://github.com/zihadpcode/AlgoSprint/actions/runs/34872547083). Results: 45 unit/migration tests and nine PostgreSQL integration tests, schema/seed validation, lint, TypeScript, production build, existing auth HTTP smoke, and seeded-library HTTP smoke. The final follow-up also cancels queued searches on library link clicks and immediately clears unsubmitted form text; its checks and merge status are recorded on PR #6. The follow-up is subject to CI before merging.
 
 New tests cover malformed/duplicate/oversized URL values, allowed-key serialization, literal wildcard search, verified identity selection, guest personal-filter gating, provider failure, unpublished content/facet exclusion, explicit DTO fields, combined filters, cross-user status isolation, equal-sort pagination and page clamping. CI uses its dedicated PostgreSQL 17 service. The positive library smoke requires TEST_DATABASE_URL ending in _test and the committed seeds; no live account is used.
 
@@ -43,7 +43,7 @@ Provider unit tests use mocks. Real Supabase signup, confirmation email, PKCE, r
 | 2 | Database and original seeds | Complete; merged PR #2 |
 | 3 | Authentication | Implemented/reconciled in merged PR #5; live checks pending |
 | 4 | Workspace/UI system | Implemented in merged PR #5; browser QA pending |
-| 5 | Problem library | Implemented on PR #6; integrated CI pending |
+| 5 | Problem library | Implemented/documented in PR #6; core CI passed; see PR for final checks |
 | 6 | Problem detail and guidance | Next milestone; not started |
 | 7 | Monaco editor | Not started |
 | 8 | Safe code runner | Not started |

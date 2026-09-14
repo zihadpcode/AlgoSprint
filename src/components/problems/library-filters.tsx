@@ -52,8 +52,24 @@ export function LibraryFiltersForm({ filters, facets, signedIn }: {
         syncForm(form.current, parseLibraryFilters(Object.fromEntries(new URLSearchParams(window.location.search))));
       }
     };
+    const cancelForLink = (event: MouseEvent) => {
+      if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      const anchor = event.target instanceof Element ? event.target.closest("a") : null;
+      if (!anchor) return;
+      const target = new URL(anchor.href, window.location.href);
+      if (target.origin === window.location.origin && target.pathname === "/problems") {
+        clearTimeout(timer.current);
+        timer.current = undefined;
+        submitted.current = null;
+      }
+    };
     window.addEventListener("popstate", restore);
-    return () => { clearTimeout(timer.current); window.removeEventListener("popstate", restore); };
+    window.addEventListener("click", cancelForLink, true);
+    return () => {
+      clearTimeout(timer.current);
+      window.removeEventListener("popstate", restore);
+      window.removeEventListener("click", cancelForLink, true);
+    };
   }, []);
 
   function schedule() {
@@ -99,7 +115,7 @@ export function LibraryFiltersForm({ filters, facets, signedIn }: {
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton pendingLabel="Searching…">Apply filters</SubmitButton>
-        <ButtonLink href="/problems" variant="quiet" onClick={() => { cancel(); submitted.current = null; }}>Clear filters</ButtonLink>
+        <ButtonLink href="/problems" variant="quiet" onClick={() => { cancel(); submitted.current = null; if (form.current) syncForm(form.current, parseLibraryFilters({})); }}>Clear filters</ButtonLink>
         {!signedIn && <ButtonLink variant="quiet" href={"/login?next=" + encodeURIComponent(libraryHref(filters))}>Sign in for progress</ButtonLink>}
       </div>
     </Form>

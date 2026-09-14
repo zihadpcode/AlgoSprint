@@ -4,11 +4,11 @@ An original coding interview preparation platform built incrementally with Next.
 
 ## 🟩 Current milestone: Phase 5 — problem library
 
-Phases 1–4 are merged. [PR #6](https://github.com/zihadpcode/AlgoSprint/pull/6) adds the published-problem library with title search, difficulty/category/tag/pattern/time filters, sorting, pagination, and verified-viewer completion/review indicators.
+Phases 1–4 are merged. Phase 5 is implemented in [PR #6](https://github.com/zihadpcode/AlgoSprint/pull/6) adds the published-problem library with title search, difficulty/category/tag/pattern/time filters, sorting, pagination, and verified-viewer completion/review indicators.
 
 Visit `/problems` after configuring PostgreSQL, applying migrations, and seeding. Browsing does not require a Supabase account. Without a database, the page shows an unavailable state. Personal filters require verified sign-in. Problem statements, guided solutions, and practice tools are Phase 6 onward; cards do not link to missing pages.
 
-The user resumed after Phase 4 on 2026-09-14. Read [the handoff](docs/SESSION-HANDOFF.md) for validation and [the complete Phase 5 guide](docs/PHASE-5-GUIDE.md) for setup, full source, and explanations. CI verification of this draft is pending.
+The user resumed after Phase 4 on 2026-09-14. Read [the handoff](docs/SESSION-HANDOFF.md) for validation and [the complete Phase 5 guide](docs/PHASE-5-GUIDE.md) for setup, full source, and explanations. The implementation passed CI: 45 unit/migration tests, nine PostgreSQL integration tests, lint, types, build, and both production HTTP checks. The handoff identifies the verified commit; the PR records the final follow-up checks.
 
 The interactive coding workspace and browser are unavailable this session. Changes are saved directly on the isolated GitHub branch and tested in CI. Live Supabase configuration and browser interaction/visual checks remain unverified. Nothing has been deployed.
 
