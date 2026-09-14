@@ -69,7 +69,7 @@ try {
   await db.query('INSERT INTO app."User" (id, "updatedAt") VALUES ($1, now())', [userId]);
   for (const [index, status] of ["PUBLISHED", "DRAFT", "ARCHIVED"].entries()) {
     await db.query(`INSERT INTO app."Problem" (id, slug, title, difficulty, status, pattern, statement, constraints, "estimatedMinutes", "publishedAt", "updatedAt")
-      VALUES ($1, $2, $3, 'EASY', $4, 'http-fixture', $3, ARRAY['Fixture'], 1, $5, now())`,
+      VALUES ($1, $2, $3::text, 'EASY', $4, 'http-fixture', $3::text, ARRAY['Fixture'], 1, $5, now())`,
     [fixtureIds[index], fixtureSlugs[index], index === 0 ? "PUBLIC-DETAIL-SENTINEL" : "UNPUBLISHED-DETAIL-SENTINEL", status, index === 0 ? new Date() : null]);
   }
   await db.query('INSERT INTO app."UserNote" (id, "userId", "problemId", content, "updatedAt") VALUES ($1, $2, $3, $4, now())', [randomUUID(), userId, fixtureIds[0], "PRIVATE-NOTE-SENTINEL"]);

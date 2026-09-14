@@ -49,7 +49,7 @@ export function ProblemNotes({ slug, note }: { slug: string; note: string }) {
     <textarea id={id} name="content" rows={9} maxLength={NOTE_LIMIT} value={draft} readOnly={pending}
       aria-describedby={`${id}-help`} onChange={(event) => setDraft(event.target.value)}
       className="w-full resize-y rounded-xl border border-muted/60 bg-canvas p-4 text-sm leading-7 text-ink" />
-    <p id={`${id}-help`} className="text-xs leading-6 text-muted">{draft.length.toLocaleString()} / 10,000 characters. Save explicitly before leaving. Save an empty note to clear it.</p>
+    <p id={`${id}-help`} className="text-xs leading-6 text-muted">{draft.length.toLocaleString("en-US")} / 10,000 characters. Save explicitly before leaving. Save an empty note to clear it.</p>
     <SubmitButton pendingLabel="Saving note…" disabled={pending}>Save note</SubmitButton>
     <ActionMessage state={state} />
   </form>;
