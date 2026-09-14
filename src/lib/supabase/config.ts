@@ -3,9 +3,13 @@ import { z } from "zod";
 
 const configSchema = z.object({
   url: z.url().refine((value) => {
-    const url = new URL(value);
-    return !url.username && !url.password && !url.search && !url.hash && url.pathname === "/" && (url.protocol === "https:" ||
-      (url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname)));
+    // Refinements can run even when an earlier format check failed. Never let
+    // URL construction throw out of safeParse for empty/malformed configuration.
+    try {
+      const url = new URL(value);
+      return !url.username && !url.password && !url.search && !url.hash && url.pathname === "/" && (url.protocol === "https:" ||
+        (url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname)));
+    } catch { return false; }
   }),
   key: z.string().regex(/^sb_publishable_[A-Za-z0-9_-]+$/).min(25),
 });

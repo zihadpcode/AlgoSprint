@@ -5,9 +5,10 @@ import { setTimeout as delay } from "node:timers/promises";
 const origin = "http://127.0.0.1:3100";
 const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3100"], {
   env: { ...process.env, DATABASE_URL: "", DIRECT_URL: "", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "", APP_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
-  stdio: ["ignore", "ignore", "pipe"],
+  stdio: ["ignore", "pipe", "pipe"],
 });
 let diagnostic = "";
+server.stdout.on("data", (chunk) => { diagnostic = (diagnostic + chunk.toString()).slice(-6000); });
 server.stderr.on("data", (chunk) => { diagnostic = (diagnostic + chunk.toString()).slice(-3000); });
 try {
   let ready = false;
@@ -16,10 +17,10 @@ try {
     try { if ((await fetch(origin)).ok) { ready = true; break; } } catch { /* Wait for the owned server. */ }
     await delay(200);
   }
-  assert.ok(ready, "Production server must become ready");
+  assert.ok(ready, `Production server must become ready: ${diagnostic}`);
   for (const path of ["/dashboard", "/profile", "/admin"]) {
     const response = await fetch(origin + path, { redirect: "manual", headers: { cookie: "sb-access-token=forged; role=ADMIN" } });
-    assert.equal(response.status, 307, path);
+    assert.equal(response.status, 307, `${path}: ${diagnostic}`);
     assert.ok(response.headers.get("location")?.startsWith("/login?next="), path);
   }
   for (const path of ["/login", "/register"]) {
@@ -27,7 +28,7 @@ try {
     assert.ok((await response.text()).includes("Accounts are being prepared"), path);
   }
   const callback = await fetch(origin + "/auth/callback?code=forged", { redirect: "manual" });
-  assert.equal(callback.status, 503); assert.equal(callback.headers.get("cache-control"), "no-store");
+  assert.equal(callback.status, 503); assert.match(callback.headers.get("cache-control") ?? "", /(?:^|,\s*)no-store(?:,|$)/);
   console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, and callback denial.");
 } finally {
   server.kill("SIGTERM");

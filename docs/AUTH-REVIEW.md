@@ -11,7 +11,11 @@ This follow-up builds on published PR #3, preserving its profile race handling, 
 - Refresh sessions only on application and auth routes. The public landing page does not need a provider call. Each protected data access still performs its own online identity check.
 - Prevent caching of account responses even when configuration is missing, and add a no-referrer policy to matched responses. Preserve the existing cache headers and all refreshed cookie chunks.
 
+- Fix an empty/malformed-URL crash discovered by the production HTTP smoke test. Zod refinements must not throw when an earlier URL-format check fails. A regression test covers empty, malformed, and non-origin configuration values.
+
 ## 🟨 Verification
+
+All 37 local tests, lint, TypeScript, the production build, and the production HTTP smoke check passed after the configuration fix.
 
 The added session test covers anonymous and unconfirmed provider identities and asserts that Prisma is not called. The cookie test checks that headers survive multiple writes. The existing integration and HTTP smoke tests remain in the CI workflow. Provider unit tests use mocks. Live Supabase configuration, signup, email delivery, refresh, and logout still need the manual checklist in [PHASE-3-GUIDE.md](PHASE-3-GUIDE.md).
 
@@ -23,7 +27,49 @@ Another session published Phase 3 while this review was underway. The review use
 
 ## 🟩 Complete changed source
 
-This appendix supersedes the corresponding historical source listings in the Phase 3 guide. Unchanged files, including the concurrency-safe profile provisioning and smoke script, remain as documented there.
+These listings supersede matching historical Phase 3 listings.
+
+### `scripts/smoke-auth.mjs`
+
+````javascript
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { setTimeout as delay } from "node:timers/promises";
+
+const origin = "http://127.0.0.1:3100";
+const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3100"], {
+  env: { ...process.env, DATABASE_URL: "", DIRECT_URL: "", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "", APP_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
+  stdio: ["ignore", "pipe", "pipe"],
+});
+let diagnostic = "";
+server.stdout.on("data", (chunk) => { diagnostic = (diagnostic + chunk.toString()).slice(-6000); });
+server.stderr.on("data", (chunk) => { diagnostic = (diagnostic + chunk.toString()).slice(-3000); });
+try {
+  let ready = false;
+  for (let i = 0; i < 100; i++) {
+    if (server.exitCode !== null) throw new Error(`Server exited: ${diagnostic}`);
+    try { if ((await fetch(origin)).ok) { ready = true; break; } } catch { /* Wait for the owned server. */ }
+    await delay(200);
+  }
+  assert.ok(ready, `Production server must become ready: ${diagnostic}`);
+  for (const path of ["/dashboard", "/profile", "/admin"]) {
+    const response = await fetch(origin + path, { redirect: "manual", headers: { cookie: "sb-access-token=forged; role=ADMIN" } });
+    assert.equal(response.status, 307, `${path}: ${diagnostic}`);
+    assert.ok(response.headers.get("location")?.startsWith("/login?next="), path);
+  }
+  for (const path of ["/login", "/register"]) {
+    const response = await fetch(origin + path); assert.equal(response.status, 200, path);
+    assert.ok((await response.text()).includes("Accounts are being prepared"), path);
+  }
+  const callback = await fetch(origin + "/auth/callback?code=forged", { redirect: "manual" });
+  assert.equal(callback.status, 503); assert.match(callback.headers.get("cache-control") ?? "", /(?:^|,\s*)no-store(?:,|$)/);
+  console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, and callback denial.");
+} finally {
+  server.kill("SIGTERM");
+  await Promise.race([new Promise((resolve) => server.once("exit", resolve)), delay(3000)]);
+  if (server.exitCode === null) server.kill("SIGKILL");
+}
+````
 
 ### `src/app/register/page.tsx`
 
@@ -202,9 +248,13 @@ import { z } from "zod";
 
 const configSchema = z.object({
   url: z.url().refine((value) => {
-    const url = new URL(value);
-    return !url.username && !url.password && !url.search && !url.hash && url.pathname === "/" && (url.protocol === "https:" ||
-      (url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname)));
+    // Refinements can run even when an earlier format check failed. Never let
+    // URL construction throw out of safeParse for empty/malformed configuration.
+    try {
+      const url = new URL(value);
+      return !url.username && !url.password && !url.search && !url.hash && url.pathname === "/" && (url.protocol === "https:" ||
+        (url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname)));
+    } catch { return false; }
   }),
   key: z.string().regex(/^sb_publishable_[A-Za-z0-9_-]+$/).min(25),
 });
@@ -364,6 +414,51 @@ describe("verified sessions and database roles", () => {
       expect(await getViewer()).toBeNull();
       expect(f.database).not.toHaveBeenCalled();
     }
+  });
+});
+````
+
+### `tests/auth-validation.test.ts`
+
+````typescript
+import { describe, expect, it, vi, afterEach } from "vitest";
+import { loginSchema, registerSchema, safeReturnTo } from "@/features/auth/validation";
+vi.mock("server-only", () => ({}));
+import { accountsConfigured, getAppOrigin, getSupabaseConfig } from "@/lib/supabase/config";
+afterEach(() => vi.unstubAllEnvs());
+
+describe("authentication input and configuration boundaries", () => {
+  it("treats empty and malformed environment URLs as unavailable without throwing", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "sb_publishable_testconfiguration");
+    for (const url of ["", "not-a-url", "https://project.supabase.co/path", "https://project.supabase.co?x=1", "https://project.supabase.co#fragment"]) {
+      vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", url);
+      expect(getSupabaseConfig()).toBeNull();
+      expect(accountsConfigured()).toBe(false);
+    }
+  });
+  it("preserves password whitespace and permits existing shorter passwords at login", () => {
+    expect(loginSchema.parse({ email: " a@example.com ", password: " secret " })).toEqual({ email: "a@example.com", password: " secret " });
+    expect(registerSchema.safeParse({ email: "a@example.com", password: "short", displayName: "Ada" }).success).toBe(false);
+    expect(registerSchema.parse({ email: "a@example.com", password: " a long password ", displayName: " Ada " }).password).toBe(" a long password ");
+  });
+  it("rejects malformed emails, oversized input, and control characters in names", () => {
+    expect(loginSchema.safeParse({ email: "broken", password: "pass" }).success).toBe(false);
+    expect(loginSchema.safeParse({ email: "a@example.com", password: "x".repeat(129) }).success).toBe(false);
+    expect(registerSchema.safeParse({ email: "a@example.com", password: "long password", displayName: "Ada\nAdmin" }).success).toBe(false);
+  });
+  it("allows local app destinations and rejects external, encoded, and traversal redirects", () => {
+    for (const value of ["https://evil.test", "//evil.test", "/\\evil.test", "/%2f%2fevil.test", "/admin/../auth/callback", "/login", "/dashboard\nLocation: evil", ["/profile"], null]) expect(safeReturnTo(value)).toBe("/dashboard");
+    expect(safeReturnTo("/profile")).toBe("/profile");
+    expect(safeReturnTo("/problems/relay-window?from=library")).toBe("/problems/relay-window?from=library");
+  });
+  it("does not use the request host for redirects or accept secret Supabase keys", () => {
+    vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("APP_URL", "https://learn.example.com");
+    expect(getAppOrigin()).toBe("https://learn.example.com");
+    vi.stubEnv("APP_URL", "https://user:pass@example.com"); expect(() => getAppOrigin()).toThrow();
+    vi.stubEnv("APP_URL", "http://example.com"); expect(() => getAppOrigin()).toThrow();
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://project.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "sb_secret_not_a_publishable_key"); expect(getSupabaseConfig()).toBeNull();
+    expect(accountsConfigured()).toBe(false);
   });
 });
 ````
