@@ -4,7 +4,7 @@ An original coding interview preparation platform built incrementally with Next.
 
 ## 🟦 Session paused — 2026-09-14
 
-The user paused feature work. Phases 1 and 2 are merged. Authentication is in open [PR #3](https://github.com/zihadpcode/AlgoSprint/pull/3); its review and production-crash fix are in open [PR #4](https://github.com/zihadpcode/AlgoSprint/pull/4). PR #4's implementation passed CI, including PostgreSQL integration and production HTTP checks. The branches have diverged and need reconciliation before merging. Phase 4 work is partial and being saved separately. Live Supabase integration and deployment are pending.
+The user paused feature work. Phases 1 and 2 are merged. Authentication is in open [PR #3](https://github.com/zihadpcode/AlgoSprint/pull/3); its review and production-crash fix are in open [PR #4](https://github.com/zihadpcode/AlgoSprint/pull/4). PR #4's implementation passed CI, including PostgreSQL integration and production HTTP checks. The branches have diverged and need reconciliation before merging. Partial Phase 4 work is saved separately in [draft PR #5](https://github.com/zihadpcode/AlgoSprint/pull/5). Live Supabase integration and deployment are pending.
 
 See [the session handoff](docs/SESSION-HANDOFF.md) for exact commits, test evidence, pending work, and resume instructions. Do not resume automatically.
 

@@ -23,7 +23,7 @@ Latest instruction: “pause and update evertyhting so far”. This supersedes t
 
 **PR #4 review:** Reject anonymous and unconfirmed email identities before profile queries; validate Supabase origins and publishable keys more tightly; preserve return destinations through registration; keep signup messaging conditional; avoid landing-page auth refresh; preserve refresh headers/cookies and prevent caching unconfigured account responses. Fix a production crash where an empty URL threw inside Zod refinement. Add regression coverage and useful smoke-test diagnostics.
 
-**Phase 4:** Partial app-shell/UI work exists in the original `algosprint` working copy: app shell, workspace navigation, badge/button/card/input components, loading/empty/error states, heading/submit components, route styling, and a Phase 4 guide. It is not part of PR #4 and is not represented as complete here. The other session was preserving this separately at the user's pause. Inspect its latest checkpoint before resuming; do not mix it into the auth review.
+**Phase 4:** Partial app-shell/UI work exists in the original `algosprint` working copy: app shell, workspace navigation, badge/button/card/input components, loading/empty/error states, heading/submit components, route styling, and a Phase 4 guide. It is not part of PR #4 and is not represented as complete here. The existing partial files are now preserved in [draft PR #5](https://github.com/zihadpcode/AlgoSprint/pull/5), branch `algosprint/phase-4-paused-20260914`, commit `add77bb146efb31b1c92e592ae00150e960a372c`, based on Phase 3 `fe2026e`. Its dedicated pause note distinguishes the UI snapshot from PR #4's verified authentication fixes. Do not mix these checkpoints without reconciling their overlapping files.
 
 ## 🟨 Validation evidence and limits
 
@@ -49,7 +49,7 @@ Prisma uses a trusted database role that can bypass RLS. Every protected read an
 
 1. Read current GitHub main, all open PRs, this handoff, the other session's latest handoff, AGENTS.md, and PROJECT-BRIEF.md.
 2. Reconcile PR #3 and PR #4, preserving both sessions' changes and the passing auth crash fix. Re-run only checks needed for the resulting integrated code. Keep PRs open until authorized continuation and passing checks.
-3. Locate the separately saved Phase 4 partial checkpoint, review it, and finish its implementation/validation and complete guide.
+3. Read draft PR #5 and docs/PHASE-4-PAUSED.md, review the preserved Phase 4 partial checkpoint, and finish its implementation/validation and complete guide.
 4. Continue to Phase 5 problem search/filter/pagination only after Phase 4 is complete. Phases 5–16 remain unimplemented beyond database/seed foundations.
 5. Keep live Supabase validation and deployment as explicit pending work. Vercel deployment is planned for Phase 16.
 
@@ -60,7 +60,7 @@ Prisma uses a trusted database role that can bypass RLS. Every protected read an
 | 1 | Project setup and architecture | Merged in PR #1 |
 | 2 | Database, migrations, taxonomy, original seeds | Merged in PR #2; CI passed |
 | 3 | Supabase authentication | Implemented in open PR #3; fixes in open PR #4; see CI status above |
-| 4 | App shell and UI system | Partial work in original working copy; not complete or merged |
+| 4 | App shell and UI system | Partial snapshot saved in draft PR #5; not complete or merged |
 | 5 | Problem library | Not started |
 | 6 | Problem detail and guided solutions | Not started |
 | 7 | Monaco editor | Not started |
