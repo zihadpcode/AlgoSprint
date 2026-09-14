@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { LibraryResult } from "@/features/problems/query";
@@ -12,7 +13,7 @@ export function ProblemCard({ problem }: { problem: LibraryResult["items"][numbe
         </Badge>
         <span className="text-xs text-muted">{problem.estimatedMinutes} min</span>
       </div>
-      <h2 className="mt-5 text-xl font-semibold [overflow-wrap:anywhere]">{problem.title}</h2>
+      <h2 className="mt-5 text-xl font-semibold [overflow-wrap:anywhere]"><Link href={`/problems/${problem.slug}`} className="text-accent hover:underline underline-offset-4">{problem.title}</Link></h2>
       <p className="mt-3 text-sm text-muted">Pattern: {problem.pattern.replaceAll("-", " ")}</p>
       <div className="mt-5 flex flex-wrap gap-2" aria-label="Categories">
         {problem.categories.map((category) => <Badge key={category.slug}>{category.name}</Badge>)}

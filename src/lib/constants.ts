@@ -39,7 +39,7 @@ export const PLANNED_FEATURES = [
     id: "collection",
     title: "An original problem collection",
     description:
-      "Browse five carefully checked challenges by topic and available time. Guided problem pages are the next step.",
+      "Explore five original challenges with examples, layered hints, and guided solutions. Keep your own notes as you learn.",
     label: "Available · problem library",
   },
   {
