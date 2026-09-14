@@ -33,6 +33,7 @@ try {
     const response = await fetch(origin + path); assert.equal(response.status, 200, path);
     assert.ok((await response.text()).includes("Accounts are being prepared"), path);
   }
+  const missing = await fetch(origin + "/not-a-real-route"); assert.equal(missing.status, 404);
   const callback = await fetch(origin + "/auth/callback?code=forged", { redirect: "manual" });
   assert.equal(callback.status, 503); assert.equal(callback.headers.get("cache-control"), "no-store");
   console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, and callback denial.");

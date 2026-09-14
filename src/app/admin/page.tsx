@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/features/auth/session";
 import { AccountFrame } from "@/components/auth/account-frame";
+import { PageHeading } from "@/components/ui/page-heading";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   await requireAdmin();
-  return <AccountFrame admin>
-    <p className="eyebrow text-warm">Content administration</p><h1 className="mt-4 text-4xl font-semibold">Admin workspace</h1>
-    <p className="mt-6 max-w-2xl leading-7 text-muted">Your administrator access is verified. Problem authoring and content management tools will be added in the admin milestone.</p>
+  return <AccountFrame admin><PageHeading eyebrow="Content administration" title="Admin workspace" description="A home for clear, original learning content." action={<Badge tone="warm">Administrator</Badge>} />
+    <EmptyState title="Content tools are on the way" description="Your administrator access is verified. Authoring and content management will be available in the admin milestone." />
   </AccountFrame>;
 }

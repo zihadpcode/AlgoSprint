@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useActionState } from "react";
 import { login, register } from "@/features/auth/actions";
 import type { AuthFormState } from "@/features/auth/validation";
@@ -19,9 +21,9 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
       <div aria-live="polite" aria-atomic="true">
         {state.message && <p className="rounded-xl border border-line bg-surface-raised p-4 text-sm leading-6">{state.message}</p>}
       </div>
-      <button type="submit" disabled={pending || state.success} className="action-link action-link-primary w-full disabled:cursor-wait disabled:opacity-60">
+      <Button type="submit" disabled={pending || state.success} className="w-full">
         {pending ? "Please wait…" : registering ? "Create account" : "Sign in"}
-      </button>
+      </Button>
       <p className="text-sm text-muted">{registering ? "Already have an account? " : "New to AlgoSprint? "}
         <Link className="rounded text-accent underline underline-offset-4" href={registering ? "/login" : "/register"}>{registering ? "Sign in" : "Create an account"}</Link>
       </p>
@@ -34,8 +36,7 @@ function Field({ name, label, errors, ...props }: {
 }) {
   return <div>
     <label className="mb-2 block text-sm font-medium" htmlFor={name}>{label}</label>
-    <input {...props} id={name} name={name} required aria-invalid={Boolean(errors?.length)} aria-describedby={errors?.length ? `${name}-error` : undefined}
-      className="min-h-12 w-full rounded-xl border border-line bg-canvas px-4 text-ink" />
+    <Input {...props} id={name} name={name} required aria-invalid={Boolean(errors?.length)} aria-describedby={errors?.length ? `${name}-error` : undefined} />
     {errors?.length ? <p id={`${name}-error`} className="mt-2 text-sm text-warm">{errors[0]}</p> : null}
   </div>;
 }
