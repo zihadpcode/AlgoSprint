@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDatabaseClient } from "@/lib/db/client";
 import { loadProblems } from "../../scripts/lib/load-problems";
 import { seedProblems } from "../../prisma/seed-data";
+import { ensureProfile } from "@/features/auth/profile";
 import type { ProblemSeed } from "@/lib/validators/problem";
 
 let db: ReturnType<typeof createDatabaseClient>;
@@ -36,11 +37,19 @@ describe("real PostgreSQL seed lifecycle", () => {
   });
   it("is idempotent and preserves IDs and user data on rerun", async () => {
     const before = await db.problem.findMany({ orderBy: { slug: "asc" }, select: { id: true, slug: true, updatedAt: true } });
-    await db.user.create({ data: { id: userId } });
+    const profiles = await Promise.all(Array.from({ length: 3 }, () => ensureProfile(db, { id: userId, user_metadata: { role: "ADMIN" } })));
+    expect(profiles.every((p) => p.id === userId && p.role === "USER")).toBe(true);
     await db.userProgress.create({ data: { userId, problemId: before[0].id, bookmarked: true } });
     expect(await seedProblems(db, problems)).toEqual({ created: 0, skipped: 5 });
     expect(await db.problem.findMany({ orderBy: { slug: "asc" }, select: { id: true, slug: true, updatedAt: true } })).toEqual(before);
     expect(await db.userProgress.count({ where: { userId, bookmarked: true } })).toBe(1);
+  });
+  it("creates profiles without trusting metadata roles and preserves database roles", async () => {
+    const first = await ensureProfile(db, { id: userId, user_metadata: { role: "ADMIN", display_name: "Changed name" } });
+    expect(first.role).toBe("USER");
+    await db.user.update({ where: { id: userId }, data: { role: "ADMIN", displayName: "Maintained name" } });
+    const again = await ensureProfile(db, { id: userId, user_metadata: { role: "USER", display_name: "Override attempt" } });
+    expect(again.role).toBe("ADMIN"); expect(again.displayName).toBe("Maintained name");
   });
   it("refuses content collisions without changing the saved problem", async () => {
     const original = await db.problem.findUniqueOrThrow({ where: { slug: problems[0].slug } });
