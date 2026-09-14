@@ -57,7 +57,7 @@ npm run build
 npm run test:smoke
 ```
 
-Type checking confirms component props and route signatures; lint checks code rules; build compiles the real application; the HTTP smoke starts and stops an owned production server. PostgreSQL integration runs in GitHub CI on its disposable database. See [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for the final CI record. Existing authorization tests remain the guard against accidental changes to the server boundary. CI's HTTP smoke also checks protected redirects and a real 404 response. No implementation-mirroring unit tests were added for simple style wrappers.
+Type checking confirms component props and route signatures; lint checks code rules; build compiles the real application; the HTTP smoke starts and stops an owned production server. PostgreSQL integration runs in GitHub CI on its disposable database. Local schema/seed checks, 37 tests, lint, types, build, and production HTTP smoke passed. The combined implementation also passed [GitHub CI run 34813944471](https://github.com/zihadpcode/AlgoSprint/actions/runs/34813944471), including five PostgreSQL integration tests. See [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for the exact implementation commit. Existing authorization tests remain the guard against accidental changes to the server boundary. CI's HTTP smoke also checks protected redirects and a real 404 response. No implementation-mirroring unit tests were added for simple style wrappers.
 
 Manual browser checklist after account configuration:
 
