@@ -2,15 +2,15 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current milestone: Phase 4 — app shell and UI system
+## 🟩 Current milestone: Phase 5 — problem library
 
-Phases 1–4 are implemented. [PR #5](https://github.com/zihadpcode/AlgoSprint/pull/5) combines the Phase 4 UI with the reconciled Phase 3 authentication and review fixes from PRs #3 and #4. It preserves confirmed-email checks, profile race handling, safe sign-in destinations, and the empty-configuration crash fix.
+Phases 1–4 are merged. [PR #6](https://github.com/zihadpcode/AlgoSprint/pull/6) adds the published-problem library with title search, difficulty/category/tag/pattern/time filters, sorting, pagination, and verified-viewer completion/review indicators.
 
-The workspace now shares a responsive header/sidebar, mobile navigation, cards, buttons, badges, inputs, loading/empty/error states, and a custom 404 page. Dashboard and admin placeholders describe their current availability; practice analytics and editing tools are later work.
+Visit `/problems` after configuring PostgreSQL, applying migrations, and seeding. Browsing does not require a Supabase account. Without a database, the page shows an unavailable state. Personal filters require verified sign-in. Problem statements, guided solutions, and practice tools are Phase 6 onward; cards do not link to missing pages.
 
-**Stop after Phase 4.** The latest user request does not authorize Phase 5. Read [the handoff](docs/SESSION-HANDOFF.md) for validation and publication status and [the Phase 4 guide](docs/PHASE-4-GUIDE.md) for complete source and explanations.
+The user resumed after Phase 4 on 2026-09-14. Read [the handoff](docs/SESSION-HANDOFF.md) for validation and [the complete Phase 5 guide](docs/PHASE-5-GUIDE.md) for setup, full source, and explanations. CI verification of this draft is pending.
 
-A real Supabase project has not been configured or tested here. Unconfigured account pages show an unavailable state and protected routes redirect to login. Automated checks do not verify live sign-in or browser appearance. Browser access to the local preview was blocked; the guide records the remaining visual checklist. Nothing has been deployed.
+The interactive coding workspace and browser are unavailable this session. Changes are saved directly on the isolated GitHub branch and tested in CI. Live Supabase configuration and browser interaction/visual checks remain unverified. Nothing has been deployed.
 
 ## 🟩 Run locally
 
@@ -66,6 +66,7 @@ npm run test:smoke
 | `docs/PHASE-3-GUIDE.md` | Auth setup, design, tests, and historical source. |
 | `docs/AUTH-REVIEW.md` | Integrated authentication corrections and full updated files. |
 | `docs/PHASE-4-GUIDE.md` | UI setup, full authored files, design choices, and verification limits. |
+| `docs/PHASE-5-GUIDE.md` | Published library, query boundaries, full source, and testing. |
 
 ## 🟥 Security model
 
@@ -75,4 +76,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-After a new request, Phase 5 begins the searchable problem library. Later phases cover guided practice pages, Monaco, safe execution, progress, analytics, notes, roadmaps, admin authoring, generators, interviews, and deployment. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. All statements, hints, explanations, roadmap names, branding, and UI must be original.
+Phase 5 delivers library browsing. The next milestone is Phase 6 problem detail and guided hints/solutions, followed by guided practice pages, Monaco, safe execution, progress, analytics, notes, roadmaps, admin authoring, generators, interviews, and deployment. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. All statements, hints, explanations, roadmap names, branding, and UI must be original.

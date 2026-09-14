@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. The latest instruction is: “Resume and stop when phase 4 is finished and updated.” It authorizes reconciliation of authentication and completion of Phase 4, then requires a stop. Phases 5–16 must wait for a new request. Read [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for current evidence and configuration gaps.
+This is the original user-provided brief, preserved for continuity. The user resumed after the completed Phase 4 checkpoint on 2026-09-14. Current work is Phase 5, the published-problem library. Read SESSION-HANDOFF.md for current implementation and verification status. The original Phase 1-only instruction below is historical.
 
 ---
 

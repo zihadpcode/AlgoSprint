@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, UserRound, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, UserRound, ShieldCheck, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-const links = [ { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }, { href: "/profile", label: "Profile", icon: UserRound } ];
+const links = [ { href: "/problems", label: "Problems", icon: BookOpen }, { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }, { href: "/profile", label: "Profile", icon: UserRound } ];
 export function WorkspaceNav({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const items = admin ? [...links, { href: "/admin", label: "Admin", icon: ShieldCheck }] : links;

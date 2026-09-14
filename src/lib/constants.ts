@@ -39,15 +39,15 @@ export const PLANNED_FEATURES = [
     id: "collection",
     title: "An original problem collection",
     description:
-      "Begin with five carefully checked challenges, then grow the collection as the content and testing tools mature.",
-    label: "Planned · problems and hints",
+      "Browse five carefully checked challenges by topic and available time. Guided problem pages are the next step.",
+    label: "Available · problem library",
   },
   {
     id: "progress",
     title: "A record of how you learn",
     description:
       "Keep notes, revisit tricky questions, and see which topics deserve another practice session.",
-    label: "Planned · accounts and progress",
+    label: "Planned · notes and progress",
   },
   {
     id: "preparation",
