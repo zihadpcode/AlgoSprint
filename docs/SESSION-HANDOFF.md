@@ -1,85 +1,79 @@
 # AlgoSprint session handoff
 
-**State: paused by the user on 2026-09-13. Do not resume feature work until the user asks.**
+**Stop at Phase 4 — 2026-09-14.** Latest instruction: “Resume and stop when phase 4 is finished and updated.” Implementation and guides are complete. Phase 5 must wait for a new request. Browser visual QA remains unverified.
 
-The latest instruction was: “pause end work session here cleanly, update all information.” Earlier standing approval covered routine implementation and GitHub steps; it does not override this pause.
+## 🟦 Repository and delivery
 
-## 🟦 Repository and checkpoints
+- Private repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint), stable ID `1210669308`, renamed from Smart-Interview-prep-tracker.
+- Phases 1 and 2 were merged through PRs #1 and #2. Starting main for this continuation was `cc0edf878e1e1f72789a734c6803365c1430fa9d`.
+- [PR #5](https://github.com/zihadpcode/AlgoSprint/pull/5) delivers Phase 4 with reconciled authentication prerequisites. Its PR page is authoritative for current merge status.
+- The combined commit preserves both histories: UI checkpoint `add77bb146efb31b1c92e592ae00150e960a372c` (based on Phase 3 `fe2026e`) and auth review checkpoint `0146a00ad8b26d6b2345b1d3151ff02cd03de3b5`. Original authentication came through PR #3 and fixes through PR #4. No force push or source-history replacement is needed.
+- Nothing was deployed. No real Supabase project, account, administrator, or production database was modified.
 
-- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint), private, stable repository ID `1210669308`.
-- It was renamed from `Smart-Interview-prep-tracker`. Use the current name in commands and links.
-- [PR #1](https://github.com/zihadpcode/AlgoSprint/pull/1) was merged by the user. At this pause, `main` contains Phase 1 at `c15c2f8ddec3185b213514b7eb7f801561addaff`.
-- [PR #2](https://github.com/zihadpcode/AlgoSprint/pull/2) contains Phase 2 on `algosprint/phase-2-database`. It is intentionally left open at the user's pause.
-- Phase 2 implementation commit: `d0319c5d4108c60c7f323e6ac362954619e9451b`. The final session closeout adds documentation only.
-- [Passing implementation CI run](https://github.com/zihadpcode/AlgoSprint/actions/runs/34775388055). Documentation changes can trigger another run; inspect the latest result when resuming.
-- No production deployment or Supabase project configuration was performed.
+## 🟩 Completed work
 
-## 🟩 Completed and verified
+**Phase 1:** Next.js App Router, React, TypeScript, Tailwind, original dark landing page, shared branding/tokens, focus and reduced-motion styles, environment template, complete beginner guide.
 
-**Phase 1:** Next.js App Router, React, TypeScript, Tailwind CSS, original responsive dark landing page, shared layout pieces, accessibility foundations, environment template, and a full beginner-oriented source guide. `/` is the only working application page at this checkpoint; reserved folders do not create routes.
+**Phase 2:** 22 Prisma models in private PostgreSQL schema `app`, enums, indexes, integrity constraints, migration, RLS, revoked untrusted-role access. Five original problems: Relay Window, Quiet Badge, Parcel Checkpoints, Dock Threshold, Lantern Steps. Seeds contain 30 categories, six tags, one interview style, 10 examples, 25 hints, 10 solutions, five JavaScript starters, and 30 cases (10 visible, 20 hidden). Validated insert-only seeding preserves history and rejects conflicting content.
 
-**Phase 2:** Prisma 7.10.0 with the PostgreSQL adapter, lazy server-only database access, 22 relational models, enums, indexes, integrity constraints, a versioned migration, private `app` schema, RLS, and revoked untrusted-role access. The migration works with ordinary PostgreSQL and is designed for Supabase PostgreSQL as well.
+**Phase 3, reconciled:** Supabase email/password registration/login, local-device logout, PKCE confirmation callback, request-scoped SSR clients, HttpOnly cookies, refresh Proxy, safe local destinations, confirmed-email checks, protected dashboard/profile/admin, trusted role CLI. Registration creates regular database profiles. Concurrent creation recovers from duplicate-ID races and preserves maintained roles/names. Empty/malformed configuration fails closed without crashing. Refresh preserves headers/cookies; unconfigured account responses prevent caching and referrer leakage. The styled auth form preserves sign-in destinations.
 
-The seed collection has five original problems: Relay Window, Quiet Badge, Parcel Checkpoints, Dock Threshold, and Lantern Steps. It includes 30 categories, six tags, one interview style, 10 examples, 25 hints, 10 complete solutions, five JavaScript starters, and 30 cases (10 visible, 20 hidden). Strict Zod validation checks the complete input; trusted reference algorithms verify outputs without evaluating stored code strings. Insert-only seeding preserves IDs and user records, skips identical content, and rejects conflicting existing slugs.
+**Phase 4:** Responsive workspace header/sidebar, horizontal mobile navigation, active-route semantics, skip link/focusable main, shared cards/buttons/links/badges/inputs/selects/headings, pending submit, empty/loading/error states, custom 404, styled dashboard/profile/admin. Long names wrap, navigation focus has space, input borders have stronger contrast, statuses use words, and animation respects reduced motion. Error recovery uses Next.js `retry()` to refetch. Protected guards run before rendering; no root loading fallback changes their real HTTP redirects. Links lead only to implemented routes. Dashboard/admin have truthful placeholders with no invented activity or editing tools.
 
-**Evidence:** 17 local tests passed; seed validation, Prisma schema validation, lint, TypeScript, and the production build passed. GitHub CI also passed against a disposable PostgreSQL 17 database, including four real Prisma integration tests for nested writes, repeatability, history preservation, conflicts, and invalid input. The CI run linked above covers the implementation commit exactly. No live Supabase authentication or browser interaction test was performed.
+## 🟨 Validation evidence
 
-**Cleanup:** Authentication documentation was researched, but no Phase 3 application files were created. The tentative Supabase dependency installation was removed, and the dependency manifest and lockfile were restored to the verified Phase 2 versions. No local development or database server was left running by this work. Local server attempts were blocked by environment restrictions; migration checks instead used in-process PGlite, while full Prisma integration ran on GitHub.
+Local integrated checks passed: schema validation, validation of all five seed problems, 37 unit/migration tests, lint, TypeScript, production build, and production HTTP smoke. The smoke covers landing, forged-cookie protected redirects, unavailable account pages, custom 404, absence of temporary `/ui-check`, and callback denial/no-store. Its owned server terminates automatically. The production manifest contains only landing, auth/account routes, icon, and not-found.
 
-## 🟨 Resume sequence
+**Integrated GitHub CI passed:** implementation commit `2abfbd1c202f4433395be33dc2d91e5df18eece2`, [run 34813944471](https://github.com/zihadpcode/AlgoSprint/actions/runs/34813944471). All stages passed, including 37 unit/migration tests and five real PostgreSQL integration tests. The final follow-up changes documentation only; this run identifies the verified implementation precisely. CI uses PostgreSQL 17 for clean install, Prisma generation/schema validation, migrations, seed validation, unit/migration tests, real PostgreSQL integration, lint, types, build, and HTTP smoke. Earlier auth review `445d803` passed [run 34796497047](https://github.com/zihadpcode/AlgoSprint/actions/runs/34796497047); this historical result does not replace integrated verification.
 
-1. Read this handoff, the current PR state, repository `AGENTS.md`, and the [original project brief](PROJECT-BRIEF.md). Fetch current GitHub refs before editing; the user may have merged or changed the branch since this note.
-2. Confirm the latest PR #2 check result. Merge the verified Phase 2 checkpoint when the user resumes authorized continuation, unless they give different instructions. Do not overwrite user edits or force-push.
-3. Start Phase 3 on a new branch from the actual current `main`: Supabase email/password registration and login, logout, refresh/session handling, verified profile creation, protected dashboard, and server-side admin authorization.
-4. Use verified Supabase identity for profile IDs. Roles come from the application database, default to `USER`, and must never be accepted from signup fields or editable user metadata. Authorize each protected server read and mutation close to its data access.
-5. Add safe local return URLs, email confirmation, useful form/error states, and tests for authorization and session edge cases. Keep build and public landing behavior usable without credentials. Read the installed Next.js guides before using framework APIs, as `AGENTS.md` requires.
-6. Record exactly which auth paths are verified with mocks versus a real configured Supabase project. Live auth validation needs the user's project configuration; do not invent credentials, accounts, or successful tests.
-7. Continue the original phases in order, with reviewable commits and phase guides. Phase 4 is the app shell/UI system; Phase 5 is the searchable problem library.
-
-## 🟥 Configuration and security boundaries
-
-No Supabase URL, publishable key, database password, production environment, runner credential, or service-role key was supplied. The checked-in `.env.example` is credential-free; local environment files are ignored. Do not request passwords in chat or commit them.
-
-To use Phase 2 locally, configure a development `DATABASE_URL` and, if needed, a separate connection via `DIRECT_URL`, then run `npm run db:deploy` and `npm run db:seed`. Prisma's dev migration command may need a separate `SHADOW_DATABASE_URL`. Integration tests require a dedicated empty database whose name ends in `_test`. The [Phase 2 guide](PHASE-2-GUIDE.md) explains the commands and expected results.
-
-The trusted Prisma role owns `app` and can bypass RLS. Application ownership checks remain mandatory. Do not expose full problem records, hidden cases, internal submission results, connection strings, or seed JSON in browser bundles. Do not run untrusted code on the application server; execution design belongs to Phase 8.
-
-The current GitHub connector supported repository files, branches, PRs, and Actions reads. It did not expose repository renaming; the user completed that rename. Do not infer broader account or administration permissions from earlier approval.
-
-## 🟪 Phase ledger
-
-| Phase | Scope | Status at pause |
-| --- | --- | --- |
-| 1 | Project setup and architecture | Merged in PR #1 |
-| 2 | Database, migrations, taxonomy, original seeds | Implemented and tested; PR #2 open |
-| 3 | Supabase authentication | Research only; implementation not started |
-| 4 | App shell and UI system | Not started |
-| 5 | Problem library | Not started |
-| 6 | Problem detail and guided solutions | Not started |
-| 7 | Monaco editor | Not started |
-| 8 | Safe code runner | Not started |
-| 9 | Progress tracking | Models only; feature not started |
-| 10 | Dashboard analytics | Not started |
-| 11 | Notes and bookmarks | Models only; feature not started |
-| 12 | Original roadmaps | Models only; feature not started |
-| 13 | Admin content tools | Models only; feature not started |
-| 14 | Problem generator | Seed/validation foundation only |
-| 15 | Mock interviews | Models only; feature not started |
-| 16 | Polish and deployment | Not started |
-
-The user wants serious but beginner-friendly engineering guidance, complete files, explanations of connections and tradeoffs, testing steps, and original content. Use the requested color cues: 🟦 setup, 🟩 implementation, 🟨 reasoning, 🟥 security/mistakes, 🟪 expansion. Preserve the complete phase guides; future source edits are authoritative over their historical source appendices. Grow content from 5 to 20 to 100 to 1,000 reviewed problems. Vercel deployment is planned for Phase 16, not yet performed.
-
-## 🟩 Useful commands
+Calculated token contrast: ink/surface 16.58:1; muted/surface 9.47:1; accent/canvas 9.30:1; input border/canvas 4.28:1. Source inspection covers semantics, native controls, labels, reduced motion, focus, and wrapping. This is not a whole-page accessibility audit.
 
 ```bash
 npm ci
-npm run db:generate
 npm run db:validate
 npm run seed:validate
 npm test
 npm run lint
 npm run typecheck
 npm run build
+npm run test:smoke
 ```
 
-Use Node.js 24 and the committed lockfile. `node --import tsx` is used for CLI scripts because the standalone `tsx` launcher needed a local IPC socket unavailable in this workspace. PGlite tests do not need database credentials. Do not repeat or broaden tests without a concrete change or unresolved risk.
+## 🟥 Verification limits
+
+The local server works. The cloud browser blocked localhost (`ERR_BLOCKED_BY_CLIENT`) and its URL policy rejected a static preview. No visual/browser interaction check completed. Do not claim responsive screenshots, screen-reader testing, 200% zoom, or live retry behavior. Use the manual checklist in [PHASE-4-GUIDE.md](PHASE-4-GUIDE.md) when browser access is available. Temporary preview source was removed before the successful production build.
+
+No Supabase credentials were supplied. Auth unit tests mock the provider. Real signup, email delivery, PKCE, refresh, logout, and configured-account UI await the development-project checklist in [PHASE-3-GUIDE.md](PHASE-3-GUIDE.md). Completing Phase 4 implementation does not imply production readiness. Deployment remains Phase 16.
+
+## 🟦 Configuration and continuity
+
+Use Node.js 24 and the lockfile. The integrated repository is the runnable source of truth. Phase 1–3 appendices document historical milestones; [AUTH-REVIEW.md](AUTH-REVIEW.md) and [PHASE-4-GUIDE.md](PHASE-4-GUIDE.md) contain full updated authored files. README, brief, and the historical pause note point to this handoff.
+
+Current local work: `/workspace/scratch/4f3affa6d1ad/algosprint-next`, branch `algosprint/phase-4-completion`. The original `algosprint` folder retains the earlier session's dirty snapshot; preserve it but do not treat it as newest. Local baselines are synthetic snapshots, not GitHub ancestry. Use remote refs and a fresh clone for future pushes. GitHub is the persistent checkpoint.
+
+Live configuration requires DATABASE_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (`sb_publishable_` format), and APP_URL. Optional DIRECT_URL is for migrations/seeding. Keep credentials in ignored environment files, never Git or chat. Prisma's trusted role may bypass RLS; authorize every personal/admin query near its data. Never expose hidden tests or execute untrusted code in the app backend. Integration tests require a disposable database ending in `_test`.
+
+## 🟪 Phase ledger and stop point
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1 | Setup and architecture | Complete; PR #1 |
+| 2 | Database and original seeds | Complete; PR #2 |
+| 3 | Supabase authentication | Implemented/reconciled in PR #5; live validation pending |
+| 4 | App shell and UI system | Implementation/guides complete in PR #5; browser QA blocked |
+| 5 | Problem library | Not started |
+| 6 | Problem detail and guidance | Not started |
+| 7 | Monaco editor | Not started |
+| 8 | Safe code runner | Not started |
+| 9 | Progress tracking | Models only |
+| 10 | Dashboard analytics | Not started |
+| 11 | Notes and bookmarks | Models only |
+| 12 | Original roadmaps | Models only |
+| 13 | Admin content tools | Models and guarded placeholder only |
+| 14 | Problem generator | Seed/validation foundation only |
+| 15 | Mock interviews | Models only |
+| 16 | Polish and deployment | Not started |
+
+Stop after saving and verifying this checkpoint. A future session should read current main/PR #5 and this handoff, then address browser/live-account checks where configuration permits. Only a new request can begin Phase 5 (published-problem search, filters, sorting, pagination, and explicit public-field selection).
+
+Preserve beginner-friendly full-file explanations, original design/content, and color cues: 🟦 setup, 🟩 implementation, 🟨 reasoning, 🟥 issues/security, 🟪 later work. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. Vercel deployment remains Phase 16.

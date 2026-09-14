@@ -12,6 +12,8 @@
   --color-accent-strong: #bad2ff;
   --color-warm: #f2c879;
   --color-lilac: #c6b6fa;
+  --color-success: #82dbb0;
+  --color-danger: #ffadb6;
   --font-sans: "Avenir Next", "Segoe UI", Arial, sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }

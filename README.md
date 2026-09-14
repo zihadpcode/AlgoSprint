@@ -1,18 +1,20 @@
 # AlgoSprint
 
-An original coding interview preparation platform built with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, and Zod.
+An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟦 Session paused — Phase 2 checkpoint
+## 🟩 Current milestone: Phase 4 — app shell and UI system
 
-Work is paused at the user’s request. Phase 1 is merged; [Phase 2 is saved in PR #2](https://github.com/zihadpcode/AlgoSprint/pull/2) with passing implementation CI. Authentication has not been implemented. Read [the session handoff](docs/SESSION-HANDOFF.md) before resuming and [the original brief](docs/PROJECT-BRIEF.md) for the full requirements.
+Phases 1–4 are implemented. [PR #5](https://github.com/zihadpcode/AlgoSprint/pull/5) combines the Phase 4 UI with the reconciled Phase 3 authentication and review fixes from PRs #3 and #4. It preserves confirmed-email checks, profile race handling, safe sign-in destinations, and the empty-configuration crash fix.
 
-## 🟦 Current milestone: Phase 2
+The workspace now shares a responsive header/sidebar, mobile navigation, cards, buttons, badges, inputs, loading/empty/error states, and a custom 404 page. Dashboard and admin placeholders describe their current availability; practice analytics and editing tools are later work.
 
-Phase 1 supplies the original dark landing page. Phase 2 adds the database foundation: 22 related models, a versioned PostgreSQL migration, private data access, validated taxonomy, and five original JavaScript coding problems. Accounts and interactive problem pages begin in the next phases. The landing page works without credentials.
+**Stop after Phase 4.** The latest user request does not authorize Phase 5. Read [the handoff](docs/SESSION-HANDOFF.md) for validation and publication status and [the Phase 4 guide](docs/PHASE-4-GUIDE.md) for complete source and explanations.
+
+A real Supabase project has not been configured or tested here. Unconfigured account pages show an unavailable state and protected routes redirect to login. Automated checks do not verify live sign-in or browser appearance. Browser access to the local preview was blocked; the guide records the remaining visual checklist. Nothing has been deployed.
 
 ## 🟩 Run locally
 
-Use Node.js 24 and npm. From the repository root:
+Use Node.js 24 and npm:
 
 ```bash
 npm ci
@@ -20,18 +22,18 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Keep an existing configured `.env.local` instead of overwriting it. Open [localhost:3000](http://localhost:3000).
+Preserve an existing configured `.env.local` instead of overwriting it. Open [localhost:3000](http://localhost:3000).
 
-To enable the database, set `DATABASE_URL` in `.env.local` using a development PostgreSQL database you control. For Supabase, use the appropriate URL from **Connect** and follow [the Phase 2 guide](docs/PHASE-2-GUIDE.md). If migrations require a different connection, set `DIRECT_URL` as well.
+For accounts, configure `DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `APP_URL`. Use a current `sb_publishable_` key. Follow [the Phase 3 setup guide](docs/PHASE-3-GUIDE.md) for Supabase email confirmations, redirect URLs, and admin provisioning. Keep all database passwords and private keys out of Git and chat.
 
 ```bash
 npm run db:deploy
 npm run db:seed
 ```
 
-`db:deploy` applies committed migrations. `db:migrate` creates future development migrations and may require a separate shadow database. Do not use development migration resets against a database containing valuable data.
+`DIRECT_URL`, if set, is used for migration/seeding instead of the runtime connection. `SHADOW_DATABASE_URL` is optional for creating future development migrations. Do not use migration resets on valuable data.
 
-## 🟩 Validate
+## 🟩 Verify
 
 ```bash
 npm run db:validate
@@ -40,48 +42,37 @@ npm test
 npm run lint
 npm run typecheck
 npm run build
+npm run test:smoke
 ```
 
-The unit suite includes embedded PostgreSQL migration checks and differential algorithm tests. Real Prisma integration tests run separately against a **dedicated empty database whose name ends in `_test`**:
-
-```bash
-# Set DATABASE_URL and TEST_DATABASE_URL to the same disposable test database.
-# Leave DIRECT_URL unset or point it at that same test database.
-npm run db:deploy
-npm run test:integration
-```
-
-GitHub Actions supplies its own disposable PostgreSQL service and runs these checks. Check the PR's actual Actions result before treating integration as verified.
+`npm run test:integration` requires a dedicated empty PostgreSQL database whose name ends in `_test`; set `TEST_DATABASE_URL` to it and apply migrations there first. GitHub CI supplies PostgreSQL 17 and also runs `npm run test:smoke` against a temporary production server with accounts deliberately unconfigured. These checks do not prove live Supabase email delivery or authentication; use the manual checklist in the Phase 3 guide.
 
 ## 🟨 File map
 
-| Path | Purpose |
+| Path | Responsibility |
 | --- | --- |
-| `src/app/`, `src/components/` | Next.js pages and original UI. |
-| `prisma/schema.prisma` | Relational models, enums, indexes, and deletion behavior. |
-| `prisma/migrations/` | Committed schema, integrity constraints, and RLS. |
-| `prisma.config.ts` | Prisma 7 connection and CLI configuration. |
-| `src/lib/prisma.ts` | Lazy server-only database entry point. |
-| `src/data/seeds/` | Original problem JSON and taxonomy. |
-| `src/lib/validators/problem.ts` | Strict import contract. |
-| `scripts/lib/reference-problems.ts` | Trusted validators for expected outputs. |
-| `prisma/seed-data.ts` | Bounded, repeatable, insert-only seeding. |
-| `tests/` | Validation, algorithms, migration, and integration checks. |
-| `docs/PHASE-1-GUIDE.md` | Historical foundation walkthrough and source. |
-| `docs/PHASE-2-GUIDE.md` | Database walkthrough, commands, source, and pitfalls. |
+| `src/app/` | Landing, auth callback, account pages, protected dashboard/admin pages. |
+| `src/components/layout/`, `src/components/ui/` | Shared workspace, navigation, native controls, and feedback states. |
+| `src/features/auth/` | Input validation, server actions, verified sessions, profile provisioning. |
+| `src/lib/supabase/` | Request-scoped SSR clients, cookie refresh, trusted configuration. |
+| `src/proxy.ts` | Refresh auth cookies before server rendering. |
+| `src/lib/prisma.ts` | Lazy server-only database access. |
+| `prisma/` | 22 models, SQL migration, repeatable insert-only seeding. |
+| `src/data/seeds/` | Five original problem JSON files and taxonomy. |
+| `scripts/` | Seed validation, trusted reference algorithms, role CLI, HTTP smoke check. |
+| `tests/` | Algorithms, imports, PostgreSQL constraints, auth boundaries, integration. |
+| `docs/PHASE-1-GUIDE.md` | Historical project foundation and complete source. |
+| `docs/PHASE-2-GUIDE.md` | Database setup, design, tests, and complete source. |
+| `docs/PHASE-3-GUIDE.md` | Auth setup, design, tests, and historical source. |
+| `docs/AUTH-REVIEW.md` | Integrated authentication corrections and full updated files. |
+| `docs/PHASE-4-GUIDE.md` | UI setup, full authored files, design choices, and verification limits. |
 
-## 🟥 Data boundaries
+## 🟥 Security model
 
-- Secrets belong in ignored `.env.local`; `.env.example` contains names only.
-- Only browser-safe Supabase configuration will use `NEXT_PUBLIC_`.
-- Database tables live in private `app`, with RLS and no grants to `PUBLIC`, `anon`, or `authenticated`.
-- The trusted Prisma connection owns this schema and can bypass RLS. Every future user-facing read and write must enforce identity and ownership on the server.
-- Hidden test cases are internal database content. Never serialize an entire problem record into client props or APIs.
-- Seed code strings are stored as content. They are never executed by the importer. Trusted, allowlisted algorithms validate fixtures.
-- Re-running the same seed preserves IDs and progress. A changed existing slug is rejected instead of silently replacing content.
+Supabase owns passwords. The server verifies identity with `getUser()` and reads the role from the application database. Signup never accepts a role. Account cookies are HttpOnly and use Secure in production; there is no browser auth client. Protected data must be authorized in each server query/action, not just in a layout or navigation menu.
 
-## 🟪 Growth plan
+Tables live in private `app` with RLS and revoked untrusted-role access. The trusted Prisma owner can bypass RLS, so ownership checks remain essential. Select only public fields for browser responses; never bundle seed JSON, hidden tests, or internal submission results. Do not execute submitted code in the app server.
 
-Proceed through authentication, the app shell, problem browsing, guided solutions, the editor, safe execution, progress, analytics, roadmaps, admin tools, and interviews. Deployment is a later milestone. The content target grows from 5 to 20 to 100 and eventually 1,000 reviewed problems.
+## 🟪 Road ahead
 
-All AlgoSprint statements, hints, explanations, roadmap names, branding, and UI must be original. General algorithmic concepts are shared knowledge; other platforms' written content and designs are not source material.
+After a new request, Phase 5 begins the searchable problem library. Later phases cover guided practice pages, Monaco, safe execution, progress, analytics, notes, roadmaps, admin authoring, generators, interviews, and deployment. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. All statements, hints, explanations, roadmap names, branding, and UI must be original.
