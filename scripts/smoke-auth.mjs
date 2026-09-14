@@ -41,6 +41,10 @@ try {
   const library = await fetch(origin + "/problems");
   assert.equal(library.status, 200);
   assert.ok((await library.text()).includes("The library is being prepared"));
+  const detail = await fetch(origin + "/problems/relay-window");
+  assert.equal(detail.status, 200);
+  assert.ok((await detail.text()).includes("Practice is being prepared"));
+  assert.equal((await fetch(origin + "/problems/INVALID")).status, 404);
   const callback = await fetch(origin + "/auth/callback?code=forged", { redirect: "manual" });
   assert.equal(callback.status, 503); assert.match(callback.headers.get("cache-control") ?? "", /(?:^|,\s*)no-store(?:,|$)/);
   console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, custom 404, and callback denial.");

@@ -1,9 +1,15 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
+import { randomUUID } from "node:crypto";
+import pg from "pg";
 
 const databaseUrl = process.env.TEST_DATABASE_URL;
 if (!databaseUrl || !new URL(databaseUrl).pathname.endsWith("_test")) throw new Error("Use a seeded, dedicated TEST_DATABASE_URL ending in _test.");
+const db = new pg.Pool({ connectionString: databaseUrl, max: 1 });
+const fixtureIds = [randomUUID(), randomUUID(), randomUUID()];
+const fixtureSlugs = fixtureIds.map((id) => "qa-http-" + id);
+const userId = randomUUID();
 const origin = "http://127.0.0.1:3101";
 const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3101"], {
   env: { ...process.env, DATABASE_URL: databaseUrl, DIRECT_URL: "", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "", APP_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
@@ -47,9 +53,46 @@ try {
   const page = await fetch(origin + "/problems?page=999", { redirect: "manual" });
   assert.equal(page.status, 307);
   assert.equal(page.headers.get("location"), "/problems");
-  console.log("Library HTTP smoke passed: seeded public cards, search, empty results, personal-filter gate, privacy headers, and bounded pagination.");
+  for (const slug of ["relay-window", "quiet-badge", "parcel-checkpoints", "dock-threshold", "lantern-steps"]) {
+    assert.ok(html.includes(`/problems/${slug}`), "Card must link to its detail page");
+    const detail = await fetch(origin + `/problems/${slug}?userId=forged&role=ADMIN`);
+    assert.equal(detail.status, 200, slug);
+    assert.match(detail.headers.get("cache-control") ?? "", /no-store/);
+    const body = await detail.text();
+    for (const section of ["Problem statement", "Examples", "Constraints", "Layered hints", "Reveal guided solutions", "Starter code", "Related problems", "Sign in to write notes"]) assert.ok(body.includes(section), `${slug}: ${section}`);
+    assert.match(body, /<details(?:\s[^>]*)?>/);
+    assert.ok(!/<details[^>]*\sopen(?:[\s=>])/.test(body), "Solutions start collapsed");
+    for (const field of ["testCases", "seedHash", "HIDDEN"]) assert.ok(!body.includes(field), field);
+  }
+  // Owned fixtures prove the production response also excludes private relations,
+  // hidden test payloads and another user's notes (not just private field names).
+  await db.query('INSERT INTO app."User" (id, "updatedAt") VALUES ($1, now())', [userId]);
+  for (const [index, status] of ["PUBLISHED", "DRAFT", "ARCHIVED"].entries()) {
+    await db.query(`INSERT INTO app."Problem" (id, slug, title, difficulty, status, pattern, statement, constraints, "estimatedMinutes", "publishedAt", "updatedAt")
+      VALUES ($1, $2, $3::text, 'EASY', $4, 'http-fixture', $3::text, ARRAY['Fixture'], 1, $5, now())`,
+    [fixtureIds[index], fixtureSlugs[index], index === 0 ? "PUBLIC-DETAIL-SENTINEL" : "UNPUBLISHED-DETAIL-SENTINEL", status, index === 0 ? new Date() : null]);
+  }
+  await db.query('INSERT INTO app."UserNote" (id, "userId", "problemId", content, "updatedAt") VALUES ($1, $2, $3, $4, now())', [randomUUID(), userId, fixtureIds[0], "PRIVATE-NOTE-SENTINEL"]);
+  await db.query(`INSERT INTO app."TestCase" (id, "problemId", position, visibility, input, output, explanation)
+    VALUES ($1, $2, 1, 'HIDDEN', $3::jsonb, $3::jsonb, $4)`, [randomUUID(), fixtureIds[0], JSON.stringify({ secret: "HIDDEN-PAYLOAD-SENTINEL" }), "HIDDEN-EXPLANATION-SENTINEL"]);
+  await db.query('INSERT INTO app."ProblemRelation" ("problemId", "relatedId") VALUES ($1, $2)', [fixtureIds[0], fixtureIds[1]]);
+  const fixture = await fetch(origin + `/problems/${fixtureSlugs[0]}?userId=${userId}`, { headers: { cookie: `userId=${userId}; role=ADMIN; sb-access-token=forged` } });
+  assert.equal(fixture.status, 200);
+  const fixtureHtml = await fixture.text();
+  assert.ok(fixtureHtml.includes("PUBLIC-DETAIL-SENTINEL"));
+  for (const secret of ["PRIVATE-NOTE-SENTINEL", "HIDDEN-PAYLOAD-SENTINEL", "HIDDEN-EXPLANATION-SENTINEL", "UNPUBLISHED-DETAIL-SENTINEL"]) assert.ok(!fixtureHtml.includes(secret), secret);
+  for (const unavailable of [fixtureSlugs[1], fixtureSlugs[2], "does-not-exist", "INVALID"]) {
+    const response = await fetch(origin + `/problems/${unavailable}`);
+    assert.equal(response.status, 404, unavailable);
+    assert.ok(!(await response.text()).includes("UNPUBLISHED-DETAIL-SENTINEL"));
+  }
+  console.log("Library/detail HTTP smoke passed: seeded links, filters, detail sections, collapsed solutions, guest gates, privacy headers, hidden payload exclusion and unpublished 404s.");
 } finally {
   server.kill("SIGTERM");
   await Promise.race([new Promise((resolve) => server.once("exit", resolve)), delay(3000)]);
   if (server.exitCode === null) server.kill("SIGKILL");
+  try {
+    await db.query('DELETE FROM app."User" WHERE id = $1', [userId]);
+    await db.query('DELETE FROM app."Problem" WHERE id = ANY($1::uuid[])', [fixtureIds]);
+  } finally { await db.end(); }
 }

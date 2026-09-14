@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. The user resumed after the completed Phase 4 checkpoint on 2026-09-14. Current work is Phase 5, the published-problem library. Read SESSION-HANDOFF.md for current implementation and verification status. The original Phase 1-only instruction below is historical.
+This is the original user-provided brief, preserved for continuity. The user resumed after the completed Phase 4 checkpoint on 2026-09-14. Phase 5 is merged; the latest resume advances to Phase 6, guided problem pages with per-problem notes and manual progress. Phase 7 remains the next milestone. Read SESSION-HANDOFF.md for current implementation and verification status. The original Phase 1-only instruction below is historical.
 
 ---
 

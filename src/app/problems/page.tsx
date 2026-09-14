@@ -45,7 +45,7 @@ export default async function ProblemsPage({ searchParams }: { searchParams: Pro
             <p className="text-sm text-muted">Page {view.result.page} of {view.result.pages}</p>
             {view.result.page < view.result.pages ? <ButtonLink variant="secondary" href={libraryHref({ ...view.filters, page: view.result.page + 1 })}>Next page</ButtonLink> : <span aria-disabled="true" className="text-sm text-muted">Next page</span>}
           </nav>}
-          <p className="mt-8 text-sm leading-7 text-muted">Browse the collection now. Problem pages and practice tools are coming next.</p>
+          <p className="mt-8 text-sm leading-7 text-muted">Open a problem for examples, layered hints, starter code, and guided solutions.</p>
         </>
       )}
     </AppShell>
