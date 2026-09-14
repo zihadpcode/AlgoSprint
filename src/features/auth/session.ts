@@ -18,6 +18,7 @@ export const getViewer = cache(async () => {
     }
     return null;
   }
+  if (data.user.is_anonymous || !data.user.email_confirmed_at || !data.user.email) return null;
   const profile = await ensureProfile(getDatabase(), data.user);
   return { ...profile, email: data.user.email ?? null };
 });

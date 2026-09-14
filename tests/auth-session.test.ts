@@ -9,7 +9,7 @@ import { getViewer, requireAdmin, requireViewer } from "@/features/auth/session"
 const id = "20000000-0000-4000-8000-000000000001";
 beforeEach(() => {
   vi.clearAllMocks(); f.configured.mockReturnValue(true); f.database.mockReturnValue({ user: { upsert: f.upsert } });
-  f.getUser.mockResolvedValue({ data: { user: { id, email: "a@example.com", user_metadata: { display_name: "Ada", role: "ADMIN" } } }, error: null });
+  f.getUser.mockResolvedValue({ data: { user: { id, email: "a@example.com", email_confirmed_at: "2026-09-14T00:00:00Z", is_anonymous: false, user_metadata: { display_name: "Ada", role: "ADMIN" } } }, error: null });
   f.upsert.mockResolvedValue({ id, role: "USER", displayName: "Ada", timeZone: "UTC", createdAt: new Date(0) });
 });
 describe("verified sessions and database roles", () => {
@@ -32,5 +32,12 @@ describe("verified sessions and database roles", () => {
     f.getUser.mockResolvedValue({ data: { user: null }, error: { status: 503 } });
     await expect(getViewer()).rejects.toThrow("temporarily unavailable"); expect(f.database).not.toHaveBeenCalled();
     f.configured.mockReturnValue(false); f.getUser.mockClear(); expect(await getViewer()).toBeNull(); expect(f.getUser).not.toHaveBeenCalled();
+  });
+  it("rejects anonymous and unconfirmed provider users before provisioning profiles", async () => {
+    for (const user of [{ id, email: "a@example.com", is_anonymous: true, email_confirmed_at: "2026-09-14T00:00:00Z" }, { id, email: "a@example.com", email_confirmed_at: null }]) {
+      f.getUser.mockResolvedValue({ data: { user }, error: null });
+      expect(await getViewer()).toBeNull();
+      expect(f.database).not.toHaveBeenCalled();
+    }
   });
 });

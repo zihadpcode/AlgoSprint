@@ -2,6 +2,8 @@
 
 This checkpoint adds working authentication integration code. Its source appendix records this milestone; current repository files are authoritative after later phases. A real Supabase project is still required to exercise sign-in and email delivery. No project, credentials, users, or administrator were created during implementation.
 
+The [authentication review](AUTH-REVIEW.md) adds confirmed-email enforcement, tighter configuration checks, return-path continuity, and updated complete source. Consult it after this checkpoint.
+
 ## 🟦 What we are building
 
 The application now has `/register`, `/login`, `/auth/callback`, `/dashboard`, `/profile`, and `/admin`. Supabase handles password authentication. Next.js server actions validate forms and call Supabase. A request-scoped server client reads/writes cookies; Proxy refreshes expired tokens before rendering. The data access layer verifies the current user, provisions the application's profile, and applies role checks.
