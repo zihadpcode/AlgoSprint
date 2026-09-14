@@ -42,6 +42,15 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Read installed Next.js routing guidance
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const root = 'node_modules/next/dist/docs/01-app/03-api-reference/';
+          for (const path of ['03-file-conventions/page.md', '02-components/form.md', '02-components/link.md']) {
+            console.log('\nDOCUMENT: ' + path + '\n' + readFileSync(root + path, 'utf8'));
+          }
+          NODE
       - run: npm run db:generate
       - run: npm run db:validate
       - run: npm run db:deploy
