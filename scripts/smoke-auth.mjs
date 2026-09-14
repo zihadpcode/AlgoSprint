@@ -38,6 +38,9 @@ try {
     assert.equal(missing.status, 404, path);
     assert.ok((await missing.text()).includes("This page isn’t available"), path);
   }
+  const library = await fetch(origin + "/problems");
+  assert.equal(library.status, 200);
+  assert.ok((await library.text()).includes("The library is being prepared"));
   const callback = await fetch(origin + "/auth/callback?code=forged", { redirect: "manual" });
   assert.equal(callback.status, 503); assert.match(callback.headers.get("cache-control") ?? "", /(?:^|,\s*)no-store(?:,|$)/);
   console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, custom 404, and callback denial.");

@@ -52,3 +52,5 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm run test:smoke
+      - run: npm run db:seed
+      - run: node scripts/smoke-library.mjs
