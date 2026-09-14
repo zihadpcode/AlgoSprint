@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. The initial Phase 1-only request applied to the first checkpoint. After authorizing later phases, the user paused work again on 2026-09-14 and asked to update all information. This pause supersedes the earlier automatic-approval continuation. Read [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for exact status; do not resume feature work or merge until the user asks.
+This is the original user-provided brief, preserved for continuity. The latest instruction is: “Resume and stop when phase 4 is finished and updated.” It authorizes reconciliation of authentication and completion of Phase 4, then requires a stop. Phases 5–16 must wait for a new request. Read [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for current evidence and configuration gaps.
 
 ---
 

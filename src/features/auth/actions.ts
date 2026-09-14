@@ -38,10 +38,10 @@ export async function register(_previous: AuthFormState, form: FormData): Promis
   } catch { return { message: unavailable }; }
   if (signedIn) {
     revalidatePath("/", "layout");
-    redirect("/dashboard");
+    redirect(safeReturnTo(form.get("next")));
   }
   // The same response covers an existing account; do not disclose membership.
-  return { success: true, message: "Check your email for a confirmation link. Open it in this browser, then sign in if needed." };
+  return { success: true, message: "If your email is eligible, a confirmation link is on its way. Open it in this browser. Already registered? Sign in below." };
 }
 
 export async function logout(): Promise<void> {

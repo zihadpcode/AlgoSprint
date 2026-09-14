@@ -1,6 +1,22 @@
 # Phase 4 — App shell and UI system
 
-**Partial checkpoint, paused on 2026-09-14. Final implementation and visual verification are not complete. See [PHASE-4-PAUSED.md](PHASE-4-PAUSED.md) before using or continuing this work.**
+Implementation and documentation checkpoint: 2026-09-14. The user requested completion of Phase 4 and a stop. Live Supabase validation and browser visual QA remain explicitly unverified; they are not implied by the automated checks below.
+
+## 🟦 Run this checkpoint
+
+Use the full repository checkout from main after PR #5 is merged, or its branch while it is under review. Node.js 24 and the committed lockfile keep the toolchain consistent. Phase 4 adds no npm dependencies.
+
+```bash
+git clone https://github.com/zihadpcode/AlgoSprint.git
+cd AlgoSprint
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
+For an existing checkout, fetch and switch to the checkpoint you intend to study; preserve your local changes and existing environment file. `npm ci` installs exactly the lockfile. Copy the environment template only for a new setup. `npm run dev` generates Prisma types and starts Next.js. Open http://localhost:3000. Stop it with Control-C.
+
+The landing page, unavailable account pages, and custom 404 work without credentials. To see your actual dashboard/profile/admin shell, complete the development Supabase and database setup in [PHASE-3-GUIDE.md](PHASE-3-GUIDE.md), including confirmed email and the trusted admin-role command where needed. The shell never substitutes for authentication.
 
 ## 🟦 What we are building
 
@@ -25,11 +41,23 @@ Color tokens centralize surfaces, borders, text, emphasis, success, and danger. 
 - `src/components/ui/` contains the small native component set. The existing `cn()` helper combines conditional classes and resolves Tailwind conflicts.
 - Dashboard/profile/admin now use the same headings, cards, badges, and empty states. Auth forms reuse Input and Button without changing their server actions.
 - Public login/registration segments have lightweight loading fallbacks. There is intentionally no root loading boundary around protected pages: identity checks complete before they can return protected content or an HTTP redirect.
-- The shared error boundary displays a fixed recovery message and retry/home actions. The not-found page supplies a usable destination without disclosing why protected admin content was denied.
+- The shared error boundary displays a fixed recovery message and retry/home actions. It uses this installed Next.js version’s `retry()` callback so a transient server error triggers a refetch and rerender. It never displays the raw exception. The not-found page supplies a usable destination without disclosing why protected admin content was denied.
 
 ## 🟩 Verification
 
-Run `npm run lint`, `npm run typecheck`, and `npm run build`. Existing authorization tests remain the guard against accidental changes to the server boundary. CI's HTTP smoke also checks protected redirects and a real 404 response. No implementation-mirroring unit tests were added for simple style wrappers.
+Run:
+
+```bash
+npm run db:validate
+npm run seed:validate
+npm test
+npm run lint
+npm run typecheck
+npm run build
+npm run test:smoke
+```
+
+Type checking confirms component props and route signatures; lint checks code rules; build compiles the real application; the HTTP smoke starts and stops an owned production server. PostgreSQL integration runs in GitHub CI on its disposable database. See [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for the final CI record. Existing authorization tests remain the guard against accidental changes to the server boundary. CI's HTTP smoke also checks protected redirects and a real 404 response. No implementation-mirroring unit tests were added for simple style wrappers.
 
 Manual browser checklist after account configuration:
 
@@ -40,15 +68,17 @@ Manual browser checklist after account configuration:
 5. Visit a missing path and trigger a development-only error while working locally, then undo it. Confirm useful 404/retry states and no provider/connection detail exposure.
 6. Use 200% zoom and a screen reader to check heading order, landmarks, button/link names, and status announcements.
 
-The coding workspace does not permit the local server setup used for visual QA; automated build/CI checks do not substitute for this manual browser checklist.
+The local production server works and HTTP smoke was run. The cloud browser blocked access to localhost; its URL policy also rejected a static preview. No responsive screenshots, browser interactions, screen-reader pass, or visual sign-off is claimed. The temporary preview route was removed, and the smoke test checks that `/ui-check` returns the custom 404.
+
+Source review covers native controls, heading/landmark structure, labeled fields, explicit status words, reduced-motion CSS, skip-link focus, and long-name wrapping. Calculated token contrast is 16.58:1 for ink on surface, 9.47:1 for muted text on surface, 9.30:1 for accent on canvas, and 4.28:1 for the input border on canvas. These calculations support the token choices; they are not a whole-page accessibility audit.
 
 ## 🟥 Common mistakes
 
 Do not infer permission from a displayed admin link. Do not put session data or database clients in the navigation component. Do not create dead links to unfinished features, show invented solved counts, wrap links in buttons, remove focus outlines, or use color as the only status cue. Keep error messages useful without exposing raw exceptions.
 
-## 🟪 Next milestone
+## 🟪 Stop point
 
-Phase 5 builds the real problem library with title search, difficulty/category/tag/pattern/time/completion filters, sorting, pagination, and a small debounced search control. It will query published problem data through an explicit public-field selection and apply personal status only for the verified viewer.
+Stop here as requested. No Phase 5 feature was started. After a new request, Phase 5 builds the real problem library with title search, difficulty/category/tag/pattern/time/completion filters, sorting, pagination, and a small debounced search control. It will query published problem data through an explicit public-field selection and apply personal status only for the verified viewer.
 
 ## 🟩 Complete Phase 4 source
 
@@ -141,10 +171,10 @@ export function ErrorState({ title = "Something went wrong", description, action
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 export function Input({ className, ...props }: ComponentProps<"input">) {
-  return <input {...props} className={cn("min-h-12 w-full rounded-xl border border-line bg-canvas px-4 text-sm text-ink placeholder:text-muted/70 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-danger", className)} />;
+  return <input {...props} className={cn("min-h-12 w-full rounded-xl border border-muted/60 bg-canvas px-4 text-sm text-ink placeholder:text-muted/70 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-danger", className)} />;
 }
 export function Select({ className, ...props }: ComponentProps<"select">) {
-  return <select {...props} className={cn("min-h-12 w-full rounded-xl border border-line bg-canvas px-3 text-sm text-ink disabled:opacity-50", className)} />;
+  return <select {...props} className={cn("min-h-12 w-full rounded-xl border border-muted/60 bg-canvas px-3 text-sm text-ink disabled:opacity-50", className)} />;
 }
 ```
 
@@ -170,7 +200,7 @@ export function LoadingState({ label = "Loading your page…" }: { label?: strin
 import type { ReactNode } from "react";
 export function PageHeading({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: ReactNode }) {
   return <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-    <div className="max-w-2xl">{eyebrow && <p className="eyebrow mb-3 text-accent">{eyebrow}</p>}
+    <div className="min-w-0 max-w-2xl [overflow-wrap:anywhere]">{eyebrow && <p className="eyebrow mb-3 text-accent">{eyebrow}</p>}
       <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
       {description && <p className="mt-4 leading-7 text-muted">{description}</p>}
     </div>{action && <div className="shrink-0">{action}</div>}
@@ -211,12 +241,12 @@ export function AppShell({ children, admin = false, signedIn = false }: { childr
       </div>
     </div></header>
     <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[240px_minmax(0,1fr)]">
-      <aside className="border-b border-line bg-surface/40 px-4 py-3 lg:sticky lg:top-0 lg:flex lg:h-[calc(100dvh-81px)] lg:flex-col lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
+      <aside className="min-w-0 border-b border-line bg-surface/40 px-4 py-3 lg:sticky lg:top-0 lg:flex lg:h-[calc(100dvh-81px)] lg:flex-col lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
         <p className="eyebrow mb-4 hidden px-4 text-xs text-muted lg:block">Workspace</p>
         <WorkspaceNav admin={admin} />
         <div className="mt-auto hidden rounded-2xl border border-line bg-surface p-5 lg:block"><Sparkles aria-hidden="true" size={20} className="text-warm" /><p className="mt-3 text-sm font-medium">Keep one insight.</p><p className="mt-2 text-xs leading-6 text-muted">After each practice session, write down one thing you want to remember.</p></div>
       </aside>
-      <div className="min-w-0"><main id="main-content" className="px-5 py-8 sm:px-8 lg:p-10">{children}</main>
+      <div className="min-w-0"><main id="main-content" tabIndex={-1} className="px-5 py-8 sm:px-8 lg:p-10">{children}</main>
         <footer className="px-5 pb-8 text-xs text-muted sm:px-8 lg:px-10">One problem. One insight. Another step forward.</footer>
       </div>
     </div>
@@ -236,7 +266,7 @@ const links = [ { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard 
 export function WorkspaceNav({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const items = admin ? [...links, { href: "/admin", label: "Admin", icon: ShieldCheck }] : links;
-  return <nav aria-label="Workspace navigation"><ul className="flex gap-2 overflow-x-auto p-1 lg:flex-col">
+  return <nav aria-label="Workspace navigation"><ul className="flex gap-2 overflow-x-auto p-2 lg:flex-col">
     {items.map(({ href, label, icon: Icon }) => {
       const active = pathname === href || pathname.startsWith(`${href}/`);
       return <li key={href} className="shrink-0"><Link href={href} aria-current={active ? "page" : undefined} className={cn("flex min-h-12 items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-colors", active ? "border-accent/25 bg-accent/10 text-accent" : "border-transparent text-muted hover:bg-surface-raised hover:text-ink")}><Icon aria-hidden="true" size={18} />{label}</Link></li>;
@@ -276,7 +306,7 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
   return (
     <form action={action} className="mt-8 space-y-5" aria-busy={pending}>
       <input type="hidden" name="next" value={returnTo} />
-      {registering && <Field name="displayName" label="Display name" autoComplete="nickname" errors={state.errors?.displayName} maxLength={80} />}
+      {registering && <Field name="displayName" label="Display name" minLength={2} autoComplete="nickname" errors={state.errors?.displayName} maxLength={80} />}
       <Field name="email" label="Email" type="email" autoComplete="email" errors={state.errors?.email} maxLength={254} />
       <Field name="password" label="Password" type="password" autoComplete={registering ? "new-password" : "current-password"} errors={state.errors?.password} maxLength={128} minLength={registering ? 12 : 1} />
       {registering && <p className="text-sm text-muted">Use 12–128 characters. A long, unique passphrase works well.</p>}
@@ -287,7 +317,7 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
         {pending ? "Please wait…" : registering ? "Create account" : "Sign in"}
       </Button>
       <p className="text-sm text-muted">{registering ? "Already have an account? " : "New to AlgoSprint? "}
-        <Link className="rounded text-accent underline underline-offset-4" href={registering ? "/login" : "/register"}>{registering ? "Sign in" : "Create an account"}</Link>
+        <Link className="rounded text-accent underline underline-offset-4" href={`${registering ? "/login" : "/register"}?next=${encodeURIComponent(returnTo)}`}>{registering ? "Sign in" : "Create an account"}</Link>
       </p>
     </form>
   );
@@ -347,7 +377,7 @@ export default async function ProfilePage() {
   const viewer = await requireViewer("/profile");
   return <AccountFrame admin={viewer.role === "ADMIN"}>
     <PageHeading eyebrow="Your account" title="Profile" description="The person behind the practice." />
-    <Card className="max-w-3xl"><div className="mb-7 flex flex-wrap items-center gap-4"><span aria-hidden="true" className="grid size-14 place-items-center rounded-2xl border border-accent/30 bg-accent/10 text-xl font-semibold text-accent">{(viewer.displayName || "L").slice(0, 1).toUpperCase()}</span><div><h2 className="text-xl font-semibold">{viewer.displayName || "Learner"}</h2><Badge className="mt-2" tone="accent">{viewer.role === "ADMIN" ? "Administrator" : "Learner"}</Badge></div></div>
+    <Card className="max-w-3xl"><div className="mb-7 flex flex-wrap items-center gap-4"><span aria-hidden="true" className="grid size-14 place-items-center rounded-2xl border border-accent/30 bg-accent/10 text-xl font-semibold text-accent">{(viewer.displayName || "L").slice(0, 1).toUpperCase()}</span><div className="min-w-0"><h2 className="text-xl font-semibold [overflow-wrap:anywhere]">{viewer.displayName || "Learner"}</h2><Badge className="mt-2" tone="accent">{viewer.role === "ADMIN" ? "Administrator" : "Learner"}</Badge></div></div>
       <dl className="grid gap-6 border-t border-line pt-7 sm:grid-cols-2">{[["Email", viewer.email || "Not available"], ["Time zone", viewer.timeZone], ["Member since", viewer.createdAt.toISOString().slice(0, 10)]].map(([label, value]) => <div key={label}><dt className="text-sm text-muted">{label}</dt><dd className="mt-2 break-words font-medium">{value}</dd></div>)}</dl>
     </Card>
   </AccountFrame>;
@@ -380,8 +410,8 @@ export default async function AdminPage() {
 "use client";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/error-state";
-export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  return <main className="mx-auto max-w-2xl px-5 py-24"><ErrorState title="We couldn’t load this page" description="Please try again in a moment. If the problem continues, come back a little later." action={<><Button onClick={reset}>Try again</Button><ButtonLink href="/" variant="secondary">Back to home</ButtonLink></>} /></main>;
+export default function ErrorPage({ retry }: { error: Error & { digest?: string }; retry: () => void }) {
+  return <main className="mx-auto max-w-2xl px-5 py-24"><ErrorState title="We couldn’t load this page" description="Please try again in a moment. If the problem continues, come back a little later." action={<><Button onClick={retry}>Try again</Button><ButtonLink href="/" variant="secondary">Back to home</ButtonLink></>} /></main>;
 }
 ```
 

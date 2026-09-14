@@ -15,12 +15,12 @@ export function AppShell({ children, admin = false, signedIn = false }: { childr
       </div>
     </div></header>
     <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[240px_minmax(0,1fr)]">
-      <aside className="border-b border-line bg-surface/40 px-4 py-3 lg:sticky lg:top-0 lg:flex lg:h-[calc(100dvh-81px)] lg:flex-col lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
+      <aside className="min-w-0 border-b border-line bg-surface/40 px-4 py-3 lg:sticky lg:top-0 lg:flex lg:h-[calc(100dvh-81px)] lg:flex-col lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
         <p className="eyebrow mb-4 hidden px-4 text-xs text-muted lg:block">Workspace</p>
         <WorkspaceNav admin={admin} />
         <div className="mt-auto hidden rounded-2xl border border-line bg-surface p-5 lg:block"><Sparkles aria-hidden="true" size={20} className="text-warm" /><p className="mt-3 text-sm font-medium">Keep one insight.</p><p className="mt-2 text-xs leading-6 text-muted">After each practice session, write down one thing you want to remember.</p></div>
       </aside>
-      <div className="min-w-0"><main id="main-content" className="px-5 py-8 sm:px-8 lg:p-10">{children}</main>
+      <div className="min-w-0"><main id="main-content" tabIndex={-1} className="px-5 py-8 sm:px-8 lg:p-10">{children}</main>
         <footer className="px-5 pb-8 text-xs text-muted sm:px-8 lg:px-10">One problem. One insight. Another step forward.</footer>
       </div>
     </div>

@@ -6,7 +6,11 @@ export async function refreshAuth(request: NextRequest) {
   let response = NextResponse.next({ request });
   const cacheHeaders: Record<string, string> = {};
   const config = getSupabaseConfig();
-  if (!config) return response;
+  if (!config) {
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("Referrer-Policy", "no-referrer");
+    return response;
+  }
   const client = createServerClient(config.url, config.key, {
     cookieOptions: authCookieOptions,
     cookies: {
@@ -28,5 +32,6 @@ export async function refreshAuth(request: NextRequest) {
   response.headers.set("Cache-Control", "private, no-cache, no-store, must-revalidate, max-age=0");
   response.headers.set("Expires", "0");
   response.headers.set("Pragma", "no-cache");
+  response.headers.set("Referrer-Policy", "no-referrer");
   return response;
 }

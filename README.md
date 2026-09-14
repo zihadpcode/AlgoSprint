@@ -2,21 +2,15 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-This branch preserves a [partial Phase 4 checkpoint](docs/PHASE-4-PAUSED.md). It does not include the separately reviewed authentication fixes from PR #4.
+## 🟩 Current milestone: Phase 4 — app shell and UI system
 
-## 🟦 Session paused — 2026-09-14
+Phases 1–4 are implemented. [PR #5](https://github.com/zihadpcode/AlgoSprint/pull/5) combines the Phase 4 UI with the reconciled Phase 3 authentication and review fixes from PRs #3 and #4. It preserves confirmed-email checks, profile race handling, safe sign-in destinations, and the empty-configuration crash fix.
 
-The user paused feature work. Phases 1 and 2 are merged. Authentication is in open [PR #3](https://github.com/zihadpcode/AlgoSprint/pull/3); its review and production-crash fix are in open [PR #4](https://github.com/zihadpcode/AlgoSprint/pull/4). PR #4's implementation passed CI, including PostgreSQL integration and production HTTP checks. The branches have diverged and need reconciliation before merging. Phase 4 work is partial and being saved separately. Live Supabase integration and deployment are pending.
+The workspace now shares a responsive header/sidebar, mobile navigation, cards, buttons, badges, inputs, loading/empty/error states, and a custom 404 page. Dashboard and admin placeholders describe their current availability; practice analytics and editing tools are later work.
 
-See [the session handoff](docs/SESSION-HANDOFF.md) for exact commits, test evidence, pending work, and resume instructions. Do not resume automatically.
+**Stop after Phase 4.** The latest user request does not authorize Phase 5. Read [the handoff](docs/SESSION-HANDOFF.md) for validation and publication status and [the Phase 4 guide](docs/PHASE-4-GUIDE.md) for complete source and explanations.
 
-## 🟦 Current milestone: Phase 3 — authentication
-
-Phase 1 provides the original dark landing page. Phase 2 adds 22 relational models, migrations, and five reviewed original problems. Phase 3 implements email/password registration, login, logout, session refresh, profile creation, protected dashboard/profile pages, and an admin access guard.
-
-The account routes are implemented, but **a real Supabase project has not been configured or tested in this workspace**. Without configuration, login and registration show an unavailable state, protected routes redirect to login, and the public landing page continues to work. Problem browsing and practice are the next UI milestones.
-
-Read [the current handoff](docs/SESSION-HANDOFF.md) before continuing and [the original brief](docs/PROJECT-BRIEF.md) for the full 16-phase requirements.
+A real Supabase project has not been configured or tested here. Unconfigured account pages show an unavailable state and protected routes redirect to login. Automated checks do not verify live sign-in or browser appearance. Browser access to the local preview was blocked; the guide records the remaining visual checklist. Nothing has been deployed.
 
 ## 🟩 Run locally
 
@@ -48,6 +42,7 @@ npm test
 npm run lint
 npm run typecheck
 npm run build
+npm run test:smoke
 ```
 
 `npm run test:integration` requires a dedicated empty PostgreSQL database whose name ends in `_test`; set `TEST_DATABASE_URL` to it and apply migrations there first. GitHub CI supplies PostgreSQL 17 and also runs `npm run test:smoke` against a temporary production server with accounts deliberately unconfigured. These checks do not prove live Supabase email delivery or authentication; use the manual checklist in the Phase 3 guide.
@@ -57,6 +52,7 @@ npm run build
 | Path | Responsibility |
 | --- | --- |
 | `src/app/` | Landing, auth callback, account pages, protected dashboard/admin pages. |
+| `src/components/layout/`, `src/components/ui/` | Shared workspace, navigation, native controls, and feedback states. |
 | `src/features/auth/` | Input validation, server actions, verified sessions, profile provisioning. |
 | `src/lib/supabase/` | Request-scoped SSR clients, cookie refresh, trusted configuration. |
 | `src/proxy.ts` | Refresh auth cookies before server rendering. |
@@ -67,7 +63,9 @@ npm run build
 | `tests/` | Algorithms, imports, PostgreSQL constraints, auth boundaries, integration. |
 | `docs/PHASE-1-GUIDE.md` | Historical project foundation and complete source. |
 | `docs/PHASE-2-GUIDE.md` | Database setup, design, tests, and complete source. |
-| `docs/PHASE-3-GUIDE.md` | Auth setup, design, tests, and complete source. |
+| `docs/PHASE-3-GUIDE.md` | Auth setup, design, tests, and historical source. |
+| `docs/AUTH-REVIEW.md` | Integrated authentication corrections and full updated files. |
+| `docs/PHASE-4-GUIDE.md` | UI setup, full authored files, design choices, and verification limits. |
 
 ## 🟥 Security model
 
@@ -77,4 +75,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-Next are the shared app shell, searchable problem library, guided practice pages, Monaco, safe execution, progress, analytics, notes, roadmaps, admin authoring, generators, interviews, and deployment. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. All statements, hints, explanations, roadmap names, branding, and UI must be original.
+After a new request, Phase 5 begins the searchable problem library. Later phases cover guided practice pages, Monaco, safe execution, progress, analytics, notes, roadmaps, admin authoring, generators, interviews, and deployment. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. All statements, hints, explanations, roadmap names, branding, and UI must be original.

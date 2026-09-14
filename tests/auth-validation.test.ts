@@ -5,6 +5,14 @@ import { accountsConfigured, getAppOrigin, getSupabaseConfig } from "@/lib/supab
 afterEach(() => vi.unstubAllEnvs());
 
 describe("authentication input and configuration boundaries", () => {
+  it("treats empty and malformed environment URLs as unavailable without throwing", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "sb_publishable_testconfiguration");
+    for (const url of ["", "not-a-url", "https://project.supabase.co/path", "https://project.supabase.co?x=1", "https://project.supabase.co#fragment"]) {
+      vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", url);
+      expect(getSupabaseConfig()).toBeNull();
+      expect(accountsConfigured()).toBe(false);
+    }
+  });
   it("preserves password whitespace and permits existing shorter passwords at login", () => {
     expect(loginSchema.parse({ email: " a@example.com ", password: " secret " })).toEqual({ email: "a@example.com", password: " secret " });
     expect(registerSchema.safeParse({ email: "a@example.com", password: "short", displayName: "Ada" }).success).toBe(false);

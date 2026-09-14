@@ -14,7 +14,7 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
   return (
     <form action={action} className="mt-8 space-y-5" aria-busy={pending}>
       <input type="hidden" name="next" value={returnTo} />
-      {registering && <Field name="displayName" label="Display name" autoComplete="nickname" errors={state.errors?.displayName} maxLength={80} />}
+      {registering && <Field name="displayName" label="Display name" minLength={2} autoComplete="nickname" errors={state.errors?.displayName} maxLength={80} />}
       <Field name="email" label="Email" type="email" autoComplete="email" errors={state.errors?.email} maxLength={254} />
       <Field name="password" label="Password" type="password" autoComplete={registering ? "new-password" : "current-password"} errors={state.errors?.password} maxLength={128} minLength={registering ? 12 : 1} />
       {registering && <p className="text-sm text-muted">Use 12–128 characters. A long, unique passphrase works well.</p>}
@@ -25,7 +25,7 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
         {pending ? "Please wait…" : registering ? "Create account" : "Sign in"}
       </Button>
       <p className="text-sm text-muted">{registering ? "Already have an account? " : "New to AlgoSprint? "}
-        <Link className="rounded text-accent underline underline-offset-4" href={registering ? "/login" : "/register"}>{registering ? "Sign in" : "Create an account"}</Link>
+        <Link className="rounded text-accent underline underline-offset-4" href={`${registering ? "/login" : "/register"}?next=${encodeURIComponent(returnTo)}`}>{registering ? "Sign in" : "Create an account"}</Link>
       </p>
     </form>
   );

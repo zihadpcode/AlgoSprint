@@ -2,6 +2,8 @@
 
 This checkpoint adds working authentication integration code. Its source appendix records this milestone; current repository files are authoritative after later phases. A real Supabase project is still required to exercise sign-in and email delivery. No project, credentials, users, or administrator were created during implementation.
 
+The [authentication review](AUTH-REVIEW.md) adds confirmed-email enforcement, tighter configuration checks, return-path continuity, and updated complete source. Consult it after this checkpoint; Phase 4 supplies the current shared UI. The source appendix below is historical, while the full repository is the runnable integrated version.
+
 ## 🟦 What we are building
 
 The application now has `/register`, `/login`, `/auth/callback`, `/dashboard`, `/profile`, and `/admin`. Supabase handles password authentication. Next.js server actions validate forms and call Supabase. A request-scoped server client reads/writes cookies; Proxy refreshes expired tokens before rendering. The data access layer verifies the current user, provisions the application's profile, and applies role checks.
@@ -39,7 +41,7 @@ The `NEXT_PUBLIC_` configuration values are browser-safe and are normally fixed 
 
 ## 🟩 How a request flows
 
-- Registration validates the display name, email, and password, then calls Supabase. If confirmation is pending, the form displays a generic check-email response. If the provider deliberately returns an immediate session, it redirects to the dashboard.
+- Registration validates the display name, email, and password, then calls Supabase. If confirmation is pending, the form displays a generic check-email response. If the provider deliberately returns an immediate session, it redirects to the validated local destination (dashboard by default).
 - Login validates input, delegates password checking to Supabase, writes the session cookies, invalidates the route tree, and redirects to an allowlisted local destination. It does not return the password in action state or provider messages in errors.
 - The callback exchanges the PKCE code, then redirects using the configured origin. It never trusts a request's Host for the final destination. External URLs, protocol-relative URLs, encoded path separators, and path traversal are rejected as return paths.
 - A protected page calls `requireViewer()`. The server asks Supabase for the verified user, creates or reads the application profile, and returns a small view containing the profile and verified email. Invalid sessions redirect to login; provider outages fail closed.
@@ -65,9 +67,9 @@ npm run typecheck
 npm run build
 ```
 
-The suite now has 35 unit/migration tests, including auth input validation, safe return paths, rejected secret keys, verified-user profile creation, forged metadata roles, anonymous/admin guards, provider failures, signup/login/logout behavior, callback errors, and refresh-cookie preservation. These auth tests mock provider responses; they do not send email or authenticate a real account.
+The integrated suite has 37 unit/migration tests, including auth input validation, safe return paths, rejected secret keys, verified-user profile creation, forged metadata roles, anonymous/admin guards, provider failures, signup/login/logout behavior, callback errors, and refresh-cookie preservation. These auth tests mock provider responses; they do not send email or authenticate a real account.
 
-The PostgreSQL integration suite also checks concurrent profile creation and preservation of maintained database roles/display names. CI supplies a disposable PostgreSQL 17 database for `npm run test:integration`. After building, `npm run test:smoke` starts a temporary production server with account configuration deliberately removed and checks real HTTP redirects/denials. This runs in CI because local server sockets are restricted in the coding workspace. The owned smoke server is terminated in a finally block.
+The PostgreSQL integration suite also checks concurrent profile creation and preservation of maintained database roles/display names. CI supplies a disposable PostgreSQL 17 database for `npm run test:integration`. After building, `npm run test:smoke` starts a temporary production server with account configuration deliberately removed and checks real HTTP redirects/denials. This runs both locally and in CI. The resumed session successfully ran the local production server; cloud-browser access to that local server was blocked. The owned smoke server is terminated in a finally block.
 
 Once you configure a development Supabase project:
 

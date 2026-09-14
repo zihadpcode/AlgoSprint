@@ -26,17 +26,21 @@ try {
   assert.ok(ready, `Production server must become ready: ${lastFailure}\n${diagnostic}`);
   for (const path of ["/dashboard", "/profile", "/admin"]) {
     const response = await fetch(origin + path, { redirect: "manual", headers: { cookie: "sb-access-token=forged; role=ADMIN" } });
-    assert.equal(response.status, 307, path);
+    assert.equal(response.status, 307, `${path}: ${diagnostic}`);
     assert.ok(response.headers.get("location")?.startsWith("/login?next="), path);
   }
   for (const path of ["/login", "/register"]) {
     const response = await fetch(origin + path); assert.equal(response.status, 200, path);
     assert.ok((await response.text()).includes("Accounts are being prepared"), path);
   }
-  const missing = await fetch(origin + "/not-a-real-route"); assert.equal(missing.status, 404);
+  for (const path of ["/not-a-real-route", "/ui-check"]) {
+    const missing = await fetch(origin + path);
+    assert.equal(missing.status, 404, path);
+    assert.ok((await missing.text()).includes("This page isn’t available"), path);
+  }
   const callback = await fetch(origin + "/auth/callback?code=forged", { redirect: "manual" });
-  assert.equal(callback.status, 503); assert.equal(callback.headers.get("cache-control"), "no-store");
-  console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, and callback denial.");
+  assert.equal(callback.status, 503); assert.match(callback.headers.get("cache-control") ?? "", /(?:^|,\s*)no-store(?:,|$)/);
+  console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, custom 404, and callback denial.");
 } finally {
   server.kill("SIGTERM");
   await Promise.race([new Promise((resolve) => server.once("exit", resolve)), delay(3000)]);
