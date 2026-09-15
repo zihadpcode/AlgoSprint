@@ -2,15 +2,17 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current milestone: Phase 6 — guided problem pages
+## 🟩 Current milestone: Phase 7 — editor workspace
 
-Phases 1–5 are merged. Phase 6 is implemented in [PR #7](https://github.com/zihadpcode/AlgoSprint/pull/7): published problem statements, examples, constraints, progressive hints, solution tabs, starter code, related challenges, private notes, and manual solved/review controls.
+Phases 1–6 are merged. Phase 7 is completed in [PR #8](https://github.com/zihadpcode/AlgoSprint/pull/8): Monaco editing, language selection, starter loading, in-memory drafts, confirmed reset, and output/test-results panels. Its PR records final validation and merge status.
 
-Open `/problems` after configuring PostgreSQL, applying migrations, and seeding, then select a problem. Public reading needs no account. Private notes and progress require verified sign-in. Manual solves are labeled self-marked; no editor or code runner exists yet. Unknown/unpublished problems return 404, and missing database configuration shows a preparation state.
+Reset changes only the active language after confirmation. Output and timing remain unavailable, and public examples are clearly marked Not run. There is no code runner, submission evaluation or durable draft storage yet.
 
-Read [the complete Phase 6 guide](docs/PHASE-6-GUIDE.md) for exact commands, all 19 authored source files, explanations, concurrency rules and testing. [The handoff](docs/SESSION-HANDOFF.md) and PR #7 record validation and publication status.
+Read [the complete Phase 7 guide](docs/PHASE-7-GUIDE.md) for all eleven authored files, setup, explanations and verification. [The handoff](docs/SESSION-HANDOFF.md) records the current checkpoint and configuration gaps. The earlier first-half guide is historical.
 
-The coding workspace is available again. Local unit/migration tests, lint, types, build and unconfigured production HTTP checks have passed. Full implementation [CI passed](https://github.com/zihadpcode/AlgoSprint/actions/runs/34905876549): 55 unit/migration tests, 17 PostgreSQL integration tests, schema/seed validation, lint, types, build and both production HTTP checks. Browser interaction/visual checks and real Supabase account validation remain outstanding. Nothing has been deployed.
+The coding environment disconnected during completion work. [Completion CI passed](https://github.com/zihadpcode/AlgoSprint/actions/runs/35008677517): all 86 tests, lint, types, build and production HTTP checks. Real Monaco/browser/worker and live Supabase behavior remain unverified. Nothing is deployed. Pause here before Phase 8.
+
+Until PR #8 is merged, use branch `algosprint/phase-7-editor-part-1` to run the completed phase. After merge, use `main`.
 
 ## 🟩 Run locally
 
@@ -69,6 +71,8 @@ npm run test:smoke
 | `docs/PHASE-4-GUIDE.md` | UI setup, full authored files, design choices, and verification limits. |
 | `docs/PHASE-5-GUIDE.md` | Published library, query boundaries, full source, and testing. |
 | `docs/PHASE-6-GUIDE.md` | Guided problem pages, private notes/progress, full source and testing. |
+| `docs/PHASE-7-PART-1-GUIDE.md` | Historical first-half editor checkpoint. |
+| `docs/PHASE-7-GUIDE.md` | Complete editor/reset/output workspace, full source and verification limits. |
 
 ## 🟥 Security model
 
@@ -78,4 +82,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-Phase 6 delivers guided study and per-problem personal controls. The next milestone is Phase 7 Monaco editing, followed by isolated execution, richer progress, analytics, the notes/bookmarks manager, roadmaps, admin authoring, generators, interviews, and deployment. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. All statements, hints, explanations, roadmap names, branding, and UI must be original.
+Phase 7 is implemented. Phase 8 next requires comparing runner options and implementing isolated execution, followed by richer progress, analytics, notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.

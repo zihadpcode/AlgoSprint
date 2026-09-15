@@ -16,6 +16,6 @@ export function StarterCode({ entries }: { entries: ProblemDetail["starterCode"]
       {entries.map((item, position) => <option key={item.language} value={position}>{item.language.toLowerCase()}</option>)}
     </Select>
     <CodeBlock label={`Starter code · ${entry.language.toLowerCase()}`} code={entry.code} />
-    <p className="text-xs leading-6 text-muted">Entry point: <code>{entry.entryPoint}</code>. Copy this starter into your own editor. In-app editing and execution are coming later.</p>
+    <p className="text-xs leading-6 text-muted">Entry point: <code>{entry.entryPoint}</code>. Use the code editor on this page to work on your solution. This starter reference stays unchanged.</p>
   </div>;
 }

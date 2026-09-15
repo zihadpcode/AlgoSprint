@@ -11,6 +11,7 @@ import { CodeBlock } from "@/components/problems/code-block";
 import { HintReveal } from "@/components/problems/hint-reveal";
 import { SolutionTabs } from "@/components/problems/solution-tabs";
 import { StarterCode } from "@/components/problems/starter-code";
+import { CodeEditor } from "@/components/editor/code-editor";
 import { ProblemNotes, ProgressControls } from "@/components/problems/personal-controls";
 import { loadProblem } from "@/features/problems/detail-load";
 
@@ -34,7 +35,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
       {problem.categories.map((category) => <Badge key={category.slug}>{category.name}</Badge>)}
     </div>
     <nav aria-label="Problem sections" className="mb-8 flex flex-wrap gap-x-5 gap-y-3 text-sm text-accent">
-      {[["statement", "Statement"], ["examples", "Examples"], ["constraints", "Constraints"], ["hints", "Hints"], ["solutions", "Solutions"], ["starter", "Starter code"], ["notes", "Notes"]].map(([id, label]) => <a key={id} href={`#${id}`} className="underline underline-offset-4">{label}</a>)}
+      {[["statement", "Statement"], ["examples", "Examples"], ["constraints", "Constraints"], ["editor", "Code editor"], ["hints", "Hints"], ["solutions", "Solutions"], ["starter", "Starter code"], ["notes", "Notes"]].map(([id, label]) => <a key={id} href={`#${id}`} className="underline underline-offset-4">{label}</a>)}
     </nav>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(18rem,1fr)]">
       <div className="min-w-0 space-y-6">
@@ -52,6 +53,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
         <Card id="constraints"><CardTitle>Constraints</CardTitle><ul className="mt-4 list-disc space-y-3 pl-5 font-mono text-sm leading-7 text-muted">
           {problem.constraints.map((constraint, index) => <li key={index} className="[overflow-wrap:anywhere]">{constraint}</li>)}
         </ul></Card>
+        <Card id="editor"><CardTitle>Code editor</CardTitle><CodeEditor key={problem.slug} starters={problem.starterCode} examples={problem.examples} /></Card>
         <Card id="hints"><CardTitle>Layered hints</CardTitle><HintReveal key={problem.slug} hints={problem.hints} /></Card>
         <Card id="solutions"><CardTitle>Guided solutions</CardTitle><SolutionTabs key={problem.slug} solutions={problem.solutions} /></Card>
       </div>
