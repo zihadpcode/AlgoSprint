@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. The user resumed after the completed Phase 4 checkpoint on 2026-09-14. Phase 5 is merged; the latest resume advances to Phase 6, guided problem pages with per-problem notes and manual progress. Phase 7 remains the next milestone. Read SESSION-HANDOFF.md for current implementation and verification status. The original Phase 1-only instruction below is historical.
+This is the original user-provided brief, preserved for continuity. Phases 1–6 are merged. The current instruction is to finish the first half of Phase 7 and pause; the follow-up “continue” preserves that boundary. The first-half editor checkpoint is saved in draft PR #8, with reset/output/test-results controls deferred. Read SESSION-HANDOFF.md for current status. The original Phase 1-only instruction below is historical.
 
 ---
 

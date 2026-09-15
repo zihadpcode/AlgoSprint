@@ -1,6 +1,42 @@
 # AlgoSprint session handoff
 
-**2026-09-14 checkpoint: Phase 6 problem details, implemented and documented.** Latest instruction: “resume”, following Phase 5 completion. Phase 7 has not started.
+**Paused checkpoint: Phase 7, first half — 2026-09-15.** The user asked to finish half of Phase 7 and pause, then said “continue” while that work was active. Finish verification/documentation for this checkpoint and stop. Do not begin the second half.
+
+## 🟦 Current repository state
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Main baseline: `362391407a5791eb83ab63a929ffb83abc5f8493`, merged Phase 6 PR #7. Its tree `17000d3777508dc105821bbe49d754887729cd35` exactly matched the tested Phase 6 head; final CI run 34906233520 passed.
+- Current work: [draft PR #8](https://github.com/zihadpcode/AlgoSprint/pull/8), branch `algosprint/phase-7-editor-part-1`. Leave it open and unmerged at this pause.
+- Local workspace: isolated `algosprint-next`; older `algosprint` remains preserved. Local ancestry is synthetic; use GitHub's actual parents for publishing and do not blindly push the snapshot history.
+- No deployment, real account/production data changes, schema changes or seed-content changes.
+
+## 🟩 First-half implementation
+
+Added Monaco editor, supported-language selection and starter-code loading to published problem pages. Minimal per-language memory drafts support switching and preserve intentionally empty code. A same-problem rerender preserves drafts; a changed problem key resets them. Refreshing/leaving discards drafts. Editor models/listeners are disposed on language changes and unmount; undo/cursor history across languages is not retained.
+
+Monaco 0.56.0 uses its supported ESM editor/features/language-definition entry points and a bundled same-origin worker. No CDN loader or execution service receives code. Six schema languages have syntax definitions, but each selector includes only its problem's supplied starters. This is syntax editing, not a compiler or full language server. The existing read-only starter reference remains separate.
+
+The editor has loading/error feedback, copyable fallback code, automatic layout, labeled input and Tab-focus mode. Only public starter records are passed into it; database queries, hidden-test boundaries and existing auth controls are unchanged. Development tests add happy-dom 20.14.5; npm-generated dependency lockfile is committed.
+
+Reset controls, output panel and test-results panel are intentionally unbuilt. Durable drafts, execution and submissions are not implemented. README, the brief's status preface and [PHASE-7-PART-1-GUIDE.md](PHASE-7-PART-1-GUIDE.md) document the pause. The guide includes all nine complete authored files; the generated lockfile remains its canonical repository file.
+
+## 🟨 Validation and remaining checks
+
+Local checks passed: 63 unit/component/migration tests, lint, TypeScript, production build and unconfigured HTTP smoke. The build emits the editor and worker chunks. Eight new happy-dom tests mock Monaco and cover language/draft changes, empty code, same/different problem rerenders, failures, controlled updates and cleanup including Strict Mode.
+
+Initial GitHub implementation: `b972869c951ab92d7940bf6de72d178db4de1140`. CI additionally runs the existing 17 real PostgreSQL integration tests, schema/seed checks and seeded production HTTP checks. **Implementation CI passed:** [run 35006464039](https://github.com/zihadpcode/AlgoSprint/actions/runs/35006464039), including all 63 unit/component/migration tests, 17 PostgreSQL integration tests, schema/seed validation, lint, types, build and both HTTP smoke scripts. The closing commit changes documentation only; PR #8 records its final CI and remains open at the pause.
+
+Actual Monaco rendering, typing, highlighting, browser worker startup, network failure behavior, mobile/zoom and keyboard/screen-reader checks remain unverified. Mocked DOM tests and emitted worker files do not prove these. Use the guide's browser checklist when a supported environment is available. Real Supabase signup/session and personal UI checks remain pending as before; no credentials were supplied.
+
+## 🟪 Resume boundary
+
+Resume from PR #8 after a new request. Check the latest head/CI, perform supported browser checks, then add deliberate reset behavior and output/test-results panels as the second half of Phase 7. Keep code execution in Phase 8. Preserve original content and complete phase guides. Do not start more features during this pause.
+
+---
+
+## Historical Phase 6 handoff
+
+**Previous checkpoint, 2026-09-14: Phase 6.** The current status above supersedes the next-step instructions in this historical record.
 
 ## 🟦 Repository and workflow
 
@@ -50,8 +86,8 @@ No editor, runner or acceptance verification exists. Never evaluate untrusted co
 | 3 | Authentication | Implemented/reconciled in merged PR #5; live checks pending |
 | 4 | Workspace/UI system | Implemented in merged PR #5; browser QA pending |
 | 5 | Problem library | Complete; merged PR #6, CI passed |
-| 6 | Problem detail and guidance | Implemented/documented in PR #7; final CI/merge recorded on PR |
-| 7 | Monaco editor | Next milestone; not started |
+| 6 | Problem detail and guidance | Complete; merged PR #7, final CI 34906233520 passed |
+| 7 | Monaco editor | First-half checkpoint implemented in draft PR #8; paused before reset/output/results |
 | 8 | Safe code runner | Not started |
 | 9 | Progress tracking | Models, library reads and per-problem manual solved/review controls only |
 | 10 | Dashboard analytics | Not started |

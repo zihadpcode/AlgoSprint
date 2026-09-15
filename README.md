@@ -2,15 +2,17 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current milestone: Phase 6 — guided problem pages
+## 🟩 Current checkpoint: Phase 7 first half — paused
 
-Phases 1–5 are merged. Phase 6 is implemented in [PR #7](https://github.com/zihadpcode/AlgoSprint/pull/7): published problem statements, examples, constraints, progressive hints, solution tabs, starter code, related challenges, private notes, and manual solved/review controls.
+Phases 1–6 are merged into `main`. The requested first half of Phase 7 is saved separately in [draft PR #8](https://github.com/zihadpcode/AlgoSprint/pull/8), branch `algosprint/phase-7-editor-part-1`. The PR stays open at this pause; main remains the Phase 6 baseline.
 
-Open `/problems` after configuring PostgreSQL, applying migrations, and seeding, then select a problem. Public reading needs no account. Private notes and progress require verified sign-in. Manual solves are labeled self-marked; no editor or code runner exists yet. Unknown/unpublished problems return 404, and missing database configuration shows a preparation state.
+This checkpoint adds Monaco editing, selection among a problem's supplied languages, and starter-code loading. Small in-memory drafts preserve code when switching languages, including deliberately empty code. Refreshing or leaving discards drafts. Reset controls and output/test-results panels are deferred to the second half; execution is Phase 8.
 
-Read [the complete Phase 6 guide](docs/PHASE-6-GUIDE.md) for exact commands, all 19 authored source files, explanations, concurrency rules and testing. [The handoff](docs/SESSION-HANDOFF.md) and PR #7 record validation and publication status.
+Read [the complete first-half guide](docs/PHASE-7-PART-1-GUIDE.md) for all nine authored files, dependency/setup commands, design explanations and browser checks. The generated lockfile is committed alongside the source. [The handoff](docs/SESSION-HANDOFF.md) and PR #8 identify validation and the exact pause boundary.
 
-The coding workspace is available again. Local unit/migration tests, lint, types, build and unconfigured production HTTP checks have passed. Full implementation [CI passed](https://github.com/zihadpcode/AlgoSprint/actions/runs/34905876549): 55 unit/migration tests, 17 PostgreSQL integration tests, schema/seed validation, lint, types, build and both production HTTP checks. Browser interaction/visual checks and real Supabase account validation remain outstanding. Nothing has been deployed.
+Local 63 tests, lint, TypeScript, production build and unconfigured HTTP smoke passed. Implementation [CI passed](https://github.com/zihadpcode/AlgoSprint/actions/runs/35006464039), including all 80 tests and seeded production HTTP routes. Actual Monaco/browser/worker behavior and live Supabase checks remain pending. Nothing is deployed.
+
+To run this checkpoint, check out `algosprint/phase-7-editor-part-1` before the commands below. To run the last fully merged phase, use `main` and the [Phase 6 guide](docs/PHASE-6-GUIDE.md).
 
 ## 🟩 Run locally
 
@@ -69,6 +71,7 @@ npm run test:smoke
 | `docs/PHASE-4-GUIDE.md` | UI setup, full authored files, design choices, and verification limits. |
 | `docs/PHASE-5-GUIDE.md` | Published library, query boundaries, full source, and testing. |
 | `docs/PHASE-6-GUIDE.md` | Guided problem pages, private notes/progress, full source and testing. |
+| `docs/PHASE-7-PART-1-GUIDE.md` | Paused editor checkpoint, full authored files and validation limits. |
 
 ## 🟥 Security model
 
@@ -78,4 +81,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-Phase 6 delivers guided study and per-problem personal controls. The next milestone is Phase 7 Monaco editing, followed by isolated execution, richer progress, analytics, the notes/bookmarks manager, roadmaps, admin authoring, generators, interviews, and deployment. Content grows from 5 to 20 to 100 to 1,000 reviewed problems. All statements, hints, explanations, roadmap names, branding, and UI must be original.
+Resume with the second half of Phase 7 only when requested: reset controls and output/test-results panels. Phase 8 introduces isolated execution, followed by richer progress, analytics, notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.
