@@ -2,17 +2,17 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current checkpoint: Phase 7 first half — paused
+## 🟩 Current milestone: Phase 7 — editor workspace
 
-Phases 1–6 are merged into `main`. The requested first half of Phase 7 is saved separately in [draft PR #8](https://github.com/zihadpcode/AlgoSprint/pull/8), branch `algosprint/phase-7-editor-part-1`. The PR stays open at this pause; main remains the Phase 6 baseline.
+Phases 1–6 are merged. Phase 7 is completed in [PR #8](https://github.com/zihadpcode/AlgoSprint/pull/8): Monaco editing, language selection, starter loading, in-memory drafts, confirmed reset, and output/test-results panels. Its PR records final validation and merge status.
 
-This checkpoint adds Monaco editing, selection among a problem's supplied languages, and starter-code loading. Small in-memory drafts preserve code when switching languages, including deliberately empty code. Refreshing or leaving discards drafts. Reset controls and output/test-results panels are deferred to the second half; execution is Phase 8.
+Reset changes only the active language after confirmation. Output and timing remain unavailable, and public examples are clearly marked Not run. There is no code runner, submission evaluation or durable draft storage yet.
 
-Read [the complete first-half guide](docs/PHASE-7-PART-1-GUIDE.md) for all nine authored files, dependency/setup commands, design explanations and browser checks. The generated lockfile is committed alongside the source. [The handoff](docs/SESSION-HANDOFF.md) and PR #8 identify validation and the exact pause boundary.
+Read [the complete Phase 7 guide](docs/PHASE-7-GUIDE.md) for all eleven authored files, setup, explanations and verification. [The handoff](docs/SESSION-HANDOFF.md) records the current checkpoint and configuration gaps. The earlier first-half guide is historical.
 
-Local 63 tests, lint, TypeScript, production build and unconfigured HTTP smoke passed. Implementation [CI passed](https://github.com/zihadpcode/AlgoSprint/actions/runs/35006464039), including all 80 tests and seeded production HTTP routes. Actual Monaco/browser/worker behavior and live Supabase checks remain pending. Nothing is deployed.
+The coding environment disconnected during completion work. [Completion CI passed](https://github.com/zihadpcode/AlgoSprint/actions/runs/35008677517): all 86 tests, lint, types, build and production HTTP checks. Real Monaco/browser/worker and live Supabase behavior remain unverified. Nothing is deployed. Pause here before Phase 8.
 
-To run this checkpoint, check out `algosprint/phase-7-editor-part-1` before the commands below. To run the last fully merged phase, use `main` and the [Phase 6 guide](docs/PHASE-6-GUIDE.md).
+Until PR #8 is merged, use branch `algosprint/phase-7-editor-part-1` to run the completed phase. After merge, use `main`.
 
 ## 🟩 Run locally
 
@@ -71,7 +71,8 @@ npm run test:smoke
 | `docs/PHASE-4-GUIDE.md` | UI setup, full authored files, design choices, and verification limits. |
 | `docs/PHASE-5-GUIDE.md` | Published library, query boundaries, full source, and testing. |
 | `docs/PHASE-6-GUIDE.md` | Guided problem pages, private notes/progress, full source and testing. |
-| `docs/PHASE-7-PART-1-GUIDE.md` | Paused editor checkpoint, full authored files and validation limits. |
+| `docs/PHASE-7-PART-1-GUIDE.md` | Historical first-half editor checkpoint. |
+| `docs/PHASE-7-GUIDE.md` | Complete editor/reset/output workspace, full source and verification limits. |
 
 ## 🟥 Security model
 
@@ -81,4 +82,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-Resume with the second half of Phase 7 only when requested: reset controls and output/test-results panels. Phase 8 introduces isolated execution, followed by richer progress, analytics, notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.
+Phase 7 is implemented. Phase 8 next requires comparing runner options and implementing isolated execution, followed by richer progress, analytics, notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.

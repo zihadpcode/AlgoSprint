@@ -1,81 +1,47 @@
 # AlgoSprint session handoff
 
-**Paused checkpoint: Phase 7, first half — 2026-09-15.** The user asked to finish half of Phase 7 and pause, then said “continue” while that work was active. Finish verification/documentation for this checkpoint and stop. Do not begin the second half.
+**2026-09-15 checkpoint: Phase 7 implemented and documented. Pause before Phase 8.**
 
-## 🟦 Current repository state
+The user resumed after the first-half checkpoint, then requested continuing and pausing at 90% usage. There is no live usage meter available. The communicated session boundary is to complete Phase 7, save its verified checkpoint, and stop before Phase 8. The earlier instruction to leave a half-finished draft is superseded by this resume; standing authorization covers a verified merge.
 
-- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
-- Main baseline: `362391407a5791eb83ab63a929ffb83abc5f8493`, merged Phase 6 PR #7. Its tree `17000d3777508dc105821bbe49d754887729cd35` exactly matched the tested Phase 6 head; final CI run 34906233520 passed.
-- Current work: [draft PR #8](https://github.com/zihadpcode/AlgoSprint/pull/8), branch `algosprint/phase-7-editor-part-1`. Leave it open and unmerged at this pause.
-- Local workspace: isolated `algosprint-next`; older `algosprint` remains preserved. Local ancestry is synthetic; use GitHub's actual parents for publishing and do not blindly push the snapshot history.
-- No deployment, real account/production data changes, schema changes or seed-content changes.
-
-## 🟩 First-half implementation
-
-Added Monaco editor, supported-language selection and starter-code loading to published problem pages. Minimal per-language memory drafts support switching and preserve intentionally empty code. A same-problem rerender preserves drafts; a changed problem key resets them. Refreshing/leaving discards drafts. Editor models/listeners are disposed on language changes and unmount; undo/cursor history across languages is not retained.
-
-Monaco 0.56.0 uses its supported ESM editor/features/language-definition entry points and a bundled same-origin worker. No CDN loader or execution service receives code. Six schema languages have syntax definitions, but each selector includes only its problem's supplied starters. This is syntax editing, not a compiler or full language server. The existing read-only starter reference remains separate.
-
-The editor has loading/error feedback, copyable fallback code, automatic layout, labeled input and Tab-focus mode. Only public starter records are passed into it; database queries, hidden-test boundaries and existing auth controls are unchanged. Development tests add happy-dom 20.14.5; npm-generated dependency lockfile is committed.
-
-Reset controls, output panel and test-results panel are intentionally unbuilt. Durable drafts, execution and submissions are not implemented. README, the brief's status preface and [PHASE-7-PART-1-GUIDE.md](PHASE-7-PART-1-GUIDE.md) document the pause. The guide includes all nine complete authored files; the generated lockfile remains its canonical repository file.
-
-## 🟨 Validation and remaining checks
-
-Local checks passed: 63 unit/component/migration tests, lint, TypeScript, production build and unconfigured HTTP smoke. The build emits the editor and worker chunks. Eight new happy-dom tests mock Monaco and cover language/draft changes, empty code, same/different problem rerenders, failures, controlled updates and cleanup including Strict Mode.
-
-Initial GitHub implementation: `b972869c951ab92d7940bf6de72d178db4de1140`. CI additionally runs the existing 17 real PostgreSQL integration tests, schema/seed checks and seeded production HTTP checks. **Implementation CI passed:** [run 35006464039](https://github.com/zihadpcode/AlgoSprint/actions/runs/35006464039), including all 63 unit/component/migration tests, 17 PostgreSQL integration tests, schema/seed validation, lint, types, build and both HTTP smoke scripts. The closing commit changes documentation only; PR #8 records its final CI and remains open at the pause.
-
-Actual Monaco rendering, typing, highlighting, browser worker startup, network failure behavior, mobile/zoom and keyboard/screen-reader checks remain unverified. Mocked DOM tests and emitted worker files do not prove these. Use the guide's browser checklist when a supported environment is available. Real Supabase signup/session and personal UI checks remain pending as before; no credentials were supplied.
-
-## 🟪 Resume boundary
-
-Resume from PR #8 after a new request. Check the latest head/CI, perform supported browser checks, then add deliberate reset behavior and output/test-results panels as the second half of Phase 7. Keep code execution in Phase 8. Preserve original content and complete phase guides. Do not start more features during this pause.
-
----
-
-## Historical Phase 6 handoff
-
-**Previous checkpoint, 2026-09-14: Phase 6.** The current status above supersedes the next-step instructions in this historical record.
-
-## 🟦 Repository and workflow
+## 🟦 Repository and environment
 
 - Private repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
-- Starting main: `d64a450288e1b9b94d81c86e3d0f28d9f39645e3`, merged Phase 5 PR #6; tree `54c0840b4629e15868568d690bd1d81c44ef0fba`. Final Phase 5 head `4848e1b4264f039e9fc6d333ecf5e7eb5524bcdf` passed CI run 34873407020.
-- Phase 6: [PR #7](https://github.com/zihadpcode/AlgoSprint/pull/7), branch `algosprint/phase-6-details`. The PR records the final checked head and merge result.
-- The coding workspace is available again. Current main was restored into isolated `algosprint-next`; the older `algosprint` folder was preserved. Local git ancestry is a synthetic snapshot. Publication uses GitHub's real parents; do not blindly push local snapshot history. Use a fresh clone of current main when resuming elsewhere.
-- Read AGENTS.md and the installed Next.js 16.3.5 page, Server Actions and revalidatePath guides before implementation.
-- No deployment, production database mutation or live Supabase configuration occurred. Standing authorization covers routine verified publication/merge.
+- Starting main: `362391407a5791eb83ab63a929ffb83abc5f8493`, merged Phase 6 PR #7.
+- Continuing [PR #8](https://github.com/zihadpcode/AlgoSprint/pull/8), branch `algosprint/phase-7-editor-part-1`. The branch name is historical; both halves are included. The PR records the final head, CI and merge result.
+- First-half saved head: `59f962760ab293f061b0b14d57e107fad6c17be0`, tree `73d6d1cee899558e5df6265b8c213f7180b80aae`, passing final CI run 35006864616.
+- The coding environment disconnected during the second-half edits. Remote source was recovered from that verified head and finished through GitHub. Local `algosprint-next` may contain partial second-half edits and is not synchronized with this final checkpoint. The older `algosprint` folder was preserved. Use a fresh clone/current GitHub tree to resume; do not blindly push the synthetic local ancestry or overwrite local changes.
+- AGENTS.md and relevant installed Next.js dynamic-loading instructions were read before editing. No production data, real accounts, schema, seeds or deployments changed.
 
-## 🟩 Phase 6 implementation
+## 🟩 Phase 7 behavior
 
-`/problems/[slug]` displays published statements, public examples/expected output, constraints, five-step hints, initially collapsed guided solutions with keyboard-operable tabs, language-selectable starters, related challenges and personal tools. Related links use published relations with a shared-category fallback. Cards/dashboard links and landing descriptions reflect the new pages.
+The editor uses pinned Monaco 0.56.0 ESM modules, six syntax definitions, and a bundled same-origin worker. Only supplied problem languages appear in its selector. Public starter records initialize per-language memory drafts, including deliberately empty drafts. Same-problem rerenders preserve drafts; navigation/refresh discards them. Text survives language switches, but cursor/undo history does not.
 
-Explicit read selections omit hidden tests, operational IDs/hashes, submissions and other users' records. Hints/solutions are intentional public learning content; their reveal UI is not a confidentiality boundary. Repeatable-read transactions provide a consistent snapshot. Invalid, missing, draft and archived slugs return 404 when queryable; missing database configuration shows a preparation state. Existing private/no-store proxy headers cover detail routes.
+Models, views and listeners are disposed on language changes/unmount. Programmatic value synchronization does not masquerade as typing; typing echoes avoid redundant setValue calls. The surface provides automatic layout, screen-reader labeling and Tab-focus mode, plus loading and copyable error fallback states.
 
-Personal actions validate with Zod, reverify the session and derive ownership solely from the viewer. A shared problem-row lock prevents archival during writes. Concurrent progress creation preserves independent fields and solve provenance. Manual solves are labeled self-marked, can be undone, and satisfy solvedAt constraints. Future runner-verified solves cannot be relabeled/cleared by these controls. Review state is independent.
+Reset is disabled when code matches its starter. Otherwise, an inline confirmation names the language, initially focuses Keep my code, supports Escape/cancellation, and replaces only the active language after confirmation. Focus returns to the language selector and a status message announces success. Editing or changing language dismisses stale reset prompts.
 
-Notes preserve whitespace, allow at most 10,000 characters, and reject null characters. Conditional content updates detect stale/concurrent drafts. Controlled input and the tab's saved baseline preserve drafts on failed saves and unrelated rerenders. Save an empty note to clear it. Saving is explicit; leaving can discard an unsaved draft. This is content-based optimistic concurrency, not revision history or live collaboration.
+Output explicitly says execution is unavailable, with no actual output or measured runtime/memory. Test results show public examples and expected values marked Not run, with actual output still Not run. Empty example/starter collections have explicit states. All example content is escaped React text. There are no Run/Submit controls or fabricated acceptance results.
 
-The [Phase 6 guide](PHASE-6-GUIDE.md) includes all 19 complete authored implementation/test files, setup, file connections, concurrency explanations and testing. README and the original brief's status preface are updated. No dependencies, migrations, seed content or lockfiles changed.
+Only public starters and ProblemExample data are passed into the workspace. Hidden TestCase records, operational identifiers, submissions and private records remain outside it. No runner, saved submission, full language server or durable draft store exists.
 
 ## 🟨 Verification
 
-Local checks passed: 55 unit/migration tests, Prisma schema validation, all five seed/reference-output validations, lint, TypeScript, production build and unconfigured production HTTP smoke. A test-fixture TypeScript annotation was corrected before the successful type/build run.
+Completion implementation `428ed45b7f821279b89369ba594d824864ea4ce9` passed [CI run 35008677517](https://github.com/zihadpcode/AlgoSprint/actions/runs/35008677517): 69 unit/component/migration tests, 17 real PostgreSQL integration tests, schema/seed validation, lint, TypeScript, production build and both production HTTP smoke scripts.
 
-Initial implementation `5813a5dbd42832206bdaf7fc7cce1043979c34ef`, run 34905583287, passed all 55 unit/migration and 17 real PostgreSQL integration tests, schema/migrations/seeds, lint, types, build and unconfigured HTTP checks. The seeded HTTP step failed because a fixture reused an untyped SQL parameter for VARCHAR and TEXT columns; the five seeded detail pages had passed their preceding assertions.
+Six new component tests cover reset confirmation/focus/Escape, active-language scope, empty drafts, stale prompt dismissal, escaped and truthful example panels, and empty states. Existing lifecycle tests and production privacy checks still pass. No new package or database changes were needed for the second half.
 
-Follow-up `db472a96b041ce57a096038b58b551b6663227b9` adds explicit fixture text casts and deterministic note-count formatting. **Full implementation CI passed:** [run 34905876549](https://github.com/zihadpcode/AlgoSprint/actions/runs/34905876549), including all 55 unit/migration tests, 17 PostgreSQL integration tests, schema/seed validation, lint, TypeScript, production build and both HTTP smoke scripts. The closing commit changes documentation only; PR #7 records its final checks and merge result.
+First-half implementation `b972869c951ab92d7940bf6de72d178db4de1140` passed CI 35006464039; its documentation head passed 35006864616, each with 63 unit/component/migration and 17 PostgreSQL tests. Local checks passed in the first-half session. **No successful local second-half tests/build ran after the environment disconnected.** Final completion evidence comes from CI.
 
-New tests cover public projection/order, hidden-test exclusion, related-link publication/fallback, missing/unpublished read/write denial, two-user isolation, concurrent progress creation, undo semantics, future verified-solve preservation, stale notes and simultaneous note saves. Production HTTP checks use owned fixtures to prove hidden payloads, private notes and unpublished relations stay absent from guest responses despite forged parameters/cookies. Tests use a dedicated `_test` database and remove their fixtures.
+The complete guide is [PHASE-7-GUIDE.md](PHASE-7-GUIDE.md), with all eleven authored files, exact setup/testing commands, internal explanations and browser checks. The first-half guide is marked historical. README, the original brief's status preface and the phase ledger are updated. The closing commit changes documentation only; PR #8 records its checks and final publication state.
 
 ## 🟥 Remaining limits
 
-No browser visual, mobile/zoom, keyboard/screen-reader or interactive form check ran this session. Follow the concrete checklist in the guide. Production HTTP checks are not browser interaction approval.
+Actual Monaco rendering, typing, highlighting, browser worker startup and failure recovery, mobile/zoom and keyboard/screen-reader behavior remain unverified. happy-dom tests mock Monaco and prove application state/lifecycle behavior, not real browser operation. Emitted worker files are not proof of worker startup. Use the full guide's checklist when supported browser access is available.
 
-Real Supabase signup, email confirmation, PKCE, refresh/logout and signed-in notes/progress UI still require development configuration and two confirmed test users. No real credentials were supplied. Boundary tests mock authentication; PostgreSQL tests use trusted fixture IDs. Do not claim live sign-in is verified.
+Live Supabase signup, confirmation, PKCE, session refresh/logout and signed-in personal UI still need configured development accounts. No credentials were supplied. Do not claim live authentication is verified.
 
-No editor, runner or acceptance verification exists. Never evaluate untrusted code on the app server. Private app-schema RLS/revoked grants remain, but Prisma's trusted role still needs ownership checks near queries. A lost note-save response may require reloading to see whether the transaction committed.
+Code is never evaluated on the application server. Runtime/memory are not measured; expected examples are not actual execution results. Keep the trusted Prisma owner's per-query authorization checks and the server-only hidden-test boundary when adding future functionality.
 
 ## 🟪 Phase ledger
 
@@ -86,22 +52,24 @@ No editor, runner or acceptance verification exists. Never evaluate untrusted co
 | 3 | Authentication | Implemented/reconciled in merged PR #5; live checks pending |
 | 4 | Workspace/UI system | Implemented in merged PR #5; browser QA pending |
 | 5 | Problem library | Complete; merged PR #6, CI passed |
-| 6 | Problem detail and guidance | Complete; merged PR #7, final CI 34906233520 passed |
-| 7 | Monaco editor | First-half checkpoint implemented in draft PR #8; paused before reset/output/results |
-| 8 | Safe code runner | Not started |
-| 9 | Progress tracking | Models, library reads and per-problem manual solved/review controls only |
+| 6 | Problem details and guidance | Complete; merged PR #7, CI passed |
+| 7 | Monaco editor workspace | Implemented/documented in PR #8; completion CI passed; final merge evidence on PR |
+| 8 | Safe code runner | Next phase; not started |
+| 9 | Progress tracking | Models, library reads and per-problem manual solved/review controls |
 | 10 | Dashboard analytics | Not started |
-| 11 | Notes and bookmarks | Models and per-problem note only; manager/bookmark controls not started |
+| 11 | Notes and bookmarks | Models and per-problem note; manager/bookmarks not started |
 | 12 | Original roadmaps | Models only |
 | 13 | Admin content tools | Models and guarded placeholder only |
 | 14 | Problem generator | Seed/validation foundation only |
 | 15 | Mock interviews | Models only |
 | 16 | Polish and deployment | Not started |
 
-Next: use the verified Phase 6 main/PR checkpoint, then implement Phase 7 Monaco when requested. Keep editor state separate from public problem DTOs and server-only hidden tests. Resolve browser/live-account checks when configuration permits. Maintain complete source guides, original content and accessible color cues. Deployment remains Phase 16.
+**Stop here.** On a new resume, verify current main/PR #8 first. Before Phase 8 implementation, explain a limited mock runner, Judge0 and an isolated Docker service, then choose a safe MVP. Real visible-test runs, hidden-test evaluation and saved submission results belong there. Preserve original content and complete phase guides.
 
 ## 🟦 Earlier evidence and unchanged content
 
-Phase 4 final head `a07bcf87ef597cd2eae8f05ca45c2a173f47cbc6` passed run 34814179876 and merged as `dc62d532ab10efd945d845f19c56039001475d69`. PR #3 merged indirectly; PR #4 was closed as incorporated. Phase 5 implementation `2601397d005d99f3375767664ebd263c921c937b` passed run 34873039920; its closing documentation passed run 34873407020 before merge.
+Phase 6 merged as `362391407a5791eb83ab63a929ffb83abc5f8493`; final head `ecc299b7787d984326d46cac6a5f8dabf2366420` passed run 34906233520 and had the exact merged tree `17000d3777508dc105821bbe49d754887729cd35`.
 
-Five original problems remain Relay Window, Quiet Badge, Parcel Checkpoints, Dock Threshold and Lantern Steps: 25 hints, 10 solutions, 10 public examples and 30 cases (10 visible/20 hidden). The 22-model schema, 30 categories, six tags and one interview style are unchanged. Grow reviewed content from 5 to 20 to 100 to 1,000 later.
+Phase 5 merged as `d64a450288e1b9b94d81c86e3d0f28d9f39645e3`; final head `4848e1b4264f039e9fc6d333ecf5e7eb5524bcdf` passed run 34873407020. Phase 4 merged as `dc62d532ab10efd945d845f19c56039001475d69` after run 34814179876. PR #3 merged indirectly; PR #4 was closed as incorporated.
+
+The five original problems remain Relay Window, Quiet Badge, Parcel Checkpoints, Dock Threshold and Lantern Steps: 25 hints, 10 solutions, 10 public examples and 30 cases (10 visible/20 hidden). The 22-model schema, 30 categories, six tags and one interview style are unchanged. Grow reviewed content from 5 to 20 to 100 to 1,000 later.

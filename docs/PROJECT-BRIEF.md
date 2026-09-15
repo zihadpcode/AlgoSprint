@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. Phases 1–6 are merged. The current instruction is to finish the first half of Phase 7 and pause; the follow-up “continue” preserves that boundary. The first-half editor checkpoint is saved in draft PR #8, with reset/output/test-results controls deferred. Read SESSION-HANDOFF.md for current status. The original Phase 1-only instruction below is historical.
+This is the original user-provided brief, preserved for continuity. Phases 1–6 are merged; Phase 7 is completed in PR #8 after the user resumed from its first-half pause. The latest request includes pausing at 90% usage. No live usage meter is available, so this session is bounded to completing and saving Phase 7, then pausing before Phase 8. Read SESSION-HANDOFF.md for current evidence and configuration gaps. The original Phase 1-only instruction below is historical.
 
 ---
 
