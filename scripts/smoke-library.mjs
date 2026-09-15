@@ -59,7 +59,7 @@ try {
     assert.equal(detail.status, 200, slug);
     assert.match(detail.headers.get("cache-control") ?? "", /no-store/);
     const body = await detail.text();
-    for (const section of ["Problem statement", "Examples", "Constraints", "Layered hints", "Reveal guided solutions", "Starter code", "Related problems", "Sign in to write notes", "Editor language", "Code execution is not available yet"]) assert.ok(body.includes(section), `${slug}: ${section}`);
+    for (const section of ["Problem statement", "Examples", "Constraints", "Layered hints", "Reveal guided solutions", "Starter code", "Related problems", "Sign in to write notes", "Editor language", "Code execution is not available yet", "Reset to starter", "Test results", "No output yet", "Actual output: Not run", "Not measured"]) assert.ok(body.includes(section), `${slug}: ${section}`);
     assert.match(body, /<details(?:\s[^>]*)?>/);
     assert.ok(!/<details[^>]*\sopen(?:[\s=>])/.test(body), "Solutions start collapsed");
     for (const field of ["testCases", "seedHash", "HIDDEN"]) assert.ok(!body.includes(field), field);
