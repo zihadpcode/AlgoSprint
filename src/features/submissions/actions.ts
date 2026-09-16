@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getViewer } from "@/features/auth/session";
 import { getDatabase } from "@/lib/prisma";
 import { executionInput, type ExecutionState } from "./contracts";
@@ -14,7 +15,12 @@ export async function executeCode(raw: unknown): Promise<ExecutionState> {
     if (!viewer) return { success: false, message: "Sign in with a confirmed account to run or submit code." };
     const config = getRunnerConfig();
     if (!config) return { success: false, message: "Code execution is not configured yet. Your draft is unchanged." };
-    return await runSubmission(getDatabase(), viewer.id, parsed.data, config);
+    const outcome = await runSubmission(getDatabase(), viewer.id, parsed.data, config);
+    if (outcome.success) {
+      revalidatePath(`/problems/${parsed.data.slug}`);
+      revalidatePath("/problems"); revalidatePath("/progress"); revalidatePath("/dashboard");
+    }
+    return outcome;
   } catch {
     return { success: false, message: "Could not finish saving the execution result. Your draft is unchanged. A retry creates a new attempt." };
   }

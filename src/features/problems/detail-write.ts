@@ -1,5 +1,6 @@
 import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
+import { writeProgress } from "@/features/progress/write";
 import type { ProblemChange } from "./detail-validation";
 
 // Trusted helper: caller must validate input and verify the user before entering.
@@ -19,26 +20,9 @@ export async function writeProblemChange(db: PrismaClient, userId: string, chang
       });
       return updated.count ? "saved" as const : "conflict" as const;
     }
-    await tx.userProgress.createMany({ data: owner, skipDuplicates: true });
-    if (change.operation === "set-review") {
-      await tx.userProgress.updateMany({ where: owner, data: { reviewLater: change.review === "true" } });
-    } else if (change.operation === "mark-solved") {
-      // Preserve an existing solve's date and provenance; this is a manual mark.
-      await tx.userProgress.updateMany({
-        where: { ...owner, status: { not: "SOLVED" } },
-        data: { status: "SOLVED", solvedAt: new Date(), selfMarked: true },
-      });
-    } else {
-      // Undo only manual marks. Future runner-verified solves cannot be cleared here.
-      await tx.userProgress.updateMany({
-        where: { ...owner, status: "SOLVED", selfMarked: true, attemptedAt: null },
-        data: { status: "NOT_STARTED", solvedAt: null, selfMarked: false },
-      });
-      await tx.userProgress.updateMany({
-        where: { ...owner, status: "SOLVED", selfMarked: true, attemptedAt: { not: null } },
-        data: { status: "ATTEMPTED", solvedAt: null, selfMarked: false },
-      });
-    }
+    const at = new Date();
+    if (change.operation === "set-review") await writeProgress(tx, userId, problem.id, { kind: "review", value: change.review === "true", at });
+    else await writeProgress(tx, userId, problem.id, { kind: change.operation === "mark-attempted" ? "attempt" : change.operation === "mark-solved" ? "manual-solve" : "clear-manual", at });
     return "saved" as const;
   });
 }

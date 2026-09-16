@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { LibraryResult } from "@/features/problems/query";
 
-const statusLabels = { NOT_STARTED: "Not started", ATTEMPTED: "Attempted", SOLVED: "Solved" };
+import { progressLabel } from "@/features/progress/presentation";
 export function ProblemCard({ problem }: { problem: LibraryResult["items"][number] }) {
   return (
     <Card className="h-full">
@@ -21,7 +21,7 @@ export function ProblemCard({ problem }: { problem: LibraryResult["items"][numbe
       <p className="mt-3 text-xs leading-6 text-muted">Tags: {problem.tags.map((tag) => tag.name).join(", ") || "None"}</p>
       {problem.progress && <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-5">
         <Badge tone={problem.progress.status === "SOLVED" ? "success" : "neutral"}>
-          {statusLabels[problem.progress.status]}{problem.progress.status === "SOLVED" && problem.progress.selfMarked ? " · self-marked" : ""}
+          {progressLabel(problem.progress)}
         </Badge>
         {problem.progress.reviewLater && <Badge tone="warm">Review later</Badge>}
       </div>}

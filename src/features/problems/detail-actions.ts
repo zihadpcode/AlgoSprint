@@ -22,6 +22,8 @@ export async function updateProblem(_previous: ProblemActionState, form: FormDat
   } catch { return { success: false, message: "Could not save your change. Please try again." }; }
   revalidatePath(`/problems/${input.data.slug}`);
   revalidatePath("/problems");
+  revalidatePath("/progress");
+  revalidatePath("/dashboard");
   if (input.data.operation === "save-note") return { success: true, message: input.data.content ? "Note saved." : "Note cleared.", savedContent: input.data.content };
   return { success: true, message: "Progress updated." };
 }

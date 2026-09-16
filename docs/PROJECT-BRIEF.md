@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. Phases 1–7 are merged. On 2026-09-16 the user resumed Phase 8; its isolated Judge0 integration is implemented in PR #9, with a disabled-by-default configuration and live provider/account/browser checks still pending. The next checkpoint is to save verified Phase 8 and pause before Phase 9. No live usage-percentage meter is available. Read SESSION-HANDOFF.md for evidence, configuration requirements and the phase ledger. The original Phase 1-only instruction below is historical.
+This is the original user-provided brief, preserved for continuity. Phases 1–8 are merged. Phase 9 progress tracking is implemented and documented in PR #10 after the user's resume: 97 unit/component/migration tests and 33 real PostgreSQL integration tests pass, along with local lint/types/build and protected HTTP smoke. The full Phase 9 guide has all 36 changed source/config/test files. PR #10 records final CI and merge evidence; SESSION-HANDOFF.md is the current checkpoint. The prior Phase 9 pause files and original Phase 1-only instruction below are historical. Pause before Phase 10. Live Supabase/Judge0/browser verification remains pending; no production migration or deployment was performed.
 
 ---
 

@@ -2,15 +2,13 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current milestone: Phase 8 — safe code runner
+## 🟩 Current checkpoint: Phase 9 progress tracking
 
-Phases 1–7 are merged. [Phase 8 PR #9](https://github.com/zihadpcode/AlgoSprint/pull/9) adds authenticated visible-test runs, full-suite submissions, PostgreSQL attempt records and output/error feedback through a separately configured Judge0 service. It supports JavaScript for the five original seeded problems. The PR records final validation and merge status.
+Phase 9 connects saved attempts and accepted full-suite submissions to private progress, with separate manual and verified solve labels. The protected `/progress` page shows totals, difficulty/category breakdowns, recent attempts, and recently updated progress. Existing solve dates and review/bookmark flags are preserved.
 
-The runner is **disabled by default**. Set up a maintained provider and a confirmed development account using [the complete Phase 8 guide](docs/PHASE-8-GUIDE.md). Credentials remain server-only, submitted code never executes on the app server, and hidden submissions return only summary results. Rate limits use PostgreSQL reservations shared across app instances. Existing manual progress is unchanged until Phase 9.
+Read [the complete Phase 9 guide](docs/PHASE-9-GUIDE.md) for setup, architecture, all 36 changed source/config/test files, and the development-account checklist. [PR #10](https://github.com/zihadpcode/AlgoSprint/pull/10) records final CI and merge evidence; [the session handoff](docs/SESSION-HANDOFF.md) records the resume boundary. The previous pause notes are historical.
 
-[Implementation CI passed](https://github.com/zihadpcode/AlgoSprint/actions/runs/35047796766): 88 unit/component/migration tests and 24 real PostgreSQL integration tests, plus lint, types, build and production HTTP checks. These tests use an inert provider stub; **live Judge0 execution, live Supabase accounts and real browser/Monaco worker behavior are still unverified**. Nothing is deployed. Pause before Phase 9.
-
-The [handoff](docs/SESSION-HANDOFF.md) records evidence and configuration gaps. [Phase 7's complete guide](docs/PHASE-7-GUIDE.md) remains the historical editor walkthrough. Until PR #9 is merged, use `algosprint/phase-8-runner`; afterward use `main`.
+The 97 unit/component/migration tests and 33 PostgreSQL integration tests pass. Lint, types, build, and the unconfigured-account HTTP smoke also pass. Live Supabase/Judge0 and browser checks remain pending; code execution stays disabled until configured. Apply the new migration to your development database before using this phase. No production migration or deployment was performed. Pause before Phase 10 analytics.
 
 ## 🟩 Run locally
 
@@ -54,6 +52,7 @@ npm run test:smoke
 | `src/app/` | Landing, authentication, protected account pages, library and problem details. |
 | `src/components/layout/`, `src/components/ui/` | Shared workspace, navigation, native controls, and feedback states. |
 | `src/features/problems/` | Published queries, owned notes/progress, validation and server actions. |
+| `src/features/progress/` | Transactional progress updates, owner-only summaries and provenance labels. |
 | `src/features/submissions/` | Validated runner action, provider adapter, test harness, quotas and saved results. |
 | `src/features/auth/` | Input validation, server actions, verified sessions, profile provisioning. |
 | `src/lib/supabase/` | Request-scoped SSR clients, cookie refresh, trusted configuration. |
@@ -73,6 +72,7 @@ npm run test:smoke
 | `docs/PHASE-7-PART-1-GUIDE.md` | Historical first-half editor checkpoint. |
 | `docs/PHASE-7-GUIDE.md` | Complete editor/reset/output workspace, full source and verification limits. |
 | `docs/PHASE-8-GUIDE.md` | Isolated runner integration, complete source, configuration and live checks. |
+| `docs/PHASE-9-GUIDE.md` | Progress state, migration/backfill, protected counts/activity and complete source. |
 
 ## 🟥 Security model
 
@@ -82,4 +82,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-Phase 8 is implemented with live-provider verification pending. Phase 9 next connects submissions to progress, followed by analytics, notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.
+Phase 9 is implemented and documented; live-provider/account/browser verification remains pending. Phase 10 adds dashboard analytics, followed by notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.
