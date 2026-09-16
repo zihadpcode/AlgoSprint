@@ -2,6 +2,7 @@
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+vi.mock("@/features/submissions/actions", () => ({ executeCode: vi.fn() }));
 const control = vi.hoisted(() => ({ fail: false }));
 vi.mock("next/dynamic", () => ({ default: () => function FakeSurface({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   if (control.fail) throw new Error("Simulated chunk failure");
