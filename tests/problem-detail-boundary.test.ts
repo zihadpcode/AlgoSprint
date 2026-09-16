@@ -71,7 +71,7 @@ describe("personal problem action boundary", () => {
   it("uses only the verified owner and revalidates the affected public routes after success", async () => {
     expect((await updateProblem({}, form({ userId: "another", problemId: "another", role: "ADMIN" }))).success).toBe(true);
     expect(mocks.write).toHaveBeenCalledWith("trusted-db", "verified-user", { slug: "relay-window", operation: "mark-solved" });
-    expect(mocks.revalidate.mock.calls).toEqual([["/problems/relay-window"], ["/problems"]]);
+    expect(mocks.revalidate.mock.calls).toEqual([["/problems/relay-window"], ["/problems"], ["/progress"], ["/dashboard"]]);
   });
   it("does not falsely report or revalidate missing problems and stale saves", async () => {
     mocks.write.mockResolvedValue("not-found");

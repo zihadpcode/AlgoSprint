@@ -14,7 +14,7 @@ export type CaseResult = {
   stdout: string; diagnostic: string; runtimeMs: number | null; memoryKb: number | null;
 };
 export type ExecutionResult = {
-  id: string; mode: "RUN" | "SUBMIT"; status: Verdict; passedCount: number; totalCount: number;
+  id: string; problemRevision?: number; mode: "RUN" | "SUBMIT"; status: Verdict; passedCount: number; totalCount: number;
   runtimeMs: number | null; memoryKb: number | null; cases: CaseResult[];
 };
 export type ExecutionState = { success: false; message: string } | { success: true; result: ExecutionResult };

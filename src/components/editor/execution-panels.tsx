@@ -16,7 +16,7 @@ export function ExecutionPanels({ examples, available = false, result }: { examp
         <div><dt>Runtime</dt><dd className="mt-1">{result?.runtimeMs == null ? "Not measured" : `${result.runtimeMs} ms (slowest test)`}</dd></div>
         <div><dt>Memory</dt><dd className="mt-1">{result?.memoryKb == null ? "Not measured" : `${result.memoryKb} KB (peak test)`}</dd></div>
       </dl>
-      {result && <p className="mt-3 break-all text-xs text-muted">Saved attempt: {result.id}</p>}
+      {result && <p className="mt-3 break-all text-xs text-muted">Saved attempt: {result.id}{result.problemRevision !== undefined && ` · Problem revision ${result.problemRevision}`}</p>}
     </section>
     <section aria-label="Test results" className="rounded-xl border border-line bg-canvas p-5">
       <h3 className="font-semibold">Test results</h3>

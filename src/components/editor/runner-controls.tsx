@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { startTransition, useRef, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { executeCode } from "@/features/submissions/actions";
 import type { ExecutionState } from "@/features/submissions/contracts";
@@ -24,8 +24,8 @@ export function RunnerControls({ slug, code, language, enabled, signedIn, exampl
   const stale = last && (last.code !== code || last.language !== language);
   return <div className="space-y-4">
     <div className="flex flex-wrap gap-3">
-      <Button disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => void execute("RUN")}>Run visible tests</Button>
-      <Button variant="secondary" disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => void execute("SUBMIT")}>Submit solution</Button>
+      <Button disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => startTransition(async () => { await execute("RUN"); })}>Run visible tests</Button>
+      <Button variant="secondary" disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => startTransition(async () => { await execute("SUBMIT"); })}>Submit solution</Button>
     </div>
     {!signedIn && <ButtonLink href={`/login?next=${encodeURIComponent(`/problems/${slug}`)}`} variant="secondary">Sign in to run code</ButtonLink>}
     <p className="text-xs leading-6 text-muted">{available ? "Run checks visible tests. Submit checks the full suite, including hidden tests. Both save an attempt. Limit: 5 per minute and 30 per hour." : "Code execution is not available yet for this workspace. You can continue editing."}</p>

@@ -8,7 +8,7 @@ import { reserveSubmission, finishSubmission } from "./store";
 export async function runSubmission(db: PrismaClient, userId: string, input: ExecutionInput, config: RunnerConfig): Promise<ExecutionState> {
   const reservation = await reserveSubmission(db, userId, input);
   if ("error" in reservation) return { success: false, message: reservation.error! };
-  let result: ExecutionResult = { id: reservation.id, mode: input.mode, status: "INTERNAL_ERROR", passedCount: 0,
+  let result: ExecutionResult = { id: reservation.id, problemRevision: reservation.revision, mode: input.mode, status: "INTERNAL_ERROR", passedCount: 0,
     totalCount: reservation.cases.length, runtimeMs: null, memoryKb: null, cases: [] };
   try {
     const outcomes = await executeJudge0(config, reservation.source, reservation.cases.map((t) => ({ stdin: t.stdin, expected: t.output })), reservation.limits);

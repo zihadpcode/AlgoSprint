@@ -5,22 +5,24 @@ import { updateProblem } from "@/features/problems/detail-actions";
 import { NOTE_LIMIT, type ProblemActionState } from "@/features/problems/detail-validation";
 import type { ProblemDetail } from "@/features/problems/detail-query";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { progressLabel } from "@/features/progress/presentation";
 import { Badge } from "@/components/ui/badge";
 
 const initial: ProblemActionState = {};
-const statuses = { NOT_STARTED: "Not started", ATTEMPTED: "Attempted", SOLVED: "Solved" };
+
 export function ProgressControls({ slug, progress }: { slug: string; progress: NonNullable<ProblemDetail["personal"]>["progress"] }) {
   const [state, action, pending] = useActionState(updateProblem, initial);
   const solved = progress.status === "SOLVED";
   return <div className="mt-4 space-y-4">
-    <div className="flex flex-wrap gap-2"><Badge tone="accent">{statuses[progress.status]}{solved && progress.selfMarked ? " · self-marked" : ""}</Badge>
+    <div className="flex flex-wrap gap-2"><Badge tone="accent">{progressLabel(progress)}</Badge>
       {progress.reviewLater && <Badge tone="warm">Review later</Badge>}
     </div>
-    <p className="text-sm leading-7 text-muted">A manual mark records your own assessment. It does not mean code has passed tests.</p>
+    <p className="text-sm leading-7 text-muted">Manual marks record your own assessment. A verified solve requires passing the full suite for the current revision. Earlier verified solves remain in your history.</p>
     <form action={action} className="space-y-3">
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="review" value={String(!progress.reviewLater)} />
       <div className="flex flex-wrap gap-3">
+        <SubmitButton name="operation" value="mark-attempted" variant="secondary" disabled={pending || progress.status !== "NOT_STARTED"} pendingLabel="Saving…">Mark attempted</SubmitButton>
         <SubmitButton name="operation" value={solved ? "clear-solved" : "mark-solved"} disabled={pending || (solved && !progress.selfMarked)} pendingLabel="Saving…">
           {solved ? progress.selfMarked ? "Undo manual solve" : "Solved" : "Mark solved"}
         </SubmitButton>

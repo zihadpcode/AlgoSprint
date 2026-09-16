@@ -76,7 +76,7 @@ describe("published library against PostgreSQL", () => {
     await db.userProgress.create({ data: { userId: users[1], problemId: first.id, status: "ATTEMPTED" } });
     const solved = await queryLibrary(db, filters({ completion: "SOLVED", review: "1" }), users[0]);
     expect(solved.items.map((item) => item.slug)).toEqual([first.slug]);
-    expect(solved.items[0].progress).toEqual({ status: "SOLVED", reviewLater: true, selfMarked: true });
+    expect(solved.items[0].progress).toEqual({ status: "SOLVED", reviewLater: true, selfMarked: true, verification: null });
     expect((await queryLibrary(db, filters({ completion: "SOLVED" }), users[1])).total).toBe(0);
     expect((await queryLibrary(db, filters({ review: "1" }), users[1])).total).toBe(0);
     expect((await queryLibrary(db, filters({ completion: "NOT_STARTED" }), users[1])).total).toBe(4);

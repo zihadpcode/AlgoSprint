@@ -24,6 +24,7 @@ beforeAll(async () => {
 }, 30_000);
 beforeEach(async () => {
   await db.userSubmission.deleteMany({ where: { userId: { in: owners } } });
+  await db.userProgress.deleteMany({ where: { userId: { in: owners } } });
   await db.problem.update({ where: { id: problemId }, data: { status: "PUBLISHED" } });
 });
 afterAll(async () => {
@@ -82,7 +83,7 @@ it("persists a final verdict only for its owner and only once", async () => {
   const saved = await db.userSubmission.findUniqueOrThrow({ where: { id: first.id } });
   expect(saved).toMatchObject({ status: "ACCEPTED", passedCount: 2, runtimeMs: 12, result: result(first.id), completedAt: expect.any(Date) });
   await expect(finishSubmission(db, owners[0], { ...result(first.id), status: "WRONG_ANSWER" })).rejects.toThrow();
-  expect(await db.userProgress.count({ where: { userId: { in: owners } } })).toBe(0);
+  expect(await db.userProgress.findUnique({ where: { userId_problemId: { userId: owners[0], problemId } } })).toMatchObject({ status: "ATTEMPTED", verifiedRevision: null });
 });
 
 it("enforces the deployment-wide quota across different owners", async () => {

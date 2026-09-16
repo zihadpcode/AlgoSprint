@@ -17,6 +17,6 @@ export default async function DashboardPage() {
       <Card><Badge tone="success">Account ready</Badge><CardTitle className="mt-5">A small step, taken consistently.</CardTitle><CardDescription>Start with the question, trace a simple example, and explain your approach before optimizing it. Deliberate practice starts with understanding.</CardDescription></Card>
       <Card><CardTitle>Your practice rhythm</CardTitle><ol className="mt-5 space-y-4 text-sm text-muted">{["Read the constraints and choose an example.", "Write a first approach you can explain.", "Review what changed your understanding."].map((step, index) => <li key={step} className="flex gap-3"><span className="font-mono text-accent">0{index + 1}</span><span>{step}</span></li>)}</ol></Card>
     </div>
-    <section className="mt-8" aria-label="Practice activity"><EmptyState title="Your next insight starts with a problem" description="Explore the library, work through a guided explanation, and keep a private note. Activity analytics are coming later." action={<ButtonLink href="/problems">Explore problems</ButtonLink>} /></section>
+    <section className="mt-8" aria-label="Practice activity"><EmptyState title="Your next insight starts with a problem" description="Explore the library, work through a guided explanation, and keep a private note. Your progress page records attempts, solved counts and recent activity." action={<ButtonLink href="/progress">View your progress</ButtonLink>} /></section>
   </AccountFrame>;
 }

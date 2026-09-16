@@ -24,7 +24,7 @@ try {
     await delay(200);
   }
   assert.ok(ready, `Production server must become ready: ${lastFailure}\n${diagnostic}`);
-  for (const path of ["/dashboard", "/profile", "/admin"]) {
+  for (const path of ["/dashboard", "/progress", "/profile", "/admin"]) {
     const response = await fetch(origin + path, { redirect: "manual", headers: { cookie: "sb-access-token=forged; role=ADMIN" } });
     assert.equal(response.status, 307, `${path}: ${diagnostic}`);
     assert.ok(response.headers.get("location")?.startsWith("/login?next="), path);

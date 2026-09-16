@@ -338,6 +338,8 @@ model UserProgress {
   selfMarked  Boolean        @default(false)
   attemptedAt DateTime?      @db.Timestamptz(6)
   solvedAt    DateTime?      @db.Timestamptz(6)
+  verifiedRevision Int?
+  verifiedAt DateTime? @db.Timestamptz(6)
   createdAt   DateTime       @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime       @updatedAt @db.Timestamptz(6)
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)

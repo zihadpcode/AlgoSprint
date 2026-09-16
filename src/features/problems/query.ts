@@ -1,9 +1,10 @@
 import "server-only";
+import { progressView } from "@/features/progress/presentation";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import { PAGE_SIZE, literalSearch, needsPersonalProgress, type LibraryFilters } from "./filters";
 
 const publicSelect = {
-  id: true, slug: true, title: true, difficulty: true, pattern: true, estimatedMinutes: true,
+  id: true, revision: true, slug: true, title: true, difficulty: true, pattern: true, estimatedMinutes: true,
   categories: {
     select: { category: { select: { slug: true, name: true } } },
     orderBy: { category: { name: "asc" } },
@@ -57,7 +58,7 @@ export async function queryLibrary(db: PrismaClient, filters: LibraryFilters, vi
     });
     const progress = viewerId && rows.length ? await tx.userProgress.findMany({
       where: { userId: viewerId, problemId: { in: rows.map((row) => row.id) } },
-      select: { problemId: true, status: true, reviewLater: true, selfMarked: true },
+      select: { problemId: true, status: true, reviewLater: true, selfMarked: true, verifiedRevision: true },
     }) : [];
     const byProblem = new Map(progress.map((entry) => [entry.problemId, entry]));
     const [categories, tags, patterns] = await Promise.all([
@@ -84,11 +85,7 @@ export async function queryLibrary(db: PrismaClient, filters: LibraryFilters, vi
           pattern: row.pattern, estimatedMinutes: row.estimatedMinutes,
           categories: row.categories.map((link) => link.category),
           tags: row.tags.map((link) => link.tag),
-          progress: viewerId ? {
-            status: entry?.status ?? "NOT_STARTED",
-            reviewLater: entry?.reviewLater ?? false,
-            selfMarked: entry?.selfMarked ?? false,
-          } : null,
+          progress: viewerId ? progressView(entry, row.revision) : null,
         };
       }),
     };
