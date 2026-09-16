@@ -1,3 +1,5 @@
+> **Historical paused snapshot — superseded on 2026-09-16.** The user resumed this work. The documented failures were fixed; use [PHASE-9-GUIDE.md](PHASE-9-GUIDE.md), current source, and [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for the completed phase. Pause instructions and test counts below describe the earlier checkpoint only.
+
 # Phase 9 — paused, unfinished
 
 The user requested **“pause and update whatever you have so far”** on 2026-09-16. Feature work and additional verification stopped. Preserve this draft unmerged. Phase 8 remains the completed implementation on main.

@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. Phases 1–8 are merged. The user resumed Phase 9 on 2026-09-16, then explicitly requested pausing and updating the work. Phase 9 is saved as an unfinished, unmerged draft with 92 of 94 local tests passing and two documented failures. Real PostgreSQL integration, final build/HTTP verification and the full Phase 9 guide remain pending. Read PHASE-9-PAUSED.md and SESSION-HANDOFF.md. No Phase 9 production migration or deployment occurred. The original Phase 1-only instruction below is historical.
+This is the original user-provided brief, preserved for continuity. Phases 1–8 are merged. Phase 9 progress tracking is implemented and documented in PR #10 after the user's resume: 97 unit/component/migration tests and 33 real PostgreSQL integration tests pass, along with local lint/types/build and protected HTTP smoke. The full Phase 9 guide has all 36 changed source/config/test files. PR #10 records final CI and merge evidence; SESSION-HANDOFF.md is the current checkpoint. The prior Phase 9 pause files and original Phase 1-only instruction below are historical. Pause before Phase 10. Live Supabase/Judge0/browser verification remains pending; no production migration or deployment was performed.
 
 ---
 

@@ -1,5 +1,72 @@
 # AlgoSprint session handoff
 
+**2026-09-16: Phase 9 progress tracking is implemented and documented. Pause before Phase 10.**
+
+The user resumed the saved Phase 9 work. Standing approval covers verified GitHub publication and merge. This checkpoint finishes that milestone; Phase 10 has not started. There is no live usage-percentage meter, so no exact 90% usage claim is made.
+
+## 🟦 Repository and workspace
+
+- Private repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Phase 9 [PR #10](https://github.com/zihadpcode/AlgoSprint/pull/10), branch `algosprint/phase-9-progress`. Its metadata records the final tested head, CI run, tree and merge evidence. Read actual PR/main state when resuming.
+- Starting main was merged Phase 8 `e41da38d55bae2f32e1e1ada77db37162374b112`; saved Phase 9 draft head was `31a7386198585fb1855a0a6e934d61dd12815447`.
+- Workspace maintenance removed earlier scratch checkouts. This session restored 175 source/config/test/current-status files from the pinned draft into `/workspace/scratch/4f3affa6d1ad/algosprint`. Older guides remained remote; the historical Phase 9 source snapshot was also restored to label it superseded. GitHub publication preserves the full existing tree.
+- Local Git ancestry is a synthetic snapshot, not the remote history. Never push it. Remote commits use the actual branch parent and tree; resume from a fresh authenticated checkout of GitHub main.
+- AGENTS.md and installed Next.js server-action, loading and redirect guidance were read. No dependency or seed content changes were made.
+
+## 🟩 Completed Phase 9
+
+- A reservation records attempted progress atomically. An accepted full-suite SUBMIT verifies a solve only for the current published revision. Visible Run, failure, stale revision and archived problem cannot grant new verification.
+- `verifiedRevision` and `verifiedAt` preserve proof separately from the first solve date. The migration backfills eligible Phase 8 submissions and attempts without erasing existing manual dates or review/bookmark flags.
+- Shared progress-row locks coordinate manual attempt/solve/undo/review operations with runner finalization. A manual undo cannot clear a verified solve; repeated marks do not manufacture new activity timestamps.
+- The protected `/progress` page shows totals, difficulty/category tables and bounded recent attempts/progress. Queries are owner-scoped, exclude unpublished problems, and select no code, result payloads, test cases, private notes or operational user IDs.
+- Library/detail badges distinguish self-marked, current verified, earlier verified and legacy recorded solves. Earlier verification remains solved history but no longer counts as current verification. Category counts overlap.
+- Immediate pending feedback is restored while the server action runs in a transition. UTC migration fixtures now use explicit instants. A layout guard authenticates before the progress loading shell streams; the data loader retains its own authorization check for every read.
+
+[PHASE-9-GUIDE.md](PHASE-9-GUIDE.md) explains setup, architecture, transaction flow, semantics, tests, mistakes and future work, with **36 complete source/config/test files** checked byte-for-byte against current files. README and the brief's status preface are updated. PHASE-9-PAUSED.md and PHASE-9-SOURCE-CHECKPOINT.md are retained as explicitly historical snapshots.
+
+## 🟨 Verification evidence
+
+- **97 unit/component/migration tests** passed locally and in CI.
+- **33 real PostgreSQL integration tests** passed in CI: **130 tests total**. These include migration/backfill, owner isolation, current/earlier revision behavior, flags/dates, repeat operations, concurrent updates, archived data and private projections.
+- Local schema validation, seed validation, lint, TypeScript, production build, unconfigured-account HTTP smoke and diff whitespace checks passed. The full-source guide was mechanically compared to current files.
+- Implementation commit `0a24c16f05e1184c2c39074c110c9f0c80663581` passed all 130 tests, migrations, lint/types/build in CI 35122635142, but its HTTP smoke caught the early streaming redirect. That run is a historical **failure**, not release evidence.
+- Follow-up implementation `3a991b949cb108c3240ae793e8848a54d32c7beb`, tree `27031d9ee0fd300bbacc9724bd6a1e5e3a2b0a9c`, fixes the streaming order. The local build and HTTP smoke pass. [CI 35123363427](https://github.com/zihadpcode/AlgoSprint/actions/runs/35123363427) passed the full corrected implementation, including all 130 tests, migrations, seed, lint/types/build, protected redirects and seeded library/detail HTTP smoke. PR #10 records final documentation-commit CI and exact merge-tree evidence before merge.
+
+## 🟥 Configuration and verification still required
+
+No production migration, production data change, deployment, provider purchase, live Supabase/Judge0 call or real browser QA was performed. The new migration must be applied to a configured development database before using Phase 9. Before a later production rollout, back up valuable data, stop/drain older Phase 8 execution processes, apply migrations, and start the new code together. Do not use migration reset on valuable data.
+
+Live Supabase signup, confirmation, login/session/logout and two-account checks remain pending. Judge0 tests use inert HTTP stubs and controlled database verdicts; they do not prove real runtime compatibility or provider isolation. Runner execution stays disabled until configured and the Phase 8 live checklist is completed. Monaco worker startup, typing, keyboard/screen-reader behavior, mobile/zoom and action-driven refresh/draft retention still need real browser verification.
+
+Progress totals aggregate minimal rows in memory for the planned 1,000-problem collection, not unbounded scale. Recent progress is the latest state of ten problems, not an audit log. There is no complete source-history viewer, queue or exactly-once network retry guarantee. Earlier runner quotas and limitations remain.
+
+## 🟪 Phase ledger and resume point
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1–2 | Foundation, database, original seeds | Merged |
+| 3–4 | Authentication and workspace | Merged; live account/browser QA pending |
+| 5–7 | Library, problem detail, Monaco editor | Merged; browser/worker QA pending |
+| 8 | Isolated Judge0 runner | Merged PR #9; live provider verification pending |
+| 9 | Progress tracking | Implemented, documented, 130 tests pass; final CI/merge evidence on PR #10 |
+| 10 | Dashboard analytics | Next; not started |
+| 11 | Notes/bookmarks manager | Models and per-problem note only |
+| 12 | Original roadmaps | Models only |
+| 13 | Admin authoring | Models and guarded placeholder only |
+| 14 | Problem generator | Seed/validation foundation only |
+| 15 | Mock interviews | Models only |
+| 16 | Polish/deployment | Not started |
+
+**Pause before Phase 10.** On the next continue instruction, verify current main and PR #10 first. Build dashboard analytics from the established progress semantics: distinguish manual/current/earlier verified solves, retain owner-only reads, define UTC/timezone and streak rules explicitly, and avoid inventing activity dates. Continue complete phase guides. Do not confuse historical pause instructions or old phase status below with this current checkpoint.
+
+---
+
+# Historical handoff preserved from the paused draft
+
+The following text is historical evidence only; the current checkpoint above supersedes its instructions and status.
+
+# AlgoSprint session handoff
+
 **2026-09-16: PAUSED at the user's explicit request. Phase 9 is unfinished and must remain unmerged.**
 
 Latest instruction: “pause and update whatever you have so far.” No further feature work or optional verification is authorized until resume. Standing routine approval does not override this pause.

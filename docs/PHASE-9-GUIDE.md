@@ -1,10 +1,149 @@
-> **Historical paused source snapshot — superseded on 2026-09-16.** These listings preserve the unfinished draft and its known failures. Use [PHASE-9-GUIDE.md](PHASE-9-GUIDE.md) for the completed phase's full source, and [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for current status. Do not copy these older listings over current source.
+# Phase 9 — Progress tracking
 
-# Phase 9 — paused source checkpoint
+## 🟦 What we built
 
-This is an **unfinished source snapshot**, saved at the user's pause request on 2026-09-16. It is not a completed phase guide or release. See PHASE-9-PAUSED.md and SESSION-HANDOFF.md for exact check results, known failures and next steps. The following complete files preserve all implementation/configuration/test changes made since merged Phase 8. Do not deploy the migration or enable this branch as a completed milestone yet.
+AlgoSprint now connects learning activity to a private progress record. A learner can mark a problem attempted, mark a manual solve, undo only a manual solve, and independently set review later. Reserving a code execution automatically records an attempt. Completing an accepted full-suite submission verifies a solve only when it matches the current published problem revision.
 
-## `prisma/migrations/202609160001_progress_verification/migration.sql`
+The new protected `/progress` page shows collection, started, attempted, solved, current verified and review counts; tables by difficulty and category; the ten most recent runs/submissions; and the latest state of ten recently updated problems. The library and detail page use the same provenance labels. Sidebar navigation and the dashboard link make the page discoverable.
+
+This completes progress tracking for Phase 9. Charts, streaks, topic recommendations and the redesigned analytics dashboard remain Phase 10. There is still no public leaderboard, complete activity audit log, or saved-source history viewer. Original problem content and runner configuration remain unchanged.
+
+## 🟨 Why the statuses are separate
+
+A solve mark is a learner's assessment. It does not establish that code ran or passed a hidden suite. A visible-only run also cannot establish that the full suite passed. We retain both learning records and runner evidence without conflating them.
+
+| Event | Attempted date | Solve state | Fields preserved |
+| --- | --- | --- | --- |
+| Mark attempted | Record first attempt | NOT_STARTED becomes ATTEMPTED; an existing solve stays solved | Review, bookmark, notes, solve provenance |
+| Reserve Run or Submit | Record first attempt in the same transaction as the reservation | Same attempt behavior, even if execution later fails | Same unrelated fields |
+| Mark solved | Unchanged | Unsolved becomes SOLVED with selfMarked=true and solvedAt | Prior attempt, review, bookmark, notes |
+| Undo manual solve | Unchanged | ATTEMPTED if an attempt exists; otherwise NOT_STARTED | Review, bookmark, notes |
+| Set/remove review | Unchanged | Unchanged | Attempt/solve dates and provenance |
+| Accepted visible Run | Already recorded | Never grants a verified solve | Existing solves remain |
+| Failed execution | Already recorded | Never grants a verified solve | Existing solves remain |
+| Accepted full Submit on current published revision | Already recorded | SOLVED, selfMarked=false, verifiedRevision and verifiedAt recorded | First solved date, first attempted date, review, bookmark, notes |
+| Accepted Submit after revision change/archive | Already recorded | No new verification; save the submission verdict for its captured revision | Existing progress remains |
+
+Undo cannot erase a verified solve. Repeating a mark or a successful verification on the same revision does not change the original dates or create false recent-progress activity. Each new execution still has its own submission record, so it appears in recent attempts.
+
+A previously verified solve remains in solved history if the problem is revised. Its badge changes to **verified on an earlier revision**, and it stops contributing to the **Verified on current revision** count. Passing the new revision updates verifiedRevision/verifiedAt but retains the original solvedAt. A legacy SOLVED record without new verification metadata is labeled **recorded**, not verified.
+
+## 🟦 Database design and migration
+
+Two nullable columns are added to the existing `UserProgress` model:
+
+- `verifiedRevision`: the exact problem revision certified by a successful full submission.
+- `verifiedAt`: the first verification time for that stored revision.
+
+`solvedAt` remains the first current solve-state date. When a manual solve is later verified, its old solvedAt is preserved and verifiedAt records the separate proof date. `attemptedAt` is the first attempt date, including manual attempts. Notes remain in UserNote; review/bookmark flags remain independent fields.
+
+The SQL migration enforces paired verification metadata: both values are null, or the revision is positive, verifiedAt is present, status is SOLVED and selfMarked is false. The earlier solved-timestamp constraint remains. All 22 models keep their existing RLS and ownership boundaries; no new table or dependency is introduced.
+
+The migration also reconciles existing Phase 8 submissions:
+
+1. Group saved attempts by owner/problem and backfill the earliest attemptedAt. Preserve existing solves, flags and later activity timestamps.
+2. Find completed accepted SUBMIT records with positive, fully passed counts matching a currently published revision.
+3. Upgrade those owner/problem progress records to verified, retaining an existing solvedAt. Visible passes, failures, archived content and stale-revision passes are not promoted.
+
+This is a one-time Prisma migration, not a script to rerun manually. It uses parameter-free, trusted relational SQL and does not touch problem statements, solutions, test payloads, notes or submission source. Existing earlier-revision submission records remain historical evidence; the initial backfill grants current verification only for matching published revisions.
+
+## 🟩 How concurrent writes stay consistent
+
+`writeProgress` is a trusted transaction helper, not a server action exposed to the browser. Callers authenticate first and acquire a shared lock on the problem row. The helper inserts the owner/problem progress row if absent, then locks that row with `FOR UPDATE`, reads its state and applies only relevant changes.
+
+The same helper handles manual controls, runner reservations and accepted completions. This prevents a simultaneous manual undo from erasing a newly verified solve, or a review update from overwriting solve fields. Unique owner/problem keys prevent duplicate progress rows. Different users never share a progress record.
+
+Submission reservation and attempted progress commit together. Final result and verified progress also commit together. `finishSubmission` re-reads the reservation by verified owner, checks mode and test count against it, requires a RUNNING state for the one-time final write, and verifies the current published problem revision while holding its shared lock. A failed write rolls back the final verdict and solve update together. No external Judge0 request runs inside these database transactions.
+
+The existing runner's limits, hidden-result redaction and isolation design remain intact. This phase does not evaluate any submitted code in the application process. The database tests use controlled stored verdict fixtures, not live Judge0 execution.
+
+## 🟨 Counts and recent activity
+
+| Display | Meaning |
+| --- | --- |
+| Published problems | Number of currently published problems in the collection |
+| Started | Problems with ATTEMPTED or SOLVED status |
+| Attempted | Problems with an attemptedAt date, including those later solved |
+| Solved | SOLVED records, including manual, current verified, earlier verified and legacy recorded solves |
+| Verified on current revision | Nonmanual solves whose verifiedRevision equals the problem's present revision |
+| Review later | Published problems whose reviewLater flag is true |
+
+Counts are not all disjoint. A solved problem can also count as attempted and review later. A manual solve does not automatically invent an attempt date, so it may count as Started/Solved but not Attempted. Categories overlap because a problem can belong to multiple categories; adding category totals does not yield the global problem count. Difficulty groups are separate.
+
+All queries are scoped to the verified owner and currently published problems. Archived/draft problems and their activity are excluded from this view, while their historical database records remain. The summary reads minimal published problem/progress/category projections within one Repeatable Read transaction; it does not fetch statements, solutions, tests or notes. It aggregates in memory for the planned 1,000-problem collection. A substantially larger collection should move aggregations into dedicated SQL queries, not blindly fetch more data.
+
+Recent attempts show only mode, status, passed/total counts, captured/current revisions and timestamps with the public problem title/slug. They do not expose code, stored result JSON, operational user IDs, hidden cases or provider tokens. Pending work says No final result yet. Recent progress shows each problem's latest state, not every historical event. Both lists are bounded to ten and have deterministic ordering. Dates are explicitly displayed in UTC.
+
+## 🟦 Files and connections
+
+| Location | Responsibility |
+| --- | --- |
+| `prisma/schema.prisma` and the new migration | Provenance fields, relational constraint and Phase 8 backfill |
+| `src/features/progress/write.ts` | Shared transactional row-locked progress changes |
+| `src/features/progress/presentation.ts` | Public progress shape and consistent provenance labels |
+| `src/features/progress/query.ts` | Owner-scoped counts and limited recent activity |
+| `src/features/progress/load.ts` | Verified-user guard before any progress query |
+| `src/app/progress/` | Protected dynamic page and loading state |
+| `src/components/progress/progress-summary.tsx` | Counts, accessible tables, empty states and activity lists |
+| Problem features and controls | Manual attempted operation and common progress labels |
+| Submission features | Attempt on reservation; atomic result/verification on completion; revision display |
+| `runner-controls.tsx` | Immediate pending feedback followed by an asynchronous server-action transition |
+| Navigation, dashboard link and proxy | Discovery, session refresh and private/no-store responses |
+| Tests and HTTP smoke | State, migration, auth, privacy, concurrency and rendering checks |
+
+Server actions still validate input and obtain identity from Supabase on every request. Neither the progress page nor manual action accepts a client-supplied owner, verified revision or verdict. Updates revalidate the problem, library, progress and dashboard routes. The editor retains its in-page draft during same-problem re-renders.
+
+## 🟨 Fixes found while finishing the phase
+
+The paused draft had 92 passing and two failing local tests. Both failures are resolved:
+
+1. Pending feedback was inside an asynchronous React transition, so the visible disabled state was deferred. The click handler now sets its busy ref and pending state immediately, then invokes the server action inside startTransition. Duplicate requests remain blocked while the action can refresh server-rendered progress.
+2. Migration test fixtures used date-only SQL literals, which depended on the environment timezone. The fixtures now use explicit UTC instants. Production timestamps and the assertion's expected instant were not changed to hide the mismatch.
+
+The production HTTP check also caught a streaming detail: loading.tsx could send HTTP 200 before the page issued its sign-in redirect. The progress layout now verifies the viewer outside that loading boundary, producing the expected HTTP 307 before rendering. The data loader still checks identity on every read because layouts may persist during client navigation. This preserves both loading feedback and access checks.
+
+The historical pause note and source checkpoint remain available, clearly marked as superseded. Use this guide and current source for the completed implementation.
+
+## 🟦 Run locally on your Mac
+
+Use Node.js 24 and a current authenticated checkout of the private repository. If starting fresh:
+
+```bash
+git clone https://github.com/zihadpcode/AlgoSprint.git
+cd AlgoSprint
+npm ci
+```
+
+If PR #10 is still open, use `git switch --track origin/algosprint/phase-9-progress`. After merge, use main. Preserve your own uncommitted changes when switching/updating branches.
+
+If you do not already have `.env.local`, copy `.env.example` once:
+
+```bash
+cp .env.example .env.local
+```
+
+Keep existing configuration rather than overwriting it. Follow Phase 3 for DATABASE_URL, Supabase publishable key/project URL and APP_URL. Only a confirmed account can visit `/progress`. Judge0 configuration is optional for manual tracking; use the Phase 8 guide if you want real code execution.
+
+Apply the new migration to your development database before running the updated app:
+
+```bash
+npm run db:deploy
+npm run db:generate
+npm run db:seed
+npm run dev
+```
+
+`DIRECT_URL`, if configured, is the migration connection and can differ from DATABASE_URL. Verify both point to the intended development project. Do not use `migrate reset` on valuable data. No live database migration was applied during this work; CI uses disposable PostgreSQL.
+
+For a later deployment with active execution, stop accepting new runner requests and allow existing requests to drain before migration/deployment, so an old Phase 8 process cannot finish a submission after the backfill without updating progress. Apply the migration, deploy the matching application, and then re-enable execution after checks. Production deployment remains Phase 16.
+
+Open `/problems/relay-window`, mark an attempt or manual solve, and open `/progress` from the sidebar. The page should reflect only your own activity. You can use all manual tracking features without a Judge0 account.
+
+## 🟩 Complete source files
+
+The following are all 36 authored source/configuration/test files changed from Phase 8. Status documents are maintained separately in README and SESSION-HANDOFF.md. Generated Prisma client files remain generated and are not committed. No package or lockfile changed.
+
+### `prisma/migrations/202609160001_progress_verification/migration.sql`
 
 ```sql
 -- Preserve manual and historical solves while recording exact runner provenance.
@@ -42,7 +181,7 @@ UPDATE app."UserProgress" p SET status = 'SOLVED', "selfMarked" = false,
 FROM verified v WHERE p."userId" = v."userId" AND p."problemId" = v."problemId";
 ```
 
-## `prisma/schema.prisma`
+### `prisma/schema.prisma`
 
 ```prisma
 generator client {
@@ -510,7 +649,7 @@ model MockInterviewQuestion {
 }
 ```
 
-## `scripts/smoke-auth.mjs`
+### `scripts/smoke-auth.mjs`
 
 ```javascript
 import assert from "node:assert/strict";
@@ -570,7 +709,7 @@ try {
 }
 ```
 
-## `src/app/dashboard/page.tsx`
+### `src/app/dashboard/page.tsx`
 
 ```tsx
 import type { Metadata } from "next";
@@ -597,7 +736,21 @@ export default async function DashboardPage() {
 }
 ```
 
-## `src/app/progress/loading.tsx`
+### `src/app/progress/layout.tsx`
+
+```tsx
+import type { ReactNode } from "react";
+import { requireViewer } from "@/features/auth/session";
+
+export default async function ProgressLayout({ children }: { children: ReactNode }) {
+  // Authenticate before this segment's loading fallback starts streaming.
+  // The data loader still authorizes each read; layouts can persist on navigation.
+  await requireViewer("/progress");
+  return children;
+}
+```
+
+### `src/app/progress/loading.tsx`
 
 ```tsx
 export default function ProgressLoading() {
@@ -605,7 +758,7 @@ export default function ProgressLoading() {
 }
 ```
 
-## `src/app/progress/page.tsx`
+### `src/app/progress/page.tsx`
 
 ```tsx
 import type { Metadata } from "next";
@@ -626,7 +779,7 @@ export default async function ProgressPage() {
 }
 ```
 
-## `src/components/editor/execution-panels.tsx`
+### `src/components/editor/execution-panels.tsx`
 
 ```tsx
 import { CodeBlock } from "@/components/problems/code-block";
@@ -684,7 +837,7 @@ export function ExecutionPanels({ examples, available = false, result }: { examp
 }
 ```
 
-## `src/components/editor/runner-controls.tsx`
+### `src/components/editor/runner-controls.tsx`
 
 ```tsx
 "use client";
@@ -702,19 +855,23 @@ export function RunnerControls({ slug, code, language, enabled, signedIn, exampl
   const [pending, setPending] = useState(false);
   const [last, setLast] = useState<{ code: string; language: string; response: ExecutionState } | null>(null);
   const available = enabled && language === "JAVASCRIPT";
-  async function execute(mode: "RUN" | "SUBMIT") {
+  function execute(mode: "RUN" | "SUBMIT") {
     if (busy.current) return;
     busy.current = true; setPending(true); setLast(null);
-    let response: ExecutionState;
-    try { response = await executeCode({ slug, code, language, mode }); }
-    catch { response = { success: false, message: "The connection was interrupted. The result may have been saved. Retrying creates a new attempt." }; }
-    setLast({ code, language, response }); setPending(false); busy.current = false;
+    // Urgent pending feedback must render before the asynchronous transition.
+    // Keep the server action in a transition so revalidated progress can refresh.
+    startTransition(async () => {
+      let response: ExecutionState;
+      try { response = await executeCode({ slug, code, language, mode }); }
+      catch { response = { success: false, message: "The connection was interrupted. The result may have been saved. Retrying creates a new attempt." }; }
+      setLast({ code, language, response }); setPending(false); busy.current = false;
+    });
   }
   const stale = last && (last.code !== code || last.language !== language);
   return <div className="space-y-4">
     <div className="flex flex-wrap gap-3">
-      <Button disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => startTransition(async () => { await execute("RUN"); })}>Run visible tests</Button>
-      <Button variant="secondary" disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => startTransition(async () => { await execute("SUBMIT"); })}>Submit solution</Button>
+      <Button disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => execute("RUN")}>Run visible tests</Button>
+      <Button variant="secondary" disabled={!available || !signedIn || pending || !code.trim() || code.length > 20_000} onClick={() => execute("SUBMIT")}>Submit solution</Button>
     </div>
     {!signedIn && <ButtonLink href={`/login?next=${encodeURIComponent(`/problems/${slug}`)}`} variant="secondary">Sign in to run code</ButtonLink>}
     <p className="text-xs leading-6 text-muted">{available ? "Run checks visible tests. Submit checks the full suite, including hidden tests. Both save an attempt. Limit: 5 per minute and 30 per hour." : "Code execution is not available yet for this workspace. You can continue editing."}</p>
@@ -727,7 +884,7 @@ export function RunnerControls({ slug, code, language, enabled, signedIn, exampl
 }
 ```
 
-## `src/components/layout/workspace-nav.tsx`
+### `src/components/layout/workspace-nav.tsx`
 
 ```tsx
 "use client";
@@ -748,7 +905,7 @@ export function WorkspaceNav({ admin = false }: { admin?: boolean }) {
 }
 ```
 
-## `src/components/problems/personal-controls.tsx`
+### `src/components/problems/personal-controls.tsx`
 
 ```tsx
 "use client";
@@ -814,7 +971,7 @@ function ActionMessage({ state }: { state: ProblemActionState }) {
 }
 ```
 
-## `src/components/problems/problem-card.tsx`
+### `src/components/problems/problem-card.tsx`
 
 ```tsx
 import Link from "next/link";
@@ -849,7 +1006,7 @@ export function ProblemCard({ problem }: { problem: LibraryResult["items"][numbe
 }
 ```
 
-## `src/components/progress/progress-summary.tsx`
+### `src/components/progress/progress-summary.tsx`
 
 ```tsx
 import Link from "next/link";
@@ -902,7 +1059,7 @@ function CountsTable({ caption, rows }: { caption: string; rows: { label: string
 }
 ```
 
-## `src/features/problems/detail-actions.ts`
+### `src/features/problems/detail-actions.ts`
 
 ```typescript
 "use server";
@@ -936,7 +1093,7 @@ export async function updateProblem(_previous: ProblemActionState, form: FormDat
 }
 ```
 
-## `src/features/problems/detail-query.ts`
+### `src/features/problems/detail-query.ts`
 
 ```typescript
 import "server-only";
@@ -995,7 +1152,7 @@ export async function queryProblem(db: PrismaClient, slug: string, viewerId: str
 export type ProblemDetail = NonNullable<Awaited<ReturnType<typeof queryProblem>>>;
 ```
 
-## `src/features/problems/detail-validation.ts`
+### `src/features/problems/detail-validation.ts`
 
 ```typescript
 import { z } from "zod";
@@ -1014,7 +1171,7 @@ export type ProblemChange = z.infer<typeof problemChange>;
 export type ProblemActionState = { success?: boolean; message?: string; savedContent?: string };
 ```
 
-## `src/features/problems/detail-write.ts`
+### `src/features/problems/detail-write.ts`
 
 ```typescript
 import "server-only";
@@ -1047,7 +1204,7 @@ export async function writeProblemChange(db: PrismaClient, userId: string, chang
 }
 ```
 
-## `src/features/problems/query.ts`
+### `src/features/problems/query.ts`
 
 ```typescript
 import "server-only";
@@ -1146,7 +1303,7 @@ export async function queryLibrary(db: PrismaClient, filters: LibraryFilters, vi
 export type LibraryResult = Awaited<ReturnType<typeof queryLibrary>>;
 ```
 
-## `src/features/progress/load.ts`
+### `src/features/progress/load.ts`
 
 ```typescript
 import "server-only";
@@ -1160,7 +1317,7 @@ export async function loadProgress() {
 }
 ```
 
-## `src/features/progress/presentation.ts`
+### `src/features/progress/presentation.ts`
 
 ```typescript
 export type ProgressView = {
@@ -1181,7 +1338,7 @@ export function progressLabel(progress: ProgressView) {
 }
 ```
 
-## `src/features/progress/query.ts`
+### `src/features/progress/query.ts`
 
 ```typescript
 import "server-only";
@@ -1244,7 +1401,7 @@ export async function queryProgress(db: PrismaClient, userId: string) {
 export type ProgressSummary = Awaited<ReturnType<typeof queryProgress>>;
 ```
 
-## `src/features/progress/write.ts`
+### `src/features/progress/write.ts`
 
 ```typescript
 import "server-only";
@@ -1281,7 +1438,7 @@ export async function writeProgress(tx: Prisma.TransactionClient, userId: string
 }
 ```
 
-## `src/features/submissions/actions.ts`
+### `src/features/submissions/actions.ts`
 
 ```typescript
 "use server";
@@ -1313,7 +1470,7 @@ export async function executeCode(raw: unknown): Promise<ExecutionState> {
 }
 ```
 
-## `src/features/submissions/contracts.ts`
+### `src/features/submissions/contracts.ts`
 
 ```typescript
 import { z } from "zod";
@@ -1343,7 +1500,7 @@ export const verdictLabels: Record<Verdict, string> = {
 };
 ```
 
-## `src/features/submissions/service.ts`
+### `src/features/submissions/service.ts`
 
 ```typescript
 import "server-only";
@@ -1376,7 +1533,7 @@ export async function runSubmission(db: PrismaClient, userId: string, input: Exe
 }
 ```
 
-## `src/features/submissions/store.ts`
+### `src/features/submissions/store.ts`
 
 ```typescript
 import "server-only";
@@ -1446,7 +1603,7 @@ export async function finishSubmission(db: PrismaClient, userId: string, result:
 }
 ```
 
-## `src/proxy.ts`
+### `src/proxy.ts`
 
 ```typescript
 import type { NextRequest } from "next/server";
@@ -1461,7 +1618,7 @@ export const config = {
 };
 ```
 
-## `tests/integration/library.test.ts`
+### `tests/integration/library.test.ts`
 
 ```typescript
 import { randomUUID } from "node:crypto";
@@ -1574,7 +1731,7 @@ describe("published library against PostgreSQL", () => {
 });
 ```
 
-## `tests/integration/progress.test.ts`
+### `tests/integration/progress.test.ts`
 
 ```typescript
 import { randomUUID } from "node:crypto";
@@ -1695,7 +1852,7 @@ it("bounds recent attempts to ten with deterministic newest-first ordering", asy
 });
 ```
 
-## `tests/integration/submissions.test.ts`
+### `tests/integration/submissions.test.ts`
 
 ```typescript
 import { randomUUID } from "node:crypto";
@@ -1794,7 +1951,7 @@ it("enforces the deployment-wide quota across different owners", async () => {
 });
 ```
 
-## `tests/migration.test.ts`
+### `tests/migration.test.ts`
 
 ```typescript
 import { PGlite } from "@electric-sql/pglite";
@@ -1847,7 +2004,7 @@ describe("PostgreSQL migration invariants", () => {
 });
 ```
 
-## `tests/problem-detail-boundary.test.ts`
+### `tests/problem-detail-boundary.test.ts`
 
 ```typescript
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -1949,7 +2106,7 @@ describe("personal problem action boundary", () => {
 });
 ```
 
-## `tests/progress-load.test.ts`
+### `tests/progress-load.test.ts`
 
 ```typescript
 import { beforeEach, expect, it, vi } from "vitest";
@@ -1970,7 +2127,7 @@ it("performs no query on a guest redirect or identity-provider failure", async (
 });
 ```
 
-## `tests/progress-migration.test.ts`
+### `tests/progress-migration.test.ts`
 
 ```typescript
 import { PGlite } from "@electric-sql/pglite";
@@ -1984,8 +2141,8 @@ beforeAll(async () => {
   db = new PGlite(); await db.exec(await readFile("prisma/migrations/202609130001_foundation/migration.sql", "utf8"));
   for (const id of [user, other]) await db.query('INSERT INTO app."User" (id,"updatedAt") VALUES ($1,now())', [id]);
   for (const [i,id] of ids.entries()) await db.query(`INSERT INTO app."Problem" (id,slug,title,difficulty,status,pattern,statement,constraints,"estimatedMinutes","publishedAt",revision,"updatedAt") VALUES ($1,$2,'Fixture','EASY',$3,'fixture','Fixture',ARRAY['Fixture'],10,now(),$4,now())`, [id, `progress-migration-${i}`, i === 3 ? "ARCHIVED" : "PUBLISHED", i === 2 ? 2 : 1]);
-  for (const [owner,id] of [[user,ids[0]], [user,ids[5]], [other,ids[0]]]) await db.query(`INSERT INTO app."UserProgress" ("userId","problemId",status,"selfMarked","reviewLater",bookmarked,"solvedAt","updatedAt") VALUES ($1,$2,'SOLVED',true,true,true,'2026-01-01', '2026-01-01')`, [owner,id]);
-  for (let i = 0; i < 5; i++) await db.query(`INSERT INTO app."UserSubmission" (id,"userId","problemId","problemRevision",language,mode,status,code,"passedCount","totalCount","createdAt","completedAt") VALUES (gen_random_uuid(),$1,$2,1,'JAVASCRIPT',$3,$4,'private-code',$5,6,'2026-02-01','2026-02-02')`, [user,ids[i],i === 1 ? "RUN" : "SUBMIT",i === 4 ? "INTERNAL_ERROR" : "ACCEPTED",i === 4 ? 0 : 6]);
+  for (const [owner,id] of [[user,ids[0]], [user,ids[5]], [other,ids[0]]]) await db.query(`INSERT INTO app."UserProgress" ("userId","problemId",status,"selfMarked","reviewLater",bookmarked,"solvedAt","updatedAt") VALUES ($1,$2,'SOLVED',true,true,true,'2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')`, [owner,id]);
+  for (let i = 0; i < 5; i++) await db.query(`INSERT INTO app."UserSubmission" (id,"userId","problemId","problemRevision",language,mode,status,code,"passedCount","totalCount","createdAt","completedAt") VALUES (gen_random_uuid(),$1,$2,1,'JAVASCRIPT',$3,$4,'private-code',$5,6,'2026-02-01T00:00:00Z','2026-02-02T00:00:00Z')`, [user,ids[i],i === 1 ? "RUN" : "SUBMIT",i === 4 ? "INTERNAL_ERROR" : "ACCEPTED",i === 4 ? 0 : 6]);
   await db.exec(await readFile("prisma/migrations/202609160001_progress_verification/migration.sql", "utf8"));
 }, 30000);
 afterAll(async () => { await db?.close(); });
@@ -2011,7 +2168,40 @@ it("rejects partial, nonpositive, attempted or self-marked verification at the d
 });
 ```
 
-## `tests/runner-actions.test.ts`
+### `tests/progress-summary.test.ts`
+
+```typescript
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { expect, it } from "vitest";
+import { ProgressSummary } from "@/components/progress/progress-summary";
+import { progressLabel, progressView } from "@/features/progress/presentation";
+import type { ProgressSummary as Summary } from "@/features/progress/query";
+const counts = { total: 0, started: 0, attempted: 0, solved: 0, manualSolved: 0, verifiedCurrent: 0, verifiedEarlier: 0, reviewLater: 0 };
+const empty = (): Summary => ({ overall: { ...counts }, difficulty: { EASY: { ...counts }, MEDIUM: { ...counts }, HARD: { ...counts } }, categories: [], recentAttempts: [], recentProgress: [] });
+it("shows a truthful empty state with accessible table headings", () => {
+  const html = renderToStaticMarkup(createElement(ProgressSummary, { summary: empty() }));
+  for (const text of ["Start your practice record", "No runs or submissions yet", "No progress changes yet", "No published categories yet", "Difficulty progress", 'scope="col"', 'scope="row"']) expect(html).toContain(text);
+});
+it("distinguishes manual, legacy and current/earlier verified solves", () => {
+  const row = { status: "SOLVED" as const, selfMarked: false, reviewLater: false, verifiedRevision: 1 };
+  expect(progressLabel(progressView(row, 1))).toBe("Solved · verified");
+  expect(progressLabel(progressView(row, 2))).toContain("earlier revision");
+  expect(progressLabel(progressView({ ...row, verifiedRevision: null }, 1))).toBe("Solved · recorded");
+  expect(progressLabel(progressView({ ...row, selfMarked: true, verifiedRevision: null }, 1))).toBe("Solved · self-marked");
+  expect(progressLabel(progressView(null, 1))).toBe("Not started");
+});
+it("escapes titles and labels pending/old-revision attempts without inventing final counts", () => {
+  const summary = empty();
+  summary.recentAttempts = [{ mode: "RUN", status: "RUNNING", problemRevision: 1, currentRevision: 2, passedCount: 0, totalCount: 2, createdAt: "2026-01-01T00:00:00.000Z", completedAt: null, slug: "relay-window", title: "<script>private()</script>" }];
+  const html = renderToStaticMarkup(createElement(ProgressSummary, { summary }));
+  expect(html).toContain("Visible run"); expect(html).toContain("Running"); expect(html).toContain("No final result yet");
+  expect(html).toContain("earlier revision"); expect(html).toContain("UTC");
+  expect(html).not.toContain("<script>"); expect(html).not.toContain("0/2 passed");
+});
+```
+
+### `tests/runner-actions.test.ts`
 
 ```typescript
 import { beforeEach, expect, it, vi } from "vitest";
@@ -2045,3 +2235,58 @@ it("uses the verified owner and never reports a failed save as successful", asyn
 });
 ```
 
+## 🟨 Automated verification
+
+```bash
+npm run db:validate
+npm run seed:validate
+npm test
+npm run lint
+npm run typecheck
+npm run build
+npm run test:smoke
+```
+
+Unit/component tests exercise the authenticated loading boundary, provenance labels, truthful empty/pending displays, escaped titles and immediate runner pending state. Embedded PostgreSQL migration tests exercise the Phase 8 backfill, preservation of owner/flags/dates, excluded visible/stale/archived/failing attempts, and invalid provenance constraints.
+
+Real PostgreSQL integration uses an empty disposable database whose name ends in `_test`. Set TEST_DATABASE_URL and migrate that same database; ensure DATABASE_URL and any DIRECT_URL point to it during the migration step. Then run:
+
+```bash
+npm run db:deploy
+npm run test:integration
+```
+
+The GitHub CI workflow supplies PostgreSQL 17 and runs integration tests before the final seed. Integration exercises simultaneous manual undo/review and runner completion, ownership, atomic failure rollback, revision/archive races, repeated marks, earliest dates, category/difficulty counts, source/result redaction and the ten-row activity limit. The production HTTP smoke checks reject forged guest requests to `/progress`; the seeded library smoke checks public content and hidden-payload boundaries.
+
+Read the handoff and PR #10 for the actual final head, test totals and CI evidence. These automated checks do not prove a configured live Supabase/Judge0 workflow or real-browser styling/Monaco worker behavior.
+
+## 🟥 Manual verification with development accounts
+
+1. Open `/progress` while signed out. Confirm redirect to sign in, then return to `/progress` after a confirmed account signs in. Repeat with expired credentials.
+2. As account A, mark Relay Window attempted twice. The count should increase once. Mark solved, set review, then undo the manual solve: it should return to Attempted and retain review. Repeat an identical mark; it should not create new recent-progress activity.
+3. As account B, confirm A's counts, attempts and private notes are absent. A's profile ID in a URL/query string must not change B's view.
+4. If the separately configured development runner has passed Phase 8 live checks, run a correct visible solution: it records an attempt, not verified success. Submit the correct full solution: the detail/library label and current verified count should update after the result saves.
+5. Verify a manual solve through the runner. Confirm the original solvedAt remains and verifiedAt is separate. Later incorrect runs must not erase that solve or its review/bookmark flags.
+6. In a disposable database fixture, advance the problem revision. The earlier verified label must appear and the current verified count must drop, while solved history remains. Re-submitting successfully should verify the new revision. Future admin edits must advance revisions for substantive changes.
+7. Start a request and edit the draft. The old result must remain labeled as an earlier draft. The Run/Submit buttons disable immediately and become available again after completion/failure.
+8. Compare overall and per-difficulty totals. Expect overlapping category totals. Confirm timestamps say UTC, lists show at most ten entries and pending attempts do not show fabricated final counts.
+9. Check keyboard navigation, table headings, horizontal scrolling at narrow widths, 200% zoom and screen-reader announcements. Complete the existing real Monaco/worker checks separately.
+
+## 🟨 Common mistakes
+
+- Updating progress after the submission transaction commits: failures could leave the verdict and progress inconsistent.
+- Letting browser input mark a solve verified: only trusted completion/migration logic may set provenance.
+- Using an accepted visible run to verify a solve: it did not test hidden cases.
+- Forgetting revision checks: a solution for an older problem version is not evidence for new content.
+- Replacing an entire progress record: that can erase review/bookmark flags, manual dates and other independent state.
+- Rewriting timestamps on every retry: repeated marks should not appear as fresh activity.
+- Returning raw submission records: code, stored result JSON and hidden payloads do not belong in the summary DTO.
+- Treating category totals as disjoint or Attempted/Solved as mutually exclusive.
+- Treating recently updated progress as a full activity audit log.
+- Running the new app before its migration or changing the checksum of an already applied migration in an existing database.
+
+## 🟪 Next phase
+
+Pause at this completed checkpoint before Phase 10. Dashboard work can reuse the existing owner-scoped progress/query semantics, then add charts, weak topics, recommendations and a precisely defined streak policy. Preserve manual/current/earlier verified distinctions, authentication and result redaction. Do not infer a verified solve from browser-supplied state.
+
+Later scaling can move collection aggregation into SQL, add pagination to private history, and introduce an explicit activity-event model if a complete audit history is needed. Those changes should preserve existing dates and independently stored flags.

@@ -2,15 +2,13 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟨 Current checkpoint: Phase 9 paused and unfinished
+## 🟩 Current checkpoint: Phase 9 progress tracking
 
-**Phase 8 is merged** in [PR #9](https://github.com/zihadpcode/AlgoSprint/pull/9). Its [complete guide](docs/PHASE-8-GUIDE.md) and passing 112-test CI remain the latest completed milestone. Live Judge0/Supabase/browser checks are still pending and execution is disabled until configured.
+Phase 9 connects saved attempts and accepted full-suite submissions to private progress, with separate manual and verified solve labels. The protected `/progress` page shows totals, difficulty/category breakdowns, recent attempts, and recently updated progress. Existing solve dates and review/bookmark flags are preserved.
 
-Phase 9 work is saved on `algosprint/phase-9-progress` as an unmerged draft at the user's pause request. Written so far: submission-to-progress transactions, verification revision/date fields and migration/backfill, manual attempt control, protected progress counts/recent activity, and current/earlier verified labels.
+Read [the complete Phase 9 guide](docs/PHASE-9-GUIDE.md) for setup, architecture, all 36 changed source/config/test files, and the development-account checklist. [PR #10](https://github.com/zihadpcode/AlgoSprint/pull/10) records final CI and merge evidence; [the session handoff](docs/SESSION-HANDOFF.md) records the resume boundary. The previous pause notes are historical.
 
-**Latest partial-phase tests: 92 passed, 2 failed.** Pending runner controls and a timezone-dependent migration fixture need fixes. The new real PostgreSQL integration tests, final build/HTTP checks and complete learning guide remain unfinished. Do not treat this branch as a completed Phase 9 release.
-
-Read [the pause checkpoint](docs/PHASE-9-PAUSED.md), [complete current source snapshot](docs/PHASE-9-SOURCE-CHECKPOINT.md) and [session handoff](docs/SESSION-HANDOFF.md). No Phase 9 migration was applied to a production database; nothing was deployed or merged.
+The 97 unit/component/migration tests and 33 PostgreSQL integration tests pass. Lint, types, build, and the unconfigured-account HTTP smoke also pass. Live Supabase/Judge0 and browser checks remain pending; code execution stays disabled until configured. Apply the new migration to your development database before using this phase. No production migration or deployment was performed. Pause before Phase 10 analytics.
 
 ## 🟩 Run locally
 
@@ -54,7 +52,7 @@ npm run test:smoke
 | `src/app/` | Landing, authentication, protected account pages, library and problem details. |
 | `src/components/layout/`, `src/components/ui/` | Shared workspace, navigation, native controls, and feedback states. |
 | `src/features/problems/` | Published queries, owned notes/progress, validation and server actions. |
-| `src/features/progress/` | Draft Phase 9 progress transactions, summary reads and labels. |
+| `src/features/progress/` | Transactional progress updates, owner-only summaries and provenance labels. |
 | `src/features/submissions/` | Validated runner action, provider adapter, test harness, quotas and saved results. |
 | `src/features/auth/` | Input validation, server actions, verified sessions, profile provisioning. |
 | `src/lib/supabase/` | Request-scoped SSR clients, cookie refresh, trusted configuration. |
@@ -74,6 +72,7 @@ npm run test:smoke
 | `docs/PHASE-7-PART-1-GUIDE.md` | Historical first-half editor checkpoint. |
 | `docs/PHASE-7-GUIDE.md` | Complete editor/reset/output workspace, full source and verification limits. |
 | `docs/PHASE-8-GUIDE.md` | Isolated runner integration, complete source, configuration and live checks. |
+| `docs/PHASE-9-GUIDE.md` | Progress state, migration/backfill, protected counts/activity and complete source. |
 
 ## 🟥 Security model
 
@@ -83,4 +82,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-Phase 8 is implemented with live-provider verification pending. Phase 9 is paused and unfinished; finish its fixes and verification before moving to analytics, notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.
+Phase 9 is implemented and documented; live-provider/account/browser verification remains pending. Phase 10 adds dashboard analytics, followed by notes/bookmarks management, roadmaps, admin authoring, generators, interviews and deployment. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.
