@@ -1,6 +1,6 @@
 # Original AlgoSprint project brief
 
-This is the original user-provided brief, preserved for continuity. Phases 1–6 are merged; Phase 7 is completed in PR #8 after the user resumed from its first-half pause. The latest request includes pausing at 90% usage. No live usage meter is available, so this session is bounded to completing and saving Phase 7, then pausing before Phase 8. Read SESSION-HANDOFF.md for current evidence and configuration gaps. The original Phase 1-only instruction below is historical.
+This is the original user-provided brief, preserved for continuity. Phases 1–7 are merged. On 2026-09-16 the user resumed Phase 8; its isolated Judge0 integration is implemented in PR #9, with a disabled-by-default configuration and live provider/account/browser checks still pending. The next checkpoint is to save verified Phase 8 and pause before Phase 9. No live usage-percentage meter is available. Read SESSION-HANDOFF.md for evidence, configuration requirements and the phase ledger. The original Phase 1-only instruction below is historical.
 
 ---
 

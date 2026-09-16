@@ -5,6 +5,7 @@ import { Component, useId, useRef, useState, type ReactNode } from "react";
 import { Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ExecutionPanels, type EditorExample } from "./execution-panels";
+import { RunnerControls } from "./runner-controls";
 import { ResetConfirmation } from "./reset-confirmation";
 import { CodeBlock } from "@/components/problems/code-block";
 import { draftFor, editorLanguages, type EditorDrafts, type EditorStarter } from "./editor-state";
@@ -14,7 +15,7 @@ const MonacoSurface = dynamic(() => import("./monaco-surface"), {
   loading: () => <p role="status" className="grid h-[420px] place-items-center rounded-xl border border-line text-sm text-muted">Loading code editor…</p>,
 });
 
-export function CodeEditor({ starters, examples = [] }: { starters: EditorStarter[]; examples?: EditorExample[] }) {
+export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled = false, signedIn = false }: { starters: EditorStarter[]; examples?: EditorExample[]; slug?: string; runnerEnabled?: boolean; signedIn?: boolean }) {
   const [selected, setSelected] = useState(starters[0]?.language);
   const [drafts, setDrafts] = useState<EditorDrafts>({});
   const [confirmReset, setConfirmReset] = useState(false);
@@ -45,7 +46,7 @@ export function CodeEditor({ starters, examples = [] }: { starters: EditorStarte
       languageSelect.current?.focus();
     }} />}
     <p role="status" aria-atomic="true" className="text-sm text-accent">{notice}</p>
-    <p className="text-xs leading-6 text-muted">Entry point: <code>{starter.entryPoint}</code>. Drafts stay only on this open page; refreshing or leaving discards them. Code execution is not available yet.</p>
+    <p className="text-xs leading-6 text-muted">Entry point: <code>{starter.entryPoint}</code>. Drafts stay only on this open page; refreshing or leaving discards them.</p>
     <EditorBoundary fallback={<div role="alert" className="space-y-4"><p className="text-sm text-warm">The editor could not load. Copy your current code below before reloading.</p><CodeBlock label="Current code" code={value} /></div>}>
       <MonacoSurface language={language.id} value={value} onChange={(code) => {
         setConfirmReset(false);
@@ -54,7 +55,7 @@ export function CodeEditor({ starters, examples = [] }: { starters: EditorStarte
       }} />
     </EditorBoundary>
     <p className="text-xs leading-6 text-muted">Monaco supports keyboard navigation and screen readers. Use its command palette for accessibility options.</p>
-    <ExecutionPanels examples={examples} />
+    <RunnerControls slug={slug} code={value} language={starter.language} enabled={runnerEnabled} signedIn={signedIn} examples={examples} />
   </div>;
 }
 
