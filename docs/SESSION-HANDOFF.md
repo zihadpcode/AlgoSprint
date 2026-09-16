@@ -1,5 +1,71 @@
 # AlgoSprint session handoff
 
+**2026-09-16: PAUSED at the requested halfway point of Phase 10. Leave the partial phase as an unmerged draft.**
+
+Latest instruction: “continue and pause at half.” This session implemented the first of two planned Phase 10 milestones. Halfway describes that scope boundary, not an exact measurement of engineering time or session usage. No further feature work or merge is requested until the next resume.
+
+## 🟦 Repository and current branch
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Main was verified at merged Phase 9 `09c7bcfbd15c9df9b13853c1c18074c8bac45c9c`, tree `34ac9f2372a01398063d3816a40ab3e005490737`.
+- Phase 9 [PR #10](https://github.com/zihadpcode/AlgoSprint/pull/10) is merged. Final head `44de4831e5280e401f5250514d31a33d21a99fc9` passed [CI 35123738852](https://github.com/zihadpcode/AlgoSprint/actions/runs/35123738852) with 130 tests; the merged tree matched exactly.
+- Partial Phase 10 branch: `algosprint/phase-10-dashboard-part-1`. Keep its PR in draft and unmerged. PR metadata records the final saved commit, tree, CI URL/result and source comparison evidence.
+- Local workspace: `/workspace/scratch/4f3affa6d1ad/algosprint`. Local ancestry remains a synthetic restored snapshot; do not push it. Remote commits use actual GitHub main as their parent and preserve remote-only older guides. On resume, use the remote Phase 10 branch, not just main.
+- AGENTS.md and installed Next.js page guidance were read before implementation. No dependency, schema, migration or seed-content changes were made.
+
+## 🟩 Built in Part 1
+
+1. A server-only dashboard loader authenticates before obtaining a database connection and uses only the verified viewer ID. Administrators also receive only their own analytics. It returns the display name, admin flag and the three summary sections needed by this view.
+2. The dashboard replaces static introduction cards with published, attempted, solved, current verified, self-marked and review-later counts. A provenance sentence separately identifies earlier verified and older recorded solves.
+3. Solved-by-difficulty and solved-by-category charts use per-group published totals. Exact numeric labels accompany decorative blue bars in accessible tables with focusable horizontal scroll regions. Zero denominators are labeled; overlapping categories are explained. Counts describe coverage, not mastery.
+4. Separate collection-empty and learner-not-started states are implemented. Query failure propagates to the existing error boundary instead of manufacturing zero progress.
+5. Eight new tests and [PHASE-10-PART-1-GUIDE.md](PHASE-10-PART-1-GUIDE.md) cover the boundary, behavior, setup, verification limits, and all six complete changed source/test files. README and brief status are updated.
+
+The existing Phase 9 query is reused unchanged, including its two bounded activity reads; Part 1 returns only overall/difficulty/categories to its component. Recent activity remains on `/progress` and is linked from the dashboard. Existing write actions already revalidate `/dashboard`.
+
+## 🟨 Verification and limits
+
+- Local **105 unit/component/migration tests** pass (97 existing + 8 new), along with lint, TypeScript, production build and the signed-out production HTTP smoke. A final small focusability attribute change is included in the published source and checked by branch CI.
+- The branch CI reruns the existing **33 PostgreSQL integration tests** as well as migrations, seed validation/seeding, lint/types/build and both HTTP smoke checks. The draft PR records the actual final-head result. Do not infer this branch passed merely because Phase 9 passed.
+- The Part 1 guide's six complete listings are mechanically checked against the authored files. No new chart package or client-side fetching is used.
+- No live Supabase/Judge0 verification, real browser/Monaco-worker QA, production migration, deployment or provider purchase was performed. The manual browser/account checklist remains in the guide.
+- Counts aggregate minimal rows for the planned 1,000-problem collection. Completion percentages are rounded in text and exact solved/published counts remain visible. This first half does not implement inferred skill scores or streaks.
+
+## 🟪 Part 2 — remaining work on the next resume
+
+| Feature | Resume requirement |
+| --- | --- |
+| Weak topics | Define an honest evidence rule; low collection coverage alone is not proof of weak skill |
+| Recommended problems | Select published, owner-relevant problems deterministically and explain why each is recommended |
+| Recent submissions | Add a bounded dashboard section with accurate mode/status/revision labels and private-data exclusions |
+| Streak | Define the recorded activity and UTC/local-day policy, or use the permitted explicit placeholder; do not infer daily history from latest timestamps |
+| Final phase integration | Complete tests, browser checklist where configured, full Phase 10 guide, CI and review before merge |
+
+## 🟪 Phase ledger
+
+| Phase | Scope | Current state |
+| --- | --- | --- |
+| 1–2 | Foundation, database, seeds | Merged |
+| 3–4 | Authentication and workspace | Merged; live account/browser QA pending |
+| 5–7 | Library, details, Monaco | Merged; browser/worker QA pending |
+| 8 | Isolated runner | Merged; live provider verification pending |
+| 9 | Progress tracking | Merged PR #10; 130 tests and CI passed |
+| 10 | Dashboard analytics | **Halfway checkpoint, draft/unmerged; Part 2 not started** |
+| 11 | Notes/bookmarks manager | Models and per-problem note only |
+| 12 | Roadmaps | Models only |
+| 13 | Admin authoring | Models and guarded placeholder only |
+| 14 | Generator | Seed/validation foundation only |
+| 15 | Mock interviews | Models only |
+| 16 | Polish/deployment | Not started |
+
+**Stop here.** On resume, verify the draft branch/PR and its CI, then implement Part 2. The older handoff below is historical and must not override this halfway pause.
+
+---
+
+# Historical Phase 9 handoff
+
+# AlgoSprint session handoff
+
 **2026-09-16: Phase 9 progress tracking is implemented and documented. Pause before Phase 10.**
 
 The user resumed the saved Phase 9 work. Standing approval covers verified GitHub publication and merge. This checkpoint finishes that milestone; Phase 10 has not started. There is no live usage-percentage meter, so no exact 90% usage claim is made.
