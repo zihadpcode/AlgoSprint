@@ -1,5 +1,5 @@
 import "server-only";
-import type { PrismaClient } from "@/generated/prisma/client";
+import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { progressView } from "./presentation";
 
 const emptyCounts = () => ({ total: 0, started: 0, attempted: 0, solved: 0, manualSolved: 0, verifiedCurrent: 0, verifiedEarlier: 0, reviewLater: 0 });
@@ -7,7 +7,12 @@ export type ProgressCounts = ReturnType<typeof emptyCounts>;
 // Trusted boundary supplies the verified owner. No cross-user or public caching.
 export async function queryProgress(db: PrismaClient, userId: string) {
   if (!userId) throw new Error("Verified viewer required");
-  return db.$transaction(async (tx) => {
+  return db.$transaction((tx) => readProgress(tx, userId), { isolationLevel: "RepeatableRead", timeout: 15_000 });
+}
+
+// Shared by progress and dashboard inside their own consistent transaction.
+export async function readProgress(tx: Prisma.TransactionClient, userId: string) {
+  if (!userId) throw new Error("Verified viewer required");
     // Minimal collection projection is appropriate for the planned 1,000-problem MVP.
     // Statements, solutions, tests, notes and submission code/result never enter this DTO.
     const problems = await tx.problem.findMany({ where: { status: "PUBLISHED" }, select: {
@@ -53,6 +58,5 @@ export async function queryProgress(db: PrismaClient, userId: string) {
       recentProgress: recentProgress.map(({ problem, updatedAt, ...row }) => ({ slug: problem.slug, title: problem.title,
         progress: progressView(row, problem.revision), updatedAt: updatedAt.toISOString() })),
     };
-  }, { isolationLevel: "RepeatableRead", timeout: 15_000 });
 }
 export type ProgressSummary = Awaited<ReturnType<typeof queryProgress>>;
