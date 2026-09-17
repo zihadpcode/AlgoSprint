@@ -4,18 +4,18 @@ const f = vi.hoisted(() => ({ viewer: vi.fn(), db: vi.fn(), query: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("@/features/auth/session", () => ({ requireViewer: f.viewer }));
 vi.mock("@/lib/prisma", () => ({ getDatabase: f.db }));
-vi.mock("@/features/progress/query", () => ({ queryProgress: f.query }));
+vi.mock("@/features/dashboard/query", () => ({ queryDashboard: f.query }));
 import { loadDashboard } from "@/features/dashboard/load";
 
 beforeEach(() => {
   vi.resetAllMocks();
   f.viewer.mockResolvedValue({ id: "verified-owner", role: "USER", displayName: "Learner", email: "private@example.test" });
   f.db.mockReturnValue("db");
-  f.query.mockResolvedValue({ overall: { solved: 2 }, difficulty: {}, categories: [], recentAttempts: ["not-in-this-view"], recentProgress: [] });
+  f.query.mockResolvedValue({ analytics: { overall: { solved: 2 }, difficulty: {}, categories: [] }, insights: { topics: [], recommendations: [], recentSubmissions: [] } });
 });
 
 it("uses the verified owner and returns only the dashboard projection", async () => {
-  expect(await loadDashboard()).toEqual({ displayName: "Learner", admin: false, analytics: { overall: { solved: 2 }, difficulty: {}, categories: [] } });
+  expect(await loadDashboard()).toEqual({ displayName: "Learner", admin: false, analytics: { overall: { solved: 2 }, difficulty: {}, categories: [] }, insights: { topics: [], recommendations: [], recentSubmissions: [] } });
   expect(f.viewer).toHaveBeenCalledWith("/dashboard");
   expect(f.query).toHaveBeenCalledWith("db", "verified-owner");
 });
