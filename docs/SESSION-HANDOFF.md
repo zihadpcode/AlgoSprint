@@ -1,5 +1,81 @@
 # AlgoSprint session handoff
 
+**2026-09-17: PAUSED at the user's explicit request, “pause and update.” Phase 11 remains unfinished and unmerged.**
+
+Feature work and fixes stopped. The remaining action in this session is saving current documentation and the source checkpoint. Standing auto-approval does not override this pause. Do not start Phase 12.
+
+## 🟦 Repository state
+
+- Main: merged Phase 10 `ca1817262895fcd6651811ac34d1e21cbd3c0a10`, tree `e768e80f1e77447068de3f604fe59e034832450e`.
+- Phase 10 PR #11 is merged. Final head `68007ff3277138582d164c8618adbdd04ac40446` passed CI 35258434151 with 152 tests; the merge tree matched exactly.
+- Phase 11: [draft PR #12](https://github.com/zihadpcode/AlgoSprint/pull/12), branch `algosprint/phase-11-notes-bookmarks`. Leave open, draft and unmerged.
+- Implementation head `6c6dc5b2163f34c52961019ce0fe5919363f31d4`, tree `536802775ae1b74c6d2935747efcec8c6c2e9dba`. PR metadata records the final documentation checkpoint head/tree.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` has synthetic ancestry from a restored snapshot. Never push that ancestry. Remote commits use actual GitHub parent/tree and preserve remote-only historical guides. Resume from the remote Phase 11 branch.
+
+## 🟩 Implemented so far
+
+- Protected /notes, /bookmarks and /review, with owner-only published-problem queries, title search, ten-item deterministic pagination and out-of-range page clamping.
+- Notes selected only for the notes manager; bookmark/review DTOs have no note text. Admin users see their own collections only.
+- Shared bookmark/review forms on problem and collection pages. Bookmark events reuse progress row locks and preserve solved provenance, dates and review state.
+- Shared note editing, explicit deletion and local discard. Note saves/deletes use a transaction advisory lock keyed by owner/problem and compare the saved-content baseline, including absent rows. Empty saves physically delete; repeated deletes are safe.
+- Draft/baseline preservation across unrelated re-renders, conflict/unconfirmed-response feedback, and disabled deletion while local unsaved changes exist.
+- Proxy/safe-return/navigation and successful-write revalidation include saved pages. The safe-return list also now includes progress.
+- New boundary, filter, React control and PostgreSQL tests. [PHASE-11-GUIDE.md](PHASE-11-GUIDE.md) contains all 25 complete source/test/script files and describes the paused implementation, not a completed release.
+
+No dependency, schema, migration or seed-content changes. No production data changes, provider purchase, deployment or merge occurred in Phase 11. No Phase 12 code was started.
+
+## 🟨 Actual verification results
+
+[CI 35260491494](https://github.com/zihadpcode/AlgoSprint/actions/runs/35260491494) on the implementation head **failed**:
+
+- 123 unit/component/migration tests passed.
+- 38 existing PostgreSQL integration tests passed.
+- tests/integration/saved.test.ts failed in beforeAll fixture setup; **all six new tests were skipped**, not passed.
+- Prisma generation/schema validation, migrations and seed validation passed before the failure.
+- Later CI lint, types, build, HTTP smoke and final seed steps were skipped.
+
+Earlier local checks passed 122 tests, lint, TypeScript, production build and protected HTTP smoke including all three new routes. The additional dirty-draft test passed in a targeted four-test run, and CI then passed all 123 unit tests. A lint declaration-order issue was fixed before publication. No feature code was changed after the pause request.
+
+## 🟥 Known failure and exact resume task
+
+`tests/integration/saved.test.ts` creates 12 PUBLISHED pagination fixtures with db.problem.createMany but does not set publishedAt. PostgreSQL rejects the first row with `Problem_published_check` (SQLSTATE 23514). The constraint in the foundation migration requires every PUBLISHED problem to have a non-null publishedAt.
+
+On resume:
+
+1. Verify the draft branch/PR and current CI; preserve the paused source.
+2. Correct the test fixtures to include an explicit publication timestamp. Do not weaken or remove the database constraint.
+3. Run all six new saved-collection integration tests and the full workflow. Their behavior remains unverified because setup failed. Resolve any additional failures uncovered.
+4. Recheck owner isolation, note save/delete concurrency and pagination; review the guide/source after any changes. Then complete Phase 11 documentation and final CI before considering merge.
+
+Automatic CI may run after the documentation checkpoint is saved. That does not authorize resuming feature fixes or imply phase completion. Do not wait through optional new checks merely to extend this paused session.
+
+Live Supabase/Judge0 and actual browser/keyboard/screen-reader/Monaco-worker checks remain pending. Archived notes stay in storage but are hidden from published-content managers. No note recovery, autosave or bulk operations exist. The guide explains these limits and the later manual checklist.
+
+## 🟪 Phase ledger
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1–2 | Foundation, database, seeds | Merged |
+| 3–4 | Authentication and workspace | Merged; live account/browser checks pending |
+| 5–7 | Library, details, Monaco | Merged; browser/worker checks pending |
+| 8 | Isolated runner | Merged; live provider checks pending |
+| 9 | Progress tracking | Merged PR #10 |
+| 10 | Dashboard analytics | Merged PR #11; 152 tests and CI passed |
+| 11 | Notes/bookmarks/review manager | PAUSED draft PR #12; fixture failure blocks six new integration tests |
+| 12 | Original roadmaps | Models only; not started |
+| 13 | Admin authoring | Models and guarded placeholder only |
+| 14 | Generator | Seed/validation foundation only |
+| 15 | Mock interviews | Models only |
+| 16 | Polish/deployment | Not started |
+
+**Stop here until the user resumes.** The previous Phase 10 handoff below is historical and does not supersede this pause.
+
+---
+
+# Historical Phase 10 handoff
+
+# AlgoSprint session handoff
+
 **2026-09-17: Phase 10 dashboard analytics implemented and documented. Pause before Phase 11.**
 
 The user resumed after the requested halfway pause. Standing authorization covers publishing and merging verified work. The old Part 1 pause was superseded by that resume; this session completes Phase 10 only.
