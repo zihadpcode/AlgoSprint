@@ -9,7 +9,7 @@ import { writeProblemChange } from "./detail-write";
 export async function updateProblem(_previous: ProblemActionState, form: FormData): Promise<ProblemActionState> {
   // Explicit fields: caller-supplied user IDs, roles and problem IDs are ignored.
   const input = problemChange.safeParse({
-    slug: form.get("slug"), operation: form.get("operation"), review: form.get("review"),
+    slug: form.get("slug"), operation: form.get("operation"), review: form.get("review"), bookmarked: form.get("bookmarked"),
     content: form.get("content"), expectedContent: form.get("expectedContent"),
   });
   if (!input.success) return { success: false, message: "Check your request. Notes must be at most 10,000 characters and contain no null characters." };
@@ -24,6 +24,10 @@ export async function updateProblem(_previous: ProblemActionState, form: FormDat
   revalidatePath("/problems");
   revalidatePath("/progress");
   revalidatePath("/dashboard");
+  revalidatePath("/notes");
+  revalidatePath("/bookmarks");
+  revalidatePath("/review");
+  if (input.data.operation === "delete-note") return { success: true, message: "Note deleted.", savedContent: "" };
   if (input.data.operation === "save-note") return { success: true, message: input.data.content ? "Note saved." : "Note cleared.", savedContent: input.data.content };
-  return { success: true, message: "Progress updated." };
+  return { success: true, message: input.data.operation === "set-bookmark" ? "Bookmark updated." : "Progress updated." };
 }

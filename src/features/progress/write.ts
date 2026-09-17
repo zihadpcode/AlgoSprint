@@ -2,7 +2,7 @@ import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 
 type ProgressEvent = { kind: "attempt" | "manual-solve" | "clear-manual"; at: Date }
-  | { kind: "review"; value: boolean; at: Date }
+  | { kind: "review" | "bookmark"; value: boolean; at: Date }
   | { kind: "verified-solve"; revision: number; at: Date };
 
 // Trusted transaction helper. Caller locks the problem first and verifies ownership.
@@ -22,6 +22,8 @@ export async function writeProgress(tx: Prisma.TransactionClient, userId: string
     Object.assign(data, { status: row.attemptedAt ? "ATTEMPTED" : "NOT_STARTED", selfMarked: false, solvedAt: null });
   } else if (event.kind === "review" && row.reviewLater !== event.value) {
     data.reviewLater = event.value;
+  } else if (event.kind === "bookmark" && row.bookmarked !== event.value) {
+    data.bookmarked = event.value;
   } else if (event.kind === "verified-solve" && (row.verifiedRevision ?? 0) <= event.revision) {
     if (row.status !== "SOLVED") Object.assign(data, { status: "SOLVED", solvedAt: event.at });
     if (row.selfMarked) data.selfMarked = false;

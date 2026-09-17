@@ -19,6 +19,7 @@ export async function executeCode(raw: unknown): Promise<ExecutionState> {
     if (outcome.success) {
       revalidatePath(`/problems/${parsed.data.slug}`);
       revalidatePath("/problems"); revalidatePath("/progress"); revalidatePath("/dashboard");
+      revalidatePath("/notes"); revalidatePath("/bookmarks"); revalidatePath("/review");
     }
     return outcome;
   } catch {
