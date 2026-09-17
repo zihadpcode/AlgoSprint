@@ -1,5 +1,71 @@
 # AlgoSprint session handoff
 
+**2026-09-17: Phase 10 dashboard analytics implemented and documented. Pause before Phase 11.**
+
+The user resumed after the requested halfway pause. Standing authorization covers publishing and merging verified work. The old Part 1 pause was superseded by that resume; this session completes Phase 10 only.
+
+## 🟦 Repository and publication
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Phase 10 [PR #11](https://github.com/zihadpcode/AlgoSprint/pull/11) retains branch `algosprint/phase-10-dashboard-part-1` for continuity. PR metadata records final tested head, CI, tree and merge evidence. Check actual main/PR state before resuming.
+- Starting main: merged Phase 9 `09c7bcfbd15c9df9b13853c1c18074c8bac45c9c`. Part 1 head `c77265784cdf3a95309b5b4e8a0d60a863848e18` passed CI 35125650497 with 138 tests.
+- Completion implementation head `b98d14b755a9724ad6e728407b2a8909e16fda92`, tree `e5c87d69b04b386ff12947e44962a1a0ed44ded7`, passed [CI 35257917487](https://github.com/zihadpcode/AlgoSprint/actions/runs/35257917487), including all 152 tests and every migration/seed/build/HTTP check. The final documentation/copy commit is separately checked before merge, with evidence on the PR.
+- Local workspace `/workspace/scratch/4f3affa6d1ad/algosprint` still has synthetic Git ancestry. Do not push it. Remote commits use actual branch ancestry and preserve historical guides not restored locally.
+- AGENTS.md and installed Next.js page guidance were read. No dependency, schema, migration or seed-content changes were made.
+
+## 🟩 Completed dashboard
+
+- Six live cards and accessible solved-by-difficulty/category charts from Part 1 remain. Solved provenance, zero denominators and category overlap remain explicit.
+- Topics to revisit use explicit review flags or at least two distinct unsolved problems whose latest completed full submission is Wrong answer on the current revision. Repeated attempts on one problem cannot inflate the signal. This is not a mastery score; low completion alone is insufficient.
+- Up to three deterministic recommendations prioritize review, earlier verified revisions, unresolved wrong answers, attempted problems, new problems in qualifying topics, then other new problems. Difficulty and slug break ties. Every item gives its reason. Manual/current/legacy solves are excluded unless reviewed.
+- Five recent full submissions are queried directly, so visible runs cannot crowd them out. Pending work has no fabricated final count. Timestamps say UTC and stale revisions are labeled. Source/results/hidden payloads are excluded.
+- The streak card explicitly says Not tracked yet, using the original brief's permitted placeholder. Actual streak computation is not implemented.
+- Shared readProgress now accepts a transaction client. The existing progress wrapper preserves behavior while the dashboard reads counts, evidence and recent full submissions in one Repeatable Read snapshot. The verified owner scopes all reads, including administrator views. Failures propagate instead of showing invented zeros.
+
+[PHASE-10-GUIDE.md](PHASE-10-GUIDE.md) includes beginner setup, formulas, policy decisions, data flow, tests, manual checks and **all 13 complete changed source/test files**. The Part 1 guide is marked historical. README and the preserved brief's status are updated.
+
+## 🟨 Verification
+
+- Local **114 unit/component/migration tests** passed, along with lint, TypeScript, clean production build and signed-out HTTP smoke. An initial build failed while clearing generated .next chunks; removing only that generated cache resolved the failure.
+- The PostgreSQL suite now has **38 integration tests** (33 existing + 5 dashboard). These cover real owner/private-field filtering, latest full results, revision/archive handling, full submissions surviving many newer visible runs, and distinct-problem topic evidence.
+- Final branch CI reruns all **152 tests**, schema/migrations, seed validation/seeding, lint/types/build and both HTTP smoke checks. Read PR #11 for the actual final-head result and merge-tree verification.
+- The guide's 13 complete listings are checked against current source. No live Supabase/Judge0 workflow or real browser visual/Monaco-worker verification was performed.
+
+## 🟥 Limits and configuration
+
+No production migration, data change, deployment or provider purchase occurred. Use confirmed development accounts and the existing configured PostgreSQL database. No new migration is needed for Phase 10, but an older database still needs Phase 9's existing migration. Runner execution stays disabled until configured and live-verified.
+
+The topic threshold is a transparent heuristic, not a validated skill assessment. Completed evidence uses reservation time plus ID for stable ordering, ignores stale latest results, and excludes non-wrong-answer outcomes. New pending work does not erase the last completed result. Suggestions refresh from a database snapshot; external/provider behavior remains separately verified.
+
+The implementation aggregates minimal published rows for the planned 1,000-problem MVP. The shared progress read retains two small bounded activity reads not directly displayed in the dashboard. No complete audit log, active daily streak or unbounded-scale analytics service is claimed. Complete live account, keyboard/screen-reader, narrow-screen/zoom, Monaco and action-refresh/draft-retention checks in the guide before calling those flows verified.
+
+## 🟪 Phase ledger and next resume
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1–2 | Foundation, database, original seeds | Merged |
+| 3–4 | Authentication and workspace | Merged; live account/browser QA pending |
+| 5–7 | Library, details, Monaco | Merged; browser/worker QA pending |
+| 8 | Isolated runner | Merged; live provider verification pending |
+| 9 | Progress tracking | Merged PR #10; 130 tests/CI passed |
+| 10 | Dashboard analytics | Implemented and documented in PR #11; final CI/merge evidence on PR |
+| 11 | Notes/bookmarks manager and review later | Next; per-problem note/model foundation exists |
+| 12 | Original roadmaps | Models only |
+| 13 | Admin authoring | Models and guarded placeholder only |
+| 14 | Generator | Seed/validation foundation only |
+| 15 | Mock interviews | Models only |
+| 16 | Polish/deployment | Not started |
+
+**Pause before Phase 11.** On the next continue instruction, verify main and PR #11, then build owner-only notes/bookmark management and the review-later page. Preserve existing note conflict handling and independent progress fields; do not duplicate or erase solve provenance. Continue complete phase guides. No Phase 11 code was started.
+
+---
+
+# Historical Phase 10 halfway handoff
+
+The previous status below is historical and superseded by the completion checkpoint above.
+
+# AlgoSprint session handoff
+
 **2026-09-16: PAUSED at the requested halfway point of Phase 10. Leave the partial phase as an unmerged draft.**
 
 Latest instruction: “continue and pause at half.” This session implemented the first of two planned Phase 10 milestones. Halfway describes that scope boundary, not an exact measurement of engineering time or session usage. No further feature work or merge is requested until the next resume.

@@ -1,3 +1,5 @@
+> **Historical halfway snapshot, superseded on 2026-09-17.** The user resumed and Phase 10 is now implemented in PR #11. Use [PHASE-10-GUIDE.md](PHASE-10-GUIDE.md) and [SESSION-HANDOFF.md](SESSION-HANDOFF.md) for current source/status. The stop instructions and partial source below apply only to the earlier checkpoint.
+
 # Phase 10, Part 1 — Dashboard foundation
 
 ## 🟦 Halfway scope and stop point

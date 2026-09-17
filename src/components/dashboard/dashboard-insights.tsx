@@ -12,7 +12,7 @@ export function DashboardInsights({ insights }: { insights: Insights }) {
       </li>)}</ul> : <p className="mt-5 text-sm text-muted">No topic signal yet. Mark a problem for review when you want to revisit it; low completion alone does not identify a weak topic.</p>}
     </Card>
     <Card><CardTitle>Recommended next problems</CardTitle>
-      <p className="mt-3 text-sm leading-7 text-muted">Review marks first, then earlier verified revisions, wrong answers, unfinished attempts and new problems. Ties favor easier problems, then a stable slug order.</p>
+      <p className="mt-3 text-sm leading-7 text-muted">Your review marks come first, followed by revised problems, unresolved wrong answers and unfinished attempts. New problems in topics to revisit come next. Within each group, easier problems appear first.</p>
       {insights.recommendations.length ? <ol className="mt-5 space-y-4">{insights.recommendations.map((item) => <li key={item.slug} className="border-t border-line pt-4">
         <Link href={`/problems/${item.slug}`} className="font-semibold text-accent underline underline-offset-4">{item.title}</Link>
         <p className="mt-2 text-xs text-muted">{item.difficulty}</p><p className="mt-2 text-sm leading-6 text-muted">{item.reason}</p>
