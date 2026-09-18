@@ -2,13 +2,15 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current checkpoint: Phase 11 private saved collections
+## 🟦 Current checkpoint: Phase 12 paused, draft PR #13
 
-Phase 11 adds protected `/notes`, `/bookmarks` and `/review` pages with title search, ten-item pagination and shared bookmark/review controls. Notes can be edited and deleted inline with saved-content conflict checks; unsaved drafts are retained after conflicts or unconfirmed responses. Bookmark and review changes preserve solve history.
+Phase 11 is merged. Phase 12 is **unfinished and paused at the user's request** in [draft PR #13](https://github.com/zihadpcode/AlgoSprint/pull/13), branch `algosprint/phase-12-roadmaps`. Main remains at Phase 11; do not merge or resume fixes until the user continues.
 
-The published-fixture issue from the paused draft is fixed. **123 unit/component/migration tests and 44 PostgreSQL integration tests pass**, including all six saved-collection tests. Local lint, types, clean production build and protected HTTP smoke pass. [PR #12](https://github.com/zihadpcode/AlgoSprint/pull/12) records final-head CI and merge evidence.
+The draft adds public roadmap list/detail pages, two original paths through the existing five problems, ordered steps, private progress and next-step suggestions. Seeding validates references, preserves identical existing paths and refuses conflicting edits. No schema or dependency changes were made.
 
-Read [the complete Phase 11 guide](docs/PHASE-11-GUIDE.md), with all 25 changed source/test/script files, and [the session handoff](docs/SESSION-HANDOFF.md). Pause before Phase 12 roadmaps. No schema, dependency or seed-content changes, production migration or deployment occurred. Live account/provider/browser checks remain pending.
+**135 local unit/component/migration tests**, seed validation, lint, TypeScript, production build and unconfigured HTTP checks pass. Seven new PostgreSQL integration tests and the seeded roadmap HTTP checks await observed CI evidence. No live account/provider/browser checks or deployment occurred.
+
+Read [the Phase 12 checkpoint guide](docs/PHASE-12-GUIDE.md), with all 23 changed source/test/script files, and [the session handoff](docs/SESSION-HANDOFF.md) for the exact remaining work. Phase 13 has not started.
 
 ## 🟩 Run locally
 
