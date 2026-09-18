@@ -1,8 +1,6 @@
-# Phase 11 — Paused implementation guide and source checkpoint
+# Phase 11 — Private notes, bookmarks and review later
 
-> **PAUSED on 2026-09-17 at the user's request: “pause and update.” Phase 11 is unfinished and must remain unmerged.** This document records the implementation so far and all 25 complete source/test files; the behavior below still needs the outstanding integration verification.
->
-> [CI 35260491494](https://github.com/zihadpcode/AlgoSprint/actions/runs/35260491494) passed 123 unit/component/migration tests and 38 existing PostgreSQL tests, but the new saved-collections suite failed in setup: its PUBLISHED problem fixtures omit publishedAt, violating Problem_published_check. All six new integration tests were skipped. Fix the fixtures only after resume, then rerun the full workflow. Later CI lint/types/build/HTTP steps were skipped; earlier local checks passed.
+The user resumed the saved Phase 11 checkpoint on 2026-09-18. This guide covers the full implementation and all 25 changed source/test/script files. PR #12 records final verification and merge evidence. The earlier paused status is preserved in the session handoff history and Git history.
 
 ## 🟦 What this phase builds
 
@@ -111,7 +109,13 @@ npm run dev
 
 Open a problem, save a note, and click Bookmark or Review later. Visit the corresponding manager. Judge0 is not needed for notes, bookmarks or review; use the Phase 8 live-check guide before enabling execution. Later deployment must run a consistent version of the note writer across application instances so all writes follow the shared locking protocol.
 
+## 🟨 Fix from the paused checkpoint
+
+The six new PostgreSQL tests were previously blocked during setup: their 12 synthetic PUBLISHED problems omitted publishedAt. The foundation constraint correctly rejected them. Each fixture now has an explicit 2026-01-01T00:00:00Z publication timestamp. The production constraint, schema and behavior were not weakened. The tests can now run rather than being skipped at setup. See PR #12 and the current handoff for the actual run results.
+
 ## 🟨 Automated verification
+
+The corrected implementation passed [CI 35405124832](https://github.com/zihadpcode/AlgoSprint/actions/runs/35405124832): **123 unit/component/migration tests + 44 real PostgreSQL integration tests = 167**, including all six saved-collection tests. Schema/migrations, seeds, lint, types, build and both HTTP smoke checks also passed. PR #12 records the final documentation-head check and merge evidence. Local tests/lint/types and the clean production build/protected HTTP smoke passed; a generated Turbopack cache panic was resolved by removing only .next and rebuilding.
 
 ```bash
 npm test
@@ -867,7 +871,7 @@ beforeAll(async () => {
   const seeds = await loadProblems(); slugs = seeds.map((p) => p.slug); owns = true; await seedProblems(db, seeds);
   await db.user.createMany({ data: users.map((id) => ({ id })) });
   problemId = (await db.problem.findUniqueOrThrow({ where: { slug } })).id;
-  await db.problem.createMany({ data: extras.map((slug) => ({ slug, title: slug, difficulty: "EASY" as const, status: "PUBLISHED" as const, pattern: "fixture", statement: "DO-NOT-EXPOSE", constraints: ["Fixture"], estimatedMinutes: 1 })) });
+  await db.problem.createMany({ data: extras.map((slug) => ({ slug, title: slug, difficulty: "EASY" as const, status: "PUBLISHED" as const, publishedAt: new Date("2026-01-01T00:00:00Z"), pattern: "fixture", statement: "DO-NOT-EXPOSE", constraints: ["Fixture"], estimatedMinutes: 1 })) });
 }, 30000);
 beforeEach(async () => {
   await db.userNote.deleteMany({ where: { userId: { in: users } } }); await db.userProgress.deleteMany({ where: { userId: { in: users } } });
@@ -1167,4 +1171,4 @@ it("never touches the database after a guest redirect or identity failure", asyn
 
 ## 🟪 Next phase
 
-Stop here until the user resumes. On resume, verify PR #12 and this checkpoint, fix the publishedAt fixture setup in tests/integration/saved.test.ts, and run all six new integration tests plus the full workflow. Resolve any resulting failures before completing/reviewing Phase 11 and considering merge. Phase 12 roadmaps has not started.
+Pause before Phase 12. On the next resume, verify main and PR #12, then build original roadmaps with list/detail pages, ordered steps, per-roadmap progress and a recommended next step. Reuse the existing owner/progress rules and create original content. No Phase 12 code is included here.
