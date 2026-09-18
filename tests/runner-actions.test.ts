@@ -23,7 +23,7 @@ it("authenticates every request and fails closed when disabled or identity verif
 it("uses the verified owner and never reports a failed save as successful", async () => {
   expect((await executeCode(input)).success).toBe(true);
   expect(f.run).toHaveBeenCalledWith("db", "verified-owner", input, "server-config");
-  expect(f.revalidate.mock.calls).toEqual([["/problems/relay-window"], ["/problems"], ["/progress"], ["/dashboard"], ["/notes"], ["/bookmarks"], ["/review"]]);
+  expect(f.revalidate.mock.calls).toEqual([["/problems/relay-window"], ["/problems"], ["/progress"], ["/dashboard"], ["/notes"], ["/bookmarks"], ["/review"], ["/roadmaps"], ["/roadmaps/[slug]", "page"]]);
   f.run.mockRejectedValue(new Error("database password")); expect(await executeCode(input)).toMatchObject({ success: false });
   expect(JSON.stringify(await executeCode(input))).not.toContain("password");
 });
