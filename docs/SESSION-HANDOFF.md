@@ -1,5 +1,124 @@
 # AlgoSprint session handoff
 
+**2026-09-18: Phase 12 original learning roadmaps implemented. The user resumed after the saved pause. Pause before Phase 13 after final CI and merge.**
+
+The earlier Phase 12 pause below is historical and superseded by “continue nvm.” Standing authorization covers publishing and merging the verified phase. No Phase 13 implementation is included.
+
+## 🟦 Repository and publication
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Phase 12 [PR #13](https://github.com/zihadpcode/AlgoSprint/pull/13), branch `algosprint/phase-12-roadmaps`. PR metadata records the final tested head, CI result and merge-tree comparison. Read actual state on resume.
+- Starting main: merged Phase 11 `f23c66692ab7765f5f898820451801c0d9db8949`, tree `bce573ac7715126273f291bf6d5d4a284b8d1e0c`.
+- Implementation head `38cf4c88a80a0b2e8e9d7f94ce139891d9baf650`, tree `10f2e531273a113ab6634770dd9c4bdb2ee0bd20`.
+- Resumed documentation checkpoint `cc4f7a3efaba3da1eb6b62145d55029b90c8a096`, tree `7d4a20236d4c8761861f5b349cd7a5dd16f199f1`. [CI 35406834061](https://github.com/zihadpcode/AlgoSprint/actions/runs/35406834061) validates the unchanged implementation. Final documentation is separately checked before merge.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` retains synthetic Git ancestry. Never push it. Remote commits use actual branch parent/tree and preserve the twelve remote-only historical files. The paused checkpoint had 219 local tracked blobs matching the published tree.
+
+## 🟩 Completed implementation
+
+- Dynamic public `/roadmaps` and `/roadmaps/[slug]`, twelve-item stable pagination, description/difficulty/estimates, semantic ordered steps, problem links, preparation/empty/not-found states and guest sign-in guidance.
+- Two original starter paths: Scan, Store, Reuse (Quiet Badge, Relay Window, Parcel Checkpoints; 75 minutes) and Boundaries to Decisions (Dock Threshold, Lantern Steps; 65 minutes). They are not a complete DSA curriculum.
+- Owner-scoped progress uses the existing self-marked/current verified/earlier verified/older recorded meanings. Exact fractions, accessible progress labels and separate provenance counts prevent completion being mistaken for mastery. Suggestions select the first unsolved step, then review flags after all steps are solved, then earlier-revision verification. Browsing writes no progress.
+- Published paths must be nonempty and have all linked problems published; any unavailable step hides the entire path. Minimal selections exclude notes, tests, statements, solutions, source and operational IDs. Repeatable Read keeps counts/content/progress consistent. Admin views use the same verified owner scope; guest personal fields are null.
+- Original seed definitions and strict validation enforce unique paths/steps, bounded content and published references. Whole-batch roadmap transactions and an advisory lock serialize cooperating seed jobs. Identical paths retain IDs/steps/timestamps; changed metadata/status/order/content produces a rollback/conflict, preserving edits and user progress.
+- Workspace navigation and both successful manual and runner progress actions revalidate roadmap pages. Existing proxy/private headers and safe return paths cover roadmaps.
+- Full PHASE-12-GUIDE.md contains setup, explanations, original path order, privacy/progress/seed policies, live checklist and all 23 complete changed source/test/script files. Source listings match. README and preserved brief status are current.
+
+## 🟨 Verification
+
+- **135 unit/component/migration tests passed** locally and in CI.
+- **51 real PostgreSQL integration tests passed** in CI, including seven new roadmap tests: safe projections/ordering, owner/admin isolation and shared progress, revision provenance/read-only behavior, publication rules, pagination, rerun/concurrency preservation and atomic conflict rollback.
+- Local seed validation, lint, TypeScript, production build and unconfigured HTTP smoke passed. No implementation changes were needed after the pause checkpoint.
+- CI 35406834061 passed every workflow step, including schema/migrations, seeding and both production HTTP checks (library/detail/roadmaps included). Final documentation-head evidence is recorded on PR #13; do not infer a final merge result from a historical run alone.
+
+## 🟥 Limits and deployment state
+
+No schema, migration, dependency or problem-content changes. The existing Roadmap/RoadmapStep tables are reused. Existing development databases must run the seed command to add the two paths; problem and roadmap seeding remain separate transactions, so a later roadmap conflict does not roll back earlier problem seeding. Future authoring needs deliberate write coordination; the seed lock only covers cooperating seed jobs.
+
+No enrollment, independent roadmap completion records, step locking, authoring interface or new autosave is included. Shared problems share progress; totals across future overlapping paths must not be added as distinct problems. Save code/notes before navigation. Unpublishing a step hides its whole path while retaining stored progress.
+
+Live Supabase/Judge0 checks and real authenticated browser, narrow layout/zoom, keyboard/screen-reader, Monaco worker and back-navigation refresh checks remain pending. The guide gives manual steps. Automated rendering and identity tests use controlled fixtures/mocks. No production database writes, deployment, purchase or live provider/account verification occurred.
+
+## 🟪 Phase ledger and next resume
+
+| Phase | Status |
+| --- | --- |
+| 1–10 | Merged; earlier live/browser checks pending |
+| 11 | Merged PR #12; 167 tests and full CI passed at that phase |
+| 12 | Implemented/documented; 186 unit/PostgreSQL tests pass; final CI/merge evidence on PR #13 |
+| 13 | Next: admin authoring; existing models and guarded placeholder only |
+| 14 | Generator: seed/reference-validation foundations only |
+| 15 | Mock interviews: models only |
+| 16 | Polish/deployment not started |
+
+**Pause before Phase 13.** On the next continue request, verify main/PR #13 and build the admin problem-management workflow from the preserved brief. Retain server-side admin verification, published-content privacy, revision semantics, seed-conflict protections and user history. Continue complete phase guides. Do not treat old pause instructions below as current.
+
+---
+
+# Historical Phase 12 pause
+
+# AlgoSprint session handoff
+
+**2026-09-18: PAUSED at the user's explicit request, “pause.” Phase 12 is unfinished and unmerged.**
+
+Feature work stopped immediately. Only preserving the checkpoint, guide, status and draft PR is authorized during this pause. Do not resume fixes, wait through optional CI cycles or merge until the user asks to continue.
+
+## 🟦 Repository checkpoint
+
+- Private user repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Main remains merged Phase 11: `f23c66692ab7765f5f898820451801c0d9db8949`, tree `bce573ac7715126273f291bf6d5d4a284b8d1e0c`. PR #12 is confirmed merged.
+- Phase 12 [draft PR #13](https://github.com/zihadpcode/AlgoSprint/pull/13), branch `algosprint/phase-12-roadmaps`. Leave open, draft and unmerged.
+- Implementation head `38cf4c88a80a0b2e8e9d7f94ce139891d9baf650`, tree `10f2e531273a113ab6634770dd9c4bdb2ee0bd20`. PR metadata records the subsequent documentation checkpoint. Inspect actual head/CI when resuming.
+- All 204 local baseline files matched main before edits. Local `/workspace/scratch/4f3affa6d1ad/algosprint` still has synthetic ancestry: never push it. Remote tree commits use the actual parent and preserve the 12 remote-only historical files.
+- Initial GitHub tree publication was rejected by automated approval review as an unverified destination. Read-only repository/account checks proved private repository ownership by the authenticated user (`zihadpcode`) and write/admin permissions. The same tree operation then succeeded after that evidence; no alternative transport bypass was used.
+
+## 🟩 Implemented so far
+
+- Public dynamic roadmap list/detail pages, twelve-item title/slug pagination, guest sign-in guidance, original ordered step descriptions, estimates and problem links.
+- Two original seed paths through the existing five reviewed problems: Scan, Store, Reuse; Boundaries to Decisions. They are short starter paths, not a full DSA curriculum.
+- Private owner-only progress reuses manual/current/earlier/legacy solve semantics. Suggestions select first unsolved, then first review flag once all solved, then first earlier-revision verification. Browsing changes no progress.
+- Published, nonempty roadmaps appear only when every linked problem is published; draft/archived/empty/unavailable paths return 404. Queries use explicit safe projections and Repeatable Read snapshots; guest personal fields remain null. Admins see only their own personal progress.
+- Validated roadmap seeds with unique safe slugs/steps and published references, an advisory lock across seed jobs, whole-roadmap-batch transactions, identical rerun preservation and refusal to overwrite conflicting metadata/order/status. Existing problem seeding remains a separate transaction.
+- Workspace navigation and progress/action revalidation include roadmap routes. Existing auth proxy and safe-return handling already supported them.
+- Unit/component/boundary/seed-validation tests, seven new PostgreSQL integration tests, and roadmap cases in production HTTP scripts.
+- README and preserved brief status updated. PHASE-12-GUIDE.md explains setup, architecture, policies, limits, exact resume tasks and all 23 complete changed source/test/script files.
+
+No schema, migration, dependency or problem-content changes. No production database writes, deployment, provider purchase or Phase 13 work.
+
+## 🟨 Verification at pause
+
+- **135 local unit/component/migration tests passed** (30 files; twelve added roadmap tests).
+- Local seed validation, lint, TypeScript, production build and unconfigured HTTP smoke passed. Build includes both new routes; smoke includes preparation states and malformed-slug 404s.
+- Seven new real PostgreSQL tests are written but have not run locally. The 44 existing integration tests still exist. Do not claim all 186 tests passed without current CI evidence.
+- Seeded roadmap HTTP behavior has not been observed passing. PR #13 may run CI automatically after publication; inspect actual results on resume. Do not extend the user's pause just to wait for it.
+- No observed local test failures remain at the checkpoint. Database, production seeded routes and live behavior still require verification before phase completion.
+
+## 🟥 Resume tasks and limits
+
+1. Verify main and PR #13 actual head/CI, restore the saved branch if necessary, preserving the historical guides and current source.
+2. Inspect all seven new PostgreSQL integration tests and the seeded roadmap HTTP check. Fix failures after resume; then complete review of seeding, privacy, ordering and progress refresh.
+3. Keep guide source listings exact after any code changes, update verification claims only with observed results, run final CI on the final commit, and merge only once authorized work is verified.
+4. Stop before Phase 13 (admin authoring) after Phase 12 completion.
+
+Live Supabase/Judge0, authenticated two-account checks, real browser keyboard/screen-reader/mobile/zoom/Monaco and back-navigation refresh remain pending. Roadmaps introduce no autosave, enrollment, independent completion state, step locking or authoring UI. Save code/notes before navigation. A single unpublished problem hides its whole roadmap rather than changing its denominator; stored user progress remains intact. Seed conflicts are deliberate and must not be bypassed with destructive resets.
+
+## 🟪 Phase ledger
+
+| Phase | Status |
+| --- | --- |
+| 1–10 | Merged; earlier live/browser checks pending |
+| 11 | Merged PR #12; 167 tests and full CI passed at that phase |
+| 12 | PAUSED unfinished draft PR #13; local 135 tests pass, database/seeded HTTP verification pending |
+| 13 | Admin authoring not started beyond existing models/placeholder |
+| 14–16 | Later generation, interviews, polish/deployment remain planned |
+
+**Stop until the user resumes.** Historical completion/pause instructions below are preserved as evidence only and do not override this current pause.
+
+---
+
+# Historical Phase 11 handoff
+
+# AlgoSprint session handoff
+
 **2026-09-18: Phase 11 implemented and documented. Pause before Phase 12.**
 
 The user resumed the saved Phase 11 checkpoint. The earlier pause is superseded. Standing approval covers publication and merge after final checks; no Phase 12 work is included in this session.

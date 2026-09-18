@@ -2,13 +2,13 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current checkpoint: Phase 11 private saved collections
+## 🟩 Current checkpoint: Phase 12 original learning roadmaps
 
-Phase 11 adds protected `/notes`, `/bookmarks` and `/review` pages with title search, ten-item pagination and shared bookmark/review controls. Notes can be edited and deleted inline with saved-content conflict checks; unsaved drafts are retained after conflicts or unconfirmed responses. Bookmark and review changes preserve solve history.
+Phase 12 adds public `/roadmaps` and `/roadmaps/[slug]` pages with two original paths through the existing five problems, ordered steps, time estimates, private progress and explained next-step suggestions. Manual, current verified, earlier verified and older recorded solves retain their existing meaning. Entire paths are withheld if a linked problem is unpublished.
 
-The published-fixture issue from the paused draft is fixed. **123 unit/component/migration tests and 44 PostgreSQL integration tests pass**, including all six saved-collection tests. Local lint, types, clean production build and protected HTTP smoke pass. [PR #12](https://github.com/zihadpcode/AlgoSprint/pull/12) records final-head CI and merge evidence.
+Roadmap seeds validate references, preserve identical existing paths and refuse conflicting edits. No schema, dependency or problem-content changes were made. **All 186 tests pass** (135 unit/component/migration and 51 PostgreSQL integration), along with schema/migrations, seed validation/seeding, lint, TypeScript, production build and both HTTP checks in [CI 35406834061](https://github.com/zihadpcode/AlgoSprint/actions/runs/35406834061). [PR #13](https://github.com/zihadpcode/AlgoSprint/pull/13) records current database/production CI and final-head merge evidence.
 
-Read [the complete Phase 11 guide](docs/PHASE-11-GUIDE.md), with all 25 changed source/test/script files, and [the session handoff](docs/SESSION-HANDOFF.md). Pause before Phase 12 roadmaps. No schema, dependency or seed-content changes, production migration or deployment occurred. Live account/provider/browser checks remain pending.
+Read [the complete Phase 12 guide](docs/PHASE-12-GUIDE.md), with all 23 changed source/test/script files, and [the session handoff](docs/SESSION-HANDOFF.md). The earlier pause is superseded by the user's resume. Pause before Phase 13 admin authoring after final checks and merge. Live account/provider/browser checks remain pending; no production data writes or deployment occurred.
 
 ## 🟩 Run locally
 
@@ -52,6 +52,8 @@ npm run test:smoke
 | `src/app/` | Landing, authentication, protected account pages, library and problem details. |
 | `src/components/layout/`, `src/components/ui/` | Shared workspace, navigation, native controls, and feedback states. |
 | `src/features/problems/` | Published queries, owned notes/progress, validation and server actions. |
+| `src/features/roadmaps/`, `src/components/roadmaps/` | Published learning paths, owner progress and deterministic next-step suggestions. |
+| `src/data/seeds/roadmaps.ts`, `prisma/seed-roadmaps.ts` | Original path definitions and transactional, conflict-aware seed writes. |
 | `src/features/saved/`, `src/components/saved/` | Private collections, bounded filters, pagination and saved-item controls. |
 | `src/features/dashboard/` | Authenticated snapshot query, topic evidence and recommendation policy. |
 | `src/components/dashboard/` | Summary cards, charts, topic signals, recommendations and recent submissions. |

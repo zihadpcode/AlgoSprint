@@ -45,6 +45,11 @@ try {
   assert.equal(detail.status, 200);
   assert.ok((await detail.text()).includes("Practice is being prepared"));
   assert.equal((await fetch(origin + "/problems/INVALID")).status, 404);
+  for (const path of ["/roadmaps", "/roadmaps/scan-store-reuse"]) {
+    const response = await fetch(origin + path); assert.equal(response.status, 200);
+    assert.ok((await response.text()).includes("Roadmaps are being prepared"));
+  }
+  assert.equal((await fetch(origin + "/roadmaps/INVALID")).status, 404);
   const callback = await fetch(origin + "/auth/callback?code=forged", { redirect: "manual" });
   assert.equal(callback.status, 503); assert.match(callback.headers.get("cache-control") ?? "", /(?:^|,\s*)no-store(?:,|$)/);
   console.log("Production HTTP smoke passed: landing, protected redirects, missing-config forms, custom 404, and callback denial.");

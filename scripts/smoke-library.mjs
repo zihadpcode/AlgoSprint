@@ -10,6 +10,8 @@ const db = new pg.Pool({ connectionString: databaseUrl, max: 1 });
 const fixtureIds = [randomUUID(), randomUUID(), randomUUID()];
 const fixtureSlugs = fixtureIds.map((id) => "qa-http-" + id);
 const userId = randomUUID();
+const roadmapId = randomUUID();
+const roadmapSlug = "qa-roadmap-" + roadmapId;
 const origin = "http://127.0.0.1:3101";
 const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3101"], {
   env: { ...process.env, DATABASE_URL: databaseUrl, DIRECT_URL: "", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "", APP_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
@@ -64,6 +66,21 @@ try {
     assert.ok(!/<details[^>]*\sopen(?:[\s=>])/.test(body), "Solutions start collapsed");
     for (const field of ["testCases", "seedHash", "HIDDEN"]) assert.ok(!body.includes(field), field);
   }
+  const roadmaps = await fetch(origin + "/roadmaps?userId=forged", { headers: { cookie: "role=ADMIN; sb-access-token=forged" } });
+  assert.equal(roadmaps.status, 200);
+  assert.match(roadmaps.headers.get("cache-control") ?? "", /no-store/);
+  const roadmapHtml = await roadmaps.text();
+  for (const title of ["Scan, Store, Reuse", "Boundaries to Decisions"]) assert.ok(roadmapHtml.includes(title), title);
+  for (const slug of ["scan-store-reuse", "boundaries-to-decisions"]) {
+    const detail = await fetch(origin + `/roadmaps/${slug}?userId=forged&role=ADMIN`);
+    assert.equal(detail.status, 200); assert.match(detail.headers.get("cache-control") ?? "", /no-store/);
+    const body = await detail.text();
+    for (const value of ["Suggested next step", "Practice in this order", "Sign in to track this path", 'aria-label="Ordered roadmap steps"']) assert.ok(body.includes(value), value);
+    for (const field of ["seedHash", "testCases", "starterCode", "verifiedRevision", "steps recorded solved ·"]) assert.ok(!body.includes(field), field);
+  }
+  const roadmapPage = await fetch(origin + "/roadmaps?page=999", { redirect: "manual" });
+  assert.equal(roadmapPage.status, 307); assert.equal(roadmapPage.headers.get("location"), "/roadmaps");
+  for (const slug of ["does-not-exist", "INVALID"]) assert.equal((await fetch(origin + `/roadmaps/${slug}`)).status, 404);
   // Owned fixtures prove the production response also excludes private relations,
   // hidden test payloads and another user's notes (not just private field names).
   await db.query('INSERT INTO app."User" (id, "updatedAt") VALUES ($1, now())', [userId]);
@@ -86,12 +103,22 @@ try {
     assert.equal(response.status, 404, unavailable);
     assert.ok(!(await response.text()).includes("UNPUBLISHED-DETAIL-SENTINEL"));
   }
-  console.log("Library/detail HTTP smoke passed: seeded links, filters, detail sections, collapsed solutions, guest gates, privacy headers, hidden payload exclusion and unpublished 404s.");
+  await db.query(`INSERT INTO app."Roadmap" (id, slug, title, description, difficulty, "estimatedMinutes", status, "updatedAt") VALUES ($1, $2, 'UNPUBLISHED-ROADMAP-SENTINEL', 'Fixture', 'EASY', 1, 'DRAFT', now())`, [roadmapId, roadmapSlug]);
+  await db.query(`INSERT INTO app."RoadmapStep" (id, "roadmapId", "problemId", position, title) VALUES ($1, $2, $3, 1, 'PRIVATE-STEP-SENTINEL')`, [randomUUID(), roadmapId, fixtureIds[1]]);
+  for (const status of ["DRAFT", "PUBLISHED", "ARCHIVED"]) {
+    await db.query('UPDATE app."Roadmap" SET status = $1 WHERE id = $2', [status, roadmapId]);
+    const response = await fetch(origin + `/roadmaps/${roadmapSlug}?userId=${userId}`);
+    assert.equal(response.status, 404, "Unavailable roadmap/step must be 404");
+    const listBody = await (await fetch(origin + "/roadmaps")).text();
+    for (const secret of ["UNPUBLISHED-ROADMAP-SENTINEL", "PRIVATE-STEP-SENTINEL", "PRIVATE-NOTE-SENTINEL", "HIDDEN-PAYLOAD-SENTINEL"]) assert.ok(!listBody.includes(secret));
+  }
+  console.log("Library/detail/roadmaps HTTP smoke passed: seeded links, filters, detail sections, collapsed solutions, guest gates, privacy headers, hidden payload exclusion and unpublished 404s.");
 } finally {
   server.kill("SIGTERM");
   await Promise.race([new Promise((resolve) => server.once("exit", resolve)), delay(3000)]);
   if (server.exitCode === null) server.kill("SIGKILL");
   try {
+    await db.query('DELETE FROM app."Roadmap" WHERE id = $1', [roadmapId]);
     await db.query('DELETE FROM app."User" WHERE id = $1', [userId]);
     await db.query('DELETE FROM app."Problem" WHERE id = ANY($1::uuid[])', [fixtureIds]);
   } finally { await db.end(); }

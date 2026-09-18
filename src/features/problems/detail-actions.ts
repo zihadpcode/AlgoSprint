@@ -27,6 +27,7 @@ export async function updateProblem(_previous: ProblemActionState, form: FormDat
   revalidatePath("/notes");
   revalidatePath("/bookmarks");
   revalidatePath("/review");
+  revalidatePath("/roadmaps"); revalidatePath("/roadmaps/[slug]", "page");
   if (input.data.operation === "delete-note") return { success: true, message: "Note deleted.", savedContent: "" };
   if (input.data.operation === "save-note") return { success: true, message: input.data.content ? "Note saved." : "Note cleared.", savedContent: input.data.content };
   return { success: true, message: input.data.operation === "set-bookmark" ? "Bookmark updated." : "Progress updated." };
