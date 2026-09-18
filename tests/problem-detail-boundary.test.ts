@@ -71,7 +71,7 @@ describe("personal problem action boundary", () => {
   it("uses only the verified owner and revalidates the affected public routes after success", async () => {
     expect((await updateProblem({}, form({ userId: "another", problemId: "another", role: "ADMIN" }))).success).toBe(true);
     expect(mocks.write).toHaveBeenCalledWith("trusted-db", "verified-user", { slug: "relay-window", operation: "mark-solved" });
-    expect(mocks.revalidate.mock.calls).toEqual([["/problems/relay-window"], ["/problems"], ["/progress"], ["/dashboard"]]);
+    expect(mocks.revalidate.mock.calls).toEqual([["/problems/relay-window"], ["/problems"], ["/progress"], ["/dashboard"], ["/notes"], ["/bookmarks"], ["/review"]]);
   });
   it("does not falsely report or revalidate missing problems and stale saves", async () => {
     mocks.write.mockResolvedValue("not-found");
@@ -94,4 +94,12 @@ describe("personal problem action boundary", () => {
     expect((await updateProblem({}, form())).message).not.toContain("private");
     expect(mocks.revalidate).not.toHaveBeenCalled();
   });
+});
+
+it("validates bookmark booleans and delete baselines; only the viewer owns the mutation", async () => {
+  for (const values of [{ operation: "set-bookmark", bookmarked: "yes" }, { operation: "delete-note" }, { operation: "delete-note", expectedContent: "x".repeat(10001) }]) expect((await updateProblem({}, form(values))).success).toBe(false);
+  expect(mocks.write).not.toHaveBeenCalled();
+  expect((await updateProblem({}, form({ operation: "set-bookmark", bookmarked: "true", userId: "other" }))).success).toBe(true);
+  expect(mocks.write).toHaveBeenLastCalledWith("trusted-db", "verified-user", { slug: "relay-window", operation: "set-bookmark", bookmarked: "true" });
+  expect(await updateProblem({}, form({ operation: "delete-note", expectedContent: "saved" }))).toMatchObject({ success: true, savedContent: "", message: "Note deleted." });
 });

@@ -8,7 +8,9 @@ export const problemChange = z.discriminatedUnion("operation", [
   z.object({ operation: z.literal("mark-solved"), slug: problemSlug }),
   z.object({ operation: z.literal("clear-solved"), slug: problemSlug }),
   z.object({ operation: z.literal("set-review"), slug: problemSlug, review: z.enum(["true", "false"]) }),
+  z.object({ operation: z.literal("set-bookmark"), slug: problemSlug, bookmarked: z.enum(["true", "false"]) }),
   z.object({ operation: z.literal("save-note"), slug: problemSlug, content: noteText, expectedContent: noteText }),
+  z.object({ operation: z.literal("delete-note"), slug: problemSlug, expectedContent: noteText }),
 ]);
 export type ProblemChange = z.infer<typeof problemChange>;
 export type ProblemActionState = { success?: boolean; message?: string; savedContent?: string };

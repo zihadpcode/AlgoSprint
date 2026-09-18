@@ -14,7 +14,7 @@ export const registerSchema = z.object({
 export function safeReturnTo(value: unknown): string {
   if (typeof value !== "string" || value.length > 1000) return "/dashboard";
   // Only known application roots and simple path segments. Query values stay local.
-  if (!/^\/(?:dashboard|profile|problems|roadmaps|notes|review|admin|mock-interview)(?:\/[a-zA-Z0-9_-]+)*(?:\?[^#\\\u0000-\u001f\u007f]*)?$/.test(value)) return "/dashboard";
+  if (!/^\/(?:dashboard|progress|bookmarks|profile|problems|roadmaps|notes|review|admin|mock-interview)(?:\/[a-zA-Z0-9_-]+)*(?:\?[^#\\\u0000-\u001f\u007f]*)?$/.test(value)) return "/dashboard";
   return value;
 }
 

@@ -36,11 +36,12 @@ export async function queryProblem(db: PrismaClient, slug: string, viewerId: str
       where: { status: "PUBLISHED", slug: { not: slug }, categories: { some: { category: { slug: { in: categories.map((item) => item.category.slug) } } } } },
       select: { slug: true, title: true, difficulty: true }, orderBy: { slug: "asc" }, take: 3,
     });
+    const savedProgress = viewerId ? await tx.userProgress.findUnique({
+      where: { userId_problemId: { userId: viewerId, problemId: id } },
+      select: { status: true, reviewLater: true, selfMarked: true, verifiedRevision: true, bookmarked: true },
+    }) : null;
     const personal = viewerId ? {
-      progress: progressView(await tx.userProgress.findUnique({
-        where: { userId_problemId: { userId: viewerId, problemId: id } },
-        select: { status: true, reviewLater: true, selfMarked: true, verifiedRevision: true },
-      }), revision),
+      progress: progressView(savedProgress, revision), bookmarked: savedProgress?.bookmarked ?? false,
       note: (await tx.userNote.findUnique({
         where: { userId_problemId: { userId: viewerId, problemId: id } }, select: { content: true },
       }))?.content ?? "",

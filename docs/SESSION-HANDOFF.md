@@ -1,5 +1,150 @@
 # AlgoSprint session handoff
 
+**2026-09-18: Phase 11 implemented and documented. Pause before Phase 12.**
+
+The user resumed the saved Phase 11 checkpoint. The earlier pause is superseded. Standing approval covers publication and merge after final checks; no Phase 12 work is included in this session.
+
+## 🟦 Repository and publication
+
+- Private repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Phase 11 [PR #12](https://github.com/zihadpcode/AlgoSprint/pull/12), branch `algosprint/phase-11-notes-bookmarks`. PR metadata records final tested head, CI, tree and merge evidence. Read actual main/PR state on resume.
+- Starting main: merged Phase 10 `ca1817262895fcd6651811ac34d1e21cbd3c0a10`, tree `e768e80f1e77447068de3f604fe59e034832450e`.
+- Resumed paused head `1747ac57c8d0c5627c01fa2617ebf20ed117bea1`, tree `ad51fd8b262c2e795676076373053718da745114`.
+- Corrected implementation head `37201618c57517b2779f004908dc7f641bfa00ca`, tree `d599617d782798fc0744ff2d27e29a5a1cef9565`. [CI 35405124832](https://github.com/zihadpcode/AlgoSprint/actions/runs/35405124832) passed all 167 tests and every migration/seed/lint/types/build/HTTP check on that correction. The final documentation head is separately checked before merge.
+- Local workspace `/workspace/scratch/4f3affa6d1ad/algosprint` retains synthetic Git ancestry. Never push it. Remote commits use the actual branch parent/tree and preserve remote-only historical guides. Resume with an authenticated checkout of current GitHub main.
+
+## 🟩 Completed Phase 11
+
+- Three dynamic, protected managers: notes, bookmarks and review later. Title search is bounded; lists have ten items per page, deterministic title/slug ordering, preserved search links and clamping to the last existing page.
+- Queries authenticate before database access, filter by verified owner and published problems, and read counts/items in one Repeatable Read snapshot. Admins receive their own data. Note bodies are selected only for the notes view; hidden/problem-operational/submission data is excluded.
+- Bookmark/review controls work on problem and collection pages. Explicit repeatable flag writes use the existing progress row lock and preserve unrelated flags, attempt/solve dates and verification metadata.
+- Shared note editor supports create/edit/save, local discard and explicit delete. The draft and saved-content baseline survive unrelated re-renders. Deletion is disabled while local unsaved changes exist; conflicts and unconfirmed responses retain the draft.
+- Note save/delete use a transaction advisory lock for the owner/problem pair, including absent rows. Current content must match the baseline. Empty saves physically clear the row; repeated deletion is safe; losing concurrent saves do not leave placeholder rows. No external calls hold the lock.
+- Navigation, proxy session refresh, safe return URLs and action revalidation include the saved collections. Progress was added to the safe-return allowlist as well.
+- [PHASE-11-GUIDE.md](PHASE-11-GUIDE.md) includes beginner setup, decisions, concurrency/privacy explanation, limits, verification and all 25 complete source/test/script files. Listings match current source. README and the preserved brief's status are current.
+
+## 🟨 Verification and resolved blocker
+
+The paused integration fixtures created PUBLISHED problems without publishedAt. PostgreSQL correctly rejected them through Problem_published_check. The 12 synthetic pagination fixtures now supply `2026-01-01T00:00:00Z`; neither the production constraint nor schema was changed.
+
+- **123 unit/component/migration tests passed.**
+- **44 real PostgreSQL integration tests passed**, including all six previously blocked saved-collection tests: ownership/private projections, matching-content deletion/clear, concurrent save/delete, independent bookmark/review/verified-solve behavior, pagination/search/clamping, archived and legacy-blank-note behavior.
+- Local lint, TypeScript, clean production build and signed-out HTTP smoke passed. The HTTP check includes /notes, /bookmarks and /review with forged guest cookies.
+- A local Turbopack persisted-cache panic occurred on the initial build. Removing only the generated .next cache and rebuilding resolved it; no dependency/source workaround was added.
+- The branch workflow also checks schema/migrations, seed validation/seeding and seeded library/detail HTTP smoke. PR #12 records the actual final-head CI result and merge-tree comparison; do not substitute historical phase CI for it.
+- The historical failed run 35260491494 and the old pause below remain evidence of the earlier blocker, not current release status.
+
+## 🟥 Limits and deployment state
+
+No schema, migration, dependency or seed-content changes were made in Phase 11. No production migration/data change, deployment, provider purchase or live provider/account verification occurred. Existing development databases still require the earlier phase migrations. All deployed note writers should follow the same locking protocol when deployment is eventually undertaken.
+
+Live Supabase signup/session/confirmation and two-account checks, real browser keyboard/screen-reader/narrow-width/zoom behavior, Monaco worker startup and action-refresh/draft-retention checks remain pending. The guide has manual steps. Tests use controlled fixtures and DOM simulations, not a live account/provider workflow.
+
+Notes are plain text, at most 10,000 characters. Save explicitly before navigating or searching. No autosave, deleted-note recovery, bulk operations or export is implemented. Archived notes/flags are retained in storage but absent from these published-problem managers and unavailable for editing until the problem is published again. Flag writes use explicit last-write-wins values; note content uses conflict checks.
+
+## 🟪 Phase ledger and next resume
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1–2 | Foundation, database, seeds | Merged |
+| 3–4 | Authentication and workspace | Merged; live account/browser QA pending |
+| 5–7 | Library, details, Monaco | Merged; browser/worker QA pending |
+| 8 | Isolated runner | Merged; live provider verification pending |
+| 9 | Progress tracking | Merged PR #10 |
+| 10 | Dashboard analytics | Merged PR #11; 152 tests and CI passed |
+| 11 | Notes/bookmarks/review managers | Implemented/documented; 167 tests pass; final CI/merge evidence on PR #12 |
+| 12 | Original roadmaps | Next; models only, no phase implementation |
+| 13 | Admin authoring | Models and guarded placeholder only |
+| 14 | Generator | Seed/validation foundation only |
+| 15 | Mock interviews | Models only |
+| 16 | Polish/deployment | Not started |
+
+**Pause before Phase 12.** On the next continue request, verify main/PR #12, then build original roadmap list/detail pages, ordered steps, progress per roadmap, original roadmap seeds and a recommended next step. Reuse the existing owner and progress semantics, retain manual/current/earlier verification distinctions, and do not copy external roadmap content. Continue complete phase guides.
+
+---
+
+# Historical Phase 11 pause handoff
+
+The following checkpoint is historical; the completion status above supersedes its pause instructions and failure status.
+
+# AlgoSprint session handoff
+
+**2026-09-17: PAUSED at the user's explicit request, “pause and update.” Phase 11 remains unfinished and unmerged.**
+
+Feature work and fixes stopped. The remaining action in this session is saving current documentation and the source checkpoint. Standing auto-approval does not override this pause. Do not start Phase 12.
+
+## 🟦 Repository state
+
+- Main: merged Phase 10 `ca1817262895fcd6651811ac34d1e21cbd3c0a10`, tree `e768e80f1e77447068de3f604fe59e034832450e`.
+- Phase 10 PR #11 is merged. Final head `68007ff3277138582d164c8618adbdd04ac40446` passed CI 35258434151 with 152 tests; the merge tree matched exactly.
+- Phase 11: [draft PR #12](https://github.com/zihadpcode/AlgoSprint/pull/12), branch `algosprint/phase-11-notes-bookmarks`. Leave open, draft and unmerged.
+- Implementation head `6c6dc5b2163f34c52961019ce0fe5919363f31d4`, tree `536802775ae1b74c6d2935747efcec8c6c2e9dba`. PR metadata records the final documentation checkpoint head/tree.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` has synthetic ancestry from a restored snapshot. Never push that ancestry. Remote commits use actual GitHub parent/tree and preserve remote-only historical guides. Resume from the remote Phase 11 branch.
+
+## 🟩 Implemented so far
+
+- Protected /notes, /bookmarks and /review, with owner-only published-problem queries, title search, ten-item deterministic pagination and out-of-range page clamping.
+- Notes selected only for the notes manager; bookmark/review DTOs have no note text. Admin users see their own collections only.
+- Shared bookmark/review forms on problem and collection pages. Bookmark events reuse progress row locks and preserve solved provenance, dates and review state.
+- Shared note editing, explicit deletion and local discard. Note saves/deletes use a transaction advisory lock keyed by owner/problem and compare the saved-content baseline, including absent rows. Empty saves physically delete; repeated deletes are safe.
+- Draft/baseline preservation across unrelated re-renders, conflict/unconfirmed-response feedback, and disabled deletion while local unsaved changes exist.
+- Proxy/safe-return/navigation and successful-write revalidation include saved pages. The safe-return list also now includes progress.
+- New boundary, filter, React control and PostgreSQL tests. [PHASE-11-GUIDE.md](PHASE-11-GUIDE.md) contains all 25 complete source/test/script files and describes the paused implementation, not a completed release.
+
+No dependency, schema, migration or seed-content changes. No production data changes, provider purchase, deployment or merge occurred in Phase 11. No Phase 12 code was started.
+
+## 🟨 Actual verification results
+
+[CI 35260491494](https://github.com/zihadpcode/AlgoSprint/actions/runs/35260491494) on the implementation head **failed**:
+
+- 123 unit/component/migration tests passed.
+- 38 existing PostgreSQL integration tests passed.
+- tests/integration/saved.test.ts failed in beforeAll fixture setup; **all six new tests were skipped**, not passed.
+- Prisma generation/schema validation, migrations and seed validation passed before the failure.
+- Later CI lint, types, build, HTTP smoke and final seed steps were skipped.
+
+Earlier local checks passed 122 tests, lint, TypeScript, production build and protected HTTP smoke including all three new routes. The additional dirty-draft test passed in a targeted four-test run, and CI then passed all 123 unit tests. A lint declaration-order issue was fixed before publication. No feature code was changed after the pause request.
+
+## 🟥 Known failure and exact resume task
+
+`tests/integration/saved.test.ts` creates 12 PUBLISHED pagination fixtures with db.problem.createMany but does not set publishedAt. PostgreSQL rejects the first row with `Problem_published_check` (SQLSTATE 23514). The constraint in the foundation migration requires every PUBLISHED problem to have a non-null publishedAt.
+
+On resume:
+
+1. Verify the draft branch/PR and current CI; preserve the paused source.
+2. Correct the test fixtures to include an explicit publication timestamp. Do not weaken or remove the database constraint.
+3. Run all six new saved-collection integration tests and the full workflow. Their behavior remains unverified because setup failed. Resolve any additional failures uncovered.
+4. Recheck owner isolation, note save/delete concurrency and pagination; review the guide/source after any changes. Then complete Phase 11 documentation and final CI before considering merge.
+
+Automatic CI may run after the documentation checkpoint is saved. That does not authorize resuming feature fixes or imply phase completion. Do not wait through optional new checks merely to extend this paused session.
+
+Live Supabase/Judge0 and actual browser/keyboard/screen-reader/Monaco-worker checks remain pending. Archived notes stay in storage but are hidden from published-content managers. No note recovery, autosave or bulk operations exist. The guide explains these limits and the later manual checklist.
+
+## 🟪 Phase ledger
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1–2 | Foundation, database, seeds | Merged |
+| 3–4 | Authentication and workspace | Merged; live account/browser checks pending |
+| 5–7 | Library, details, Monaco | Merged; browser/worker checks pending |
+| 8 | Isolated runner | Merged; live provider checks pending |
+| 9 | Progress tracking | Merged PR #10 |
+| 10 | Dashboard analytics | Merged PR #11; 152 tests and CI passed |
+| 11 | Notes/bookmarks/review manager | PAUSED draft PR #12; fixture failure blocks six new integration tests |
+| 12 | Original roadmaps | Models only; not started |
+| 13 | Admin authoring | Models and guarded placeholder only |
+| 14 | Generator | Seed/validation foundation only |
+| 15 | Mock interviews | Models only |
+| 16 | Polish/deployment | Not started |
+
+**Stop here until the user resumes.** The previous Phase 10 handoff below is historical and does not supersede this pause.
+
+---
+
+# Historical Phase 10 handoff
+
+# AlgoSprint session handoff
+
 **2026-09-17: Phase 10 dashboard analytics implemented and documented. Pause before Phase 11.**
 
 The user resumed after the requested halfway pause. Standing authorization covers publishing and merging verified work. The old Part 1 pause was superseded by that resume; this session completes Phase 10 only.
