@@ -1,10 +1,8 @@
-# Phase 12 — Original learning roadmaps (paused checkpoint)
+# Phase 12 — Original learning roadmaps
 
-**PAUSED on 2026-09-18 at the user's request. Phase 12 is unfinished and unmerged.**
+The user resumed Phase 12 after the saved pause on 2026-09-18. This guide covers the full implementation and all 23 changed source/test/script files in [PR #13](https://github.com/zihadpcode/AlgoSprint/pull/13), branch `algosprint/phase-12-roadmaps`. The prior pause is superseded; its checkpoint is preserved in the handoff history and Git history. Final-head CI and merge evidence are recorded on the PR. Phase 13 remains unstarted.
 
-The implementation is preserved in [draft PR #13](https://github.com/zihadpcode/AlgoSprint/pull/13), branch `algosprint/phase-12-roadmaps`. Main remains at merged Phase 11. This guide documents the current work and all 23 changed source/test/script files, not a completed release. No feature fixes or merge are authorized after the pause until the user resumes.
-
-## 🟦 What is built so far
+## 🟦 What this phase builds
 
 The new `/roadmaps` page lists published learning paths, twelve per page, ordered by title then slug. `/roadmaps/[slug]` shows a description, difficulty, estimated practice time, ordered steps, links to the existing problem pages, personal progress and a suggested next step. Guests can browse the content. Signing in adds private progress; browsing does not create an attempt or mark anything solved.
 
@@ -55,7 +53,7 @@ Problem seeding and roadmap seeding are separate transactions. A roadmap conflic
 
 The existing Roadmap/RoadmapStep tables, uniqueness constraints, foreign keys and positive position/estimate checks are reused. No schema, migration or dependency changes were made. No production database was seeded or migrated.
 
-## 🟩 Local setup after resume
+## 🟩 Local setup
 
 Use Node.js 24 and preserve any existing environment file:
 
@@ -77,9 +75,9 @@ npm run dev
 
 Open `/roadmaps`, choose a path, and follow its problem links. Save any editor or note work before navigation; roadmaps do not introduce draft autosave. Change progress on the problem page and return to the path to inspect the updated fraction and next-step suggestion.
 
-## 🟨 Verification at pause
+## 🟨 Verification
 
-Observed local results on the preserved implementation:
+Observed local results on the implementation:
 
 - **135 unit/component/migration tests passed** across 30 test files, including twelve new roadmap tests.
 - Seed validation passed for five original problems and two original roadmaps.
@@ -87,24 +85,21 @@ Observed local results on the preserved implementation:
 - The unconfigured production HTTP smoke passed, including roadmap preparation states and malformed-slug 404 behavior.
 - Whitespace checks passed.
 
-Seven new real PostgreSQL integration tests are written but not locally executed: ordered/public projections, owner/admin isolation and shared progress, revision provenance and read-only behavior, unavailable path rules, stable pagination, seed reruns/concurrency, and batch rollback/conflicts. There are 44 existing integration tests. Do not claim 186 tests passed without actual CI evidence for the current head.
+**All 51 real PostgreSQL integration tests passed** in [CI 35406834061](https://github.com/zihadpcode/AlgoSprint/actions/runs/35406834061) on checkpoint `cc4f7a3efaba3da1eb6b62145d55029b90c8a096`. Seven new tests cover ordered/public projections, owner/admin isolation and shared progress, revision provenance and read-only behavior, unavailable path rules, stable pagination, seed reruns/concurrency, and batch rollback/conflicts. Together with the 135 unit/component/migration tests, this is **186 passing tests**.
 
-The seeded HTTP script now also checks roadmap links, guest guidance, private cache headers, pagination redirects, invalid/missing detail routes and draft/archived/unpublished-step exclusion. It runs after database seeding in the existing CI workflow. This check has not been observed passing at this pause.
+The seeded HTTP script checks roadmap links, guest guidance, private cache headers, pagination redirects, invalid/missing detail routes and draft/archived/unpublished-step exclusion. It passed after database seeding in CI 35406834061. Every workflow step passed, including build, migrations, seed validation/seeding and both production HTTP checks. PR #13 separately records final documentation-head CI and merge evidence.
 
-Implementation commit: `38cf4c88a80a0b2e8e9d7f94ce139891d9baf650`; tree: `10f2e531273a113ab6634770dd9c4bdb2ee0bd20`. Final documentation head and CI state are recorded on PR #13. CI may start automatically when this checkpoint is published; its existence does not authorize continuing feature work or merging during the pause.
+Implementation commit: `38cf4c88a80a0b2e8e9d7f94ce139891d9baf650`; tree: `10f2e531273a113ab6634770dd9c4bdb2ee0bd20`. The resumed review required no implementation change. The old pause is preserved in the handoff and Git history; Phase 13 remains the next milestone.
 
-## 🟥 Remaining checks and exact resume steps
+## 🟥 Live checks and remaining limitations
 
-1. Read actual PR #13 head/CI and compare current main before modifying files. Local Git ancestry is synthetic; never push it over the remote branch. Preserve remote-only historical guides when publishing with the real remote parent/tree.
-2. Inspect the new PostgreSQL and seeded HTTP results. Resolve any failures only after the user resumes. The draft currently has no observed failing local test, but database/seeded HTTP behavior is not yet verified.
-3. Review content ordering, seeding conflict handling, ownership, publication filtering and progress revalidation against the actual database results. Finish any necessary fixes and synchronize all source listings below.
-4. Run final CI on the final checkpoint, update README/brief/handoff with actual evidence, and consider merge only after the user's resume authorization and passing gates. Pause before Phase 13 afterward.
+The previous pause is historical. The resumed session inspects database and production CI before completion, checks all source listings, and publishes the completed guide and handoff. PR #13 records the final tested head and merge-tree evidence. Local ancestry is synthetic; future publication must preserve the actual remote parent/tree and remote-only historical guides.
 
 Live browser checks remain pending: narrow layout and 200% zoom, keyboard focus and link navigation, screen-reader ordered steps/progress labels, long titles, back-navigation refresh, and missing/error states. With two confirmed development accounts, verify progress isolation, review toggles, manual undo, shared problems and stale revision labels. No live Supabase/Judge0 verification, deployment or provider purchase occurred. Automated rendering uses server markup and controlled mocks, not a live authenticated browser.
 
-## 🟪 Complete source at the pause
+## 🟪 Complete source files
 
-The following 23 files are the complete authored source/test/script changes. Generated files, unchanged shared components, and historical guides remain outside these listings. README, project brief and handoff are maintained separately. This snapshot is unfinished work, not a completion claim.
+The following 23 files are the complete authored source/test/script changes. Generated files, unchanged shared components, and historical guides remain outside these listings. README, project brief and handoff are maintained separately. The source listings match the implementation; verification claims above distinguish automated checks from live checks.
 
 
 ### `prisma/seed-roadmaps.ts`
