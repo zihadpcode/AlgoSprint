@@ -17,7 +17,7 @@ beforeAll(async () => {
   const seeds = await loadProblems(); slugs = seeds.map((p) => p.slug); owns = true; await seedProblems(db, seeds);
   await db.user.createMany({ data: users.map((id) => ({ id })) });
   problemId = (await db.problem.findUniqueOrThrow({ where: { slug } })).id;
-  await db.problem.createMany({ data: extras.map((slug) => ({ slug, title: slug, difficulty: "EASY" as const, status: "PUBLISHED" as const, pattern: "fixture", statement: "DO-NOT-EXPOSE", constraints: ["Fixture"], estimatedMinutes: 1 })) });
+  await db.problem.createMany({ data: extras.map((slug) => ({ slug, title: slug, difficulty: "EASY" as const, status: "PUBLISHED" as const, publishedAt: new Date("2026-01-01T00:00:00Z"), pattern: "fixture", statement: "DO-NOT-EXPOSE", constraints: ["Fixture"], estimatedMinutes: 1 })) });
 }, 30000);
 beforeEach(async () => {
   await db.userNote.deleteMany({ where: { userId: { in: users } } }); await db.userProgress.deleteMany({ where: { userId: { in: users } } });
