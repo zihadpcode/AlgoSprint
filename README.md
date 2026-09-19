@@ -2,13 +2,13 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current checkpoint: Phase 13 protected content administration
+## 🟦 Current checkpoint: Phase 13 paused, unmerged
 
 Phase 13 adds a protected problem manager with search/status filters, structured content forms, atomic create-only JSON imports, archive/safe deletion, and existing-roadmap step editing. Administrator access is rechecked inside database transactions; stale content saves fail without overwriting another editor. Revisions advance while learner notes, progress and submissions remain intact.
 
-**145 unit/component/migration and 61 PostgreSQL integration tests pass (206 total).** Full implementation [CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) passed every step, including migrations, seeding, lint, types, build and both HTTP suites. [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14) records complete implementation and final-head CI/merge evidence.
+**145 unit/component/migration and 61 PostgreSQL integration tests pass (206 total).** Full implementation [CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) passed every step, including migrations, seeding, lint, types, build and both HTTP suites. [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14) is now a draft. Documentation-head [CI 35408835465](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408835465) also passed every step.
 
-Read [the complete Phase 13 guide](docs/PHASE-13-GUIDE.md), including all 21 changed source/test/script files, and [the session handoff](docs/SESSION-HANDOFF.md). Pause before Phase 14 generation after final checks and merge. No schema/dependency changes, production data writes or deployment occurred. Live account/provider/browser checks remain pending.
+Read [the complete Phase 13 guide](docs/PHASE-13-GUIDE.md), including all 21 changed source/test/script files, and [the session handoff](docs/SESSION-HANDOFF.md). The latest instruction is “pause and update”: Phase 13 remains unmerged, main remains at Phase 12, and Phase 14 is unstarted. Resume by inspecting the draft PR and its latest checks; no merge while paused. No schema/dependency changes, production data writes or deployment occurred. Live account/provider/browser checks remain pending.
 
 Custom authoring uses the existing version 1 coding schema and five patterns. New custom problems can be published for study after review; code execution remains limited to the five existing reviewed runner contracts. Imported code is never executed by the app server. Admin edits intentionally cause conflicting original seed reruns to stop rather than overwrite curated content.
 

@@ -1,3 +1,37 @@
+# AlgoSprint — current paused checkpoint
+
+**2026-09-19: The latest instruction is “pause and update.” Stop implementation and merging. Phase 13 is saved in draft PR #14 and remains unmerged.** This instruction supersedes the historical continuation/merge directions below.
+
+## 🟦 Saved state
+
+- [Draft PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14), branch `algosprint/phase-13-admin`.
+- Main remains merged Phase 12: `cfe07114ef1390d62ee2e05a6d3fab13686468b9`.
+- Implementation commit `97c2cce24c13ff338fc56fd9b68b4e55a9135f4c`, tree `b16e9de28f06f188420f5004a1695db6035f68b2`.
+- Pre-pause documentation commit `ac35ca8ebd186731389e14a90be2c333d330c0f8`, tree `6d11752455adb7d1943dc7a514bb3e18476e6ef6`. A subsequent docs-only commit saves this pause; PR metadata records its exact head/tree. Inspect that head and its checks on resume.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` has synthetic ancestry: never push it. Publish through actual remote parent/tree, preserving twelve remote-only historical files.
+
+## 🟩 Implementation and documentation
+
+Protected manager/search/filtering, complete structured problem forms, atomic create-only JSON import, revision conflicts, archive/safe deletion, and existing-roadmap editing are implemented. Transactional administrator rechecks and content locks preserve learner history. Imported code stays inert; new custom problems have no runner contract. No further feature changes were made for this pause.
+
+README, original brief status, this handoff and PHASE-13-GUIDE.md are updated. The guide contains all 21 changed source/test/script files in full. Detailed implementation and limitations remain in the historical checkpoint below.
+
+## 🟨 Verified evidence
+
+- **206 tests pass:** 145 unit/component/migration plus 61 real PostgreSQL integration tests.
+- [Implementation CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) passed every step.
+- [Documentation-head CI 35408835465](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408835465), on `ac35ca8ebd186731389e14a90be2c333d330c0f8`, also completed successfully: migrations, seeds, tests, lint, types, production build and both HTTP suites.
+- The subsequent pause-status commit has not been certified by these earlier runs; inspect its checks on resume. No known unresolved implementation failure.
+- Live authenticated administrator/account/browser workflows and Supabase/Judge0 checks remain pending. No deployment or production writes occurred.
+
+## 🟪 Resume
+
+Keep PR #14 a draft and do not merge while paused. When the user resumes, inspect actual PR head, main and latest CI, complete any required review, and finish Phase 13 before starting another phase. Phase 14 is unstarted. Do not treat historical text below as current authorization to continue.
+
+---
+
+# Historical Phase 13 pre-pause checkpoint
+
 # AlgoSprint session handoff
 
 **2026-09-19: Phase 13 protected content administration implemented and documented. Pause before Phase 14 after final CI and merge.**
