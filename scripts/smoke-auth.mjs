@@ -24,7 +24,7 @@ try {
     await delay(200);
   }
   assert.ok(ready, `Production server must become ready: ${lastFailure}\n${diagnostic}`);
-  for (const path of ["/dashboard", "/progress", "/profile", "/admin", "/admin/problems/new", "/admin/problems/relay-window", "/admin/import", "/admin/roadmaps/scan-store-reuse", "/notes", "/bookmarks", "/review"]) {
+  for (const path of ["/mock-interview", "/mock-interview/00000000-0000-4000-8000-000000000000", "/interview-results/00000000-0000-4000-8000-000000000000", "/dashboard", "/progress", "/profile", "/admin", "/admin/problems/new", "/admin/problems/relay-window", "/admin/import", "/admin/roadmaps/scan-store-reuse", "/notes", "/bookmarks", "/review"]) {
     const response = await fetch(origin + path, { redirect: "manual", headers: { cookie: "sb-access-token=forged; role=ADMIN" } });
     assert.equal(response.status, 307, `${path}: ${diagnostic}`);
     assert.ok(response.headers.get("location")?.startsWith("/login?next="), path);

@@ -1,3 +1,57 @@
+# AlgoSprint — Phase 15 completion checkpoint
+
+**2026-09-19: The user said “continue” after Phase 14 was merged. Phase 15 mock interview mode is implemented and documented in PR #16. Finish its verified merge and stop before Phase 16 deployment/polish.** Earlier phase pauses below are historical.
+
+## 🟦 Saved repository state
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Starting main: Phase 14 merged [PR #15](https://github.com/zihadpcode/AlgoSprint/pull/15), commit `81118f82b35abf73a0fbd6b9fce15ce5fc675228`, tree `5ad472930a2aa8a25a3b608e8c516c2484b494eb`. Final CI 35423219575 passed all 222 tests and production gates; merged tree matches.
+- Phase 15 [PR #16](https://github.com/zihadpcode/AlgoSprint/pull/16), branch `algosprint/phase-15-interviews`.
+- Implementation commit `94701ddc60aa3fadb3d61ef18c3e690b9dd364ab`, tree `36e6cf9b9bc989fbdb4a5f72f977c9c457553183`.
+- [Implementation CI 35426555640](https://github.com/zihadpcode/AlgoSprint/actions/runs/35426555640) passed every step. PR metadata records exact final documentation head/tree, final CI and subsequent merge-tree verification. Inspect actual PR/main state on resume.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` has synthetic Git ancestry. Never push local Git. Use actual remote parent/tree when publishing, preserving twelve remote-only historical files.
+
+## 🟩 Completed Phase 15 implementation
+
+- `/mock-interview` setup/recent history; `/mock-interview/[id]` timer, frozen prompts, written/code/pseudocode responses and self-ratings; `/interview-results/[id]` saved answers, transparent scores/feedback and reference discussions. Workspace navigation and guest/forged-cookie HTTP smoke updated.
+- Options: 15/30/45/60 minutes, 1–3 questions, difficulty, topic and style. Published coding problems plus five original noncoding questions cover conceptual DSA, debugging, optimization, behavioral and system-design basics. Empty/insufficient pools fail clearly. Current noncoding prompts are Easy, in arrays/hash-maps/design topics.
+- Cryptographic Fisher–Yates selection without replacement; at most 1,000 matching coding candidates plus authored questions. Larger matching coding pools fail explicitly. Generated draft problems stay out of selection unless separately published.
+- Verified viewer ownership in pages/loaders/actions/store. Other users, including other admins, cannot read or mutate sessions. Hidden test cases are never queried. Active projections remove reference content before serialization; completed/abandoned views include it.
+- Existing models reused with version-1 JSON snapshots in prompt/answer text fields. Snapshots capture statement/examples/constraints and reference/revision so later library edits do not change a session. Existing problem foreign keys preserve deletion safety.
+- User-row locks serialize starts, enforce one active session and a rolling 20-session/day limit. Active sessions resume. Expired active sessions finalize on a new start. Only the latest 20 sessions have index UI; older owner reports remain addressable.
+- Session-row locks serialize saves/finalization. Answer-hash baseline tokens prevent stale overwrites. Deadline checked server-side after locking. Late answers are not saved; terminal requests are idempotent.
+- Client countdown uses wall/monotonic elapsed time, explicit per-question saves, pending/duplicate controls, retained conflict/uncertain/late drafts and finish/abandon confirmations. Unsaved text is not autosaved; beforeunload is a limited warning, not navigation-proof recovery.
+- Scores are self-assessments: reasoning/tradeoffs/checks each 0–2, empty areas zero, normalized per question then averaged including unanswered questions. Feedback identifies underdeveloped self-rated areas. No execution, correctness grading, progress mutation or verified solves.
+- Expiry is finalized lazily on the next relevant action, not by a background worker. A read alone leaves an expired IN_PROGRESS row unchanged; server checks still prevent late saves. Late save responses retain local text for copying before the report.
+- Complete PHASE-15-GUIDE.md includes setup/workflow, timer/concurrency/ownership explanations, scoring examples, full live checklist and all 17 changed source/script/test files. README and preserved brief status updated.
+
+## 🟨 Verification
+
+- **170 unit/component/migration tests passed** locally and in implementation CI; twelve new tests cover strict input/scoring/timer rules, original prompt coverage, auth/ownership derivation, private error handling, loader guards, pending duplicates, stale tokens and late-draft retention.
+- **73 PostgreSQL integration tests passed** (nine new interview cases), for **243 total tests**. Coverage includes selection/privacy, owner isolation, duplicate starts, conflicting saves, deadline enforcement, scores without progress, idempotent finish, frozen content, abandonment, filters, expired restart and quotas.
+- Local lint, typecheck, production build and signed-out HTTP smoke pass. Full implementation CI 35426555640 passed migrations, fixture/seed validation, all tests, lint/types/build, seeding and both production HTTP suites. Final documentation-head results are recorded in PR #16.
+- All 17 guide source listings match their files. No schema/dependency changes, production writes, deployment or account/role changes occurred.
+
+## 🟥 Limits and remaining live checks
+
+Mock interviews are explanation practice, not proctored or automatically graded execution. References can still be accessed independently through public problem pages. Scores do not indicate hiring readiness. No autosave, peer review, audio, older-history pagination, timer pause, background expiry worker or new runner integration is included.
+
+Live Supabase/admin/account/browser, accessibility/keyboard/narrow-layout/zoom, background/sleep timing and earlier Judge0/Monaco checks remain pending. The new guide has the specific live checklist. Existing versioned interview snapshots must be preserved or deliberately migrated if adding another format; arbitrary preexisting text is not supported as a current snapshot.
+
+## 🟪 Ledger and resume
+
+| Phase | Status |
+| --- | --- |
+| 1–14 | Merged; Phase 14 has 222 tests/full CI evidence |
+| 15 | Implemented/documented in PR #16; 243 tests/full implementation CI passed; inspect final merge state on PR |
+| 16 | Next: polish and deployment, not started |
+
+After the verified Phase 15 merge, stop. On a subsequent request, inspect main/PR #16, then plan Phase 16 from the original brief. Keep live verification and environment decisions explicit, preserve curated seeds/history, and do not imply a deployment has occurred.
+
+---
+
+# Historical Phase 14 completion checkpoint
+
 # AlgoSprint — Phase 14 completion checkpoint
 
 **2026-09-19: The user requested “catch up to phase 14,” superseding the previous pause. Phase 13 is merged; Phase 14 implementation and full documentation are complete in PR #15. Finish verified Phase 14 publication, then stop before Phase 15.**
