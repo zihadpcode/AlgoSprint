@@ -2,15 +2,15 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current checkpoint: Phase 15 mock interviews
+## 🟩 Current checkpoint: Phase 16 release preparation
 
-Phase 14 generators are merged in [PR #15](https://github.com/zihadpcode/AlgoSprint/pull/15). Phase 15 adds private timed mock interviews with difficulty/topic/style selection, random original questions, saved explanations, frozen references and transparent self-assessment reports. Open `/mock-interview` after signing in.
+Phases 1–15 are merged, including private timed interviews in [PR #16](https://github.com/zihadpcode/AlgoSprint/pull/16). Phase 16 polishes the landing page, mobile form sizing, guarded loading and error recovery, adds deployment configuration checks and prepares the release documentation in [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17).
 
-**170 unit/component/migration and 73 PostgreSQL integration tests pass (243 total).** [Implementation CI 35426555640](https://github.com/zihadpcode/AlgoSprint/actions/runs/35426555640) passed every step. [PR #16](https://github.com/zihadpcode/AlgoSprint/pull/16) records final documentation-head checks and merge state. Read [the complete Phase 15 guide](docs/PHASE-15-GUIDE.md), with all 17 changed source/script/test files, and [the session handoff](docs/SESSION-HANDOFF.md).
+**176 unit/component/migration and 73 PostgreSQL integration tests pass (249 total).** [Implementation CI 35461544519](https://github.com/zihadpcode/AlgoSprint/actions/runs/35461544519) passed every gate. PR #17 records final-head validation and merge evidence. Read [the complete Phase 16 source guide](docs/PHASE-16-GUIDE.md) and [the session handoff](docs/SESSION-HANDOFF.md).
 
-Sessions enforce server deadlines, owner-only access and stale-save protection. Scores are self-assessments, not correctness grades or verified solves; this mode does not execute response code. Save each answer explicitly. Late unsaved text remains available to copy. No deployment or production writes occurred; live authenticated/browser checks remain pending. Stop after Phase 15; Phase 16 polish/deployment is unstarted.
+Live Supabase/Vercel setup, deployment, authenticated/provider verification and browser captures remain pending. Both plugins are connected, but their account tools were not exposed in the working session. No live URL or production readiness is claimed. Follow [the deployment guide](docs/DEPLOYMENT.md), [screenshot checklist](docs/SCREENSHOTS.md) and [portfolio copy](docs/PORTFOLIO.md).
 
-Phase 14's five reproducible generator templates and separate draft fixture workflow remain available through `npm run problems:check`; see [the generator guide](docs/PHASE-14-GUIDE.md).
+Mock interview scores remain self-assessments, not correctness grades or verified solves. Save answers explicitly; the interview mode does not execute response code. The optional external coding runner has a separate configuration and verification checklist. Phase 14 generators remain a reviewed draft workflow; see [the generator guide](docs/PHASE-14-GUIDE.md).
 
 ## 🟩 Run locally
 

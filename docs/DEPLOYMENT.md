@@ -1,0 +1,109 @@
+# AlgoSprint deployment guide
+
+## 🟦 Release status
+
+Phase 16 prepares the repository for Vercel and hosted Supabase. No live URL, production database migration, account configuration or provider verification has been completed at this checkpoint. Both plugins are connected; their account tools were not exposed in the working session. [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17) records release validation and publication evidence. Do not present a successful local build as a deployed application.
+
+Use the existing Next.js application and Prisma migrations. Do not create a second schema history with Supabase migration commands. The Supabase SDK handles authentication; trusted server code accesses PostgreSQL through Prisma's `pg` adapter. No Supabase service-role key is required by the application.
+
+## 🟦 Choose the environment
+
+Identify the intended Vercel team/project and Supabase organization/project before configuring anything. Reuse the correct project if one already exists. Confirm any new resource's plan and cost before purchasing it. Record project IDs, region and deployment URL in a private operations record; never record passwords or tokens in the repository.
+
+Use separate Supabase projects for Preview and Production. Give the preview a stable origin for auth callbacks. Select nearby application/database regions when supported by the chosen plan. CI uses disposable PostgreSQL 17; its credentials and data must never be used for a live environment.
+
+| Setting | Vercel web environment | Trusted migration/seed job | Exposure |
+| --- | --- | --- | --- |
+| `APP_URL` | Canonical HTTPS origin for this environment | Required by preflight | Server configuration |
+| `NEXT_PUBLIC_SUPABASE_URL` | This environment's Supabase HTTPS origin | Required by preflight | Public |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Matching `sb_publishable_…` key | Required by preflight | Public; never a secret key |
+| `DATABASE_URL` | PostgreSQL runtime connection | Required by preflight | Private, includes password |
+| `DIRECT_URL` | Omit | Migration/seed connection | Private, includes password |
+| `CODE_RUNNER_ENABLED` | `false` initially | Not needed | Server flag |
+| `JUDGE0_API_URL` | Only for an enabled runner | Not needed | Server configuration |
+| `JUDGE0_API_KEY` | Only for an enabled runner | Not needed | Private provider credential |
+| `JUDGE0_AUTH_MODE` | `token` or `rapidapi` when enabled | Not needed | Server configuration |
+| `JUDGE0_JAVASCRIPT_LANGUAGE_ID` | Verified provider ID when enabled | Not needed | Server configuration |
+
+Keep Preview and Production values scoped separately. Browser-public settings are embedded in a build, so changing them requires a new build. Do not promote an artifact built with preview auth settings into production. Build and verify a production-configured artifact for the production release.
+
+## 🟩 Supabase database setup
+
+1. Open the selected project's **Connect** panel. Copy its exact host, port and username. Percent-encode reserved characters in the password. For Vercel runtime connections use the transaction pooler; for migrations use direct connectivity, or the session pooler when the job has only IPv4. Do not run schema migrations through transaction pooling. [Connection guidance](https://supabase.com/docs/guides/database/connecting-to-postgres)
+2. This project's production preflight requires exactly one `sslmode=verify-full` parameter. Supply provider CA trust when needed by the client; a format pass does not prove a TLS handshake. Never resolve certificate errors by setting `NODE_TLS_REJECT_UNAUTHORIZED=0`, disabling SSL, or disabling certificate validation.
+3. Check the database identity and existing migration history before writing. Back up existing valuable data. Inspect every pending SQL migration in `prisma/migrations`; Phase 16 adds none. Do not use `db push`, migration reset or a destructive re-seed to repair drift.
+4. Keep the `app` schema out of Supabase's exposed Data API schemas. Existing migrations enable table RLS and revoke browser-role access. Prisma's trusted server connection relies on application authorization and can bypass those policies as the schema owner. Preserve owner checks in every loader and action; do not grant `anon` or `authenticated` access to make a server query work.
+5. Configure the migration job's private values, then run the commands below from the verified release checkout. `DIRECT_URL` takes precedence for migrations and seeds; runtime code uses `DATABASE_URL`.
+
+```bash
+npm ci
+npm run deploy:check -- --migrations
+npm run db:validate
+npm run db:deploy
+npm run seed:validate
+npm run db:seed
+```
+
+Seeding writes the repository's curated content and roadmap definitions. Review existing-content conflicts before running it. Generated problem fixtures remain a separate reviewed draft workflow; do not publish them as part of deployment. Run seeds once in a trusted job, never on every Vercel build. Confirm migration history, published library data and roadmap reads afterward.
+
+The current adapter allows up to five connections per application instance. Monitor aggregate connection usage under actual concurrency and tune against the project's available pool budget before increasing traffic. Verify transaction-pool compatibility against the installed adapter during live smoke testing; local PostgreSQL CI cannot prove provider pooling behavior.
+
+## 🟩 Supabase authentication setup
+
+Enable email/password authentication and email confirmations. Set **Site URL** to the environment's `APP_URL`; allow its exact `/auth/callback` URL. Use a separate preview project and exact preview callback. Keep localhost callbacks in development configuration. Avoid broad production wildcard redirects. [Redirect URL guidance](https://supabase.com/docs/guides/auth/redirect-urls)
+
+Check mail delivery configuration before inviting users. New Free projects using the default SMTP cannot customize confirmation templates; do not assume the dashboard permits an older guide's template workflow. Configure a suitable custom SMTP provider if customization or delivery requirements demand it, then test actual registration and confirmation. [Email template change](https://supabase.com/changelog/46599-changes-to-email-template-customisation-on-free-tier)
+
+The app requests `${APP_URL}/auth/callback` during signup and exchanges the returned code using the browser's PKCE session. Open confirmation in the same browser that registered. Verify the configured email link reaches the callback successfully; do not invent a second callback route or expose an auth token to application logs.
+
+After a real user signs in once, their application profile exists. Only then, if that specific person is intended to administer content, run the trusted role command with their verified UUID:
+
+```bash
+npm run user:role -- --user-id VERIFIED_USER_UUID --role ADMIN
+```
+
+The placeholder must be replaced with the actual intended user's UUID. Registration never grants admin privileges. Authorization reads the application role, not user-editable metadata. Confirm a normal account cannot open or invoke admin features.
+
+## 🟩 Vercel setup
+
+Import `zihadpcode/AlgoSprint` into the verified team. Select **Next.js**, repository root `.`, install command `npm ci`, build command `npm run build`, and the default Next.js output settings. `vercel.json` records the framework/install/build choices. Set Node.js **24.x**, matching `.nvmrc` and `package.json`. [Supported Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)
+
+Do not deploy the project as a static export: accounts, server actions and Prisma require the server runtime. Keep migrations, seed commands and production credentials out of pull-request CI. The existing GitHub workflow validates code with its own disposable database; it does not deploy the app.
+
+Before enabling automatic production deployment, finish production schema setup and environment configuration. If linking Git immediately creates a deployment, treat it as unverified until its configuration and live checks pass. Use the Vercel project's deployment controls to hold production changes until checks finish.
+
+Create the preview with preview-scoped settings. Run `npm run deploy:check` with that environment loaded in a trusted job. Check build output without copying secret values. The preflight validates formats, selected TLS settings, possible browser-exposed credentials, runner configuration and Node version. It does not contact Supabase, validate project identity, prove delivery, inspect schema state, or replace a secret scanner.
+
+Once preview checks pass, create a production-configured deployment from the same reviewed commit and verify it before directing users to it. Promotion reuses an artifact; it does not rebuild public environment values. Use production values at build time for a staged production artifact. [Promotion behavior](https://vercel.com/docs/deployments/promoting-a-deployment)
+
+## 🟨 Required live verification
+
+Record the date, commit, environment, account roles and actual results. Use disposable test accounts and original synthetic answers. Do not mark these complete from CI results.
+
+- [ ] Landing, library filters, problem details, examples, constraints and roadmaps render from the live database.
+- [ ] Registration, confirmation, login, refresh and logout work on the canonical origin; expired/invalid callbacks fail safely.
+- [ ] Guest protected pages redirect. A normal user cannot access admin actions. Two test users cannot access each other's notes, bookmarks, progress or interview sessions by changing IDs.
+- [ ] Save and reload a note, bookmark and manual progress update; verify dashboard, review queue and roadmap behavior. Manual completion remains distinct from a verified judged solve.
+- [ ] Start an interview, explicitly save answers, reload, finish and read the report. Exercise expiry, a stale second tab, failed save and unsaved-text recovery. Scores are transparent self-assessments.
+- [ ] With the runner disabled, execution fails clearly. Enable it only after verifying the independently operated provider, authentication and JavaScript language ID. Then verify public runs and hidden-case submission behavior using the Phase 8–9 checklists. User code must never execute on the web server.
+- [ ] Complete the desktop/mobile, keyboard, zoom and capture checks in [SCREENSHOTS.md](SCREENSHOTS.md).
+- [ ] Inspect runtime errors, auth failures, database connection pressure and relevant Supabase advisors after the test session. Resolve issues before inviting users.
+
+Existing `npm run test:smoke` and `scripts/smoke-library.mjs` start local production servers for CI. They are not commands for probing an arbitrary deployed URL. Use the actual deployed browser flow for the checks above.
+
+## 🟪 Release record and recovery
+
+Fill in this record only from observed results:
+
+| Field | Current evidence |
+| --- | --- |
+| Release commit / CI | See PR #17 for exact tested head and final merge |
+| Vercel project / deployment URL | Pending |
+| Target / deployment status / build duration | Pending |
+| Supabase project / migration result | Pending |
+| Auth, provider and browser checks | Pending |
+| Production release time | Pending |
+
+If a code release fails, restore the last known-good compatible Vercel deployment. A code rollback does not undo migrations or restore data. For a schema issue, assess compatibility and use a reviewed forward fix or an explicitly planned backup restoration; do not automatically reverse migrations. If a credential is exposed, rotate it at the provider, update scoped configuration and rebuild/redeploy as needed. Redact credentials and account data from diagnostics.
+
+Phase 16 is complete only after live setup, deployment and the required verification are recorded. Repository preparation can be merged independently while those items remain clearly pending.

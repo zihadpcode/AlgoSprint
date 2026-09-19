@@ -35,11 +35,6 @@
     max-width: 100%;
   }
 
-  /* Prevent iOS focus zoom on small text inputs; preserve deliberate code sizing. */
-  @media (max-width: 639px) {
-    input, select, textarea { font-size: 1rem; }
-  }
-
   ::selection {
     @apply bg-accent text-canvas;
   }
@@ -61,6 +56,14 @@
       animation: none !important;
       transition: none !important;
     }
+  }
+}
+
+/* Outside the layers so text-sm utilities cannot reintroduce mobile focus zoom.
+   Monaco manages its own input geometry and typography. */
+@media (max-width: 639px) {
+  input:not(.monaco-editor *), select, textarea:not(.monaco-editor *) {
+    font-size: 1rem;
   }
 }
 
