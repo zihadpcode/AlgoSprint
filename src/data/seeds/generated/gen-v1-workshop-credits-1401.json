@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "slug": "gen-v1-workshop-credits-1401",
+  "title": "Rest-Day Workshop Credits — Set 1401",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "DRAFT",
+  "pattern": "one-dimensional-dp",
+  "statement": "A community studio offers one workshop per day with the listed credits. Attending a workshop requires resting the following day, so no two selected day indices may be adjacent. Return the largest total credits you can earn. You may skip every workshop; an empty schedule earns zero. The input is one object { credits }.",
+  "constraints": [
+    "0 <= credits.length <= 14.",
+    "Each credit value is an integer from 0 through 40."
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays",
+    "dynamic-programming"
+  ],
+  "tags": [
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "credits": [
+          5,
+          9,
+          5
+        ]
+      },
+      "output": 10,
+      "explanation": "For {\"credits\":[5,9,5]}, the result is 10. For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima."
+    },
+    {
+      "position": 2,
+      "input": {
+        "credits": [
+          0,
+          0
+        ]
+      },
+      "output": 0,
+      "explanation": "For {\"credits\":[0,0]}, the result is 0. For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Taking the largest single workshop first may block a better pair."
+    },
+    {
+      "position": 2,
+      "content": "At each day, compare attending with skipping."
+    },
+    {
+      "position": 3,
+      "content": "Attending uses the best total ending before the preceding day."
+    },
+    {
+      "position": 4,
+      "content": "Skipping retains the best total for all previous days."
+    },
+    {
+      "position": 5,
+      "content": "Use current = max(oneBack, twoBack + credit), then shift the two stored totals."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "workshopCredits",
+      "code": "function workshopCredits(input) {\n  // input is the object described in the statement.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "credits": [
+          5,
+          9,
+          5
+        ]
+      },
+      "output": 10,
+      "explanation": "For {\"credits\":[5,9,5]}, the result is 10. For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "credits": [
+          0,
+          0
+        ]
+      },
+      "output": 0,
+      "explanation": "For {\"credits\":[0,0]}, the result is 0. For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": []
+      },
+      "output": 0,
+      "explanation": "For {\"credits\":[]}, the result is 0. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": [
+          7
+        ]
+      },
+      "output": 7,
+      "explanation": "For {\"credits\":[7]}, the result is 7. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": [
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "output": 8,
+      "explanation": "For {\"credits\":[4,4,4,4]}, the result is 8. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": [
+          1,
+          10,
+          1,
+          10,
+          1
+        ]
+      },
+      "output": 20,
+      "explanation": "For {\"credits\":[1,10,1,10,1]}, the result is 20. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": [
+          14,
+          3,
+          21,
+          4,
+          6,
+          9,
+          6,
+          8,
+          2,
+          19,
+          6
+        ]
+      },
+      "output": 71,
+      "explanation": "For {\"credits\":[14,3,21,4,6,9,6,8,2,19,6]}, the result is 71. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": [
+          15,
+          36
+        ]
+      },
+      "output": 36,
+      "explanation": "For {\"credits\":[15,36]}, the result is 36. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": [
+          11,
+          24,
+          28,
+          1,
+          30,
+          2,
+          16
+        ]
+      },
+      "output": 85,
+      "explanation": "For {\"credits\":[11,24,28,1,30,2,16]}, the result is 85. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 10,
+      "visibility": "HIDDEN",
+      "input": {
+        "credits": [
+          19,
+          9,
+          26,
+          11,
+          2,
+          40,
+          23,
+          14,
+          39,
+          38
+        ]
+      },
+      "output": 137,
+      "explanation": "For {\"credits\":[19,9,26,11,2,40,23,14,39,38]}, the result is 137. Checked by independent enumeration and the optimized reference."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Enumerate the candidates",
+      "intuition": "Enumerating all allowed choices gives a small-input correctness oracle.",
+      "approach": "Enumerate every subset with a bit mask, reject adjacent selected bits, and maximize the selected credit sum. The fourteen-day bound keeps exhaustive validation small.",
+      "pseudocode": "Enumerate every subset with a bit mask, reject adjacent selected bits, and maximize the selected credit sum. The fourteen-day bound keeps exhaustive validation small.",
+      "code": "function workshopCredits({ credits }) {\n    let best = 0;\n    for (let mask = 0; mask < 2 ** credits.length; mask++) {\n        if ((mask & (mask << 1)) !== 0)\n            continue;\n        let total = 0;\n        for (let j = 0; j < credits.length; j++)\n            if ((mask & (1 << j)) !== 0)\n                total += credits[j];\n        best = Math.max(best, total);\n    }\n    return best;\n}",
+      "timeComplexity": "O(n × 2^n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Greedily choosing the largest credit value.",
+        "Updating twoBack before computing the current value.",
+        "Forcing a workshop on an empty schedule."
+      ],
+      "interviewExplanation": "Enumerate every subset with a bit mask, reject adjacent selected bits, and maximize the selected credit sum. The fourteen-day bound keeps exhaustive validation small. Use this bounded baseline to check the optimized strategy.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A community studio offers one workshop per day with the listed credits. Attending a workshop requires resting the following day, so no two selected day indices may be adjacent. Return the largest total credits you can earn. You may skip every workshop; an empty schedule earns zero. The input is one object { credits }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "Enumerate every subset with a bit mask, reject adjacent selected bits, and maximize the selected credit sum. The fourteen-day bound keeps exhaustive validation small."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "Each permitted candidate is inspected, so taking the requested count, total or optimum is complete."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Reuse the structure",
+      "intuition": "Before each day, oneBack is the optimum for all preceding days and twoBack excludes the immediately preceding day. The two choices cover every valid schedule.",
+      "approach": "For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima.",
+      "pseudocode": "For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima.",
+      "code": "function workshopCredits({ credits }) {\n    let twoBack = 0, oneBack = 0;\n    for (const credit of credits) {\n        const current = Math.max(oneBack, twoBack + credit);\n        twoBack = oneBack;\n        oneBack = current;\n    }\n    return oneBack;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Greedily choosing the largest credit value.",
+        "Updating twoBack before computing the current value.",
+        "Forcing a workshop on an empty schedule."
+      ],
+      "interviewExplanation": "For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima. Before each day, oneBack is the optimum for all preceding days and twoBack excludes the immediately preceding day. The two choices cover every valid schedule.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A community studio offers one workshop per day with the listed credits. Attending a workshop requires resting the following day, so no two selected day indices may be adjacent. Return the largest total credits you can earn. You may skip every workshop; an empty schedule earns zero. The input is one object { credits }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "For each day compare skipping it with adding its credits to the optimum from two days back. Keep only the two previous optima."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "Before each day, oneBack is the optimum for all preceding days and twoBack excludes the immediately preceding day. The two choices cover every valid schedule."
+        }
+      ]
+    }
+  ]
+}

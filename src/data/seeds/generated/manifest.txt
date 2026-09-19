@@ -1,0 +1,9 @@
+AlgoSprint generator v1
+Options: {"seed":1401,"count":1,"template":"all"}
+Status: DRAFT; human review required. Seed variants reuse five authored templates.
+Files:
+gen-v1-supply-pairs-1401.json
+gen-v1-signal-burst-1401.json
+gen-v1-reservoir-spans-1401.json
+gen-v1-tide-marker-1401.json
+gen-v1-workshop-credits-1401.json

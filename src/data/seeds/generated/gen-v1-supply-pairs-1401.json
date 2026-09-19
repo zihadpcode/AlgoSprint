@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "slug": "gen-v1-supply-pairs-1401",
+  "title": "Pairwise Supply Packs — Set 1401",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "DRAFT",
+  "pattern": "two-pointers",
+  "statement": "A relief depot lists pack weights in nondecreasing order. A courier takes exactly two distinct packs whose combined weight is at most budget. Return the number of index pairs (i, j) with i < j that fit. Equal weights at different indices are different packs. Zero or one pack gives zero pairs. The input is one object { weights, budget }.",
+  "constraints": [
+    "0 <= weights.length <= 14; weights are sorted in nondecreasing order.",
+    "Every weight is an integer from 0 through 40; budget is an integer from 0 through 80."
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays",
+    "two-pointers"
+  ],
+  "tags": [
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "weights": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "budget": 5
+      },
+      "output": 4,
+      "explanation": "For {\"weights\":[1,2,3,4],\"budget\":5}, the result is 4. Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint."
+    },
+    {
+      "position": 2,
+      "input": {
+        "weights": [
+          2,
+          2,
+          2
+        ],
+        "budget": 4
+      },
+      "output": 3,
+      "explanation": "For {\"weights\":[2,2,2],\"budget\":4}, the result is 3. Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Packs are distinguished by index, including duplicate weights."
+    },
+    {
+      "position": 2,
+      "content": "The sorted order lets you rule out several pairs together."
+    },
+    {
+      "position": 3,
+      "content": "Place one pointer at each end."
+    },
+    {
+      "position": 4,
+      "content": "If the endpoints fit, all pairs from left to every index up to right fit."
+    },
+    {
+      "position": 5,
+      "content": "Add right-left and advance left when they fit; otherwise decrease right. Stop when pointers meet."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "supplyPairs",
+      "code": "function supplyPairs(input) {\n  // input is the object described in the statement.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "weights": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "budget": 5
+      },
+      "output": 4,
+      "explanation": "For {\"weights\":[1,2,3,4],\"budget\":5}, the result is 4. Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "weights": [
+          2,
+          2,
+          2
+        ],
+        "budget": 4
+      },
+      "output": 3,
+      "explanation": "For {\"weights\":[2,2,2],\"budget\":4}, the result is 3. Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [],
+        "budget": 0
+      },
+      "output": 0,
+      "explanation": "For {\"weights\":[],\"budget\":0}, the result is 0. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          0
+        ],
+        "budget": 0
+      },
+      "output": 0,
+      "explanation": "For {\"weights\":[0],\"budget\":0}, the result is 0. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          0,
+          0
+        ],
+        "budget": 0
+      },
+      "output": 1,
+      "explanation": "For {\"weights\":[0,0],\"budget\":0}, the result is 1. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          8,
+          9
+        ],
+        "budget": 1
+      },
+      "output": 0,
+      "explanation": "For {\"weights\":[8,9],\"budget\":1}, the result is 0. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          2,
+          3,
+          4,
+          6,
+          6,
+          6,
+          8,
+          9,
+          14,
+          19,
+          21
+        ],
+        "budget": 15
+      },
+      "output": 27,
+      "explanation": "For {\"weights\":[2,3,4,6,6,6,8,9,14,19,21],\"budget\":15}, the result is 27. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          11,
+          21,
+          24,
+          28,
+          36
+        ],
+        "budget": 1
+      },
+      "output": 0,
+      "explanation": "For {\"weights\":[11,21,24,28,36],\"budget\":1}, the result is 0. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          2,
+          2,
+          9,
+          11,
+          14,
+          16,
+          19,
+          23,
+          26,
+          29,
+          40
+        ],
+        "budget": 78
+      },
+      "output": 55,
+      "explanation": "For {\"weights\":[2,2,9,11,14,16,19,23,26,29,40],\"budget\":78}, the result is 55. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 10,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          7,
+          11,
+          16,
+          18,
+          18,
+          23,
+          23,
+          27,
+          28,
+          29,
+          32,
+          34,
+          37
+        ],
+        "budget": 72
+      },
+      "output": 78,
+      "explanation": "For {\"weights\":[7,11,16,18,18,23,23,27,28,29,32,34,37],\"budget\":72}, the result is 78. Checked by independent enumeration and the optimized reference."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Enumerate the candidates",
+      "intuition": "Enumerating all allowed choices gives a small-input correctness oracle.",
+      "approach": "Enumerate each pair of distinct indices once and count pairs within the budget.",
+      "pseudocode": "Enumerate each pair of distinct indices once and count pairs within the budget.",
+      "code": "function supplyPairs({ weights, budget }) {\n    let count = 0;\n    for (let left = 0; left < weights.length; left++) {\n        for (let right = left + 1; right < weights.length; right++) {\n            if (weights[left] + weights[right] <= budget)\n                count++;\n        }\n    }\n    return count;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Counting distinct weight values instead of index pairs.",
+        "Using < instead of <= for the budget.",
+        "Using the same pack twice."
+      ],
+      "interviewExplanation": "Enumerate each pair of distinct indices once and count pairs within the budget. Use this bounded baseline to check the optimized strategy.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A relief depot lists pack weights in nondecreasing order. A courier takes exactly two distinct packs whose combined weight is at most budget. Return the number of index pairs (i, j) with i < j that fit. Equal weights at different indices are different packs. Zero or one pack gives zero pairs. The input is one object { weights, budget }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "Enumerate each pair of distinct indices once and count pairs within the budget."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "Each permitted candidate is inspected, so taking the requested count, total or optimum is complete."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Reuse the structure",
+      "intuition": "Every pair outside the remaining interval has been counted or ruled out exactly once. Sorted weights justify counting or excluding an entire endpoint.",
+      "approach": "Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint.",
+      "pseudocode": "Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint.",
+      "code": "function supplyPairs({ weights, budget }) {\n    let left = 0, right = weights.length - 1, count = 0;\n    while (left < right) {\n        if (weights[left] + weights[right] <= budget) {\n            count += right - left;\n            left++;\n        }\n        else\n            right--;\n    }\n    return count;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Counting distinct weight values instead of index pairs.",
+        "Using < instead of <= for the budget.",
+        "Using the same pack twice."
+      ],
+      "interviewExplanation": "Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint. Every pair outside the remaining interval has been counted or ruled out exactly once. Sorted weights justify counting or excluding an entire endpoint.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A relief depot lists pack weights in nondecreasing order. A courier takes exactly two distinct packs whose combined weight is at most budget. Return the number of index pairs (i, j) with i < j that fit. Equal weights at different indices are different packs. Zero or one pack gives zero pairs. The input is one object { weights, budget }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "Keep two endpoints. If their sum fits, count all right-left partners for the left pack and advance left. Otherwise discard the right endpoint."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "Every pair outside the remaining interval has been counted or ruled out exactly once. Sorted weights justify counting or excluding an entire endpoint."
+        }
+      ]
+    }
+  ]
+}

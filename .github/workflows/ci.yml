@@ -45,6 +45,7 @@ jobs:
       - run: npm run db:generate
       - run: npm run db:validate
       - run: npm run db:deploy
+      - run: npm run problems:check
       - run: npm run seed:validate
       - run: npm test
       - run: npm run test:integration
