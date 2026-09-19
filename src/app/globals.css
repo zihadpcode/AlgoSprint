@@ -27,6 +27,17 @@
 
   body {
     @apply min-h-dvh bg-canvas font-sans text-base text-ink antialiased;
+    overflow-wrap: anywhere;
+  }
+
+  input, select, textarea {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Prevent iOS focus zoom on small text inputs; preserve deliberate code sizing. */
+  @media (max-width: 639px) {
+    input, select, textarea { font-size: 1rem; }
   }
 
   ::selection {

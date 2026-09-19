@@ -25,7 +25,8 @@
     "user:role": "node --import tsx scripts/set-user-role.ts",
     "test:smoke": "node scripts/smoke-auth.mjs",
     "problems:generate": "node --import tsx scripts/generate-problems.ts",
-    "problems:check": "npm run problems:generate -- --check"
+    "problems:check": "npm run problems:generate -- --check",
+    "deploy:check": "node --import tsx scripts/check-deployment.ts"
   },
   "engines": {
     "node": ">=24 <25"

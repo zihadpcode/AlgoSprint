@@ -1,9 +1,10 @@
-import { ArrowDownRight, ArrowRight, BookOpen, Compass, NotebookPen } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BookOpen, Compass, NotebookPen } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PracticePreview } from "@/components/landing/practice-preview";
-import { PLANNED_FEATURES, PRACTICE_STEPS } from "@/lib/constants";
+import { PRACTICE_FEATURES, PRACTICE_STEPS } from "@/lib/constants";
 
 const FEATURE_ICONS = {
   collection: BookOpen,
@@ -27,19 +28,19 @@ export default function HomePage() {
               <span className="mt-1 block text-accent">Then make it run.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
-              Build the reasoning behind the solution. AlgoSprint is taking
-              shape as a home for original challenges, thoughtful explanations,
-              and a practice habit that lasts.
+              Practice original coding challenges, uncover one hint at a time,
+              and explain your approach. Keep the lessons in your own notes
+              and build a practice habit that lasts.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a href="#practice-preview" className="action-link action-link-primary">
-                See a practice example
-                <ArrowDownRight aria-hidden="true" size={19} />
-              </a>
-              <a href="#approach" className="action-link action-link-secondary">Explore the approach</a>
+              <Link href="/problems" className="action-link action-link-primary">
+                Explore the problem library
+                <ArrowRight aria-hidden="true" size={19} />
+              </Link>
+              <Link href="/roadmaps" className="action-link action-link-secondary">Follow a learning path</Link>
             </div>
             <p className="mt-5 text-sm leading-6 text-muted">
-              An early look. The problem library and practice tools are in development.
+              Browse problems and roadmaps without an account. Sign in to save your progress and practice interviews.
             </p>
             <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 border-t border-line/70 pt-6 font-mono text-sm text-muted">
               <span>Understand the pattern</span>
@@ -74,23 +75,23 @@ export default function HomePage() {
         </section>
         <section id="path-ahead" aria-labelledby="future-title" className="py-16 sm:py-20">
           <Container>
-            <p className="eyebrow text-lilac">The path ahead</p>
+            <p className="eyebrow text-lilac">Your practice space</p>
             <h2 id="future-title" className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Small beginnings. Room to grow.
+              A clearer next step, every session.
             </h2>
             <p className="mt-4 max-w-2xl leading-7 text-muted">
-              These features are planned. This preview introduces the direction;
-              the learning tools will arrive in stages.
+              Move from understanding a problem to explaining a solution.
+              Start with the original collection, then revisit what challenged you.
             </p>
             <div className="mt-10 grid gap-8 md:grid-cols-3">
-              {PLANNED_FEATURES.map((feature) => {
+              {PRACTICE_FEATURES.map((feature) => {
                 const Icon = FEATURE_ICONS[feature.id];
                 return (
                   <article key={feature.id} className="border-t border-line pt-6">
                     <Icon aria-hidden="true" size={25} className="text-lilac" />
                     <h3 className="mt-4 text-xl font-semibold">{feature.title}</h3>
                     <p className="mt-3 leading-7 text-muted">{feature.description}</p>
-                    <p className="mt-5 text-sm text-accent">{feature.label}</p>
+                    <Link href={feature.href} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent hover:underline">{feature.label}<ArrowRight aria-hidden="true" size={16} className="ml-2" /></Link>
                   </article>
                 );
               })}
