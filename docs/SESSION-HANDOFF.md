@@ -1,3 +1,99 @@
+# AlgoSprint — current paused checkpoint
+
+**2026-09-19: The latest instruction is “pause and update.” Stop implementation and merging. Phase 13 is saved in draft PR #14 and remains unmerged.** This instruction supersedes the historical continuation/merge directions below.
+
+## 🟦 Saved state
+
+- [Draft PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14), branch `algosprint/phase-13-admin`.
+- Main remains merged Phase 12: `cfe07114ef1390d62ee2e05a6d3fab13686468b9`.
+- Implementation commit `97c2cce24c13ff338fc56fd9b68b4e55a9135f4c`, tree `b16e9de28f06f188420f5004a1695db6035f68b2`.
+- Pre-pause documentation commit `ac35ca8ebd186731389e14a90be2c333d330c0f8`, tree `6d11752455adb7d1943dc7a514bb3e18476e6ef6`. A subsequent docs-only commit saves this pause; PR metadata records its exact head/tree. Inspect that head and its checks on resume.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` has synthetic ancestry: never push it. Publish through actual remote parent/tree, preserving twelve remote-only historical files.
+
+## 🟩 Implementation and documentation
+
+Protected manager/search/filtering, complete structured problem forms, atomic create-only JSON import, revision conflicts, archive/safe deletion, and existing-roadmap editing are implemented. Transactional administrator rechecks and content locks preserve learner history. Imported code stays inert; new custom problems have no runner contract. No further feature changes were made for this pause.
+
+README, original brief status, this handoff and PHASE-13-GUIDE.md are updated. The guide contains all 21 changed source/test/script files in full. Detailed implementation and limitations remain in the historical checkpoint below.
+
+## 🟨 Verified evidence
+
+- **206 tests pass:** 145 unit/component/migration plus 61 real PostgreSQL integration tests.
+- [Implementation CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) passed every step.
+- [Documentation-head CI 35408835465](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408835465), on `ac35ca8ebd186731389e14a90be2c333d330c0f8`, also completed successfully: migrations, seeds, tests, lint, types, production build and both HTTP suites.
+- The subsequent pause-status commit has not been certified by these earlier runs; inspect its checks on resume. No known unresolved implementation failure.
+- Live authenticated administrator/account/browser workflows and Supabase/Judge0 checks remain pending. No deployment or production writes occurred.
+
+## 🟪 Resume
+
+Keep PR #14 a draft and do not merge while paused. When the user resumes, inspect actual PR head, main and latest CI, complete any required review, and finish Phase 13 before starting another phase. Phase 14 is unstarted. Do not treat historical text below as current authorization to continue.
+
+---
+
+# Historical Phase 13 pre-pause checkpoint
+
+# AlgoSprint session handoff
+
+**2026-09-19: Phase 13 protected content administration implemented and documented. Pause before Phase 14 after final CI and merge.**
+
+The user continued after Phase 12. Standing authorization covers publication and merge of verified work. No Phase 14 generator implementation is included.
+
+## 🟦 Repository and publication
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Starting main: merged Phase 12 `cfe07114ef1390d62ee2e05a6d3fab13686468b9`, tree `09f5cae41a94927dd482c9ea20db52e817511827`; PR #13 is merged. Its final CI 35407103010 passed all 186 tests and production checks.
+- Phase 13 [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14), branch `algosprint/phase-13-admin`. PR metadata records final tested head/CI and merge-tree evidence. Verify actual state on resume.
+- Implementation head `97c2cce24c13ff338fc56fd9b68b4e55a9135f4c`, tree `b16e9de28f06f188420f5004a1695db6035f68b2`. [CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) checks this implementation. Final documentation is checked separately.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` retains synthetic ancestry. Never push it. Remote commits use the actual branch parent/tree and preserve twelve remote-only historical files. Starting local checkpoint was clean and matched Phase 12.
+
+## 🟩 Completed implementation
+
+- Protected searchable/status-filtered problem table, stable twenty-item pagination, structured add/edit forms, create-only JSON import, archive and safe deletion, and existing-roadmap placement/content editing.
+- Problem authoring covers statement, constraints, metadata/resource limits, categories/tags/interview styles, related links, examples, five hints, starter languages/functions/code, visible/hidden cases, solution variants and ordered explanation steps. Repeated sections have add/remove/reorder controls. JSON is limited to input/output values and the explicitly requested bulk import form.
+- Layout, page/loaders and actions verify administrator access independently. Each read/write transaction additionally locks and rechecks the actor's current database role. Read projections omit user notes, progress, submission content and credentials. Hidden tests enter only authorized editor data. Existing proxy private/no-store headers cover nested admin routes.
+- Strict bounded command/JSON parsing, supported schema/taxonomy validation and explicit human publication review. Custom solution/code strings remain inert; new custom slugs have no runner support. Existing five runner contracts enforce JavaScript entrypoints, ten-case limit and trusted authored reference results.
+- Content writes serialize through advisory locks, then lock the problem row. Revision checks reject stale edits, every save advances revision and parent IDs/history remain. Nested content/taxonomy/relations update atomically; old in-flight submissions cannot verify a newer revision. Modified problems clear seedHash so original seeds refuse silent overwrite.
+- Imports accept 1–10 new complete problems within 400,000 UTF-8 bytes, bounded depth/node count. Existing or duplicate slugs are rejected; internal related links resolve after all batch members are created. Entire batch rolls back on failure.
+- Archive preserves history and hides affected paths. Permanent deletion requires archived state, exact typed slug, current revision and zero user/history/roadmap/interview/related references; foreign keys remain enforced. Dirty drafts disable lifecycle controls.
+- Existing roadmaps use a content/update token for conflict checks, shared seed lock, ordered transactional steps and publication validation. Seed conflicts preserve author edits. No new roadmap creation or taxonomy authoring is added.
+- Client forms retain drafts/baselines after conflicts or uncertain responses, disable during saves and prevent duplicate requests. Successful actions revalidate public and private affected routes.
+- PHASE-13-GUIDE.md covers beginner setup/admin role provisioning, authoring, import format, privacy/concurrency/revision/seed policies, tests/live checklist and all 21 complete changed source/test/script files. README and preserved project brief status are current.
+
+## 🟨 Verification
+
+- **145 unit/component/migration tests passed**, locally and in implementation CI. Ten new local tests cover boundaries, strict parsing, form round trips, order, conflicts, pending duplicates and uncertain responses.
+- **61 real PostgreSQL integration tests passed**, including ten new admin tests for role revocation, private projections, creation/edit history, concurrent stale writes, in-flight old revisions, atomic imports, safe deletion, roadmap conflicts/seeding, runner validation and pagination.
+- Local lint, TypeScript, production build and unconfigured HTTP smoke passed. Smoke includes guest/forged-cookie denial for all new admin routes. The initial authoring typecheck caught union narrowing for archive/delete; splitting the strict command variants resolved it before publication.
+- Implementation CI 35408522853 passed every step: schema/migrations, seeds, all 206 tests, lint/types/build and both production HTTP suites. PR #14 records final documentation-head results. Do not infer final merge state solely from older evidence.
+- All full-source guide listings are checked against source. No schema/migration/dependency change was needed.
+
+## 🟥 Limits and production state
+
+No production database writes, role promotions, deployment, purchase or live provider/account verification occurred. Admin tools affect only the configured database when an authorized admin explicitly uses them. Existing original five problem seeds and roadmap definitions remain unchanged.
+
+The editor requires complete structurally valid draft content; no partial-draft save, autosave, recovery, audit-log UI, edit-history restore, CSV import, taxonomy authoring or new roadmap creation is included. It supports the existing version 1 CODING schema, five patterns and current taxonomy. Custom expected outputs/solution correctness and originality require human review; arbitrary imported code is never run. New custom problems can be studied after publication, but execution remains unavailable until a reviewed runner contract is implemented.
+
+Admin changes deliberately make original seed reruns conflict. Keep curated content and user data; do not force destructive resets. Problem and roadmap seed helpers have their earlier transaction boundaries. The shared roadmap lock coordinates roadmap seed jobs, while future new mutation paths must preserve the current locking/revision protocols.
+
+Live administrator/regular-account and role-revocation browser workflows, keyboard/screen-reader/narrow-layout/zoom checks, nested field navigation, file uploads and back-navigation remain unverified. Earlier Supabase/Judge0/Monaco worker live checks also remain pending. Controlled mocks, markup/DOM tests, real PostgreSQL and signed-out HTTP checks are not a live authenticated browser workflow. Save or copy drafts before navigating.
+
+## 🟪 Phase ledger and next resume
+
+| Phase | Status |
+| --- | --- |
+| 1–11 | Merged; earlier live/browser checks remain pending |
+| 12 | Merged PR #13; 186 tests/full CI passed |
+| 13 | Implemented/documented in PR #14; 206 unit/PostgreSQL tests pass; final CI/merge evidence on PR |
+| 14 | Next: original problem generator, using existing schema/reference-validation foundations |
+| 15 | Mock interviews: models only |
+| 16 | Polish/deployment not started |
+
+**Pause before Phase 14.** On the next continue request, verify main/PR #14 first. Build the generator from the preserved brief with original-content rules, deterministic template/input generation, bounded brute-force/reference validation, Zod checks and seed output. Preserve admin edits, learner history, revision/runner semantics and the distinction between structural validation and trusted execution. Continue complete phase guides.
+
+---
+
+# Historical Phase 12 completion handoff
+
 # AlgoSprint session handoff
 
 **2026-09-18: Phase 12 original learning roadmaps implemented. The user resumed after the saved pause. Pause before Phase 13 after final CI and merge.**
