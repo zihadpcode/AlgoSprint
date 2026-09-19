@@ -2,18 +2,15 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current checkpoint: Phase 14 original problem generators
+## 🟩 Current checkpoint: Phase 15 mock interviews
 
-Phase 13 protected content administration is merged in [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14). Phase 14 adds five original template generators for two pointers, sliding windows, prefix sums, binary search and dynamic programming, with reproducible inputs, independent brute-force checks and complete draft seed files.
+Phase 14 generators are merged in [PR #15](https://github.com/zihadpcode/AlgoSprint/pull/15). Phase 15 adds private timed mock interviews with difficulty/topic/style selection, random original questions, saved explanations, frozen references and transparent self-assessment reports. Open `/mock-interview` after signing in.
 
-**158 unit/component/migration and 64 PostgreSQL integration tests pass (222 total).** [Implementation CI 35422991194](https://github.com/zihadpcode/AlgoSprint/actions/runs/35422991194) passed every step. [PR #15](https://github.com/zihadpcode/AlgoSprint/pull/15) records final documentation-head checks and merge state. Read [the complete Phase 14 guide](docs/PHASE-14-GUIDE.md), including all 24 changed source/config/test/fixture files, and [the session handoff](docs/SESSION-HANDOFF.md).
+**170 unit/component/migration and 73 PostgreSQL integration tests pass (243 total).** [Implementation CI 35426555640](https://github.com/zihadpcode/AlgoSprint/actions/runs/35426555640) passed every step. [PR #16](https://github.com/zihadpcode/AlgoSprint/pull/16) records final documentation-head checks and merge state. Read [the complete Phase 15 guide](docs/PHASE-15-GUIDE.md), with all 17 changed source/script/test files, and [the session handoff](docs/SESSION-HANDOFF.md).
 
-```bash
-npm run problems:check
-npm run problems:generate -- --seed 2027 --out src/data/seeds/generated-2027
-```
+Sessions enforce server deadlines, owner-only access and stale-save protection. Scores are self-assessments, not correctness grades or verified solves; this mode does not execute response code. Save each answer explicitly. Late unsaved text remains available to copy. No deployment or production writes occurred; live authenticated/browser checks remain pending. Stop after Phase 15; Phase 16 polish/deployment is unstarted.
 
-The generator writes only to a new directory. Five committed samples live in `src/data/seeds/generated/`, separately from the default published seeds. Generated objects are drafts for human review; different seeds create exercise variants of five authored concepts. New problems have no automatic runner support. No deployment or production data writes occurred. Live account/provider/browser checks remain pending. Stop after Phase 14; Phase 15 mock interviews are unstarted.
+Phase 14's five reproducible generator templates and separate draft fixture workflow remain available through `npm run problems:check`; see [the generator guide](docs/PHASE-14-GUIDE.md).
 
 ## 🟩 Run locally
 
@@ -58,6 +55,7 @@ npm run test:smoke
 | `src/app/` | Landing, authentication, protected account pages, library and problem details. |
 | `src/components/layout/`, `src/components/ui/` | Shared workspace, navigation, native controls, and feedback states. |
 | `src/features/problems/` | Published queries, owned notes/progress, validation and server actions. |
+| `src/features/interviews/`, `src/components/interviews/` | Private timed practice, original prompts, frozen snapshots and self-assessment reports. |
 | `src/features/admin/`, `src/components/admin/` | Protected content queries/actions, structured authoring, revision conflicts, atomic imports and safe lifecycle controls. |
 | `src/features/roadmaps/`, `src/components/roadmaps/` | Published learning paths, owner progress and deterministic next-step suggestions. |
 | `scripts/generator/`, `src/data/seeds/generated/` | Original bounded template generators, trusted references and reviewed draft fixture workflow. |
