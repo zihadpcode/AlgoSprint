@@ -3,14 +3,14 @@ export const APP_CONFIG = {
   name: "AlgoSprint",
   tagline: "Practice with purpose",
   description:
-    "An early preview of AlgoSprint: an original coding interview preparation platform built around deliberate practice and clear explanations.",
+    "Original coding challenges, guided solutions, learning roadmaps and timed interview practice. Build the reasoning behind every solution.",
 } as const;
 
 // These links point to real sections on the current landing page.
 export const LANDING_NAV = [
   { label: "The approach", href: "#approach" },
   { label: "Practice preview", href: "#practice-preview" },
-  { label: "What's next", href: "#path-ahead" },
+  { label: "Practice tools", href: "#path-ahead" },
 ] as const;
 
 export const PRACTICE_STEPS = [
@@ -34,26 +34,26 @@ export const PRACTICE_STEPS = [
   },
 ] as const;
 
-export const PLANNED_FEATURES = [
+export const PRACTICE_FEATURES = [
   {
     id: "collection",
     title: "An original problem collection",
     description:
       "Explore five original challenges with examples, layered hints, and guided solutions. Keep your own notes as you learn.",
-    label: "Available · problem library",
+    label: "Explore problems", href: "/problems",
   },
   {
     id: "progress",
     title: "A record of how you learn",
     description:
       "Keep notes, revisit tricky questions, and see which topics deserve another practice session.",
-    label: "Planned · notes and progress",
+    label: "View your progress", href: "/progress",
   },
   {
     id: "preparation",
     title: "Preparation with direction",
     description:
-      "Follow original learning paths and, later, put your reasoning into words in timed interview practice.",
-    label: "Planned · roadmaps and interviews",
+      "Follow original learning paths and put your reasoning into words in timed, private interview practice.",
+    label: "Start interview practice", href: "/mock-interview",
   },
 ] as const;

@@ -27,6 +27,12 @@
 
   body {
     @apply min-h-dvh bg-canvas font-sans text-base text-ink antialiased;
+    overflow-wrap: anywhere;
+  }
+
+  input, select, textarea {
+    min-width: 0;
+    max-width: 100%;
   }
 
   ::selection {
@@ -50,6 +56,14 @@
       animation: none !important;
       transition: none !important;
     }
+  }
+}
+
+/* Outside the layers so text-sm utilities cannot reintroduce mobile focus zoom.
+   Monaco manages its own input geometry and typography. */
+@media (max-width: 639px) {
+  input:not(.monaco-editor *), select, textarea:not(.monaco-editor *) {
+    font-size: 1rem;
   }
 }
 

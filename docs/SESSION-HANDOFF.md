@@ -1,3 +1,51 @@
+# AlgoSprint — Phase 16 release preparation checkpoint
+
+**2026-09-19: The user continued after Phase 15 and connected both Supabase and Vercel. Finish verified publication of PR #17, then continue live setup when account tools or an authorized dashboard workflow are available. Earlier pauses below are historical.**
+
+## 🟦 Repository state
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Starting main: Phase 15 merge `4df08339cfb2a95865a193831687be6673324ccd`, tree `207a199f5ab8b15a15e038408f7b325b7bc89d69`, PR #16 merged with 243 passing tests.
+- Phase 16 [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17), branch `algosprint/phase-16-release`.
+- Implementation commit `9ef699b59a8f505af674e0d805bfbd51a0ac77b3`, tree `24ba91cbb5ff81c1bbc8cdf0b0ccbf3780d3fbd8`; final documentation commit also corrects the mobile CSS cascade. PR metadata records exact final commit/tree, CI and merge result. Inspect actual PR/main state on resume.
+- Local workspace `/workspace/scratch/4f3affa6d1ad/algosprint` retains synthetic Git ancestry. Never push local Git. Publish against the actual remote parent/tree, preserving twelve remote-only historical files.
+
+## 🟩 Completed release work
+
+- Current landing copy and real feature links; long-token wrapping, narrow-screen control sizing and contained navigation overscroll.
+- Guarded loading UI for dashboard, mock interviews, results and admin. Root-layout error fallback using the installed Next.js `retry` API; no raw exception text.
+- Security response headers and disabled powered-by header; production HTTP assertions.
+- `vercel.json` with Next.js/install/build settings, without migration or seed side effects.
+- Redacted `deploy:check` with migration mode and six tests; `.env.example` production guidance.
+- Complete 21-file source guide, deployment guide, screenshot/accessibility checklist and truthful portfolio/resume copy. README and original-brief preface updated.
+
+## 🟨 Verification and live limitations
+
+[Implementation CI 35461544519](https://github.com/zihadpcode/AlgoSprint/actions/runs/35461544519) passed every step: 176 unit/component/migration tests, 73 PostgreSQL integration tests, migrations, fixtures/seeds, lint/types/build, auth HTTP and library HTTP smoke. Final-head CI and merged-tree verification belong in PR #17. Local tests/build/lint/auth smoke passed. The configuration checker correctly reports missing settings without values in an unconfigured checkout.
+
+Both Supabase and Vercel plugins are confirmed connected. Their skills load, but no corresponding account tools appeared in `ALL_TOOLS`; no tool-search endpoint was exposed either. Do not claim the plugins are unconnected or suggest them again. No deployment tokens or database/account configuration are present in the process environment. Do not obtain OAuth credentials from internal stores or invent a project target.
+
+The supported cloud browser could not reach `http://127.0.0.1:3000` (`ERR_BLOCKED_BY_CLIENT`). No actual browser/mobile/a11y capture is claimed. Do not bypass that restriction via a different browser runtime or tunnel. Follow the browser skill for any authorized dashboard fallback.
+
+No live Supabase project changes, migrations, seeds, Vercel deployment, paid-resource creation, credentials, account promotion or provider execution occurred. All external release work remains pending and is explicitly tracked in DEPLOYMENT.md.
+
+## 🟪 Resume order
+
+1. Inspect PR #17/main and final CI; finish merge only if the exact final head is green. Preserve remote-only history.
+2. Discover newly exposed Supabase/Vercel tools; inspect correct teams/projects before any writes. If still unavailable, explain the access limitation and obtain any browser fallback consent required by the browser skill. Do not ask for passwords in chat.
+3. Follow DEPLOYMENT.md for separate preview/production auth/database settings, trusted migrations/seeds, preview deployment, live privacy/role/provider checks, real screenshots and a production-configured release.
+4. Record actual deployment IDs/URLs, commit, schema result and live verification. Phase 16 is not fully complete until those tasks pass.
+
+| Phase | Status |
+| --- | --- |
+| 1–15 | Merged |
+| 16 repository polish and release preparation | Implemented/documented in PR #17; inspect final publication evidence |
+| 16 live setup, deployment and browser/provider verification | Pending |
+
+---
+
+# Historical Phase 15 checkpoint
+
 # AlgoSprint — Phase 15 completion checkpoint
 
 **2026-09-19: The user said “continue” after Phase 14 was merged. Phase 15 mock interview mode is implemented and documented in PR #16. Finish its verified merge and stop before Phase 16 deployment/polish.** Earlier phase pauses below are historical.
