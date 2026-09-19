@@ -2,15 +2,18 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟦 Current checkpoint: Phase 13 paused, unmerged
+## 🟩 Current checkpoint: Phase 14 original problem generators
 
-Phase 13 adds a protected problem manager with search/status filters, structured content forms, atomic create-only JSON imports, archive/safe deletion, and existing-roadmap step editing. Administrator access is rechecked inside database transactions; stale content saves fail without overwriting another editor. Revisions advance while learner notes, progress and submissions remain intact.
+Phase 13 protected content administration is merged in [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14). Phase 14 adds five original template generators for two pointers, sliding windows, prefix sums, binary search and dynamic programming, with reproducible inputs, independent brute-force checks and complete draft seed files.
 
-**145 unit/component/migration and 61 PostgreSQL integration tests pass (206 total).** Full implementation [CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) passed every step, including migrations, seeding, lint, types, build and both HTTP suites. [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14) is now a draft. Documentation-head [CI 35408835465](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408835465) also passed every step.
+**158 unit/component/migration and 64 PostgreSQL integration tests pass (222 total).** [Implementation CI 35422991194](https://github.com/zihadpcode/AlgoSprint/actions/runs/35422991194) passed every step. [PR #15](https://github.com/zihadpcode/AlgoSprint/pull/15) records final documentation-head checks and merge state. Read [the complete Phase 14 guide](docs/PHASE-14-GUIDE.md), including all 24 changed source/config/test/fixture files, and [the session handoff](docs/SESSION-HANDOFF.md).
 
-Read [the complete Phase 13 guide](docs/PHASE-13-GUIDE.md), including all 21 changed source/test/script files, and [the session handoff](docs/SESSION-HANDOFF.md). The latest instruction is “pause and update”: Phase 13 remains unmerged, main remains at Phase 12, and Phase 14 is unstarted. Resume by inspecting the draft PR and its latest checks; no merge while paused. No schema/dependency changes, production data writes or deployment occurred. Live account/provider/browser checks remain pending.
+```bash
+npm run problems:check
+npm run problems:generate -- --seed 2027 --out src/data/seeds/generated-2027
+```
 
-Custom authoring uses the existing version 1 coding schema and five patterns. New custom problems can be published for study after review; code execution remains limited to the five existing reviewed runner contracts. Imported code is never executed by the app server. Admin edits intentionally cause conflicting original seed reruns to stop rather than overwrite curated content.
+The generator writes only to a new directory. Five committed samples live in `src/data/seeds/generated/`, separately from the default published seeds. Generated objects are drafts for human review; different seeds create exercise variants of five authored concepts. New problems have no automatic runner support. No deployment or production data writes occurred. Live account/provider/browser checks remain pending. Stop after Phase 14; Phase 15 mock interviews are unstarted.
 
 ## 🟩 Run locally
 
@@ -38,6 +41,7 @@ npm run db:seed
 ```bash
 npm run db:validate
 npm run seed:validate
+npm run problems:check
 npm test
 npm run lint
 npm run typecheck
@@ -56,6 +60,7 @@ npm run test:smoke
 | `src/features/problems/` | Published queries, owned notes/progress, validation and server actions. |
 | `src/features/admin/`, `src/components/admin/` | Protected content queries/actions, structured authoring, revision conflicts, atomic imports and safe lifecycle controls. |
 | `src/features/roadmaps/`, `src/components/roadmaps/` | Published learning paths, owner progress and deterministic next-step suggestions. |
+| `scripts/generator/`, `src/data/seeds/generated/` | Original bounded template generators, trusted references and reviewed draft fixture workflow. |
 | `src/data/seeds/roadmaps.ts`, `prisma/seed-roadmaps.ts` | Original path definitions and transactional, conflict-aware seed writes. |
 | `src/features/saved/`, `src/components/saved/` | Private collections, bounded filters, pagination and saved-item controls. |
 | `src/features/dashboard/` | Authenticated snapshot query, topic evidence and recommendation policy. |

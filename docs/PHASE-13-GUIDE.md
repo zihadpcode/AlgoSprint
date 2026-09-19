@@ -1,6 +1,7 @@
 # Phase 13 — Protected content administration
 
-This phase adds structured content authoring to AlgoSprint. [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14) is a draft and records the saved head and CI evidence. **Paused by “pause and update”; Phase 13 is unmerged, main remains Phase 12, and Phase 14 is unstarted.** Implementation CI 35408522853 and documentation-head CI 35408835465 passed every step (206 tests). The subsequent pause-status commit must have its own checks inspected on resume. Do not merge while paused. This guide includes every changed source/test/script file in full.
+This phase adds structured content authoring to AlgoSprint. [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14) is merged at `5f78920812137e15284a9fddacd22c726d7fe9f8`, with saved-head CI 35409169729 passing all gates (206 tests). The later user instruction “catch up to phase 14” superseded the earlier pause. See PHASE-14-GUIDE.md and SESSION-HANDOFF.md for the current checkpoint. The source listings below preserve the Phase 13 implementation.
+
 
 ## 🟦 What gets built
 
@@ -85,7 +86,7 @@ Local results: **145 unit/component/migration tests**, lint, TypeScript, product
 
 **All 61 PostgreSQL integration tests passed** in implementation CI 35408522853, including ten new admin tests alongside the existing 51. Together with the 145 local/unit/component/migration tests, this is 206 passing tests. They cover current database roles and revocation, structured creation and public hidden-data exclusion, edits/revisions/history, concurrent stale saves, in-flight runner results on old revisions, atomic create-only imports, archive/safe-delete checks, roadmap order/conflicts and seed refusal, trusted runner contract validation, and twenty-row stable filtering/pagination.
 
-The signed-out HTTP script includes every new admin route with forged cookies. It verifies redirects and does not claim to test a live administrator session. CI additionally validates schema/migrations, seeds, lint/types/build and existing seeded public library/detail/roadmap behavior. The full implementation [CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) passed every step on commit `97c2cce24c13ff338fc56fd9b68b4e55a9135f4c`, tree `b16e9de28f06f188420f5004a1695db6035f68b2`. PR #14 separately records documentation-head CI and the paused, unmerged checkpoint.
+The signed-out HTTP script includes every new admin route with forged cookies. It verifies redirects and does not claim to test a live administrator session. CI additionally validates schema/migrations, seeds, lint/types/build and existing seeded public library/detail/roadmap behavior. The full implementation [CI 35408522853](https://github.com/zihadpcode/AlgoSprint/actions/runs/35408522853) passed every step on commit `97c2cce24c13ff338fc56fd9b68b4e55a9135f4c`, tree `b16e9de28f06f188420f5004a1695db6035f68b2`. PR #14 records the passed saved-head CI and subsequent Phase 13 merge.
 
 ## 🟥 Manual development checklist and limits
 
