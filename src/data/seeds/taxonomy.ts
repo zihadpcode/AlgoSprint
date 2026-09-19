@@ -22,4 +22,4 @@ export const TAGS = [
 ] as const;
 
 export const INTERVIEW_STYLES = [["general-software", "General Software Interview"]] as const;
-export const PATTERNS = ["prefix-sum", "frequency-count", "fixed-window", "lower-bound", "one-dimensional-dp"] as const;
+export const PATTERNS = ["prefix-sum", "frequency-count", "fixed-window", "lower-bound", "one-dimensional-dp", "two-pointers", "upper-bound"] as const;

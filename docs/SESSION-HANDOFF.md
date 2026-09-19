@@ -1,3 +1,52 @@
+# AlgoSprint — Phase 14 completion checkpoint
+
+**2026-09-19: The user requested “catch up to phase 14,” superseding the previous pause. Phase 13 is merged; Phase 14 implementation and full documentation are complete in PR #15. Finish verified Phase 14 publication, then stop before Phase 15.**
+
+## 🟦 Repository state
+
+- Repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+- Phase 13 merged [PR #14](https://github.com/zihadpcode/AlgoSprint/pull/14) at `5f78920812137e15284a9fddacd22c726d7fe9f8`, tree `2ff5762db8779686f233818287cc985b63c3f985`. The saved-head CI 35409169729 passed before merge; merged tree matches the saved tested tree.
+- Phase 14 [PR #15](https://github.com/zihadpcode/AlgoSprint/pull/15), branch `algosprint/phase-14-generator`.
+- Implementation commit `6ce30d9a8dbe76ef4c6548235e52e43e4bb3cb2a`, tree `62bd161506bc9df762771e0ca4f068b0dd7d6a03`. [Implementation CI 35422991194](https://github.com/zihadpcode/AlgoSprint/actions/runs/35422991194) records this exact implementation; final documentation is checked separately. PR metadata records exact final head/tree and merge result. Inspect actual PR state on resume.
+- Local `/workspace/scratch/4f3affa6d1ad/algosprint` retains synthetic ancestry: never push local Git. Create remote commits with the actual remote parent/tree, preserving twelve historical remote-only files.
+
+## 🟩 Completed Phase 14 scope
+
+- Developer CLI `problems:generate`, exact read-only `problems:check`, strict flags/options and bounded deterministic uint32 RNG. One to ten consecutive seeds per chosen template, at most fifty draft objects with all five selected. Versions and template IDs are explicit in slugs; overflow fails.
+- Five original templates: Supply Pairs (two pointers), Signal Burst (fixed sliding window), Reservoir Spans (prefix sums), Tide Marker (strict upper bound), Workshop Credits (one-dimensional DP).
+- Each template has strict bounded inputs, five/six explicit edge cases, four seeded stored cases, 64 extra differential checks, independent brute-force/optimized functions, known-answer tests and full original teaching content. Inputs are at most fourteen elements/requests; exhaustive DP stays bounded at 2^14 subsets.
+- Stable authored JavaScript solution literals are tested against trusted typed functions. No generated/imported JSON code strings are evaluated by the generator, seeder or app server. Tests execute only checked-in template literals under bounded VM timeouts; this is not a user-code sandbox.
+- Full problem/batch Zod validation and five committed draft JSON fixtures plus manifest under `src/data/seeds/generated/`. They remain outside the default published seed directory. Different seeds are exercise variants, not additional authored concepts.
+- File writing validates before disk changes, serializes cooperating CLI writers, stages all output and refuses an existing destination. `--check` compares exact files/content and writes nothing. Crash leftovers need inspection; locks are not protection from unrelated filesystem writers.
+- Seed semantic validation recognizes only authored `gen-v1-<template>-<uint32>` contracts. Existing seed hashes preserve IDs/history and reject editorial conflicts. Administrator imports accept the five generated objects as a bounded array. New `two-pointers` and `upper-bound` pattern slugs flow into existing admin controls.
+- No new runner contracts: generated content may be studied after explicit human publication, but submission/execution remains limited to the five earlier reviewed foundation contracts. No automatic database seed, publication, schema/dependency change, production write or deployment occurred.
+- Full PHASE-14-GUIDE.md explains architecture, commands, walkthroughs, original-content/version rules, review/import/seed workflow, limitations and all 24 complete changed source/config/test/fixture files. README and preserved brief status updated; original brief content remains intact.
+
+## 🟨 Verification and known limitations
+
+- **158 local unit/component/migration tests pass**, including thirteen generator tests. Reproducibility/seed validation, lint, typecheck, production build and signed-out HTTP smoke pass locally.
+- **64 real PostgreSQL integration tests pass in implementation CI**, including three new generated-draft tests. Total: **222 tests**. New tests cover draft insertion/nested data, idempotent reruns and user progress, corrupted outputs and preservation of editorial changes.
+- Implementation CI 35422991194 passed every step: all 222 tests, schema/migrations, fixture/seed validation, lint/typecheck, build, seed writes in the dedicated CI database and both production HTTP suites. PR #15 records final documentation-head evidence before merge.
+- Initial generator test caught compiler-dependent Function.toString formatting. Replaced it with authored static listings and added trusted-listing equivalence coverage; all local tests pass after correction.
+- Live authenticated browser, Supabase/Judge0 and earlier accessibility/browser checklists remain pending. Phase 14 adds only a developer CLI/seed workflow.
+- Structural and differential checks are bounded evidence, not formal correctness/originality proof for arbitrary future templates. Human review remains required. Existing seed batches retain their earlier restartable transaction boundaries; admin imports have separate atomic batches.
+
+## 🟪 Phase ledger and next step
+
+| Phase | Status |
+| --- | --- |
+| 1–12 | Merged |
+| 13 | Merged PR #14; 206 tests and full CI passed |
+| 14 | Implemented/documented in PR #15; 222 unit/PostgreSQL tests pass; inspect final CI/merge evidence on PR |
+| 15 | Not started: mock interview mode |
+| 16 | Polish/deployment not started |
+
+Stop after finishing the verified Phase 14 merge. On a later continuation request, inspect PR #15/main first, then use the original brief to plan Phase 15 interview setup, timer/session, selection, explanation mode and reports. Preserve auth/ownership, revision/runner meaning, generated draft review and learner history. Earlier pause/continuation text below is historical.
+
+---
+
+# Historical Phase 13 paused checkpoint
+
 # AlgoSprint — current paused checkpoint
 
 **2026-09-19: The latest instruction is “pause and update.” Stop implementation and merging. Phase 13 is saved in draft PR #14 and remains unmerged.** This instruction supersedes the historical continuation/merge directions below.

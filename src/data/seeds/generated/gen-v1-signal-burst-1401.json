@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "slug": "gen-v1-signal-burst-1401",
+  "title": "Beacon Signal Burst — Set 1401",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "DRAFT",
+  "pattern": "fixed-window",
+  "statement": "A field beacon records integer signal readings in time order. A reading is clear when it is at least threshold. Among all contiguous blocks of exactly width readings, return the largest number of clear readings. Return a count, not a sum or the block position. The input is one object { readings, width, threshold }.",
+  "constraints": [
+    "1 <= width <= readings.length <= 14.",
+    "Readings and threshold are integers from -20 through 20."
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays",
+    "sliding-window"
+  ],
+  "tags": [
+    "fixed-window"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "readings": [
+          4,
+          -1,
+          6,
+          5
+        ],
+        "width": 2,
+        "threshold": 4
+      },
+      "output": 2,
+      "explanation": "For {\"readings\":[4,-1,6,5],\"width\":2,\"threshold\":4}, the result is 2. Count the first block, then update its count using the one departing and one arriving reading. Track the largest count."
+    },
+    {
+      "position": 2,
+      "input": {
+        "readings": [
+          2,
+          2,
+          1
+        ],
+        "width": 3,
+        "threshold": 2
+      },
+      "output": 2,
+      "explanation": "For {\"readings\":[2,2,1],\"width\":3,\"threshold\":2}, the result is 2. Count the first block, then update its count using the one departing and one arriving reading. Track the largest count."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Convert each reading mentally to clear or not clear."
+    },
+    {
+      "position": 2,
+      "content": "Consecutive candidate blocks overlap in all but two positions."
+    },
+    {
+      "position": 3,
+      "content": "Count clear readings in the first complete block."
+    },
+    {
+      "position": 4,
+      "content": "Remove the departing reading's contribution and add the arriving reading's contribution."
+    },
+    {
+      "position": 5,
+      "content": "Record the maximum after each shift, including the initial block."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "signalBurst",
+      "code": "function signalBurst(input) {\n  // input is the object described in the statement.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "readings": [
+          4,
+          -1,
+          6,
+          5
+        ],
+        "width": 2,
+        "threshold": 4
+      },
+      "output": 2,
+      "explanation": "For {\"readings\":[4,-1,6,5],\"width\":2,\"threshold\":4}, the result is 2. Count the first block, then update its count using the one departing and one arriving reading. Track the largest count."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "readings": [
+          2,
+          2,
+          1
+        ],
+        "width": 3,
+        "threshold": 2
+      },
+      "output": 2,
+      "explanation": "For {\"readings\":[2,2,1],\"width\":3,\"threshold\":2}, the result is 2. Count the first block, then update its count using the one departing and one arriving reading. Track the largest count."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          -20
+        ],
+        "width": 1,
+        "threshold": -20
+      },
+      "output": 1,
+      "explanation": "For {\"readings\":[-20],\"width\":1,\"threshold\":-20}, the result is 1. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          0,
+          0
+        ],
+        "width": 1,
+        "threshold": 1
+      },
+      "output": 0,
+      "explanation": "For {\"readings\":[0,0],\"width\":1,\"threshold\":1}, the result is 0. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          1,
+          0,
+          1
+        ],
+        "width": 2,
+        "threshold": 1
+      },
+      "output": 1,
+      "explanation": "For {\"readings\":[1,0,1],\"width\":2,\"threshold\":1}, the result is 1. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          -6,
+          -17,
+          1,
+          -16,
+          -14,
+          -11,
+          -14,
+          -12,
+          -18,
+          -1,
+          -14
+        ],
+        "width": 3,
+        "threshold": -5
+      },
+      "output": 1,
+      "explanation": "For {\"readings\":[-6,-17,1,-16,-14,-11,-14,-12,-18,-1,-14],\"width\":3,\"threshold\":-5}, the result is 1. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          1,
+          -9,
+          4,
+          8,
+          -19,
+          10,
+          -18,
+          -4,
+          9,
+          -1,
+          -11,
+          6,
+          -9
+        ],
+        "width": 1,
+        "threshold": 20
+      },
+      "output": 0,
+      "explanation": "For {\"readings\":[1,-9,4,8,-19,10,-18,-4,9,-1,-11,6,-9],\"width\":1,\"threshold\":20}, the result is 0. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          -6,
+          19,
+          18,
+          9,
+          -4,
+          7,
+          12,
+          8,
+          14
+        ],
+        "width": 5,
+        "threshold": -2
+      },
+      "output": 4,
+      "explanation": "For {\"readings\":[-6,19,18,9,-4,7,12,8,14],\"width\":5,\"threshold\":-2}, the result is 4. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          3,
+          -13,
+          17,
+          -9,
+          16,
+          4,
+          4,
+          3,
+          11
+        ],
+        "width": 6,
+        "threshold": 1
+      },
+      "output": 5,
+      "explanation": "For {\"readings\":[3,-13,17,-9,16,4,4,3,11],\"width\":6,\"threshold\":1}, the result is 5. Checked by independent enumeration and the optimized reference."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Enumerate the candidates",
+      "intuition": "Enumerating all allowed choices gives a small-input correctness oracle.",
+      "approach": "For every complete block, inspect its width readings and count those at least the threshold.",
+      "pseudocode": "For every complete block, inspect its width readings and count those at least the threshold.",
+      "code": "function signalBurst({ readings, width, threshold }) {\n    let best = 0;\n    for (let start = 0; start + width <= readings.length; start++) {\n        let count = 0;\n        for (let j = start; j < start + width; j++)\n            if (readings[j] >= threshold)\n                count++;\n        best = Math.max(best, count);\n    }\n    return best;\n}",
+      "timeComplexity": "O(n × width)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Summing readings instead of counting qualifying readings.",
+        "Forgetting the first block.",
+        "Excluding readings equal to threshold."
+      ],
+      "interviewExplanation": "For every complete block, inspect its width readings and count those at least the threshold. Use this bounded baseline to check the optimized strategy.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A field beacon records integer signal readings in time order. A reading is clear when it is at least threshold. Among all contiguous blocks of exactly width readings, return the largest number of clear readings. Return a count, not a sum or the block position. The input is one object { readings, width, threshold }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "For every complete block, inspect its width readings and count those at least the threshold."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "Each permitted candidate is inspected, so taking the requested count, total or optimum is complete."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Reuse the structure",
+      "intuition": "Before updating the best count, count equals the number of clear readings in the current complete block.",
+      "approach": "Count the first block, then update its count using the one departing and one arriving reading. Track the largest count.",
+      "pseudocode": "Count the first block, then update its count using the one departing and one arriving reading. Track the largest count.",
+      "code": "function signalBurst({ readings, width, threshold }) {\n    let count = 0;\n    for (let j = 0; j < width; j++)\n        if (readings[j] >= threshold)\n            count++;\n    let best = count;\n    for (let j = width; j < readings.length; j++) {\n        if (readings[j - width] >= threshold)\n            count--;\n        if (readings[j] >= threshold)\n            count++;\n        best = Math.max(best, count);\n    }\n    return best;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Summing readings instead of counting qualifying readings.",
+        "Forgetting the first block.",
+        "Excluding readings equal to threshold."
+      ],
+      "interviewExplanation": "Count the first block, then update its count using the one departing and one arriving reading. Track the largest count. Before updating the best count, count equals the number of clear readings in the current complete block.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A field beacon records integer signal readings in time order. A reading is clear when it is at least threshold. Among all contiguous blocks of exactly width readings, return the largest number of clear readings. Return a count, not a sum or the block position. The input is one object { readings, width, threshold }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "Count the first block, then update its count using the one departing and one arriving reading. Track the largest count."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "Before updating the best count, count equals the number of clear readings in the current complete block."
+        }
+      ]
+    }
+  ]
+}

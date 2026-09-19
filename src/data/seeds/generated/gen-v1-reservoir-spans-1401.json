@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 1,
+  "slug": "gen-v1-reservoir-spans-1401",
+  "title": "Reservoir Ledger Spans — Set 1401",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "DRAFT",
+  "pattern": "prefix-sum",
+  "statement": "A reservoir ledger records signed changes: inflow is positive and outflow is negative. For each requested span [start, end), return the net change from start inclusive to end exclusive. Keep answers in request order. An empty span has net change zero; no spans produces an empty answer array. The input is one object { changes, spans }.",
+  "constraints": [
+    "0 <= changes.length <= 14; each change is an integer from -20 through 20.",
+    "There are at most 14 spans; each has integer endpoints 0 <= start <= end <= changes.length."
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays"
+  ],
+  "tags": [
+    "prefix-sum"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "changes": [
+          5,
+          -3,
+          2
+        ],
+        "spans": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      "output": [
+        4,
+        -3
+      ],
+      "explanation": "For {\"changes\":[5,-3,2],\"spans\":[[0,3],[1,2]]}, the result is [4,-3]. Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals."
+    },
+    {
+      "position": 2,
+      "input": {
+        "changes": [
+          4,
+          -4
+        ],
+        "spans": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "output": [
+        0,
+        0
+      ],
+      "explanation": "For {\"changes\":[4,-4],\"spans\":[[0,2],[1,1]]}, the result is [0,0]. Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Different requests may repeat many of the same ledger entries."
+    },
+    {
+      "position": 2,
+      "content": "Store the sum before each ledger position."
+    },
+    {
+      "position": 3,
+      "content": "Start with a zero prefix for the empty beginning."
+    },
+    {
+      "position": 4,
+      "content": "The net change before end includes the net change before start."
+    },
+    {
+      "position": 5,
+      "content": "Subtract prefix[start] from prefix[end] for each request in its original order."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "reservoirSpans",
+      "code": "function reservoirSpans(input) {\n  // input is the object described in the statement.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "changes": [
+          5,
+          -3,
+          2
+        ],
+        "spans": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      "output": [
+        4,
+        -3
+      ],
+      "explanation": "For {\"changes\":[5,-3,2],\"spans\":[[0,3],[1,2]]}, the result is [4,-3]. Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "changes": [
+          4,
+          -4
+        ],
+        "spans": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "output": [
+        0,
+        0
+      ],
+      "explanation": "For {\"changes\":[4,-4],\"spans\":[[0,2],[1,1]]}, the result is [0,0]. Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [],
+        "spans": [
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "output": [
+        0
+      ],
+      "explanation": "For {\"changes\":[],\"spans\":[[0,0]]}, the result is [0]. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          -2
+        ],
+        "spans": []
+      },
+      "output": [],
+      "explanation": "For {\"changes\":[-2],\"spans\":[]}, the result is []. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          -20,
+          -20
+        ],
+        "spans": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "output": [
+        -20,
+        -40,
+        -20
+      ],
+      "explanation": "For {\"changes\":[-20,-20],\"spans\":[[0,1],[0,2],[0,1]]}, the result is [-20,-40,-20]. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          -6,
+          -17,
+          1,
+          -16,
+          -14,
+          -11,
+          -14,
+          -12,
+          -18,
+          -1,
+          -14
+        ],
+        "spans": [
+          [
+            4,
+            11
+          ],
+          [
+            6,
+            7
+          ]
+        ]
+      },
+      "output": [
+        -84,
+        -14
+      ],
+      "explanation": "For {\"changes\":[-6,-17,1,-16,-14,-11,-14,-12,-18,-1,-14],\"spans\":[[4,11],[6,7]]}, the result is [-84,-14]. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          8,
+          -19,
+          10,
+          -18,
+          -4,
+          9,
+          -1,
+          -11,
+          6
+        ],
+        "spans": [
+          [
+            0,
+            9
+          ],
+          [
+            5,
+            6
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            7,
+            8
+          ]
+        ]
+      },
+      "output": [
+        -20,
+        9,
+        0,
+        -11
+      ],
+      "explanation": "For {\"changes\":[8,-19,10,-18,-4,9,-1,-11,6],\"spans\":[[0,9],[5,6],[9,9],[7,8]]}, the result is [-20,9,0,-11]. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          12,
+          8,
+          14,
+          -2,
+          -2,
+          3,
+          3,
+          -13,
+          17,
+          -9
+        ],
+        "spans": [
+          [
+            6,
+            8
+          ],
+          [
+            6,
+            9
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            7,
+            9
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            10,
+            10
+          ]
+        ]
+      },
+      "output": [
+        -10,
+        7,
+        -10,
+        4,
+        3,
+        34,
+        -10,
+        0,
+        13,
+        0,
+        -9,
+        30,
+        0
+      ],
+      "explanation": "For {\"changes\":[12,8,14,-2,-2,3,3,-13,17,-9],\"spans\":[[6,8],[6,9],[6,8],[7,9],[6,7],[0,3],[6,8],[5,5],[2,6],[4,4],[9,10],[0,5],[10,10]]}, the result is [-10,7,-10,4,3,34,-10,0,13,0,-9,30,0]. Checked by independent enumeration and the optimized reference."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          -20,
+          11,
+          -2,
+          -20,
+          17,
+          2,
+          -13,
+          7,
+          4,
+          -17,
+          -10,
+          5,
+          7
+        ],
+        "spans": [
+          [
+            8,
+            13
+          ],
+          [
+            8,
+            12
+          ]
+        ]
+      },
+      "output": [
+        -11,
+        -18
+      ],
+      "explanation": "For {\"changes\":[-20,11,-2,-20,17,2,-13,7,4,-17,-10,5,7],\"spans\":[[8,13],[8,12]]}, the result is [-11,-18]. Checked by independent enumeration and the optimized reference."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Enumerate the candidates",
+      "intuition": "Enumerating all allowed choices gives a small-input correctness oracle.",
+      "approach": "Sum the entries from start up to but excluding end independently for each span.",
+      "pseudocode": "Sum the entries from start up to but excluding end independently for each span.",
+      "code": "function reservoirSpans({ changes, spans }) {\n    const result = [];\n    for (const [start, end] of spans) {\n        let sum = 0;\n        for (let j = start; j < end; j++)\n            sum += changes[j];\n        result.push(sum);\n    }\n    return result;\n}",
+      "timeComplexity": "O(n × q)",
+      "spaceComplexity": "O(q) output, O(1) auxiliary",
+      "commonMistakes": [
+        "Treating end as inclusive.",
+        "Dropping negative changes.",
+        "Sorting requests and losing their original order."
+      ],
+      "interviewExplanation": "Sum the entries from start up to but excluding end independently for each span. Use this bounded baseline to check the optimized strategy.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A reservoir ledger records signed changes: inflow is positive and outflow is negative. For each requested span [start, end), return the net change from start inclusive to end exclusive. Keep answers in request order. An empty span has net change zero; no spans produces an empty answer array. The input is one object { changes, spans }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "Sum the entries from start up to but excluding end independently for each span."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "Each permitted candidate is inspected, so taking the requested count, total or optimum is complete."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Reuse the structure",
+      "intuition": "prefix[k] equals the sum of the first k entries. Subtraction cancels exactly the entries before start.",
+      "approach": "Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals.",
+      "pseudocode": "Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals.",
+      "code": "function reservoirSpans({ changes, spans }) {\n    const prefix = [0];\n    for (const value of changes)\n        prefix.push(prefix[prefix.length - 1] + value);\n    return spans.map(([start, end]) => prefix[end] - prefix[start]);\n}",
+      "timeComplexity": "O(n + q)",
+      "spaceComplexity": "O(n) auxiliary, O(q) output",
+      "commonMistakes": [
+        "Treating end as inclusive.",
+        "Dropping negative changes.",
+        "Sorting requests and losing their original order."
+      ],
+      "interviewExplanation": "Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals. prefix[k] equals the sum of the first k entries. Subtraction cancels exactly the entries before start.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Define the candidates",
+          "content": "A reservoir ledger records signed changes: inflow is positive and outflow is negative. For each requested span [start, end), return the net change from start inclusive to end exclusive. Keep answers in request order. An empty span has net change zero; no spans produces an empty answer array. The input is one object { changes, spans }."
+        },
+        {
+          "position": 2,
+          "title": "Compute the result",
+          "content": "Build n+1 prefix totals starting at zero. Answer each span by subtracting its two endpoint totals."
+        },
+        {
+          "position": 3,
+          "title": "Check the argument",
+          "content": "prefix[k] equals the sum of the first k entries. Subtraction cancels exactly the entries before start."
+        }
+      ]
+    }
+  ]
+}

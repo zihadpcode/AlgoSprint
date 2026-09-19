@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { templateForSlug } from "../generator/registry";
 import type { ProblemSeed } from "../../src/lib/validators/problem";
 
 const ints = z.array(z.int().min(-1_000_000).max(1_000_000)).max(100_000);
@@ -106,7 +107,11 @@ export function referenceResult(slug: string, input: unknown): number | number[]
     case "parcel-checkpoints": { const i = parcelInput.parse(input); return parcelCheckpoints(i.parcels, i.ranges); }
     case "dock-threshold": { const i = dockInput.parse(input); return dockThreshold(i.capacities, i.load); }
     case "lantern-steps": { const i = lanternInput.parse(input); return lanternSteps(i.costs); }
-    default: throw new Error(`No trusted reference validator for ${slug}. Add one before seeding.`);
+    default: {
+      const template = templateForSlug(slug);
+      if (template) return template.evaluate(input, "optimal");
+      throw new Error(`No trusted reference validator for ${slug}. Add one before seeding.`);
+    }
   }
 }
 
