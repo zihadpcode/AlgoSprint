@@ -299,7 +299,23 @@ Live Supabase/Judge0 checks and real authenticated browser, narrow layout/zoom, 
 | 13 | Next: admin authoring; existing models and guarded placeholder only |
 | 14 | Generator: seed/reference-validation foundations only |
 | 15 | Mock interviews: models only |
-| 16 | Poli…216 tokens truncated… repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
+| 16 | Polish/deployment not started |
+
+**Pause before Phase 13.** On the next continue request, verify main/PR #13 and build the admin problem-management workflow from the preserved brief. Retain server-side admin verification, published-content privacy, revision semantics, seed-conflict protections and user history. Continue complete phase guides. Do not treat old pause instructions below as current.
+
+---
+
+# Historical Phase 12 pause
+
+# AlgoSprint session handoff
+
+**2026-09-18: PAUSED at the user's explicit request, “pause.” Phase 12 is unfinished and unmerged.**
+
+Feature work stopped immediately. Only preserving the checkpoint, guide, status and draft PR is authorized during this pause. Do not resume fixes, wait through optional CI cycles or merge until the user asks to continue.
+
+## 🟦 Repository checkpoint
+
+- Private user repository: [zihadpcode/AlgoSprint](https://github.com/zihadpcode/AlgoSprint).
 - Main remains merged Phase 11: `f23c66692ab7765f5f898820451801c0d9db8949`, tree `bce573ac7715126273f291bf6d5d4a284b8d1e0c`. PR #12 is confirmed merged.
 - Phase 12 [draft PR #13](https://github.com/zihadpcode/AlgoSprint/pull/13), branch `algosprint/phase-12-roadmaps`. Leave open, draft and unmerged.
 - Implementation head `38cf4c88a80a0b2e8e9d7f94ce139891d9baf650`, tree `10f2e531273a113ab6634770dd9c4bdb2ee0bd20`. PR metadata records the subsequent documentation checkpoint. Inspect actual head/CI when resuming.
