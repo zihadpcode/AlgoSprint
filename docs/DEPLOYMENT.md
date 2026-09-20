@@ -2,7 +2,7 @@
 
 ## 🟦 Release status
 
-Phase 16 prepares the repository for Vercel and hosted Supabase. No live URL, production database migration, account configuration or provider verification has been completed at this checkpoint. Both plugins are connected; their account tools were not exposed in the working session. [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17) records release validation and publication evidence. Do not present a successful local build as a deployed application.
+Phase 16 repository preparation is merged. As of September 20, the free Supabase project and Vercel Hobby project exist, their integration is connected, and the required Production variable names are present. The user reset the database password and saved DATABASE_URL; integration secrets show a subsequent update. No successful live migration, seed or deployment has yet been verified. [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17) records release validation and publication evidence. Do not present a successful local build as a deployed application.
 
 Use the existing Next.js application and Prisma migrations. Do not create a second schema history with Supabase migration commands. The Supabase SDK handles authentication; trusted server code accesses PostgreSQL through Prisma's `pg` adapter. No Supabase service-role key is required by the application.
 
@@ -48,6 +48,16 @@ Seeding writes the repository's curated content and roadmap definitions. Review 
 
 The current adapter allows up to five connections per application instance. Monitor aggregate connection usage under actual concurrency and tune against the project's available pool budget before increasing traffic. Verify transaction-pool compatibility against the installed adapter during live smoke testing; local PostgreSQL CI cannot prove provider pooling behavior.
 
+## One-time setup using Vercel-held credentials
+
+When the database is empty and credentials are held only as Vercel Production secrets, the reviewed `scripts/bootstrap-production.ts` can run once in the trusted production build worker. It is not part of `npm run build` or a public application endpoint.
+
+Temporarily set the Vercel Build Command to `node --import tsx scripts/bootstrap-production.ts EXPECTED_PROJECT_REF && npm run build`, substituting the intended project reference. The job checks Production scope, matching auth/database project identity, the shared pooler address and verified TLS. It derives a session connection on port 5432 only for the child migration/seed processes; runtime DATABASE_URL stays on port 6543. No new credentials are created or disclosed.
+
+The job takes an advisory lock and refuses to proceed if the app schema already contains objects. It runs the existing Prisma migration history and curated seeds, then verifies published problem and roadmap counts. It never resets the database or fabricates migration history. Raw command/database diagnostics are withheld from build logs to avoid leaking credentials. A failed or partial run needs inspection; do not reset or automatically rerun it.
+
+Immediately restore the Build Command to `npm run build` after the setup attempt. Check migration history and RLS through Supabase, then finish the normal release checks. Do not use this first-time job for future migrations or repeat seeding.
+
 ## 🟩 Supabase authentication setup
 
 Enable email/password authentication and email confirmations. Set **Site URL** to the environment's `APP_URL`; allow its exact `/auth/callback` URL. Use a separate preview project and exact preview callback. Keep localhost callbacks in development configuration. Avoid broad production wildcard redirects. [Redirect URL guidance](https://supabase.com/docs/guides/auth/redirect-urls)
@@ -66,7 +76,7 @@ The placeholder must be replaced with the actual intended user's UUID. Registrat
 
 ## 🟩 Vercel setup
 
-Import `zihadpcode/AlgoSprint` into the verified team. Select **Next.js**, repository root `.`, install command `npm ci`, build command `npm run build`, and the default Next.js output settings. `vercel.json` records the framework/install/build choices. Set Node.js **24.x**, matching `.nvmrc` and `package.json`. [Supported Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)
+Import `zihadpcode/AlgoSprint` into the verified team. Select **Next.js**, repository root `.`, install command `npm ci`, build command `npm run build`, and the default Next.js output settings. `vercel.json` records the framework and install choices. The default Next.js build remains `npm run build`; the build command can be temporarily overridden for the explicit first-time setup job below. Set Node.js **24.x**, matching `.nvmrc` and `package.json`. [Supported Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)
 
 Do not deploy the project as a static export: accounts, server actions and Prisma require the server runtime. Keep migrations, seed commands and production credentials out of pull-request CI. The existing GitHub workflow validates code with its own disposable database; it does not deploy the app.
 
