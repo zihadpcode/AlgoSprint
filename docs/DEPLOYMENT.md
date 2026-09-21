@@ -112,10 +112,10 @@ Fill in this record only from observed results:
 | Field | Current evidence |
 | --- | --- |
 | Release commit / CI | See PR #17 for exact tested head and final merge |
-| Vercel project / deployment URL | Pending |
-| Target / deployment status / build duration | Pending |
-| Supabase project / migration result | `wohoooueqlfrszqjuuck` (AlgoSprint, us-east-1, Postgres 17.6). 2026-09-21: `prisma migrate deploy` applied `202609130001_foundation` and `202609160001_progress_verification` through the session pooler (5432); `prisma db seed` created 5 problems and 2 roadmaps. Verified via Supabase SQL: 22 `app` tables, all with RLS; `anon`/`authenticated` have no schema usage or table grants; 5 published problems, 2 published roadmaps, 5 roadmap steps, 30 test cases, 30 categories, 6 tags, 0 users. A repeat seed skipped 5/2. Runtime client read succeeded over the transaction pooler (6543) with `verify-full` and the embedded CA. |
-| Auth, provider and browser checks | Pending |
+| Vercel project / deployment URL | Project `algosprint` (team `zihadpcode-7061`); production domain https://algosprint-brown.vercel.app |
+| Target / deployment status / build duration | Production deployments Ready for merge commits `21fb6e5` (PR #20) and `9df9791` (PR #21), about 1 minute each, plain `npm run build`, Node 24.x |
+| Supabase project / migration result | `wohoooueqlfrszqjuuck` (AlgoSprint, us-east-1, Postgres 17.6). 2026-09-21: `prisma migrate deploy` applied `202609130001_foundation` and `202609160001_progress_verification` through the session pooler (5432); `prisma db seed` created 5 problems and 2 roadmaps. Verified via Supabase SQL: 22 `app` tables, all with RLS; `anon`/`authenticated` have no schema usage or table grants; 5 published problems, 2 published roadmaps, 5 roadmap steps, 30 test cases, 30 categories, 6 tags, 0 users. A repeat seed skipped 5/2. Runtime client read succeeded over the transaction pooler (6543) with `verify-full` and the embedded CA. 2026-09-21 (later): after PR #21 merged, `prisma db seed` from `main` at `9df9791` created 30 problems and skipped 5; the live library shows 35 published problems. |
+| Auth, provider and browser checks | 2026-09-21: user verified registration, email confirmation, login and logout with two accounts on the production origin. Code runner remains disabled (no provider). Remaining checklist items above are still pending. |
 | Production release time | Pending |
 
 If a code release fails, restore the last known-good compatible Vercel deployment. A code rollback does not undo migrations or restore data. For a schema issue, assess compatibility and use a reviewed forward fix or an explicitly planned backup restoration; do not automatically reverse migrations. If a credential is exposed, rotate it at the provider, update scoped configuration and rebuild/redeploy as needed. Redact credentials and account data from diagnostics.
