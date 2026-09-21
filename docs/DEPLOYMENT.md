@@ -2,7 +2,7 @@
 
 ## 🟦 Release status
 
-Phase 16 repository preparation is merged. As of September 20, the free Supabase project and Vercel Hobby project exist, their integration is connected, and the required Production variable names are present. The user reset the database password and saved DATABASE_URL; integration secrets show a subsequent update. No successful live migration, seed or deployment has yet been verified. [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17) records release validation and publication evidence. Do not present a successful local build as a deployed application.
+Phase 16 repository preparation is merged. The free Supabase project `wohoooueqlfrszqjuuck` (us-east-1) and Vercel Hobby project exist, their integration is connected, and the required Production variable names are present. On September 21 the production database was migrated and seeded from a trusted local checkout of `main` at `0b6fe6c` and verified through Supabase (see the release record). No Vercel deployment has yet been verified. [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17) records release validation and publication evidence. Do not present a successful local build as a deployed application.
 
 Use the existing Next.js application and Prisma migrations. Do not create a second schema history with Supabase migration commands. The Supabase SDK handles authentication; trusted server code accesses PostgreSQL through Prisma's `pg` adapter. No Supabase service-role key is required by the application.
 
@@ -30,7 +30,7 @@ Keep Preview and Production values scoped separately. Browser-public settings ar
 ## 🟩 Supabase database setup
 
 1. Open the selected project's **Connect** panel. Copy its exact host, port and username. Percent-encode reserved characters in the password. For Vercel runtime connections use the transaction pooler; for migrations use direct connectivity, or the session pooler when the job has only IPv4. Do not run schema migrations through transaction pooling. [Connection guidance](https://supabase.com/docs/guides/database/connecting-to-postgres)
-2. This project's production preflight requires exactly one `sslmode=verify-full` parameter. Supply provider CA trust when needed by the client; a format pass does not prove a TLS handshake. Never resolve certificate errors by setting `NODE_TLS_REJECT_UNAUTHORIZED=0`, disabling SSL, or disabling certificate validation.
+2. This project's production preflight requires exactly one `sslmode=verify-full` parameter; a format pass does not prove a TLS handshake. Supabase signs its Postgres endpoints with its own root CA, which Node's bundled trust store does not include. `prisma migrate deploy` completes its own handshake, but the runtime `pg` adapter used by the application and seeds fails with `self-signed certificate in certificate chain` unless that CA is trusted. `src/lib/db/connection.ts` therefore embeds the published Supabase Root 2021 CA (`src/lib/db/supabase-ca.ts`, SHA-256 `80:70:25:AD:…:E6:CA:FA`) and, only for `*.supabase.com`/`*.supabase.co` hosts with `verify-full`, passes it to `pg` alongside Node's default roots with full certificate and hostname verification. No `NODE_EXTRA_CA_CERTS` setting is needed on Vercel. Never resolve certificate errors by setting `NODE_TLS_REJECT_UNAUTHORIZED=0`, disabling SSL, or disabling certificate validation. If Supabase rotates its root, replace the embedded certificate from the dashboard's **Connect → SSL certificate** download and update the fingerprint test.
 3. Check the database identity and existing migration history before writing. Back up existing valuable data. Inspect every pending SQL migration in `prisma/migrations`; Phase 16 adds none. Do not use `db push`, migration reset or a destructive re-seed to repair drift.
 4. Keep the `app` schema out of Supabase's exposed Data API schemas. Existing migrations enable table RLS and revoke browser-role access. Prisma's trusted server connection relies on application authorization and can bypass those policies as the schema owner. Preserve owner checks in every loader and action; do not grant `anon` or `authenticated` access to make a server query work.
 5. Configure the migration job's private values, then run the commands below from the verified release checkout. `DIRECT_URL` takes precedence for migrations and seeds; runtime code uses `DATABASE_URL`.
@@ -44,11 +44,15 @@ npm run seed:validate
 npm run db:seed
 ```
 
+Prisma stores `_prisma_migrations` in the schema named by the URL's `schema` parameter, defaulting to `public`. The production database was migrated with no `schema` parameter, so its history lives in `public._prisma_migrations`; keep future `DIRECT_URL` values in that same form, because a URL with `schema=app` would make Prisma look for `app._prisma_migrations` and attempt to reapply everything.
+
 Seeding writes the repository's curated content and roadmap definitions. Review existing-content conflicts before running it. Generated problem fixtures remain a separate reviewed draft workflow; do not publish them as part of deployment. Run seeds once in a trusted job, never on every Vercel build. Confirm migration history, published library data and roadmap reads afterward.
 
 The current adapter allows up to five connections per application instance. Monitor aggregate connection usage under actual concurrency and tune against the project's available pool budget before increasing traffic. Verify transaction-pool compatibility against the installed adapter during live smoke testing; local PostgreSQL CI cannot prove provider pooling behavior.
 
 ## One-time setup using Vercel-held credentials
+
+This job was not needed for the current production database, which was set up from a local checkout as recorded below; it refuses a non-empty `app` schema, so it cannot run against that database now. Note that it derives `DIRECT_URL` with `schema=app`, which places `_prisma_migrations` in `app` rather than `public`; keep later migration URLs consistent with whichever form created the history.
 
 When the database is empty and credentials are held only as Vercel Production secrets, the reviewed `scripts/bootstrap-production.ts` can run once in the trusted production build worker. It is not part of `npm run build` or a public application endpoint.
 
@@ -110,7 +114,7 @@ Fill in this record only from observed results:
 | Release commit / CI | See PR #17 for exact tested head and final merge |
 | Vercel project / deployment URL | Pending |
 | Target / deployment status / build duration | Pending |
-| Supabase project / migration result | Pending |
+| Supabase project / migration result | `wohoooueqlfrszqjuuck` (AlgoSprint, us-east-1, Postgres 17.6). 2026-09-21: `prisma migrate deploy` applied `202609130001_foundation` and `202609160001_progress_verification` through the session pooler (5432); `prisma db seed` created 5 problems and 2 roadmaps. Verified via Supabase SQL: 22 `app` tables, all with RLS; `anon`/`authenticated` have no schema usage or table grants; 5 published problems, 2 published roadmaps, 5 roadmap steps, 30 test cases, 30 categories, 6 tags, 0 users. A repeat seed skipped 5/2. Runtime client read succeeded over the transaction pooler (6543) with `verify-full` and the embedded CA. |
 | Auth, provider and browser checks | Pending |
 | Production release time | Pending |
 

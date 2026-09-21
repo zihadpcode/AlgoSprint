@@ -2,6 +2,7 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import pg from "pg";
+import { connectionOptions } from "../src/lib/db/connection";
 
 export function migrationEnvironment(env: Record<string, string | undefined>, projectRef: string | undefined): NodeJS.ProcessEnv & { DIRECT_URL: string } {
   if (env.VERCEL_ENV !== "production" || !/^[a-z]{20}$/.test(projectRef ?? "")) {
@@ -44,7 +45,7 @@ export async function bootstrap(env: Record<string, string | undefined>, project
   run("db:generate");
   run("db:validate");
   run("seed:validate");
-  const db = new pg.Client({ connectionString: jobEnv.DIRECT_URL, connectionTimeoutMillis: 15_000, query_timeout: 15_000 });
+  const db = new pg.Client({ ...connectionOptions(jobEnv.DIRECT_URL), connectionTimeoutMillis: 15_000, query_timeout: 15_000 });
   try {
     await db.connect();
     const lock = await db.query("SELECT pg_try_advisory_lock(7061, 1601) AS locked");
