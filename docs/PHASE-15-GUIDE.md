@@ -81,7 +81,7 @@ Each question has three areas, each worth 0–2 self-rated points:
 | 1 | Partial explanation |
 | 2 | Clear explanation with support |
 
-An empty or whitespace-only area earns zero regardless of the selected rating. The server computes a question's score as `round(points / 6 × 100)`. The overall score is the rounded average of all question scores, including unanswered questions. For example, one question with only reasoning rated two earns 33/100. In a two-question session, that answer plus one unanswered question produces 17/100 overall.
+An empty or whitespace-only area earns zero regardless of the selected rating. Since the September 21 follow-up, each rating control starts on a “Choose a rating” placeholder and the client refuses to save an answer whose written area has no rating, so text is never silently scored as zero; a deliberately chosen 0 is still saved as 0, and the saved JSON contract is unchanged. The server computes a question's score as `round(points / 6 × 100)`. The overall score is the rounded average of all question scores, including unanswered questions. For example, one question with only reasoning rated two earns 33/100. In a two-question session, that answer plus one unanswered question produces 17/100 overall.
 
 This intentionally measures the user's reflection, not correctness. A complete-looking answer can still be wrong, and self-rating two does not verify anything. The report says this explicitly and asks the learner to compare against the reference or obtain peer feedback. Scores are not hiring predictions or verified solves.
 
