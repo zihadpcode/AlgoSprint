@@ -56,13 +56,16 @@ export function judgeOutcome(raw: unknown, expected: unknown): RunnerOutcome | n
   // Compare the complete bounded stdout first. Truncation is only for display/storage.
   return { status, stdout: stdout.slice(0, 4000), diagnostic: diagnostic.slice(0, 4000), runtimeMs: ms, memoryKb: result.memory ?? null };
 }
+// Batch endpoints keep metered providers affordable: one request creates every case and one request polls them all.
+const createdSchema = z.array(z.object({ token: z.uuid() })).min(1).max(10);
+const batchSchema = z.object({ submissions: z.array(z.unknown()).min(1).max(10) });
 export async function executeJudge0(config: RunnerConfig, source: string, cases: RunnerCase[], limits: { timeMs: number; memoryKb: number }): Promise<RunnerOutcome[]> {
   if (!cases.length || cases.length > 10) throw new Error("Unsupported test count");
   const controller = new AbortController();
   const deadline = setTimeout(() => controller.abort(), 20_000);
   try {
-    return await Promise.all(cases.map(async (test) => {
-      const created = z.object({ token: z.uuid() }).parse(await request(config, "/submissions?base64_encoded=true&wait=false", controller.signal, {
+    const created = createdSchema.parse(await request(config, "/submissions/batch?base64_encoded=true", controller.signal, {
+      submissions: cases.map((test) => ({
         language_id: config.languageId,
         source_code: Buffer.from(source).toString("base64"), stdin: Buffer.from(test.stdin).toString("base64"),
         // Expected values stay in this application, outside the untrusted program.
@@ -71,14 +74,18 @@ export async function executeJudge0(config: RunnerConfig, source: string, cases:
         max_file_size: 64, max_processes_and_or_threads: 32,
         enable_per_process_and_thread_time_limit: false, enable_per_process_and_thread_memory_limit: false,
         enable_network: false, number_of_runs: 1, redirect_stderr_to_stdout: false,
-      }));
-      for (let attempt = 0; attempt < 30; attempt++) {
-        await delay(500, undefined, { signal: controller.signal });
-        const raw = await request(config, `/submissions/${created.token}?base64_encoded=true&fields=status,stdout,stderr,compile_output,time,memory`, controller.signal);
-        const outcome = judgeOutcome(raw, test.expected);
-        if (outcome) return outcome;
-      }
-      throw new Error("Runner queue timed out");
+      })),
     }));
+    if (created.length !== cases.length) throw new Error("Runner created an unexpected number of submissions");
+    const tokens = created.map((item) => item.token).join(",");
+    const outcomes: (RunnerOutcome | null)[] = cases.map(() => null);
+    for (let attempt = 0; attempt < 20; attempt++) {
+      await delay(1000, undefined, { signal: controller.signal });
+      const batch = batchSchema.parse(await request(config, `/submissions/batch?tokens=${tokens}&base64_encoded=true&fields=status,stdout,stderr,compile_output,time,memory`, controller.signal));
+      if (batch.submissions.length !== cases.length) throw new Error("Runner returned an unexpected number of submissions");
+      batch.submissions.forEach((raw, index) => { if (!outcomes[index]) outcomes[index] = judgeOutcome(raw, cases[index].expected); });
+      if (outcomes.every((outcome) => outcome !== null)) return outcomes as RunnerOutcome[];
+    }
+    throw new Error("Runner queue timed out");
   } finally { clearTimeout(deadline); controller.abort(); }
 }
