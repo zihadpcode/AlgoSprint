@@ -1,6 +1,6 @@
 // Explicit, one-time job. Never called by the normal build or application.
 import { spawnSync } from "node:child_process";
-import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
 import pg from "pg";
 
 export function migrationEnvironment(env: Record<string, string | undefined>, projectRef: string | undefined): NodeJS.ProcessEnv & { DIRECT_URL: string } {
@@ -61,13 +61,12 @@ export async function bootstrap(env: Record<string, string | undefined>, project
   } finally { await db.end(); }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  try { await bootstrap(process.env, process.argv[2]); }
-  catch (error) {
+if (process.argv[1] && resolve(process.argv[1]) === resolve("scripts/bootstrap-production.ts")) {
+  void bootstrap(process.env, process.argv[2]).catch((error: unknown) => {
     // Never print arbitrary pg errors, stack traces, or connection strings.
     const message = error instanceof Error && /^(Bootstrap|Another bootstrap|App schema|Published seed)/.test(error.message)
       ? error.message : "Bootstrap connection/query failed; credentials and server diagnostics withheld.";
     console.error(message);
     process.exitCode = 1;
-  }
+  });
 }

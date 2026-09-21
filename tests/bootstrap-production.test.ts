@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { spawnSync } from "node:child_process";
 import { migrationEnvironment } from "../scripts/bootstrap-production";
 
 const ref = "abcdefghijklmnopqrst";
@@ -8,6 +9,14 @@ const env = {
   DATABASE_URL: `postgresql://postgres.${ref}:test%40credential@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=verify-full`,
 };
 describe("one-time production bootstrap", () => {
+  it("launches with the actual Vercel command and safely rejects non-production execution", () => {
+    const child = spawnSync(process.execPath, ["--import", "tsx", "scripts/bootstrap-production.ts", ref], {
+      env: { ...process.env, VERCEL_ENV: "preview" }, encoding: "utf8", timeout: 10_000,
+    });
+    expect(child.status).toBe(1);
+    expect(child.stderr).toContain("Bootstrap requires Vercel Production");
+    expect(child.stderr).not.toContain("Transform failed");
+  });
   it("derives session mode without changing runtime credentials or TLS", () => {
     const job = migrationEnvironment(env, ref);
     expect(job.DATABASE_URL).toBe(env.DATABASE_URL);
