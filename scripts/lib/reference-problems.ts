@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { templateForSlug } from "../generator/registry";
+import { libraryResult, LIBRARY } from "./reference-library";
 import type { ProblemSeed } from "../../src/lib/validators/problem";
 
 const ints = z.array(z.int().min(-1_000_000).max(1_000_000)).max(100_000);
@@ -100,7 +101,8 @@ export function lanternStepsBrute(costs: number[]) {
 }
 
 // Allowlisted, authored reference code. JSON code strings are NEVER evaluated.
-export function referenceResult(slug: string, input: unknown): number | number[] {
+export function referenceResult(slug: string, input: unknown): unknown {
+  if (Object.hasOwn(LIBRARY, slug)) return libraryResult(slug, input);
   switch (slug) {
     case "relay-window": { const i = relayInput.parse(input); return relayWindow(i.loads, i.width); }
     case "quiet-badge": { const i = badgeInput.parse(input); return quietBadge(i.badges); }

@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "balanced-blueprint",
+  "title": "Balanced Blueprint",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "stack-matching",
+  "statement": "A layout tool stores nested panels as a string plan made only of the bracket characters ( ) [ ] { }. The plan is balanced when every opening bracket is closed by the matching kind of bracket, closings happen in the reverse order of openings, and no closing bracket appears before its opening. Return true when plan is balanced and false otherwise. An empty plan is balanced.",
+  "constraints": [
+    "0 <= plan.length <= 10000",
+    "plan contains only the characters ( ) [ ] { }"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "stack",
+    "strings"
+  ],
+  "tags": [
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "plan": "{[()]()}"
+      },
+      "output": true,
+      "explanation": "Every bracket closes the most recently opened one of the same kind."
+    },
+    {
+      "position": 2,
+      "input": {
+        "plan": "([)]"
+      },
+      "output": false,
+      "explanation": "The square bracket opens inside the parentheses but the parenthesis closes first."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The bracket that must close next is always the most recently opened one."
+    },
+    {
+      "position": 2,
+      "content": "Most recently opened and first to close is the behavior of a stack."
+    },
+    {
+      "position": 3,
+      "content": "Push the expected closer when you see an opener, so each closer can be checked with one comparison."
+    },
+    {
+      "position": 4,
+      "content": "A closer with an empty stack, or with a different expected closer on top, means the plan is broken."
+    },
+    {
+      "position": 5,
+      "content": "After the scan, anything still on the stack was never closed."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "balancedBlueprint",
+      "code": "function balancedBlueprint(plan) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "plan": "{[()]()}"
+      },
+      "output": true,
+      "explanation": "Every bracket closes the most recently opened one of the same kind."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "plan": "([)]"
+      },
+      "output": false,
+      "explanation": "The square bracket opens inside the parentheses but the parenthesis closes first."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "plan": ""
+      },
+      "output": true,
+      "explanation": "Nothing is open, so the plan is balanced."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "plan": "((("
+      },
+      "output": false,
+      "explanation": "Three brackets are never closed."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "plan": ")("
+      },
+      "output": false,
+      "explanation": "A closing bracket appears before anything is open."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "plan": "[]{}()"
+      },
+      "output": true,
+      "explanation": "Three separate balanced pairs in sequence."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "plan": "{[}]"
+      },
+      "output": false,
+      "explanation": "The kinds cross, so the innermost open bracket does not match the first closer."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "plan": "((())[])"
+      },
+      "output": true,
+      "explanation": "Nested parentheses followed by a square pair, all inside one outer pair."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Remove adjacent pairs until stuck",
+      "intuition": "In a balanced plan there is always some opener immediately followed by its closer, and removing that pair leaves a smaller balanced plan.",
+      "approach": "Repeatedly delete every occurrence of (), [] and {} from the string. If the plan shrinks to nothing it was balanced; if it stops shrinking with characters left it was not.",
+      "pseudocode": "repeat: remove all \"()\", \"[]\", \"{}\" substrings until nothing changes; return whether the string is empty.",
+      "code": "function balancedBlueprint(plan) {\n    let current = plan;\n    let changed = true;\n    while (changed) {\n        changed = false;\n        for (const pair of [\"()\", \"[]\", \"{}\"]) {\n            const shorter = current.split(pair).join(\"\");\n            if (shorter.length !== current.length) {\n                current = shorter;\n                changed = true;\n            }\n        }\n    }\n    return current.length === 0;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Stopping after one pass misses pairs that only become adjacent after an inner pair is removed.",
+        "Removing a pair like \"(]\" that does not match."
+      ],
+      "interviewExplanation": "Peeling off adjacent matching pairs is a correct but quadratic simulation. The stack solution does the same peeling implicitly in one pass, because the top of the stack is exactly the opener that the next closer must match.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For {[()]()}, the first pass removes () twice, leaving {[]}."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The next pass removes [] and then {}, leaving an empty string, so the plan is balanced."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Stack of expected closers",
+      "intuition": "Reading left to right, the only closer that can legally appear next is the partner of the most recent unclosed opener.",
+      "approach": "Push the matching closer whenever an opener appears. On a closer, pop the stack and require equality; an empty stack pops undefined and fails the comparison. Finish by checking that nothing remains open.",
+      "pseudocode": "stack = []; for each symbol: if opener push its closer; else if pop() != symbol return false; return stack is empty.",
+      "code": "function balancedBlueprint(plan) {\n    const closerFor = { \"(\": \")\", \"[\": \"]\", \"{\": \"}\" };\n    const expected = [];\n    for (const symbol of plan) {\n        if (symbol in closerFor)\n            expected.push(closerFor[symbol]);\n        else if (expected.pop() !== symbol)\n            return false;\n    }\n    return expected.length === 0;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Returning true at the end without checking for unclosed openers accepts \"(((\".",
+        "Popping from an empty stack without handling it accepts a leading closer."
+      ],
+      "interviewExplanation": "I push the closer that each opener requires, so every closing bracket is verified with one pop and one comparison. A mismatch or an early empty stack fails immediately, and leftover entries at the end mean unclosed panels. One pass, linear time, and the stack never exceeds the nesting depth.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For {[()]()}, the openers { [ ( push }, ], ) onto the stack."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The closers ) and ] pop matching entries; then ( pushes ) and ) pops it."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The final } pops the last entry, the stack is empty, and the result is true."
+        }
+      ]
+    }
+  ]
+}

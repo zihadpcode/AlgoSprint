@@ -1,0 +1,362 @@
+{
+  "schemaVersion": 1,
+  "slug": "first-redundant-link",
+  "title": "First Redundant Link",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "union-find",
+  "statement": "A telecom crew connects stations numbered 0 to stations - 1 by laying cables one at a time, in the order given by links, where each link [a, b] joins stations a and b. A link is redundant when the two stations it joins were already connected, directly or through other stations, before it was laid. Return the first redundant link as [a, b] exactly as it appears in links, or an empty array if no link is redundant. A link from a station to itself is redundant.",
+  "constraints": [
+    "1 <= stations <= 10000",
+    "0 <= links.length <= 10000",
+    "0 <= a, b < stations"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "union-find",
+    "graphs"
+  ],
+  "tags": [
+    "graph-traversal",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "stations": 4,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "output": [
+        2,
+        0
+      ],
+      "explanation": "After 0–1 and 1–2, stations 2 and 0 are already connected through 1, so [2, 0] is redundant."
+    },
+    {
+      "position": 2,
+      "input": {
+        "stations": 3,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      "output": [],
+      "explanation": "Both links connect new pairs of stations."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "A link is redundant exactly when its endpoints already share a connected group."
+    },
+    {
+      "position": 2,
+      "content": "You could answer that with a graph search over the links laid so far, but the groups change as links are laid."
+    },
+    {
+      "position": 3,
+      "content": "Maintain a representative for each group; two stations are connected when they share a representative."
+    },
+    {
+      "position": 4,
+      "content": "Merging two groups means pointing one representative at the other."
+    },
+    {
+      "position": 5,
+      "content": "Path compression keeps representative lookups nearly constant as groups grow."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "firstRedundantLink",
+      "code": "function firstRedundantLink(stations, links) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "stations": 4,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "output": [
+        2,
+        0
+      ],
+      "explanation": "After 0–1 and 1–2, stations 2 and 0 are already connected through 1, so [2, 0] is redundant."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "stations": 3,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      "output": [],
+      "explanation": "Both links connect new pairs of stations."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "stations": 1,
+        "links": []
+      },
+      "output": [],
+      "explanation": "No links at all."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "stations": 2,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "output": [
+        1,
+        0
+      ],
+      "explanation": "The second link repeats the first in reverse; it is returned as written."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "stations": 3,
+        "links": [
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "output": [
+        1,
+        1
+      ],
+      "explanation": "A self-link is redundant immediately."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "stations": 5,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "output": [
+        4,
+        0
+      ],
+      "explanation": "The first four links build one chain; [4, 0] then closes a loop."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "stations": 6,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            5,
+            4
+          ]
+        ]
+      },
+      "output": [
+        3,
+        0
+      ],
+      "explanation": "[3, 0] closes the loop 0–1–2–3 before [5, 4] repeats a link."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "stations": 4,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ]
+        ]
+      },
+      "output": [],
+      "explanation": "A star has no redundant link."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Search the earlier links before each new one",
+      "intuition": "Before laying a link, check whether its endpoints are already connected by walking the network built so far.",
+      "approach": "Keep adjacency lists of laid links. For each new link, depth-first search from one endpoint over the existing links; if the other endpoint is reached, the link is redundant. Otherwise add the link.",
+      "pseudocode": "for each link (a, b): search from a over laid links; if b reached return [a, b]; add link; return [].",
+      "code": "function firstRedundantLink(stations, links) {\n    const adjacent = Array.from({ length: stations }, () => []);\n    for (const [a, b] of links) {\n        const seen = new Set([a]);\n        const stack = [a];\n        while (stack.length > 0) {\n            const station = stack.pop();\n            for (const next of adjacent[station]) {\n                if (!seen.has(next)) {\n                    seen.add(next);\n                    stack.push(next);\n                }\n            }\n        }\n        if (seen.has(b))\n            return [a, b];\n        adjacent[a].push(b);\n        adjacent[b].push(a);\n    }\n    return [];\n}",
+      "timeComplexity": "O(links × (stations + links))",
+      "spaceComplexity": "O(stations + links)",
+      "commonMistakes": [
+        "Adding the link before searching, which makes every link look redundant.",
+        "Forgetting that a self-link means a and b are trivially the same station."
+      ],
+      "interviewExplanation": "Rerunning a graph search before every link is correct but repeats work that grows with the network. A disjoint-set structure answers 'already connected?' and merges groups in near-constant amortized time, so the whole scan is nearly linear.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For links [[0,1],[1,2],[2,0],[2,3]], the searches before [0,1] and [1,2] find nothing."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Before [2,0], a search from 2 reaches 1 and then 0, so [2, 0] is returned."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Disjoint-set union with path compression",
+      "intuition": "Connectivity only ever grows, so each station can point toward a representative of its group, and two stations are connected exactly when they share a representative.",
+      "approach": "Start with every station as its own representative. For each link, find both representatives; if they match the link is redundant, otherwise merge by pointing one representative at the other. Path halving during find keeps the trees flat.",
+      "pseudocode": "parent[i] = i; for each (a, b): ra = find(a), rb = find(b); if ra == rb return [a, b]; parent[ra] = rb; return [].",
+      "code": "function firstRedundantLink(stations, links) {\n    const parent = Array.from({ length: stations }, (_, i) => i);\n    const find = (station) => {\n        while (parent[station] !== station) {\n            parent[station] = parent[parent[station]];\n            station = parent[station];\n        }\n        return station;\n    };\n    for (const [a, b] of links) {\n        const rootA = find(a);\n        const rootB = find(b);\n        if (rootA === rootB)\n            return [a, b];\n        parent[rootA] = rootB;\n    }\n    return [];\n}",
+      "timeComplexity": "O((stations + links) × α(stations)), effectively linear",
+      "spaceComplexity": "O(stations)",
+      "commonMistakes": [
+        "Comparing parent[a] with parent[b] directly instead of their roots.",
+        "Returning the normalized pair [min, max] instead of the link as written."
+      ],
+      "interviewExplanation": "I use union-find: each station points toward a group representative, find follows those pointers while halving the path, and union links one root under the other. A link whose endpoints already share a root closes a cycle, which is the redundancy we are asked for. With path compression the amortized cost per operation is inverse-Ackermann, so the scan is effectively linear.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For links [[0,1],[1,2],[2,0],[2,3]], link 0–1 merges 0 into 1's group and link 1–2 merges into 2's group."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "For link 2–0, find(2) and find(0) both return 2, so [2, 0] is returned before 2–3 is considered."
+        }
+      ]
+    }
+  ]
+}

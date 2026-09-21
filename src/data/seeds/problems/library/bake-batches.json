@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "slug": "bake-batches",
+  "title": "Bake Batches",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "binary-search-answer",
+  "statement": "A bakery must bake the trays listed in the array trays, where trays[i] is the weight of tray i, in the given order across exactly days baking days. Each day the oven takes a consecutive block of trays whose total weight cannot exceed the oven capacity, and every tray must be baked within the days available. Return the smallest oven capacity that makes this possible. Using fewer days than allowed is fine, since an empty day is allowed, but the order of trays must be preserved.",
+  "constraints": [
+    "1 <= trays.length <= 10000",
+    "1 <= trays[i] <= 1000000",
+    "1 <= days <= trays.length"
+  ],
+  "estimatedMinutes": 35,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "binary-search",
+    "greedy",
+    "arrays"
+  ],
+  "tags": [
+    "monotone-search",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "trays": [
+          3,
+          5,
+          2,
+          7,
+          4
+        ],
+        "days": 3
+      },
+      "output": 9,
+      "explanation": "With capacity 9 the days can be [3, 5], [2, 7], [4]. With capacity 8 the middle block cannot hold 2 and 7 together, forcing four days."
+    },
+    {
+      "position": 2,
+      "input": {
+        "trays": [
+          6,
+          6,
+          6
+        ],
+        "days": 1
+      },
+      "output": 18,
+      "explanation": "One day must hold everything, so the capacity is the total weight 18."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The capacity must be at least the heaviest tray and never needs to exceed the total weight."
+    },
+    {
+      "position": 2,
+      "content": "For a fixed capacity, the fewest days needed can be found greedily by filling each day as much as possible before moving on."
+    },
+    {
+      "position": 3,
+      "content": "If a capacity works, every larger capacity works too, and if it fails, every smaller capacity fails."
+    },
+    {
+      "position": 4,
+      "content": "A yes/no property that flips exactly once over a range can be binary searched."
+    },
+    {
+      "position": 5,
+      "content": "Search the capacity range and keep the smallest capacity whose greedy day count is within the limit."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "bakeBatches",
+      "code": "function bakeBatches(trays, days) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "trays": [
+          3,
+          5,
+          2,
+          7,
+          4
+        ],
+        "days": 3
+      },
+      "output": 9,
+      "explanation": "With capacity 9 the days can be [3, 5], [2, 7], [4]. With capacity 8 the middle block cannot hold 2 and 7 together, forcing four days."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "trays": [
+          6,
+          6,
+          6
+        ],
+        "days": 1
+      },
+      "output": 18,
+      "explanation": "One day must hold everything, so the capacity is the total weight 18."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "trays": [
+          9
+        ],
+        "days": 1
+      },
+      "output": 9,
+      "explanation": "A single tray needs its own weight."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "trays": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "days": 4
+      },
+      "output": 4,
+      "explanation": "One tray per day, so the heaviest tray sets the capacity."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "trays": [
+          4,
+          4,
+          4,
+          4
+        ],
+        "days": 2
+      },
+      "output": 8,
+      "explanation": "Two days of [4, 4] each need capacity 8."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "trays": [
+          1,
+          1,
+          1,
+          10,
+          1,
+          1
+        ],
+        "days": 2
+      },
+      "output": 12,
+      "explanation": "With only two days, the 10 must share a day with the trays on one side of it. [1, 1, 1] and [10, 1, 1] fits within 12, and no split works with 11."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "trays": [
+          10,
+          20,
+          30,
+          40,
+          50
+        ],
+        "days": 3
+      },
+      "output": 60,
+      "explanation": "[10, 20, 30], [40], [50] fits within 60; 59 would split the first block and need four days."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "trays": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "days": 3
+      },
+      "output": 6,
+      "explanation": "Blocks of 6, 6 and 4 need capacity 6; capacity 5 only allows two trays per day and needs four days."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try each capacity upward",
+      "intuition": "For any capacity, packing greedily tells you how many days are needed, so you can raise the capacity one unit at a time until the days fit.",
+      "approach": "Start at the heaviest tray. Compute the greedy number of days for that capacity; while it exceeds the allowed days, increase the capacity by one.",
+      "pseudocode": "capacity = max(trays); while daysNeeded(capacity) > days: capacity++; return capacity.",
+      "code": "function bakeBatches(trays, days) {\n    function daysNeeded(capacity) {\n        let count = 1;\n        let load = 0;\n        for (const tray of trays) {\n            if (load + tray > capacity) {\n                count++;\n                load = 0;\n            }\n            load += tray;\n        }\n        return count;\n    }\n    let capacity = Math.max(...trays);\n    while (daysNeeded(capacity) > days)\n        capacity++;\n    return capacity;\n}",
+      "timeComplexity": "O(n × (total − max))",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Starting the search below the heaviest tray, which makes the greedy count meaningless.",
+        "Resetting the load without counting the tray that overflowed."
+      ],
+      "interviewExplanation": "The greedy day-count is the key check, and scanning capacities upward is correct but can take up to the total weight iterations. Since feasibility is monotone in the capacity, binary search finds the boundary in logarithmically many checks.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [3, 5, 2, 7, 4] and 3 days, capacity 7 needs 4 days and capacity 8 also needs 4 days."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Capacity 9 packs [3, 5], [2, 7], [4] in 3 days, so 9 is returned."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Binary search the capacity",
+      "intuition": "Feasibility flips from false to true exactly once as the capacity grows, so the smallest feasible capacity can be found by halving the range.",
+      "approach": "Search between the heaviest tray and the total weight. For the midpoint, count days greedily; if the count fits, the answer is at most the midpoint, otherwise it is larger. Stop when the range collapses.",
+      "pseudocode": "low = max, high = sum; while low < high: mid = (low + high) / 2; if daysNeeded(mid) <= days: high = mid else low = mid + 1; return low.",
+      "code": "function bakeBatches(trays, days) {\n    function daysNeeded(capacity) {\n        let count = 1;\n        let load = 0;\n        for (const tray of trays) {\n            if (load + tray > capacity) {\n                count++;\n                load = 0;\n            }\n            load += tray;\n        }\n        return count;\n    }\n    let low = Math.max(...trays);\n    let high = trays.reduce((sum, tray) => sum + tray, 0);\n    while (low < high) {\n        const middle = Math.floor((low + high) / 2);\n        if (daysNeeded(middle) <= days)\n            high = middle;\n        else\n            low = middle + 1;\n    }\n    return low;\n}",
+      "timeComplexity": "O(n × log(total))",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Setting high = mid - 1 when mid is feasible, which can skip the exact answer.",
+        "Using a greedy count that starts at zero days, which undercounts by one."
+      ],
+      "interviewExplanation": "This is binary search on the answer: the predicate 'can we finish within the day limit with capacity c' is monotone, and each evaluation is a linear greedy pack. I search the range from the heaviest tray to the total weight, so roughly log of the total weight evaluations, each O(n). Keeping the feasible midpoint as the new upper bound converges on the smallest feasible capacity.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [3, 5, 2, 7, 4] and 3 days, the range is 7 to 21; midpoint 14 needs 2 days, so high becomes 14."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Midpoint 10 needs 3 days, high = 10; midpoint 8 needs 4 days, low = 9; midpoint 9 needs 3 days, high = 9."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "low and high meet at 9, the smallest feasible capacity."
+        }
+      ]
+    }
+  ]
+}

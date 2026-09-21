@@ -55,7 +55,7 @@ it("omits archived problems from every dashboard section and rejects an empty ow
   await db.userSubmission.create({ data: submission(ids[0]) });
   const archived = await db.problem.update({ where: { id: ids[0] }, data: { status: "ARCHIVED" } });
   const summary = await queryDashboard(db, users[0]);
-  expect(summary.analytics.overall.total).toBe(4); expect(summary.insights.recentSubmissions).toEqual([]);
+  expect(summary.analytics.overall.total).toBe(slugs.length - 1); expect(summary.insights.recentSubmissions).toEqual([]);
   expect(summary.insights.topics).toEqual([]); expect(JSON.stringify(summary)).not.toContain(archived.slug);
   await expect(queryDashboard(db, "")).rejects.toThrow("Verified viewer required");
 });

@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "slug": "rank-tags",
+  "title": "Rank the Tags",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "frequency-count",
+  "statement": "A photo library records one lowercase tag per upload in the array tags. Produce the list of distinct tags ordered from most frequent to least frequent. When two tags have the same frequency, the alphabetically smaller tag comes first. Return the ordered list of distinct tags.",
+  "constraints": [
+    "0 <= tags.length <= 10000",
+    "1 <= tags[i].length <= 200",
+    "tags[i] contains only lowercase English letters."
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "sorting",
+    "hash-maps",
+    "strings"
+  ],
+  "tags": [
+    "frequency-count",
+    "sorting",
+    "hashing"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tags": [
+          "sky",
+          "dog",
+          "sky",
+          "cat",
+          "dog",
+          "sky"
+        ]
+      },
+      "output": [
+        "sky",
+        "dog",
+        "cat"
+      ],
+      "explanation": "sky appears three times, dog twice and cat once, so the order follows the counts."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tags": [
+          "pine",
+          "oak",
+          "oak",
+          "pine"
+        ]
+      },
+      "output": [
+        "oak",
+        "pine"
+      ],
+      "explanation": "Both tags appear twice; oak is alphabetically first."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Two pieces of information decide the order: how often a tag appears and its spelling."
+    },
+    {
+      "position": 2,
+      "content": "Count first; the ordering only needs the counts, not the original positions."
+    },
+    {
+      "position": 3,
+      "content": "A map from tag to count collects the distinct tags and their frequencies in one pass."
+    },
+    {
+      "position": 4,
+      "content": "Sort the distinct tags with a comparator that checks count descending first and the tag text second."
+    },
+    {
+      "position": 5,
+      "content": "Compare the strings with plain less-than so the tie-break is stable and predictable."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "rankTags",
+      "code": "function rankTags(tags) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tags": [
+          "sky",
+          "dog",
+          "sky",
+          "cat",
+          "dog",
+          "sky"
+        ]
+      },
+      "output": [
+        "sky",
+        "dog",
+        "cat"
+      ],
+      "explanation": "sky appears three times, dog twice and cat once, so the order follows the counts."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tags": [
+          "pine",
+          "oak",
+          "oak",
+          "pine"
+        ]
+      },
+      "output": [
+        "oak",
+        "pine"
+      ],
+      "explanation": "Both tags appear twice; oak is alphabetically first."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tags": []
+      },
+      "output": [],
+      "explanation": "No uploads means no tags."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tags": [
+          "zebra"
+        ]
+      },
+      "output": [
+        "zebra"
+      ],
+      "explanation": "One distinct tag."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tags": [
+          "b",
+          "a",
+          "c"
+        ]
+      },
+      "output": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "All frequencies are one, so the order is alphabetical."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tags": [
+          "moss",
+          "moss",
+          "fern",
+          "fern",
+          "fern",
+          "moss",
+          "lily"
+        ]
+      },
+      "output": [
+        "fern",
+        "moss",
+        "lily"
+      ],
+      "explanation": "moss and fern both appear three times, so fern comes first, then moss, then lily."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tags": [
+          "ab",
+          "abc",
+          "ab",
+          "a"
+        ]
+      },
+      "output": [
+        "ab",
+        "a",
+        "abc"
+      ],
+      "explanation": "ab appears twice; a precedes abc because a is a prefix and therefore smaller."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Count by rescanning, then sort",
+      "intuition": "Every distinct tag needs a count, and the count can be obtained by scanning the whole list again.",
+      "approach": "Collect the distinct tags, then sort them with a comparator that recounts each tag's occurrences and breaks ties alphabetically.",
+      "pseudocode": "distinct = unique tags; sort distinct by (count descending, text ascending) where count scans the whole list; return distinct.",
+      "code": "function rankTags(tags) {\n    const distinct = [];\n    for (const tag of tags)\n        if (!distinct.includes(tag))\n            distinct.push(tag);\n    const countOf = (tag) => {\n        let count = 0;\n        for (const other of tags)\n            if (other === tag)\n                count++;\n        return count;\n    };\n    return distinct.sort((a, b) => {\n        const difference = countOf(b) - countOf(a);\n        if (difference !== 0)\n            return difference;\n        return a < b ? -1 : a > b ? 1 : 0;\n    });\n}",
+      "timeComplexity": "O(n × d log d) where d is the number of distinct tags",
+      "spaceComplexity": "O(d)",
+      "commonMistakes": [
+        "Recounting inside the comparator repeats work on every comparison.",
+        "Comparing with subtraction on strings, which yields NaN and breaks the sort."
+      ],
+      "interviewExplanation": "Collecting distinct tags and recounting inside the sort is simple but repeats scans. Counting once into a map removes the repeated scans and leaves a single sort over the distinct tags.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [sky, dog, sky, cat, dog, sky], the distinct tags are sky, dog and cat."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Their counts are 3, 2 and 1, which already gives the order sky, dog, cat."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Count once, sort the distinct tags",
+      "intuition": "A frequency map gives every distinct tag and its count in one pass, and the ordering rule is exactly a two-key sort.",
+      "approach": "Build a map from tag to count. Sort the map keys by count descending, breaking ties with string comparison ascending.",
+      "pseudocode": "counts = map; for each tag: counts[tag]++; keys = counts.keys(); sort keys by (counts desc, text asc); return keys.",
+      "code": "function rankTags(tags) {\n    const counts = new Map();\n    for (const tag of tags)\n        counts.set(tag, (counts.get(tag) ?? 0) + 1);\n    return [...counts.keys()].sort((a, b) => {\n        const difference = counts.get(b) - counts.get(a);\n        if (difference !== 0)\n            return difference;\n        return a < b ? -1 : a > b ? 1 : 0;\n    });\n}",
+      "timeComplexity": "O(n + d log d)",
+      "spaceComplexity": "O(d)",
+      "commonMistakes": [
+        "Sorting by count only and assuming the map preserves alphabetical order.",
+        "Reversing the comparator by mistake and returning least frequent first."
+      ],
+      "interviewExplanation": "I count every tag into a map, then sort the distinct keys with a comparator: higher count first, then alphabetical. Counting is linear and the sort touches only distinct tags, so the total is O(n + d log d), and the explicit string comparison keeps the tie-break deterministic.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [sky, dog, sky, cat, dog, sky], the map holds sky → 3, dog → 2, cat → 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Sorting by count descending yields [sky, dog, cat] with no ties to break."
+        }
+      ]
+    }
+  ]
+}

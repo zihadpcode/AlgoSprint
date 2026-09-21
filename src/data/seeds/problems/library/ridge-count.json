@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "slug": "ridge-count",
+  "title": "Ridge Count",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "linear-scan",
+  "statement": "A hiking app records the elevation at each marker along a trail in the array heights, in walking order. A marker is a ridge when its elevation is strictly greater than every marker before it, so the first marker is always a ridge. Return how many markers are ridges. An empty trail has zero ridges.",
+  "constraints": [
+    "0 <= heights.length <= 10000",
+    "-1000000 <= heights[i] <= 1000000"
+  ],
+  "estimatedMinutes": 10,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays"
+  ],
+  "tags": [
+    "linear-scan",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "heights": [
+          3,
+          1,
+          4,
+          4,
+          6
+        ]
+      },
+      "output": 3,
+      "explanation": "Markers 3, 4 and 6 each beat every earlier marker. The second 4 only ties the earlier 4, so it is not a ridge."
+    },
+    {
+      "position": 2,
+      "input": {
+        "heights": [
+          5,
+          4,
+          3
+        ]
+      },
+      "output": 1,
+      "explanation": "Only the first marker is a ridge because the trail descends afterwards."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Decide what information about earlier markers actually matters when you reach a new one."
+    },
+    {
+      "position": 2,
+      "content": "Compare the current marker with the highest elevation seen so far, not with every earlier marker."
+    },
+    {
+      "position": 3,
+      "content": "Keep one running maximum and update it whenever a marker beats it."
+    },
+    {
+      "position": 4,
+      "content": "Start the running maximum below any legal elevation so the first marker counts."
+    },
+    {
+      "position": 5,
+      "content": "Strictly greater means an equal elevation does not update the maximum or the count."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "ridgeCount",
+      "code": "function ridgeCount(heights) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "heights": [
+          3,
+          1,
+          4,
+          4,
+          6
+        ]
+      },
+      "output": 3,
+      "explanation": "Markers 3, 4 and 6 each beat every earlier marker. The second 4 only ties the earlier 4, so it is not a ridge."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "heights": [
+          5,
+          4,
+          3
+        ]
+      },
+      "output": 1,
+      "explanation": "Only the first marker is a ridge because the trail descends afterwards."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": []
+      },
+      "output": 0,
+      "explanation": "An empty trail has no markers."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          7
+        ]
+      },
+      "output": 1,
+      "explanation": "A single marker is always a ridge."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "output": 4,
+      "explanation": "A strictly climbing trail makes every marker a ridge."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          -5,
+          -5,
+          -2,
+          -9,
+          0
+        ]
+      },
+      "output": 3,
+      "explanation": "Negative elevations follow the same rule: -5, -2 and 0 are ridges."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "output": 1,
+      "explanation": "Ties never count, so only the first marker qualifies."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Compare with every earlier marker",
+      "intuition": "The definition of a ridge names every earlier marker, so the most literal check compares against all of them.",
+      "approach": "For each marker, scan every earlier marker. If none is at least as high, count the marker as a ridge.",
+      "pseudocode": "count = 0; for each i: ridge = true; for each j < i: if heights[j] >= heights[i] then ridge = false; if ridge then count++; return count.",
+      "code": "function ridgeCount(heights) {\n    let count = 0;\n    for (let i = 0; i < heights.length; i++) {\n        let ridge = true;\n        for (let j = 0; j < i; j++)\n            if (heights[j] >= heights[i])\n                ridge = false;\n        if (ridge)\n            count++;\n    }\n    return count;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Using > instead of >= in the inner comparison lets ties count as ridges.",
+        "Forgetting that the first marker has no earlier markers and must count."
+      ],
+      "interviewExplanation": "I would first state the literal definition as nested loops to make sure the tie rule is right, then observe that only the maximum of the earlier markers matters, which collapses the inner loop into one running value.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [3, 1, 4, 4, 6], the marker 3 has no earlier markers, so it counts."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Marker 1 is beaten by 3; the first 4 beats both 3 and 1; the second 4 ties the first 4 and fails."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Marker 6 beats all four earlier markers, giving a total of 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Track the running maximum",
+      "intuition": "A marker beats every earlier marker exactly when it beats the highest earlier marker.",
+      "approach": "Walk the trail once while remembering the highest elevation so far. Each time a marker exceeds it, count the marker and raise the maximum.",
+      "pseudocode": "highest = -infinity; count = 0; for each height: if height > highest then count++ and highest = height; return count.",
+      "code": "function ridgeCount(heights) {\n    let count = 0;\n    let highest = -Infinity;\n    for (const height of heights) {\n        if (height > highest) {\n            count++;\n            highest = height;\n        }\n    }\n    return count;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Initializing the maximum to 0 miscounts trails that start below zero.",
+        "Updating the maximum on ties, which is harmless for the count but hides the strictness rule from readers."
+      ],
+      "interviewExplanation": "Only the highest earlier elevation can block a new ridge, so I carry that one number forward and compare each marker against it. The scan is linear with constant memory, and starting at negative infinity handles the first marker and negative elevations without special cases.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [3, 1, 4, 4, 6], highest starts at -infinity, so 3 counts and highest becomes 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "1 does not beat 3. The first 4 beats 3, count becomes 2 and highest becomes 4. The second 4 ties and is skipped."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "6 beats 4, so the count finishes at 3."
+        }
+      ]
+    }
+  ]
+}

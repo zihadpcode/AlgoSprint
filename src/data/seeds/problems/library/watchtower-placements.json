@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "watchtower-placements",
+  "title": "Watchtower Placements",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "backtracking",
+  "statement": "A fortress courtyard is a square grid with size rows and size columns. A watchtower watches its entire row, its entire column and both diagonals through its cell. The garrison wants to place exactly size towers so that no tower is watched by another. Return how many distinct placements achieve this. Two placements are distinct when some cell holds a tower in one and not the other.",
+  "constraints": [
+    "1 <= size <= 9"
+  ],
+  "estimatedMinutes": 40,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "backtracking",
+    "recursion"
+  ],
+  "tags": [
+    "recursion",
+    "grid"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "size": 4
+      },
+      "output": 2,
+      "explanation": "The two valid placements are mirror images: towers at columns 1, 3, 0, 2 by row, or columns 2, 0, 3, 1."
+    },
+    {
+      "position": 2,
+      "input": {
+        "size": 3
+      },
+      "output": 0,
+      "explanation": "Any three towers on a 3 × 3 grid leave two of them on a shared row, column or diagonal."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Because size towers must avoid sharing rows, every row holds exactly one tower; decide rows one at a time."
+    },
+    {
+      "position": 2,
+      "content": "Placing towers row by row means you only need to choose a column for each row."
+    },
+    {
+      "position": 3,
+      "content": "A column is blocked if a tower already uses it, and so are the two diagonals through the cell."
+    },
+    {
+      "position": 4,
+      "content": "Cells on the same rising diagonal share row + column; cells on the same falling diagonal share row - column."
+    },
+    {
+      "position": 5,
+      "content": "Track used columns and diagonals in sets, undo them when backtracking, and count complete rows-filled placements."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "watchtowerPlacements",
+      "code": "function watchtowerPlacements(size) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "size": 4
+      },
+      "output": 2,
+      "explanation": "The two valid placements are mirror images: towers at columns 1, 3, 0, 2 by row, or columns 2, 0, 3, 1."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "size": 3
+      },
+      "output": 0,
+      "explanation": "Any three towers on a 3 × 3 grid leave two of them on a shared row, column or diagonal."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "size": 1
+      },
+      "output": 1,
+      "explanation": "A single tower on a single cell."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "size": 2
+      },
+      "output": 0,
+      "explanation": "Two towers on a 2 × 2 grid always share a line."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "size": 5
+      },
+      "output": 10,
+      "explanation": "There are 10 placements on a 5 × 5 grid."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "size": 6
+      },
+      "output": 4,
+      "explanation": "Only 4 placements exist for 6 × 6."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "size": 8
+      },
+      "output": 92,
+      "explanation": "The classic 8 × 8 board has 92 placements."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "size": 9
+      },
+      "output": 352,
+      "explanation": "A 9 × 9 board has 352 placements; pruning matters here."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Check every column permutation",
+      "intuition": "One tower per row and one per column means a placement is a permutation of columns; only the diagonal rule still needs checking.",
+      "approach": "Generate every permutation of the column indices. For each complete permutation, check every pair of rows for a shared diagonal, and count the safe ones.",
+      "pseudocode": "for each permutation p of columns: if no pair (a, b) has |p[a] - p[b]| == b - a then count++; return count.",
+      "code": "function watchtowerPlacements(size) {\n    const columns = Array.from({ length: size }, (_, i) => i);\n    let count = 0;\n    function safe(assignment) {\n        for (let a = 0; a < assignment.length; a++)\n            for (let b = a + 1; b < assignment.length; b++)\n                if (Math.abs(assignment[a] - assignment[b]) === b - a)\n                    return false;\n        return true;\n    }\n    function permute(prefix, remaining) {\n        if (remaining.length === 0) {\n            if (safe(prefix))\n                count++;\n            return;\n        }\n        for (let i = 0; i < remaining.length; i++)\n            permute([...prefix, remaining[i]], [...remaining.slice(0, i), ...remaining.slice(i + 1)]);\n    }\n    permute([], columns);\n    return count;\n}",
+      "timeComplexity": "O(n! × n²)",
+      "spaceComplexity": "O(n) recursion depth",
+      "commonMistakes": [
+        "Checking only adjacent rows for diagonal conflicts.",
+        "Generating all n^n column choices instead of permutations, which repeats column conflicts unnecessarily."
+      ],
+      "interviewExplanation": "Testing all permutations is exhaustive and already avoids row and column clashes, but it only rejects diagonal conflicts after a full placement. Backtracking checks each tower as it is placed and abandons partial placements early, which cuts the search dramatically for size 8 and 9.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For size 4, there are 24 permutations of the columns 0–3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Only [1, 3, 0, 2] and [2, 0, 3, 1] have no two rows on a shared diagonal, so the count is 2."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Row-by-row backtracking with blocked sets",
+      "intuition": "A partial placement that already has a conflict can never be completed, so conflicts should be detected the moment a tower is placed, using constant-time lookups for columns and diagonals.",
+      "approach": "Fill rows in order. For the current row, try each column that is not in the used-column set and whose two diagonal keys are not in the used-diagonal sets. Mark, recurse to the next row, then unmark. Reaching row size counts one placement.",
+      "pseudocode": "place(row): if row == size return 1; total = 0; for each column: if column, row+column, row-column all unused: mark; total += place(row + 1); unmark; return total.",
+      "code": "function watchtowerPlacements(size) {\n    const usedColumns = new Set();\n    const usedRising = new Set();\n    const usedFalling = new Set();\n    function place(row) {\n        if (row === size)\n            return 1;\n        let total = 0;\n        for (let column = 0; column < size; column++) {\n            if (usedColumns.has(column) || usedRising.has(row + column) || usedFalling.has(row - column))\n                continue;\n            usedColumns.add(column);\n            usedRising.add(row + column);\n            usedFalling.add(row - column);\n            total += place(row + 1);\n            usedColumns.delete(column);\n            usedRising.delete(row + column);\n            usedFalling.delete(row - column);\n        }\n        return total;\n    }\n    return place(0);\n}",
+      "timeComplexity": "O(n!) in the worst case, far less in practice due to pruning",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Forgetting to unmark after the recursive call, which starves later branches.",
+        "Using row + column for both diagonals, which treats two different diagonals as one."
+      ],
+      "interviewExplanation": "I place one tower per row and keep three sets: used columns, used rising diagonals keyed by row + column, and used falling diagonals keyed by row - column. Each candidate cell is checked in constant time and rejected immediately if it conflicts, so the search only explores consistent partial placements. Undoing the marks after each recursive call keeps the sets correct for sibling branches.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For size 4, row 0 tries column 0; row 1 can then only use columns 2 or 3, and both branches die by row 2 or 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Row 0 at column 1 leads to row 1 at column 3, row 2 at column 0 and row 3 at column 2: one placement."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Row 0 at column 2 mirrors that placement, and column 3 fails like column 0. The total is 2."
+        }
+      ]
+    }
+  ]
+}

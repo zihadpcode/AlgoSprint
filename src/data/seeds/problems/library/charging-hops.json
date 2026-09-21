@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "slug": "charging-hops",
+  "title": "Charging Hops",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "greedy",
+  "statement": "An electric scooter travels along a road with charging stations at positions 0, 1, 2, and so on. Charging at station i lets the scooter travel forward at most ranges[i] stations before it must charge again, so from station i it can reach any station from i + 1 up to i + ranges[i]. The scooter starts fully charged at station 0. Return true when the scooter can reach the last station and false otherwise. A road with a single station is trivially reachable.",
+  "constraints": [
+    "1 <= ranges.length <= 10000",
+    "0 <= ranges[i] <= 10000"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "greedy",
+    "arrays"
+  ],
+  "tags": [
+    "invariant",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "ranges": [
+          2,
+          3,
+          1,
+          1,
+          4
+        ]
+      },
+      "output": true,
+      "explanation": "Hop from station 0 to 1, then from 1 to the last station in one hop of 3."
+    },
+    {
+      "position": 2,
+      "input": {
+        "ranges": [
+          3,
+          2,
+          1,
+          0,
+          4
+        ]
+      },
+      "output": false,
+      "explanation": "Every route lands on station 3, whose range is 0, so the last station is unreachable."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Exploring every sequence of hops is exponential, but many sequences reach the same stations."
+    },
+    {
+      "position": 2,
+      "content": "What matters at each point is the farthest station you could have reached so far."
+    },
+    {
+      "position": 3,
+      "content": "Scan stations in order; a station is usable only if it is within the farthest reach."
+    },
+    {
+      "position": 4,
+      "content": "Each usable station may push the farthest reach further."
+    },
+    {
+      "position": 5,
+      "content": "If the scan ever passes the farthest reach, the scooter is stuck; if the reach covers the last station, the answer is true."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "chargingHops",
+      "code": "function chargingHops(ranges) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "ranges": [
+          2,
+          3,
+          1,
+          1,
+          4
+        ]
+      },
+      "output": true,
+      "explanation": "Hop from station 0 to 1, then from 1 to the last station in one hop of 3."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "ranges": [
+          3,
+          2,
+          1,
+          0,
+          4
+        ]
+      },
+      "output": false,
+      "explanation": "Every route lands on station 3, whose range is 0, so the last station is unreachable."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "ranges": [
+          0
+        ]
+      },
+      "output": true,
+      "explanation": "The scooter is already at the last station."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "ranges": [
+          0,
+          5
+        ]
+      },
+      "output": false,
+      "explanation": "The first station cannot move at all."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "ranges": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "output": true,
+      "explanation": "Single hops all the way."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "ranges": [
+          5,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "output": true,
+      "explanation": "One long hop from the start reaches the end exactly."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "ranges": [
+          2,
+          0,
+          1,
+          0,
+          3
+        ]
+      },
+      "output": false,
+      "explanation": "0 → 2 → 3 is forced, and station 3 cannot move."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "ranges": [
+          4,
+          1,
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "output": false,
+      "explanation": "Station 4 is the farthest useful stop and only reaches station 6; stations 5 and 6 have no range, so station 7 and the end are never reached."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every hop recursively",
+      "intuition": "From any station, the scooter has a handful of possible next stations, and reaching the end from any of them is enough.",
+      "approach": "Recursively try every hop length from the current station. Reaching the last station succeeds; running out of hops fails.",
+      "pseudocode": "reachable(s): if s >= last return true; for hop in 1..ranges[s]: if reachable(s + hop) return true; return false.",
+      "code": "function chargingHops(ranges) {\n    function reachable(station) {\n        if (station >= ranges.length - 1)\n            return true;\n        for (let hop = 1; hop <= ranges[station]; hop++)\n            if (reachable(station + hop))\n                return true;\n        return false;\n    }\n    return reachable(0);\n}",
+      "timeComplexity": "Exponential in the number of stations",
+      "spaceComplexity": "O(n) recursion depth",
+      "commonMistakes": [
+        "Starting hops at 0, which loops forever on the same station.",
+        "Failing when the hop overshoots the last station instead of counting it as success."
+      ],
+      "interviewExplanation": "Trying every hop sequence blows up quickly. Memoizing by station gives a quadratic solution, and tracking only the farthest reachable station gives a single linear pass, because a station is reachable exactly when it is within the maximum reach seen so far.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2, 3, 1, 1, 4], station 0 tries hop 1 to station 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Station 1 tries hop 1, then hop 2, then hop 3, which reaches station 4, the last one, so the result is true."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Track the farthest reachable station",
+      "intuition": "Every station up to the farthest reach is reachable, because the hop that reached the farthest station could have stopped anywhere before it.",
+      "approach": "Scan stations while they are within the farthest reach, extending the reach with each station's range. If the scan stops before covering the last station, the road is impassable.",
+      "pseudocode": "farthest = 0; for i from 0 while i <= farthest and i < n: farthest = max(farthest, i + ranges[i]); return farthest >= n - 1.",
+      "code": "function chargingHops(ranges) {\n    let farthest = 0;\n    for (let i = 0; i <= farthest && i < ranges.length; i++)\n        farthest = Math.max(farthest, i + ranges[i]);\n    return farthest >= ranges.length - 1;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Continuing to scan stations beyond the farthest reach, which lets unreachable stations extend it.",
+        "Comparing farthest with n instead of n - 1."
+      ],
+      "interviewExplanation": "I keep the farthest index the scooter could stand on. Each station within that reach can extend it by its range, and stations beyond the reach are never considered. Reachability only depends on that single number, so one pass with constant memory decides the answer.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2, 3, 1, 1, 4], station 0 sets farthest to 2, then station 1 raises it to 4."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "4 is the last index, so the answer is true. For [3, 2, 1, 0, 4], farthest stalls at 3 and the loop stops before station 4."
+        }
+      ]
+    }
+  ]
+}

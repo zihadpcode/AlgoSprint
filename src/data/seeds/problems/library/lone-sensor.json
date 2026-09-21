@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "slug": "lone-sensor",
+  "title": "Lone Sensor",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "xor",
+  "statement": "A greenhouse installs sensors in pairs, and each pair reports the same integer identifier. One sensor lost its partner, so its identifier appears exactly once in the array readings while every other identifier appears exactly twice. Return the identifier of the lone sensor. Aim for a solution that uses constant extra memory.",
+  "constraints": [
+    "1 <= readings.length <= 10000 and readings.length is odd",
+    "-1000000 <= readings[i] <= 1000000",
+    "Exactly one identifier appears once; every other identifier appears exactly twice."
+  ],
+  "estimatedMinutes": 10,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "bit-manipulation",
+    "arrays"
+  ],
+  "tags": [
+    "bitwise",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "readings": [
+          4,
+          9,
+          4,
+          12,
+          9
+        ]
+      },
+      "output": 12,
+      "explanation": "4 and 9 both appear twice; 12 appears once."
+    },
+    {
+      "position": 2,
+      "input": {
+        "readings": [
+          -3
+        ]
+      },
+      "output": -3,
+      "explanation": "A single reading is the lone sensor."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Counting with a map works but uses memory proportional to the number of identifiers."
+    },
+    {
+      "position": 2,
+      "content": "Look for an operation that cancels a value when applied twice."
+    },
+    {
+      "position": 3,
+      "content": "XOR of a number with itself is zero, and XOR with zero leaves a number unchanged."
+    },
+    {
+      "position": 4,
+      "content": "XOR is associative and commutative, so the order of readings does not matter."
+    },
+    {
+      "position": 5,
+      "content": "Fold every reading into one accumulator with XOR; the pairs vanish and only the lone identifier remains."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "loneSensor",
+      "code": "function loneSensor(readings) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "readings": [
+          4,
+          9,
+          4,
+          12,
+          9
+        ]
+      },
+      "output": 12,
+      "explanation": "4 and 9 both appear twice; 12 appears once."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "readings": [
+          -3
+        ]
+      },
+      "output": -3,
+      "explanation": "A single reading is the lone sensor."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          0,
+          0,
+          7
+        ]
+      },
+      "output": 7,
+      "explanation": "Zero pairs with zero, leaving 7."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          -8,
+          2,
+          -8,
+          2,
+          0
+        ]
+      },
+      "output": 0,
+      "explanation": "The lone identifier is 0, which is a valid answer."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          1,
+          2,
+          3,
+          2,
+          1,
+          3,
+          -6
+        ]
+      },
+      "output": -6,
+      "explanation": "Three pairs surround -6."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          1000000,
+          -1000000,
+          1000000
+        ]
+      },
+      "output": -1000000,
+      "explanation": "Large magnitudes behave the same way."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Count each identifier",
+      "intuition": "The lone identifier is the one whose count is one, and counting can be done by rescanning for each candidate.",
+      "approach": "For every reading, count how many times its value appears in the whole array. The first reading with count one is the answer.",
+      "pseudocode": "for each i: count occurrences of readings[i]; if count == 1 return readings[i].",
+      "code": "function loneSensor(readings) {\n    for (let i = 0; i < readings.length; i++) {\n        let count = 0;\n        for (const reading of readings)\n            if (reading === readings[i])\n                count++;\n        if (count === 1)\n            return readings[i];\n    }\n    return readings[0];\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Assuming the lone value is the first or last element after sorting without handling the middle.",
+        "Using a map is fine for counts, but it no longer satisfies the constant-memory goal."
+      ],
+      "interviewExplanation": "Counting is the obvious approach, either quadratically or with a hash map in linear time and linear memory. The XOR trick reaches linear time with constant memory because every pair cancels itself out.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [4, 9, 4, 12, 9], the count of 4 is 2 and the count of 9 is 2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The count of 12 is 1, so 12 is returned."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Cancel pairs with XOR",
+      "intuition": "XOR-ing a value twice returns to the original state, so every paired identifier contributes nothing to a running XOR.",
+      "approach": "Start from zero and XOR every reading into an accumulator. All pairs cancel and the accumulator ends as the lone identifier.",
+      "pseudocode": "lone = 0; for each reading: lone = lone XOR reading; return lone.",
+      "code": "function loneSensor(readings) {\n    let lone = 0;\n    for (const reading of readings)\n        lone ^= reading;\n    return lone;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Using addition and subtraction instead of XOR, which needs the pairs to be identified first.",
+        "Assuming XOR fails for negative numbers; two's-complement representation cancels the same way."
+      ],
+      "interviewExplanation": "Because x XOR x is zero and XOR is commutative, folding the whole array with XOR erases every pair regardless of order and leaves the unpaired identifier. That is one pass and one integer of state, which is the constant-memory solution the constraint asks for.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [4, 9, 4, 12, 9], the accumulator goes 0 → 4 → 13 → 9 → 5 → 12."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Reordering as 4, 4, 9, 9, 12 shows the pairs cancel, leaving 12."
+        }
+      ]
+    }
+  ]
+}

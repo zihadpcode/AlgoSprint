@@ -29,10 +29,10 @@ afterAll(async () => {
 
 describe("real PostgreSQL seed lifecycle", () => {
   it("inserts complete related data atomically per batch", async () => {
-    expect(await seedProblems(db, problems)).toEqual({ created: 5, skipped: 0 });
-    expect(await db.problemHint.count()).toBe(25);
-    expect(await db.problemSolution.count()).toBe(10);
-    expect(await db.testCase.count()).toBe(30);
+    expect(await seedProblems(db, problems)).toEqual({ created: problems.length, skipped: 0 });
+    expect(await db.problemHint.count()).toBe(problems.length * 5);
+    expect(await db.problemSolution.count()).toBe(problems.reduce((sum, p) => sum + p.solutions.length, 0));
+    expect(await db.testCase.count()).toBe(problems.reduce((sum, p) => sum + p.testCases.length, 0));
     expect(await db.category.count()).toBe(30);
   });
   it("is idempotent and preserves IDs and user data on rerun", async () => {
@@ -40,7 +40,7 @@ describe("real PostgreSQL seed lifecycle", () => {
     const profiles = await Promise.all(Array.from({ length: 3 }, () => ensureProfile(db, { id: userId, user_metadata: { role: "ADMIN" } })));
     expect(profiles.every((p) => p.id === userId && p.role === "USER")).toBe(true);
     await db.userProgress.create({ data: { userId, problemId: before[0].id, bookmarked: true } });
-    expect(await seedProblems(db, problems)).toEqual({ created: 0, skipped: 5 });
+    expect(await seedProblems(db, problems)).toEqual({ created: 0, skipped: problems.length });
     expect(await db.problem.findMany({ orderBy: { slug: "asc" }, select: { id: true, slug: true, updatedAt: true } })).toEqual(before);
     expect(await db.userProgress.count({ where: { userId, bookmarked: true } })).toBe(1);
   });

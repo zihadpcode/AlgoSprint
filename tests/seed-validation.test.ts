@@ -4,13 +4,14 @@ import { loadProblems } from "../scripts/lib/load-problems";
 import { validateProblemSemantics } from "../scripts/lib/reference-problems";
 import { problemBatchSchema, problemSchema, type ProblemSeed } from "@/lib/validators/problem";
 import { canonicalJson, problemHash } from "../prisma/seed-data";
+import { SIGNATURES } from "@/features/submissions/signatures";
 
 let problems: ProblemSeed[];
 beforeAll(async () => { problems = await loadProblems(); });
 
 describe("original seed contract", () => {
-  it("has five fully validated problems and complete executable-language listings", () => {
-    expect(problems).toHaveLength(5);
+  it("has thirty-five fully validated problems and complete executable-language listings", () => {
+    expect(problems).toHaveLength(35);
     for (const p of problems) {
       validateProblemSemantics(p);
       const entryPoint = p.starterCode[0].entryPoint;
@@ -20,6 +21,22 @@ describe("original seed contract", () => {
         expect(item.code).toContain(`function ${entryPoint}(`);
       }
     }
+  });
+  it("gives every published problem a runner signature whose arguments match its starter code and inputs", () => {
+    for (const p of problems) {
+      const signature = SIGNATURES[p.slug];
+      expect(signature, `${p.slug} needs a runner signature`).toBeDefined();
+      expect(p.starterCode[0].entryPoint).toBe(signature.entryPoint);
+      for (const item of [...p.examples, ...p.testCases]) {
+        expect(Object.keys(item.input as object).sort()).toEqual([...signature.keys].sort());
+      }
+    }
+    expect(Object.keys(SIGNATURES).sort()).toEqual(problems.map((p) => p.slug).sort());
+  });
+  it("covers a broad spread of categories and difficulties", () => {
+    const categories = new Set(problems.flatMap((p) => p.categories));
+    expect(categories.size).toBeGreaterThanOrEqual(25);
+    for (const difficulty of ["EASY", "MEDIUM", "HARD"] as const) expect(problems.some((p) => p.difficulty === difficulty)).toBe(true);
   });
   it("rejects a duplicate slug across files", () => {
     expect(() => problemBatchSchema.parse([problems[0], problems[0]])).toThrow(/Duplicate problem slug/);

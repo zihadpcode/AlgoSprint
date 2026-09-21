@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "slug": "ticket-pair",
+  "title": "Ticket Pair",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "hash-map",
+  "statement": "A box office lists ticket prices in the array prices, in the order the tickets were printed. A customer wants exactly two different tickets whose prices add up to budget. Return the pair of zero-based indices [i, j] with i < j. If several pairs work, choose the pair whose second index j is smallest; among those, choose the smallest first index i. Return [-1, -1] when no pair matches.",
+  "constraints": [
+    "0 <= prices.length <= 10000",
+    "-1000000 <= prices[i] <= 1000000",
+    "-1000000 <= budget <= 1000000"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "hash-maps",
+    "arrays"
+  ],
+  "tags": [
+    "hashing",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "prices": [
+          8,
+          3,
+          5,
+          3,
+          11
+        ],
+        "budget": 6
+      },
+      "output": [
+        1,
+        3
+      ],
+      "explanation": "Prices 3 and 3 at indices 1 and 3 add up to 6. No earlier second index completes a pair."
+    },
+    {
+      "position": 2,
+      "input": {
+        "prices": [
+          4,
+          2,
+          9
+        ],
+        "budget": 20
+      },
+      "output": [
+        -1,
+        -1
+      ],
+      "explanation": "No two tickets add up to 20."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "For a fixed second ticket, the price of the partner you need is fully determined."
+    },
+    {
+      "position": 2,
+      "content": "Ask whether the needed partner price appeared earlier, rather than scanning for it."
+    },
+    {
+      "position": 3,
+      "content": "Store each price with the earliest index where it appeared."
+    },
+    {
+      "position": 4,
+      "content": "Look up the partner before inserting the current price so a ticket never pairs with itself."
+    },
+    {
+      "position": 5,
+      "content": "Because you scan second indices in increasing order, the first successful lookup is the required answer."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "ticketPair",
+      "code": "function ticketPair(prices, budget) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "prices": [
+          8,
+          3,
+          5,
+          3,
+          11
+        ],
+        "budget": 6
+      },
+      "output": [
+        1,
+        3
+      ],
+      "explanation": "Prices 3 and 3 at indices 1 and 3 add up to 6. No earlier second index completes a pair."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "prices": [
+          4,
+          2,
+          9
+        ],
+        "budget": 20
+      },
+      "output": [
+        -1,
+        -1
+      ],
+      "explanation": "No two tickets add up to 20."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "prices": [],
+        "budget": 0
+      },
+      "output": [
+        -1,
+        -1
+      ],
+      "explanation": "There are no tickets."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "prices": [
+          5
+        ],
+        "budget": 10
+      },
+      "output": [
+        -1,
+        -1
+      ],
+      "explanation": "A single ticket cannot be used twice."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "prices": [
+          1,
+          4,
+          2,
+          4,
+          3
+        ],
+        "budget": 5
+      },
+      "output": [
+        0,
+        1
+      ],
+      "explanation": "Indices 0 and 1 (1 + 4) complete a pair at the earliest possible second index, even though 2 + 3 also works later."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "prices": [
+          6,
+          1,
+          6,
+          1
+        ],
+        "budget": 12
+      },
+      "output": [
+        0,
+        2
+      ],
+      "explanation": "Two 6 tickets at indices 0 and 2 complete the pair first; the two 1 tickets do not add up to 12."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "prices": [
+          -3,
+          7,
+          10,
+          -7
+        ],
+        "budget": 0
+      },
+      "output": [
+        1,
+        3
+      ],
+      "explanation": "7 and -7 at indices 1 and 3 add up to zero."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "prices": [
+          2,
+          2,
+          2
+        ],
+        "budget": 4
+      },
+      "output": [
+        0,
+        1
+      ],
+      "explanation": "Indices 0 and 1 form the earliest pair; index 2 is never needed."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every pair in index order",
+      "intuition": "Enumerating pairs with the second index as the outer loop visits candidates exactly in the order the tie-break rule wants.",
+      "approach": "Loop the second index j from 1 upward and the first index i from 0 to j - 1. Return the first pair whose prices sum to the budget.",
+      "pseudocode": "for j from 1 to n-1: for i from 0 to j-1: if prices[i] + prices[j] == budget return [i, j]; return [-1, -1].",
+      "code": "function ticketPair(prices, budget) {\n    for (let j = 1; j < prices.length; j++)\n        for (let i = 0; i < j; i++)\n            if (prices[i] + prices[j] === budget)\n                return [i, j];\n    return [-1, -1];\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Making i the outer loop returns the pair with the smallest i, which can have a later j than required.",
+        "Allowing i == j pairs a ticket with itself."
+      ],
+      "interviewExplanation": "I start with nested loops ordered so that the first hit already satisfies the tie-break, then replace the inner scan with a lookup of the needed partner price in a map of earlier prices.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [8, 3, 5, 3, 11] and budget 6, j = 1 checks 8 + 3, j = 2 checks 8 + 5 and 3 + 5."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "j = 3 checks 8 + 3, then 3 + 3 = 6 with i = 1, so the result is [1, 3]."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Remember the earliest index of each price",
+      "intuition": "When the second ticket is fixed, the partner price is budget minus that price, and a map answers whether it appeared earlier and where.",
+      "approach": "Scan once. Before recording the current price, look up budget - price in a map from price to earliest index. A hit gives the answer; otherwise record the price if it is new.",
+      "pseudocode": "earliest = empty map; for j in order: partner = earliest[budget - prices[j]]; if found return [partner, j]; if prices[j] not in map, store j; return [-1, -1].",
+      "code": "function ticketPair(prices, budget) {\n    const earliest = new Map();\n    for (let j = 0; j < prices.length; j++) {\n        const partner = earliest.get(budget - prices[j]);\n        if (partner !== undefined)\n            return [partner, j];\n        if (!earliest.has(prices[j]))\n            earliest.set(prices[j], j);\n    }\n    return [-1, -1];\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Overwriting an existing index for a repeated price returns a later i than the rule allows.",
+        "Inserting the current price before the lookup lets a ticket pair with itself when budget is exactly twice its price."
+      ],
+      "interviewExplanation": "I scan the prices once and keep a map from each price to the earliest index where it appeared. For each ticket I look up the partner price it needs; the first hit is the answer because second indices are visited in increasing order and the map stores the smallest first index. Time is linear and memory is at most one entry per distinct price.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [8, 3, 5, 3, 11] and budget 6: at j = 0 the partner -2 is absent, store 8 → 0."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "j = 1 needs 3, absent, store 3 → 1. j = 2 needs 1, absent, store 5 → 2."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "j = 3 needs 3, which maps to 1, so return [1, 3]."
+        }
+      ]
+    }
+  ]
+}

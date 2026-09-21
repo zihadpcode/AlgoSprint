@@ -1,0 +1,493 @@
+{
+  "schemaVersion": 1,
+  "slug": "lru-results",
+  "title": "Recently Used Cache",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "design",
+  "statement": "Design a cache that holds at most capacity key/value pairs and evicts the least recently used pair when a new key would exceed the capacity. Both reading and writing a key count as using it. Given capacity and a list of operations, where each operation is either [\"put\", key, value] or [\"get\", key], apply the operations in order and return the result of every get operation, in order: the stored value, or -1 when the key is absent. Writing an existing key updates its value and marks it as most recently used.",
+  "constraints": [
+    "1 <= capacity <= 10000",
+    "0 <= operations.length <= 10000",
+    "Keys and values are integers from -1000000 through 1000000."
+  ],
+  "estimatedMinutes": 35,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "design",
+    "hash-maps",
+    "linked-list"
+  ],
+  "tags": [
+    "hashing",
+    "simulation"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "capacity": 2,
+        "operations": [
+          [
+            "put",
+            1,
+            10
+          ],
+          [
+            "put",
+            2,
+            20
+          ],
+          [
+            "get",
+            1
+          ],
+          [
+            "put",
+            3,
+            30
+          ],
+          [
+            "get",
+            2
+          ],
+          [
+            "get",
+            3
+          ]
+        ]
+      },
+      "output": [
+        10,
+        -1,
+        30
+      ],
+      "explanation": "Reading key 1 makes key 2 the least recently used, so inserting key 3 evicts key 2. Results: 10, -1, 30."
+    },
+    {
+      "position": 2,
+      "input": {
+        "capacity": 1,
+        "operations": [
+          [
+            "get",
+            5
+          ],
+          [
+            "put",
+            5,
+            50
+          ],
+          [
+            "put",
+            6,
+            60
+          ],
+          [
+            "get",
+            5
+          ]
+        ]
+      },
+      "output": [
+        -1,
+        -1
+      ],
+      "explanation": "Key 5 is absent at first, then evicted when key 6 arrives."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The cache needs two things fast: finding a key's value, and knowing which key was used longest ago."
+    },
+    {
+      "position": 2,
+      "content": "A hash map gives constant-time lookup but no notion of recency on its own."
+    },
+    {
+      "position": 3,
+      "content": "Keep the keys in an order from least to most recently used, and move a key to the most recent end whenever it is used."
+    },
+    {
+      "position": 4,
+      "content": "A doubly linked list supports moving and removing an entry in constant time when you hold a reference to it."
+    },
+    {
+      "position": 5,
+      "content": "JavaScript's Map preserves insertion order, so deleting and re-inserting a key moves it to the most recent end, and the first key is the oldest."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "lruResults",
+      "code": "function lruResults(capacity, operations) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "capacity": 2,
+        "operations": [
+          [
+            "put",
+            1,
+            10
+          ],
+          [
+            "put",
+            2,
+            20
+          ],
+          [
+            "get",
+            1
+          ],
+          [
+            "put",
+            3,
+            30
+          ],
+          [
+            "get",
+            2
+          ],
+          [
+            "get",
+            3
+          ]
+        ]
+      },
+      "output": [
+        10,
+        -1,
+        30
+      ],
+      "explanation": "Reading key 1 makes key 2 the least recently used, so inserting key 3 evicts key 2. Results: 10, -1, 30."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "capacity": 1,
+        "operations": [
+          [
+            "get",
+            5
+          ],
+          [
+            "put",
+            5,
+            50
+          ],
+          [
+            "put",
+            6,
+            60
+          ],
+          [
+            "get",
+            5
+          ]
+        ]
+      },
+      "output": [
+        -1,
+        -1
+      ],
+      "explanation": "Key 5 is absent at first, then evicted when key 6 arrives."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacity": 3,
+        "operations": []
+      },
+      "output": [],
+      "explanation": "No operations produce no results."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacity": 2,
+        "operations": [
+          [
+            "put",
+            1,
+            1
+          ],
+          [
+            "put",
+            1,
+            2
+          ],
+          [
+            "get",
+            1
+          ]
+        ]
+      },
+      "output": [
+        2
+      ],
+      "explanation": "Updating a key replaces its value without adding a second entry."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacity": 2,
+        "operations": [
+          [
+            "put",
+            1,
+            1
+          ],
+          [
+            "put",
+            2,
+            2
+          ],
+          [
+            "put",
+            1,
+            3
+          ],
+          [
+            "put",
+            3,
+            3
+          ],
+          [
+            "get",
+            1
+          ],
+          [
+            "get",
+            2
+          ],
+          [
+            "get",
+            3
+          ]
+        ]
+      },
+      "output": [
+        3,
+        -1,
+        3
+      ],
+      "explanation": "Rewriting key 1 makes it recent, so key 2 is evicted: results 3, -1, 3."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacity": 3,
+        "operations": [
+          [
+            "put",
+            -1,
+            5
+          ],
+          [
+            "put",
+            0,
+            6
+          ],
+          [
+            "put",
+            7,
+            7
+          ],
+          [
+            "get",
+            -1
+          ],
+          [
+            "put",
+            8,
+            8
+          ],
+          [
+            "get",
+            0
+          ],
+          [
+            "get",
+            7
+          ],
+          [
+            "get",
+            8
+          ]
+        ]
+      },
+      "output": [
+        5,
+        -1,
+        7,
+        8
+      ],
+      "explanation": "After reading -1, key 0 is the oldest and is evicted by key 8: results 5, -1, 7, 8."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacity": 1,
+        "operations": [
+          [
+            "put",
+            4,
+            4
+          ],
+          [
+            "get",
+            4
+          ],
+          [
+            "get",
+            4
+          ],
+          [
+            "put",
+            4,
+            5
+          ],
+          [
+            "get",
+            4
+          ]
+        ]
+      },
+      "output": [
+        4,
+        4,
+        5
+      ],
+      "explanation": "A single slot can be read and rewritten repeatedly: results 4, 4, 5."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "capacity": 2,
+        "operations": [
+          [
+            "get",
+            1
+          ],
+          [
+            "put",
+            2,
+            1
+          ],
+          [
+            "put",
+            2,
+            2
+          ],
+          [
+            "get",
+            2
+          ],
+          [
+            "put",
+            1,
+            1
+          ],
+          [
+            "put",
+            4,
+            1
+          ],
+          [
+            "get",
+            2
+          ]
+        ]
+      },
+      "output": [
+        -1,
+        2,
+        -1
+      ],
+      "explanation": "Key 2 is used by the get, then key 1 is added; key 4 evicts key 2 because 1 was used more recently: results -1, 2, -1."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Array ordered by recency",
+      "intuition": "If the entries are kept in an array from oldest to newest, using a key means moving it to the end and evicting means dropping the front.",
+      "approach": "Keep an array of entries in recency order. For each operation, find the key by scanning. A get moves the entry to the end; a put removes any existing entry, appends the new one, and drops the front entry when over capacity.",
+      "pseudocode": "entries = []; for each op: i = index of key; get: if missing -1 else move to end and return value; put: remove existing, append, if size > capacity drop front.",
+      "code": "function lruResults(capacity, operations) {\n    const entries = [];\n    const results = [];\n    for (const operation of operations) {\n        const key = operation[1];\n        const index = entries.findIndex((entry) => entry.key === key);\n        if (operation[0] === \"get\") {\n            if (index === -1) {\n                results.push(-1);\n            } else {\n                const [entry] = entries.splice(index, 1);\n                entries.push(entry);\n                results.push(entry.value);\n            }\n        } else {\n            if (index !== -1)\n                entries.splice(index, 1);\n            entries.push({ key, value: operation[2] });\n            if (entries.length > capacity)\n                entries.shift();\n        }\n    }\n    return results;\n}",
+      "timeComplexity": "O(n × capacity)",
+      "spaceComplexity": "O(capacity)",
+      "commonMistakes": [
+        "Evicting the most recently added entry instead of the oldest.",
+        "Not moving an entry to the end on a get, which treats reads as non-uses."
+      ],
+      "interviewExplanation": "A recency-ordered array is easy to reason about but every operation scans and shifts. Pairing a hash map with an order structure gives constant-time operations; in JavaScript, an insertion-ordered Map can play both roles.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For the first example, after putting 1 and 2 the array is [1, 2]; getting 1 moves it to the end: [2, 1]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Putting 3 appends and drops the front, leaving [1, 3], so get 2 returns -1 and get 3 returns 30."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Insertion-ordered map",
+      "intuition": "A map that remembers insertion order already keeps entries from oldest to newest, so re-inserting a key on use makes it newest and the first key is always the eviction candidate.",
+      "approach": "Use a Map. On get, if the key exists delete and re-insert it to mark it most recent, then return its value. On put, delete any existing entry, insert the new pair, and if the size exceeds the capacity delete the first key in iteration order.",
+      "pseudocode": "cache = Map; get: if absent -1; else v = cache[key]; delete; set(key, v); return v. put: delete key; set(key, value); if size > capacity delete first key.",
+      "code": "function lruResults(capacity, operations) {\n    const cache = new Map();\n    const results = [];\n    for (const operation of operations) {\n        const key = operation[1];\n        if (operation[0] === \"get\") {\n            if (!cache.has(key)) {\n                results.push(-1);\n                continue;\n            }\n            const value = cache.get(key);\n            cache.delete(key);\n            cache.set(key, value);\n            results.push(value);\n        } else {\n            cache.delete(key);\n            cache.set(key, operation[2]);\n            if (cache.size > capacity)\n                cache.delete(cache.keys().next().value);\n        }\n    }\n    return results;\n}",
+      "timeComplexity": "O(1) amortized per operation",
+      "spaceComplexity": "O(capacity)",
+      "commonMistakes": [
+        "Calling set without deleting first, which keeps the key's old position and breaks recency.",
+        "Evicting before inserting when the key already exists, which can evict unnecessarily."
+      ],
+      "interviewExplanation": "The classic design is a hash map plus a doubly linked list so lookups and recency moves are both constant time. JavaScript's Map iterates in insertion order, so deleting and re-inserting a key moves it to the most-recent end and the first iterated key is the least recently used. That gives the same O(1) behavior with far less code; in a language without ordered maps I would build the linked list explicitly.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For the first example, the map holds 1 → 10, 2 → 20 in that order; get 1 re-inserts it, so the order becomes 2, 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "put 3 adds a third entry, exceeding capacity 2, so the first key 2 is deleted."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "get 2 returns -1 and get 3 returns 30, giving [10, -1, 30]."
+        }
+      ]
+    }
+  ]
+}

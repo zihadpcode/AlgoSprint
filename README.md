@@ -70,8 +70,8 @@ npm run test:smoke
 | `src/proxy.ts` | Refresh auth cookies before server rendering. |
 | `src/lib/prisma.ts` | Lazy server-only database access. |
 | `prisma/` | 22 models, SQL migration, repeatable insert-only seeding. |
-| `src/data/seeds/` | Five original problem JSON files and taxonomy. |
-| `scripts/` | Seed validation, trusted reference algorithms, role CLI, HTTP smoke check. |
+| `src/data/seeds/` | 35 original problem JSON files and taxonomy; see [the problem library guide](docs/PROBLEM-LIBRARY.md). |
+| `scripts/` | Seed validation, trusted reference algorithms for every published problem, role CLI, HTTP smoke check. |
 | `tests/` | Algorithms, imports, PostgreSQL constraints, auth boundaries, integration. |
 | `docs/PHASE-1-GUIDE.md` | Historical project foundation and complete source. |
 | `docs/PHASE-2-GUIDE.md` | Database setup, design, tests, and complete source. |

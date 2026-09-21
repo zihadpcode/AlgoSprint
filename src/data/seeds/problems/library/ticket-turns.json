@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "slug": "ticket-turns",
+  "title": "Ticket Turns",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "queue-simulation",
+  "statement": "People wait in a single line at a ticket window. The array tickets holds how many tickets each person still needs, front of the line first. Every second, the person at the front buys exactly one ticket. If they still need more, they walk to the back of the line; otherwise they leave. Return the second at which the person who started at zero-based index position buys their last ticket.",
+  "constraints": [
+    "1 <= tickets.length <= 10000",
+    "1 <= tickets[i] <= 1000000",
+    "0 <= position < tickets.length"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "queue",
+    "arrays"
+  ],
+  "tags": [
+    "simulation"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tickets": [
+          2,
+          3,
+          1
+        ],
+        "position": 1
+      },
+      "output": 6,
+      "explanation": "Seconds 1–3 serve persons 0, 1, 2 once each. Person 2 leaves. Second 4 serves person 0, who leaves. Second 5 serves person 1, and second 6 serves person 1 again for their last ticket."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tickets": [
+          4,
+          1
+        ],
+        "position": 0
+      },
+      "output": 5,
+      "explanation": "Person 0 buys at seconds 1, 3, 4 and 5; person 1 leaves after second 2."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Simulating the line with a queue is correct; make sure you know when the target person leaves."
+    },
+    {
+      "position": 2,
+      "content": "Count how many seconds each other person contributes before the target finishes."
+    },
+    {
+      "position": 3,
+      "content": "Someone ahead of the target is served once per round until they run out, up to the target's own count."
+    },
+    {
+      "position": 4,
+      "content": "Someone behind the target is served one round fewer, because the target finishes before them in the last round."
+    },
+    {
+      "position": 5,
+      "content": "Sum min(tickets[i], tickets[position]) for i at or before position, and min(tickets[i], tickets[position] - 1) for i after it."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "ticketTurns",
+      "code": "function ticketTurns(tickets, position) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tickets": [
+          2,
+          3,
+          1
+        ],
+        "position": 1
+      },
+      "output": 6,
+      "explanation": "Seconds 1–3 serve persons 0, 1, 2 once each. Person 2 leaves. Second 4 serves person 0, who leaves. Second 5 serves person 1, and second 6 serves person 1 again for their last ticket."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tickets": [
+          4,
+          1
+        ],
+        "position": 0
+      },
+      "output": 5,
+      "explanation": "Person 0 buys at seconds 1, 3, 4 and 5; person 1 leaves after second 2."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tickets": [
+          5
+        ],
+        "position": 0
+      },
+      "output": 5,
+      "explanation": "One person needs five seconds."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tickets": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position": 3
+      },
+      "output": 4,
+      "explanation": "Everyone needs one ticket, so the last person is served at second 4."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tickets": [
+          3,
+          3,
+          3
+        ],
+        "position": 0
+      },
+      "output": 7,
+      "explanation": "Each round serves all three; person 0 finishes at second 7, the first purchase of the third round."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tickets": [
+          1,
+          6,
+          2,
+          1
+        ],
+        "position": 2
+      },
+      "output": 6,
+      "explanation": "Person 2 finishes at second 6: the first round takes 4 seconds, then persons 1 and 2 are served."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tickets": [
+          7,
+          2,
+          7
+        ],
+        "position": 2
+      },
+      "output": 16,
+      "explanation": "Person 2 needs seven rounds; person 1 contributes only two seconds."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Simulate the line",
+      "intuition": "The statement describes a process, so run the process and watch the clock.",
+      "approach": "Keep a queue of people with their remaining counts. Each second, serve the front person; re-queue them if they still need tickets. Stop when the target person completes their purchase.",
+      "pseudocode": "queue = people with counts; time = 0; loop: pop front, time++, decrement; if done and it is the target return time; else if not done push to back.",
+      "code": "function ticketTurns(tickets, position) {\n    const line = tickets.map((needed, who) => ({ who, needed }));\n    let seconds = 0;\n    while (line.length > 0) {\n        const person = line.shift();\n        seconds++;\n        person.needed--;\n        if (person.needed === 0) {\n            if (person.who === position)\n                return seconds;\n        } else {\n            line.push(person);\n        }\n    }\n    return seconds;\n}",
+      "timeComplexity": "O(n × max tickets)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Returning when the target is re-queued instead of when they leave.",
+        "Using array shift in a way that hides the true cost on very long lines."
+      ],
+      "interviewExplanation": "A direct simulation is the safest first version and clarifies the timing rule. Once the process is clear, each person's contribution can be computed independently, which turns the simulation into a single pass.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2, 3, 1] and position 1, seconds 1–3 serve everyone once, leaving counts [1, 2] for persons 0 and 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Second 4 serves person 0, who leaves. Seconds 5 and 6 serve person 1; the second purchase is their last, so the answer is 6."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Add each person's contribution",
+      "intuition": "The target buys one ticket per round, so the answer is the number of purchases that happen before or during the target's final purchase, and every other person makes a predictable number of those.",
+      "approach": "Let needed be the target's count. A person at or before the target is served min(tickets, needed) times. A person after the target is served min(tickets, needed - 1) times because the target finishes earlier in the last round. Sum those contributions.",
+      "pseudocode": "needed = tickets[position]; total = 0; for each i: total += min(tickets[i], i <= position ? needed : needed - 1); return total.",
+      "code": "function ticketTurns(tickets, position) {\n    const needed = tickets[position];\n    let seconds = 0;\n    for (let i = 0; i < tickets.length; i++) {\n        if (i <= position)\n            seconds += Math.min(tickets[i], needed);\n        else\n            seconds += Math.min(tickets[i], needed - 1);\n    }\n    return seconds;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Treating people behind the target like people ahead of them overcounts by one round.",
+        "Forgetting that the target's own purchases are included through the i == position term."
+      ],
+      "interviewExplanation": "Rather than simulate, I count purchases. Everyone in front of the target, and the target, is served once per round for up to needed rounds; everyone behind gets one round fewer because the target leaves before them in the final round. Summing min values gives the answer in one linear pass with no queue.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2, 3, 1] and position 1, needed is 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Person 0 contributes min(2, 3) = 2, person 1 contributes min(3, 3) = 3, person 2 contributes min(1, 2) = 1."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The total is 6, matching the simulation."
+        }
+      ]
+    }
+  ]
+}

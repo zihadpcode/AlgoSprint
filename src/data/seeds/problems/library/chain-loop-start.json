@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "slug": "chain-loop-start",
+  "title": "Chain Loop Start",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "fast-slow-pointers",
+  "statement": "A conveyor system is modeled as a linked chain of stations. Station i forwards items to station next[i], or to nowhere when next[i] is -1. Items enter at station head, or the chain is empty when head is -1. Because of a wiring mistake, the chain may eventually loop back to an earlier station forever. Return the index of the first station that is visited twice when following the chain from head, which is where the loop begins. Return -1 when the chain ends. Aim for constant extra memory.",
+  "constraints": [
+    "0 <= next.length <= 10000",
+    "-1 <= next[i] < next.length and -1 <= head < next.length",
+    "Every station has at most one outgoing link."
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "linked-list",
+    "two-pointers"
+  ],
+  "tags": [
+    "pointer-pair",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "next": [
+          1,
+          2,
+          3,
+          1
+        ],
+        "head": 0
+      },
+      "output": 1,
+      "explanation": "Items travel 0 → 1 → 2 → 3 → 1, so station 1 is the loop start."
+    },
+    {
+      "position": 2,
+      "input": {
+        "next": [
+          1,
+          2,
+          -1
+        ],
+        "head": 0
+      },
+      "output": -1,
+      "explanation": "The chain ends at station 2 and never loops."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Recording every visited station finds the loop start but uses memory proportional to the chain."
+    },
+    {
+      "position": 2,
+      "content": "Move two pointers at different speeds; inside a loop the fast one eventually lands on the slow one."
+    },
+    {
+      "position": 3,
+      "content": "If the fast pointer reaches -1, the chain ends and there is no loop."
+    },
+    {
+      "position": 4,
+      "content": "Once the pointers meet, the distance from the head to the loop start equals the distance from the meeting point to the loop start, measured around the loop."
+    },
+    {
+      "position": 5,
+      "content": "Restart one pointer at the head and step both one station at a time; they meet exactly at the loop start."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "chainLoopStart",
+      "code": "function chainLoopStart(next, head) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "next": [
+          1,
+          2,
+          3,
+          1
+        ],
+        "head": 0
+      },
+      "output": 1,
+      "explanation": "Items travel 0 → 1 → 2 → 3 → 1, so station 1 is the loop start."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "next": [
+          1,
+          2,
+          -1
+        ],
+        "head": 0
+      },
+      "output": -1,
+      "explanation": "The chain ends at station 2 and never loops."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "next": [],
+        "head": -1
+      },
+      "output": -1,
+      "explanation": "An empty chain has no loop."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "next": [
+          0
+        ],
+        "head": 0
+      },
+      "output": 0,
+      "explanation": "Station 0 links to itself, so the loop starts there."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "next": [
+          2,
+          0,
+          1
+        ],
+        "head": 2
+      },
+      "output": 2,
+      "explanation": "2 → 1 → 0 → 2: the head itself is revisited first."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "next": [
+          3,
+          -1,
+          1,
+          2
+        ],
+        "head": 0
+      },
+      "output": -1,
+      "explanation": "0 → 3 → 2 → 1 → end, so there is no loop even though the links are scattered."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "next": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          2
+        ],
+        "head": 0
+      },
+      "output": 2,
+      "explanation": "A tail of two stations leads into a loop of four beginning at station 2."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "next": [
+          5,
+          0,
+          1,
+          2,
+          3,
+          4,
+          3
+        ],
+        "head": 6
+      },
+      "output": 3,
+      "explanation": "Starting at 6 leads to 3, then round 2 → 1 → 0 → 5 → 4 → 3, so the loop starts at 3."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Remember every visited station",
+      "intuition": "The loop start is the first station encountered for a second time, and a set can remember what has been seen.",
+      "approach": "Walk from head and add every station to a set. The first station already in the set is the loop start; reaching -1 means no loop.",
+      "pseudocode": "visited = {}; station = head; while station != -1: if station in visited return station; add station; station = next[station]; return -1.",
+      "code": "function chainLoopStart(next, head) {\n    const visited = new Set();\n    let station = head;\n    while (station !== -1) {\n        if (visited.has(station))\n            return station;\n        visited.add(station);\n        station = next[station];\n    }\n    return -1;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Checking the set after adding the current station, which reports the head immediately.",
+        "Forgetting the -1 terminator and reading next[-1]."
+      ],
+      "interviewExplanation": "A visited set finds the loop start directly but costs linear memory. The two-speed pointer technique detects the loop with two indices, and a second phase from the head locates its first station, all in constant extra space.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For next = [1, 2, 3, 1] and head 0, the walk visits 0, 1, 2, 3 and records each."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The next station is 1, which is already recorded, so the answer is 1."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Two speeds, then a second walk",
+      "intuition": "A pointer moving two steps at a time gains one station per move on a pointer moving one step, so inside a loop they must meet; the meeting point is positioned so that a walk from the head and a walk from the meeting point reach the loop start together.",
+      "approach": "Phase one advances slow by one and fast by two until they coincide or fast reaches the end. Phase two restarts one pointer at the head and moves both one step at a time; the station where they meet is the loop start.",
+      "pseudocode": "slow = fast = head; loop: if fast or next[fast] is -1 return -1; slow = next[slow]; fast = next[next[fast]]; until slow == fast. entry = head; while entry != slow: advance both by one; return entry.",
+      "code": "function chainLoopStart(next, head) {\n    let slow = head;\n    let fast = head;\n    while (true) {\n        if (fast === -1 || next[fast] === -1)\n            return -1;\n        slow = next[slow];\n        fast = next[next[fast]];\n        if (slow === fast)\n            break;\n    }\n    let entry = head;\n    while (entry !== slow) {\n        entry = next[entry];\n        slow = next[slow];\n    }\n    return entry;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Comparing the pointers before moving them, which reports a loop at the head immediately.",
+        "Checking only fast for -1 and then dereferencing next[fast] when it is the last station."
+      ],
+      "interviewExplanation": "I run a slow and a fast pointer; if the fast pointer hits the end there is no loop, otherwise they meet inside it. If the tail before the loop has length a and the loop has length c, the meeting point sits a steps before the loop start when measured around the loop, so a second walk from the head and from the meeting point converges exactly at the loop start. Two passes, constant memory.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For next = [1, 2, 3, 1] and head 0: slow goes 1, 2, 3 while fast goes 2, 1, 3, meeting at station 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Restart entry at 0: entry moves to 1 while slow moves from 3 to 1. They coincide at station 1."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Station 1 is the loop start, matching the direct walk."
+        }
+      ]
+    }
+  ]
+}

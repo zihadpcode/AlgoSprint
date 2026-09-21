@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "slug": "gutter-capacity",
+  "title": "Gutter Capacity",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "two-pointers",
+  "statement": "A flat roof has a row of parapet blocks whose heights are listed in the array heights, one unit wide each. After heavy rain, water settles in the dips between taller blocks; water above a block rises to the lower of the tallest block on its left and the tallest block on its right, and never spills off either end. Return the total volume of water held, in square units. Fewer than three blocks hold no water.",
+  "constraints": [
+    "0 <= heights.length <= 10000",
+    "0 <= heights[i] <= 1000000"
+  ],
+  "estimatedMinutes": 40,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "two-pointers",
+    "arrays"
+  ],
+  "tags": [
+    "pointer-pair",
+    "invariant",
+    "prefix-sum"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "heights": [
+          2,
+          0,
+          1,
+          0,
+          3
+        ]
+      },
+      "output": 5,
+      "explanation": "The blocks of height 2 and 3 bound the middle: water levels are 2, 1 and 2 above the three middle blocks, for 5 units."
+    },
+    {
+      "position": 2,
+      "input": {
+        "heights": [
+          3,
+          2,
+          1
+        ]
+      },
+      "output": 0,
+      "explanation": "The heights only descend, so nothing is held."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The water above a block is bounded by the tallest block to its left and the tallest to its right."
+    },
+    {
+      "position": 2,
+      "content": "Computing both maxima by scanning outward from every block is quadratic; precomputing them is linear."
+    },
+    {
+      "position": 3,
+      "content": "Two arrays of running maxima, one from each side, give the water level at every block."
+    },
+    {
+      "position": 4,
+      "content": "To avoid the arrays, walk two pointers inward and process the side whose current block is lower."
+    },
+    {
+      "position": 5,
+      "content": "The lower side is safe to settle because its water level is bounded by its own running maximum, which the taller other side can never undercut."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "gutterCapacity",
+      "code": "function gutterCapacity(heights) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "heights": [
+          2,
+          0,
+          1,
+          0,
+          3
+        ]
+      },
+      "output": 5,
+      "explanation": "The blocks of height 2 and 3 bound the middle: water levels are 2, 1 and 2 above the three middle blocks, for 5 units."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "heights": [
+          3,
+          2,
+          1
+        ]
+      },
+      "output": 0,
+      "explanation": "The heights only descend, so nothing is held."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": []
+      },
+      "output": 0,
+      "explanation": "No blocks."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          4,
+          4
+        ]
+      },
+      "output": 0,
+      "explanation": "Two blocks cannot enclose a dip."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          1,
+          0,
+          1
+        ]
+      },
+      "output": 1,
+      "explanation": "One unit sits over the middle block."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          0,
+          3,
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      "output": 7,
+      "explanation": "The walls of height 3 and 4 bound the interior: water is 3, 1 and 3 units over indices 2, 3 and 4, for 7 units."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          5,
+          1,
+          1,
+          1,
+          5
+        ]
+      },
+      "output": 12,
+      "explanation": "A wide basin: 4 units over each of three blocks is 12."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          2,
+          1,
+          3,
+          1,
+          2,
+          1,
+          4
+        ]
+      },
+      "output": 6,
+      "explanation": "Water: 1 over index 1, then between 3 and 4 the levels are 2, 1, 2 over indices 3–5, giving 1 + 2 + 1 + 2 = 6."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          0,
+          0,
+          0
+        ]
+      },
+      "output": 0,
+      "explanation": "Flat ground holds nothing."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Scan outward from every block",
+      "intuition": "The water level above a block is the lower of its two bounding walls, and those walls can be found by looking outward.",
+      "approach": "For every block, scan left to find the tallest block including itself, scan right likewise, and add the difference between the lower wall and the block height.",
+      "pseudocode": "for each i: left = max(heights[0..i]); right = max(heights[i..n-1]); water += min(left, right) - heights[i]; return water.",
+      "code": "function gutterCapacity(heights) {\n    let water = 0;\n    for (let i = 0; i < heights.length; i++) {\n        let leftWall = 0;\n        for (let j = 0; j <= i; j++)\n            leftWall = Math.max(leftWall, heights[j]);\n        let rightWall = 0;\n        for (let j = i; j < heights.length; j++)\n            rightWall = Math.max(rightWall, heights[j]);\n        water += Math.min(leftWall, rightWall) - heights[i];\n    }\n    return water;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Excluding the block itself from its walls, which can make the level lower than the block and produce negative water.",
+        "Using the nearest taller block instead of the tallest block on each side."
+      ],
+      "interviewExplanation": "The outward scans are the definition made literal. Precomputing running maxima from both ends makes it linear with two extra arrays, and the two-pointer version keeps it linear with constant space by always settling the side that is currently lower.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2, 0, 1, 0, 3], index 1 has walls 2 and 3, so it holds 2; index 2 has walls 2 and 3 and holds 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Index 3 holds 2; the end blocks hold nothing. Total 5."
+        }
+      ]
+    },
+    {
+      "kind": "BETTER",
+      "language": "JAVASCRIPT",
+      "title": "Precompute walls from both sides",
+      "intuition": "The tallest block to the left of every position is a running maximum, which one left-to-right pass produces; the right side is symmetric.",
+      "approach": "Build leftWall as the running maximum from the left and rightWall from the right. Sum min(leftWall, rightWall) minus the block height for each block.",
+      "pseudocode": "leftWall[i] = max(leftWall[i-1], h[i]); rightWall[i] = max(rightWall[i+1], h[i]); water = sum of min(leftWall[i], rightWall[i]) - h[i].",
+      "code": "function gutterCapacity(heights) {\n    const n = heights.length;\n    const leftWall = new Array(n).fill(0);\n    const rightWall = new Array(n).fill(0);\n    for (let i = 0; i < n; i++)\n        leftWall[i] = Math.max(i === 0 ? 0 : leftWall[i - 1], heights[i]);\n    for (let i = n - 1; i >= 0; i--)\n        rightWall[i] = Math.max(i === n - 1 ? 0 : rightWall[i + 1], heights[i]);\n    let water = 0;\n    for (let i = 0; i < n; i++)\n        water += Math.min(leftWall[i], rightWall[i]) - heights[i];\n    return water;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Building the right array in the wrong direction.",
+        "Off-by-one at the array ends when seeding the running maxima."
+      ],
+      "interviewExplanation": "Two prefix-maximum arrays turn the quadratic scans into three linear passes. It is the version I would write first under time pressure, and then mention that two pointers remove the arrays.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2, 0, 1, 0, 3], leftWall is [2, 2, 2, 2, 3] and rightWall is [3, 3, 3, 3, 3]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The minimums minus heights are 0, 2, 1, 2, 0, summing to 5."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Two pointers settling the lower side",
+      "intuition": "When the block at the left pointer is lower than the block at the right pointer, the left block's water level is decided by the left wall alone, because some block at least as tall as the right block exists on its right.",
+      "approach": "Keep pointers at both ends and the tallest block seen from each side. Repeatedly process the side whose current block is lower: update that side's wall, add the water above the block, and move the pointer inward.",
+      "pseudocode": "left = 0, right = n-1, walls = 0; while left < right: if h[left] < h[right]: leftWall = max; water += leftWall - h[left]; left++ else symmetric on the right; return water.",
+      "code": "function gutterCapacity(heights) {\n    let left = 0;\n    let right = heights.length - 1;\n    let leftWall = 0;\n    let rightWall = 0;\n    let water = 0;\n    while (left < right) {\n        if (heights[left] < heights[right]) {\n            leftWall = Math.max(leftWall, heights[left]);\n            water += leftWall - heights[left];\n            left++;\n        } else {\n            rightWall = Math.max(rightWall, heights[right]);\n            water += rightWall - heights[right];\n            right--;\n        }\n    }\n    return water;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Processing the taller side, whose water level depends on blocks not yet seen.",
+        "Updating the wall after computing the water, which undercounts when the current block is the new wall."
+      ],
+      "interviewExplanation": "I move two pointers inward and always settle the lower side. If the left block is lower than the right block, the right side already guarantees a wall at least as tall as the right block, so the water over the left block is exactly leftWall minus its height. Each step moves one pointer, so the pass is linear with constant memory, matching the prefix-array solution without the arrays.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [2, 0, 1, 0, 3], the left block 2 is lower than the right block 3, so the left side is settled: leftWall = 2, no water, left moves to index 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Index 1 (0) adds 2; index 2 (1) adds 1; index 3 (0) adds 2, each compared against the right block 3."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The pointers meet and the total is 5."
+        }
+      ]
+    }
+  ]
+}

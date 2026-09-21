@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 1,
+  "slug": "prefix-counts",
+  "title": "Prefix Counts",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "trie",
+  "statement": "A search box suggests completions from a dictionary. Given the array words, where each entry is a lowercase word that may repeat, and the array queries of lowercase prefixes, return an array where entry i is how many entries of words start with queries[i]. A word counts once per occurrence in words, and every word starts with the empty prefix.",
+  "constraints": [
+    "0 <= words.length, queries.length <= 10000",
+    "0 <= words[i].length, queries[i].length <= 200",
+    "All strings contain only lowercase English letters."
+  ],
+  "estimatedMinutes": 35,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "tries",
+    "strings",
+    "design"
+  ],
+  "tags": [
+    "hashing"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "words": [
+          "apple",
+          "apply",
+          "apt",
+          "banana",
+          "band"
+        ],
+        "queries": [
+          "ap",
+          "ban",
+          "b",
+          "c",
+          ""
+        ]
+      },
+      "output": [
+        3,
+        2,
+        2,
+        0,
+        5
+      ],
+      "explanation": "Three words start with ap, two with ban, two with b, none with c, and all five with the empty prefix."
+    },
+    {
+      "position": 2,
+      "input": {
+        "words": [
+          "tea",
+          "tea",
+          "team"
+        ],
+        "queries": [
+          "tea",
+          "team",
+          "teams"
+        ]
+      },
+      "output": [
+        3,
+        1,
+        0
+      ],
+      "explanation": "Both copies of tea and the word team start with tea; only team starts with team; nothing starts with teams."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Checking every word against every query multiplies the two list sizes and the prefix length."
+    },
+    {
+      "position": 2,
+      "content": "Many words share leading letters, so store them once along a shared path."
+    },
+    {
+      "position": 3,
+      "content": "A tree with one node per letter position, where each node counts how many words pass through it, answers a prefix query by walking the query."
+    },
+    {
+      "position": 4,
+      "content": "Increment the counter of every node on a word's path, including the root for the empty prefix."
+    },
+    {
+      "position": 5,
+      "content": "A query walks letter by letter; falling off the tree means zero, otherwise return the counter where the walk ends."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "prefixCounts",
+      "code": "function prefixCounts(words, queries) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "apple",
+          "apply",
+          "apt",
+          "banana",
+          "band"
+        ],
+        "queries": [
+          "ap",
+          "ban",
+          "b",
+          "c",
+          ""
+        ]
+      },
+      "output": [
+        3,
+        2,
+        2,
+        0,
+        5
+      ],
+      "explanation": "Three words start with ap, two with ban, two with b, none with c, and all five with the empty prefix."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "tea",
+          "tea",
+          "team"
+        ],
+        "queries": [
+          "tea",
+          "team",
+          "teams"
+        ]
+      },
+      "output": [
+        3,
+        1,
+        0
+      ],
+      "explanation": "Both copies of tea and the word team start with tea; only team starts with team; nothing starts with teams."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [],
+        "queries": [
+          "a",
+          ""
+        ]
+      },
+      "output": [
+        0,
+        0
+      ],
+      "explanation": "An empty dictionary matches nothing, not even the empty prefix."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "solo"
+        ],
+        "queries": []
+      },
+      "output": [],
+      "explanation": "No queries means no answers."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "a",
+          "aa",
+          "aaa"
+        ],
+        "queries": [
+          "a",
+          "aa",
+          "aaa",
+          "aaaa"
+        ]
+      },
+      "output": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "explanation": "Each longer prefix matches one fewer word."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "",
+          "x"
+        ],
+        "queries": [
+          "",
+          "x",
+          "xy"
+        ]
+      },
+      "output": [
+        2,
+        1,
+        0
+      ],
+      "explanation": "An empty word only matches the empty prefix."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "car",
+          "cart",
+          "carbon",
+          "cat",
+          "dog"
+        ],
+        "queries": [
+          "car",
+          "ca",
+          "d",
+          "carbo",
+          "cartel"
+        ]
+      },
+      "output": [
+        3,
+        4,
+        1,
+        1,
+        0
+      ],
+      "explanation": "Counts are 3, 4, 1, 1 and 0."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "z",
+          "z",
+          "z",
+          "zz"
+        ],
+        "queries": [
+          "z",
+          "zz",
+          "zzz"
+        ]
+      },
+      "output": [
+        4,
+        1,
+        0
+      ],
+      "explanation": "Repeated words count each time: 4, 1, 0."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Compare every word with every query",
+      "intuition": "Each query can simply be tested against each word.",
+      "approach": "For every query, scan the whole dictionary and count the words that start with it.",
+      "pseudocode": "for each query: count = number of words w with w.startsWith(query); collect counts.",
+      "code": "function prefixCounts(words, queries) {\n    return queries.map((query) => {\n        let count = 0;\n        for (const word of words)\n            if (word.startsWith(query))\n                count++;\n        return count;\n    });\n}",
+      "timeComplexity": "O(queries × words × prefix length)",
+      "spaceComplexity": "O(1) beyond the output",
+      "commonMistakes": [
+        "Using includes instead of startsWith, which counts words containing the prefix anywhere.",
+        "Deduplicating words, which loses repeated occurrences that should count separately."
+      ],
+      "interviewExplanation": "The direct scan is fine for small inputs but rescans every word for every query. A trie with per-node counters stores each word once along shared paths, so each query costs only its own length.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For the first example, the query ap is tested against all five words and matches apple, apply and apt."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The remaining queries are tested the same way, giving [3, 2, 2, 0, 5]."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Trie with pass-through counters",
+      "intuition": "Every word that starts with a prefix passes through the trie node at the end of that prefix, so counting arrivals at each node answers every prefix query.",
+      "approach": "Insert each word into a trie, incrementing a counter at the root and at every node along the word's path. For each query, walk the trie letter by letter; return 0 if a letter is missing, otherwise the counter at the final node.",
+      "pseudocode": "root.count = 0; for each word: node = root; node.count++; for each letter: node = child(letter) creating if needed; node.count++. For each query: walk letters; if missing return 0; else return node.count.",
+      "code": "function prefixCounts(words, queries) {\n    const root = { count: 0, children: new Map() };\n    for (const word of words) {\n        let node = root;\n        node.count++;\n        for (const letter of word) {\n            if (!node.children.has(letter))\n                node.children.set(letter, { count: 0, children: new Map() });\n            node = node.children.get(letter);\n            node.count++;\n        }\n    }\n    return queries.map((query) => {\n        let node = root;\n        for (const letter of query) {\n            node = node.children.get(letter);\n            if (node === undefined)\n                return 0;\n        }\n        return node.count;\n    });\n}",
+      "timeComplexity": "O(total word length + total query length)",
+      "spaceComplexity": "O(total word length)",
+      "commonMistakes": [
+        "Only counting at the last node of a word, which answers exact matches rather than prefixes.",
+        "Forgetting to count at the root, which makes the empty prefix return 0."
+      ],
+      "interviewExplanation": "I build a trie where each node stores how many inserted words pass through it. Insertion touches one node per letter, and a query walks its letters and reads the counter where it stops, or returns zero if the path breaks. The work is linear in the total input length, and shared prefixes are stored once. Maps as child tables keep the memory proportional to the letters actually used.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For the first example, inserting apple, apply and apt makes the node for ap count 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "banana and band make the node for ban count 2 and the node for b count 2; the root counts 5."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Query c finds no child at the root and returns 0, and the empty query returns the root count 5."
+        }
+      ]
+    }
+  ]
+}

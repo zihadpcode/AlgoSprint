@@ -1,13 +1,7 @@
 import "server-only";
 
-// Explicit argument order: PostgreSQL JSONB object key order is not a function signature.
-const signatures: Record<string, { entryPoint: string; keys: string[] }> = {
-  "relay-window": { entryPoint: "relayWindow", keys: ["loads", "width"] },
-  "quiet-badge": { entryPoint: "quietBadge", keys: ["badges"] },
-  "parcel-checkpoints": { entryPoint: "parcelCheckpoints", keys: ["parcels", "ranges"] },
-  "dock-threshold": { entryPoint: "dockThreshold", keys: ["capacities", "load"] },
-  "lantern-steps": { entryPoint: "lanternSteps", keys: ["costs"] },
-};
+import { SIGNATURES as signatures } from "./signatures";
+
 export function runnerSupports(slug: string) { return Object.hasOwn(signatures, slug); }
 export function makeProgram(slug: string, entryPoint: string, code: string) {
   const signature = Object.hasOwn(signatures, slug) ? signatures[slug] : undefined;

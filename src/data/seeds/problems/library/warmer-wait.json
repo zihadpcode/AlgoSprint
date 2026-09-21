@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "slug": "warmer-wait",
+  "title": "Warmer Wait",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "monotonic-stack",
+  "statement": "A weather station records one temperature per day in the array temps. For each day, report how many days you would have to wait until a strictly warmer day arrives. If no warmer day follows, report 0 for that day. Return the array of waits, one entry per day in the same order.",
+  "constraints": [
+    "0 <= temps.length <= 10000",
+    "-1000000 <= temps[i] <= 1000000"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "stack",
+    "arrays"
+  ],
+  "tags": [
+    "invariant",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "temps": [
+          12,
+          15,
+          13,
+          13,
+          18,
+          11
+        ]
+      },
+      "output": [
+        1,
+        3,
+        2,
+        1,
+        0,
+        0
+      ],
+      "explanation": "Day 0 waits 1 day for 15. Day 1 waits 3 days for 18. Days 2 and 3 wait 2 and 1 days. Days 4 and 5 never see a warmer day."
+    },
+    {
+      "position": 2,
+      "input": {
+        "temps": [
+          9,
+          8,
+          7
+        ]
+      },
+      "output": [
+        0,
+        0,
+        0
+      ],
+      "explanation": "Temperatures only fall, so every wait is 0."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The answer for a day depends only on days after it, which suggests scanning in a helpful order."
+    },
+    {
+      "position": 2,
+      "content": "Keep the days that are still waiting for a warmer day in a stack."
+    },
+    {
+      "position": 3,
+      "content": "When a new temperature arrives, every waiting day with a lower temperature can now be resolved."
+    },
+    {
+      "position": 4,
+      "content": "Days remaining on the stack always have non-increasing temperatures from bottom to top."
+    },
+    {
+      "position": 5,
+      "content": "Whatever is still on the stack after the scan never got a warmer day and keeps a wait of 0."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "warmerWait",
+      "code": "function warmerWait(temps) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "temps": [
+          12,
+          15,
+          13,
+          13,
+          18,
+          11
+        ]
+      },
+      "output": [
+        1,
+        3,
+        2,
+        1,
+        0,
+        0
+      ],
+      "explanation": "Day 0 waits 1 day for 15. Day 1 waits 3 days for 18. Days 2 and 3 wait 2 and 1 days. Days 4 and 5 never see a warmer day."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "temps": [
+          9,
+          8,
+          7
+        ]
+      },
+      "output": [
+        0,
+        0,
+        0
+      ],
+      "explanation": "Temperatures only fall, so every wait is 0."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "temps": []
+      },
+      "output": [],
+      "explanation": "No days, no waits."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "temps": [
+          20
+        ]
+      },
+      "output": [
+        0
+      ],
+      "explanation": "A single day has nothing after it."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "temps": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "output": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "explanation": "Each day is followed immediately by a warmer one, except the last."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "temps": [
+          5,
+          5,
+          5,
+          6
+        ]
+      },
+      "output": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "explanation": "Equal temperatures are not warmer; the first three days all wait for day 3."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "temps": [
+          -2,
+          -7,
+          -3,
+          -1
+        ]
+      },
+      "output": [
+        3,
+        1,
+        1,
+        0
+      ],
+      "explanation": "Negative temperatures use the same rule: waits are 3, 1, 1, 0."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "temps": [
+          30,
+          10,
+          20,
+          10,
+          40
+        ]
+      },
+      "output": [
+        4,
+        1,
+        2,
+        1,
+        0
+      ],
+      "explanation": "Day 0 waits until day 4; day 2 also waits until day 4."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Scan forward from each day",
+      "intuition": "For each day, the next warmer day can be found by looking forward until one appears.",
+      "approach": "For every day, scan the following days and stop at the first strictly warmer temperature. Record the distance or leave 0.",
+      "pseudocode": "for each day: for later from day+1: if temps[later] > temps[day] then wait[day] = later - day and break.",
+      "code": "function warmerWait(temps) {\n    const wait = new Array(temps.length).fill(0);\n    for (let day = 0; day < temps.length; day++) {\n        for (let later = day + 1; later < temps.length; later++) {\n            if (temps[later] > temps[day]) {\n                wait[day] = later - day;\n                break;\n            }\n        }\n    }\n    return wait;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1) beyond the output",
+      "commonMistakes": [
+        "Using >= so an equal temperature counts as warmer.",
+        "Continuing the inner scan after the first warmer day and overwriting the answer."
+      ],
+      "interviewExplanation": "Scanning forward from every day is quadratic when temperatures decrease for a long stretch. A stack of unresolved days lets each day be pushed and popped once, because a new warmer reading resolves all the cooler days waiting on top of the stack.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [12, 15, 13, 13, 18, 11], day 0 finds 15 on day 1, so its wait is 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Day 1 scans 13, 13 and stops at 18 on day 4, a wait of 3. Days 2 and 3 stop at day 4 as well."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Days 4 and 5 never find a warmer day and keep 0."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Stack of days still waiting",
+      "intuition": "A day stays unresolved until a warmer day arrives, and when one arrives it resolves every cooler unresolved day at once.",
+      "approach": "Scan left to right with a stack of indices whose waits are unknown. Before pushing the current day, pop every index whose temperature is lower and set its wait to the distance. Indices left on the stack keep 0.",
+      "pseudocode": "stack = []; for each day: while stack top is cooler than today: pop it and set its wait; push day; return waits.",
+      "code": "function warmerWait(temps) {\n    const wait = new Array(temps.length).fill(0);\n    const pending = [];\n    for (let day = 0; day < temps.length; day++) {\n        while (pending.length > 0 && temps[pending[pending.length - 1]] < temps[day]) {\n            const earlier = pending.pop();\n            wait[earlier] = day - earlier;\n        }\n        pending.push(day);\n    }\n    return wait;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Popping on equal temperatures, which violates the strictly warmer rule.",
+        "Storing temperatures on the stack instead of indices, which loses the distance."
+      ],
+      "interviewExplanation": "I keep a stack of indices with non-increasing temperatures. Each new day pops every cooler index on top and assigns it the distance to today, then pushes itself. Every index is pushed once and popped at most once, so the total work is linear, and anything still on the stack at the end correctly keeps a wait of zero.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [12, 15, 13, 13, 18, 11], day 1 (15) pops day 0 and sets wait[0] = 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Days 2 and 3 (13, 13) push without popping because 13 is not cooler than 13."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Day 4 (18) pops days 3, 2 and 1, setting waits 1, 2 and 3. Day 5 pushes and the stack drains with zeros."
+        }
+      ]
+    }
+  ]
+}

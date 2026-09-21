@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "slug": "splice-cables",
+  "title": "Splice the Cables",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "heap-greedy",
+  "statement": "A crew must join several cable pieces into one continuous cable. Joining two pieces of lengths a and b costs a + b units of labor and produces one piece of length a + b. Given the piece lengths in the array lengths, return the minimum total labor needed to join every piece into a single cable. A single piece or no pieces needs no labor.",
+  "constraints": [
+    "0 <= lengths.length <= 10000",
+    "1 <= lengths[i] <= 1000000"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "heaps",
+    "greedy"
+  ],
+  "tags": [
+    "priority-queue"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "lengths": [
+          4,
+          3,
+          2,
+          6
+        ]
+      },
+      "output": 29,
+      "explanation": "Join 2 and 3 for 5, then 4 and 5 for 9, then 6 and 9 for 15. The total is 5 + 9 + 15 = 29, and no other order is cheaper."
+    },
+    {
+      "position": 2,
+      "input": {
+        "lengths": [
+          7
+        ]
+      },
+      "output": 0,
+      "explanation": "One piece is already a single cable."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "A piece that is joined early gets its length counted in every later join it participates in."
+    },
+    {
+      "position": 2,
+      "content": "So the longest pieces should be joined as late as possible and the shortest as early as possible."
+    },
+    {
+      "position": 3,
+      "content": "At each step, join the two shortest pieces currently available."
+    },
+    {
+      "position": 4,
+      "content": "Repeatedly finding the two smallest pieces by scanning is slow; a min-heap gives them in logarithmic time."
+    },
+    {
+      "position": 5,
+      "content": "Push the joined piece back so it competes with the remaining pieces in later steps."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "spliceCables",
+      "code": "function spliceCables(lengths) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "lengths": [
+          4,
+          3,
+          2,
+          6
+        ]
+      },
+      "output": 29,
+      "explanation": "Join 2 and 3 for 5, then 4 and 5 for 9, then 6 and 9 for 15. The total is 5 + 9 + 15 = 29, and no other order is cheaper."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "lengths": [
+          7
+        ]
+      },
+      "output": 0,
+      "explanation": "One piece is already a single cable."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "lengths": []
+      },
+      "output": 0,
+      "explanation": "Nothing to join."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "lengths": [
+          1,
+          1
+        ]
+      },
+      "output": 2,
+      "explanation": "One join costing 2."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "lengths": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "output": 33,
+      "explanation": "Joins of 3, 6, 9 and 15 total 33."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "lengths": [
+          10,
+          10,
+          10,
+          10
+        ]
+      },
+      "output": 80,
+      "explanation": "Join into two 20s (cost 40), then 40 (cost 40), for 80 total."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "lengths": [
+          1,
+          100,
+          1,
+          100
+        ]
+      },
+      "output": 306,
+      "explanation": "Joining the two 1s first (cost 2) then 2 + 100 (102) then 102 + 100 (202) totals 306."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "lengths": [
+          5,
+          4,
+          3,
+          2,
+          1,
+          1
+        ]
+      },
+      "output": 38,
+      "explanation": "The greedy order pays 2, 4, 7, 9 and 16 for a total of 38."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Scan for the two shortest pieces each round",
+      "intuition": "Joining the two shortest pieces first keeps long pieces out of as many joins as possible, and that greedy choice can be simulated directly.",
+      "approach": "While more than one piece remains, sort the pieces, remove the two shortest, add their sum to the labor, and put the joined piece back.",
+      "pseudocode": "labor = 0; while more than one piece: sort; joined = first + second; labor += joined; replace the two with joined; return labor.",
+      "code": "function spliceCables(lengths) {\n    const pieces = [...lengths];\n    let labor = 0;\n    while (pieces.length > 1) {\n        pieces.sort((a, b) => a - b);\n        const joined = pieces.shift() + pieces.shift();\n        labor += joined;\n        pieces.push(joined);\n    }\n    return labor;\n}",
+      "timeComplexity": "O(n² log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Joining pieces left to right in input order, which is not optimal.",
+        "Forgetting to put the joined piece back into the pool."
+      ],
+      "interviewExplanation": "Greedy pairing of the two shortest pieces is optimal by the same exchange argument as optimal merge patterns. Sorting the pool every round works but is slow; a min-heap supports the two removals and one insertion per round in logarithmic time.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [4, 3, 2, 6], sorting gives [2, 3, 4, 6]; join 2 and 3 for 5, leaving [4, 6, 5]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Sort to [4, 5, 6]; join 4 and 5 for 9, leaving [6, 9]; join for 15. Total labor 5 + 9 + 15 = 29."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Min-heap of pieces",
+      "intuition": "The greedy rule only ever needs the two smallest pieces, which is exactly what a min-heap serves efficiently.",
+      "approach": "Push all lengths into a min-heap. While at least two pieces remain, pop the two smallest, add their sum to the labor, and push the sum back.",
+      "pseudocode": "heap = all lengths; labor = 0; while heap size > 1: a = pop, b = pop; labor += a + b; push(a + b); return labor.",
+      "code": "function spliceCables(lengths) {\n    const heap = [];\n    const push = (value) => {\n        heap.push(value);\n        let i = heap.length - 1;\n        while (i > 0) {\n            const parent = (i - 1) >> 1;\n            if (heap[parent] <= heap[i])\n                break;\n            [heap[parent], heap[i]] = [heap[i], heap[parent]];\n            i = parent;\n        }\n    };\n    const pop = () => {\n        const top = heap[0];\n        const last = heap.pop();\n        if (heap.length > 0) {\n            heap[0] = last;\n            let i = 0;\n            while (true) {\n                const left = 2 * i + 1;\n                const right = left + 1;\n                let smallest = i;\n                if (left < heap.length && heap[left] < heap[smallest])\n                    smallest = left;\n                if (right < heap.length && heap[right] < heap[smallest])\n                    smallest = right;\n                if (smallest === i)\n                    break;\n                [heap[smallest], heap[i]] = [heap[i], heap[smallest]];\n                i = smallest;\n            }\n        }\n        return top;\n    };\n    for (const length of lengths)\n        push(length);\n    let labor = 0;\n    while (heap.length > 1) {\n        const joined = pop() + pop();\n        labor += joined;\n        push(joined);\n    }\n    return labor;\n}",
+      "timeComplexity": "O(n log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Using a max-heap or sorting descending, which pairs the longest pieces first.",
+        "Returning the final piece length instead of the accumulated labor."
+      ],
+      "interviewExplanation": "Each join should combine the two shortest available pieces, because a piece's length is paid again in every later join that includes it. A binary min-heap gives the two smallest in O(log n) each, so n − 1 joins cost O(n log n). I implement the heap by hand since JavaScript has no built-in priority queue.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [4, 3, 2, 6], the heap yields 2 and 3; labor becomes 5 and 5 is pushed back."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Next it yields 4 and 5; labor becomes 14 and 9 is pushed."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Finally 6 and 9 are joined for 15, so the labor totals 29."
+        }
+      ]
+    }
+  ]
+}

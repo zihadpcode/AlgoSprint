@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "slug": "balanced-canopy",
+  "title": "Balanced Canopy",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "tree-recursion",
+  "statement": "An arborist models a tree's branching as a binary tree of junctions. The canopy is balanced when, at every junction, the heights of the left and right branches differ by at most one, where the height of a missing branch is 0 and the height of a branch is the number of junctions on its longest downward path. Return true when the whole tree is balanced and false otherwise. An empty tree is balanced. The tree is given as the array tree in level order: the first entry is the root, and each later entry is the left child then the right child of the next node that was listed, with null marking a missing child. Children of a missing node are not listed. An empty array is an empty tree.",
+  "constraints": [
+    "0 <= tree.length <= 10000",
+    "Each entry is an integer from -100000 through 100000 or null.",
+    "If the tree is not empty, the first entry is not null."
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "trees",
+    "recursion",
+    "dfs"
+  ],
+  "tags": [
+    "recursion"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tree": [
+          4,
+          2,
+          7,
+          1,
+          null,
+          6,
+          9
+        ]
+      },
+      "output": true,
+      "explanation": "Every junction has branches whose heights differ by at most one."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tree": [
+          1,
+          2,
+          null,
+          3,
+          null,
+          4
+        ]
+      },
+      "output": false,
+      "explanation": "The root's left branch has height 3 and its right branch is missing, a difference of 3."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Balance is defined junction by junction, so every junction must be checked, not just the root."
+    },
+    {
+      "position": 2,
+      "content": "Computing the height of each branch separately at every junction repeats work on deep trees."
+    },
+    {
+      "position": 3,
+      "content": "A single bottom-up traversal can return a branch's height and detect imbalance on the way up."
+    },
+    {
+      "position": 4,
+      "content": "Use a sentinel such as -1 to mean 'unbalanced somewhere below' so the recursion can stop early."
+    },
+    {
+      "position": 5,
+      "content": "A junction's height is one more than the taller of its two branches when both are balanced and differ by at most one."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "balancedCanopy",
+      "code": "function balancedCanopy(tree) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": [
+          4,
+          2,
+          7,
+          1,
+          null,
+          6,
+          9
+        ]
+      },
+      "output": true,
+      "explanation": "Every junction has branches whose heights differ by at most one."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": [
+          1,
+          2,
+          null,
+          3,
+          null,
+          4
+        ]
+      },
+      "output": false,
+      "explanation": "The root's left branch has height 3 and its right branch is missing, a difference of 3."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": []
+      },
+      "output": true,
+      "explanation": "An empty canopy is balanced."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          5
+        ]
+      },
+      "output": true,
+      "explanation": "A single junction has two missing branches."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "output": true,
+      "explanation": "The only extra junction, 8, deepens one branch by a single level, which is allowed."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          1,
+          2,
+          2,
+          3,
+          3,
+          null,
+          null,
+          4,
+          4
+        ]
+      },
+      "output": false,
+      "explanation": "The root's left branch has height 3 while its right branch has height 1."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          1,
+          null,
+          2,
+          null,
+          3
+        ]
+      },
+      "output": false,
+      "explanation": "A chain to the right has an unbalanced root."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          3,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      },
+      "output": true,
+      "explanation": "The right branch is one level taller than the left, which is balanced."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Measure both branches at every junction",
+      "intuition": "The definition can be applied literally: compute both branch heights at a junction, compare them, then check the branches themselves.",
+      "approach": "Rebuild the junction objects from the level-order array. For each junction, compute the height of each branch with a full recursive measurement, compare the two, and recurse into both branches.",
+      "pseudocode": "balanced(node): if null return true; if |height(left) - height(right)| > 1 return false; return balanced(left) and balanced(right).",
+      "code": "function balancedCanopy(tree) {\n    function build(values) {\n        if (values.length === 0)\n            return null;\n        const root = { value: values[0], left: null, right: null };\n        const queue = [root];\n        let index = 1;\n        while (queue.length > 0 && index < values.length) {\n            const node = queue.shift();\n            const left = values[index++];\n            if (left !== undefined && left !== null)\n                queue.push(node.left = { value: left, left: null, right: null });\n            const right = values[index++];\n            if (right !== undefined && right !== null)\n                queue.push(node.right = { value: right, left: null, right: null });\n        }\n        return root;\n    }\n    function height(node) {\n        if (node === null)\n            return 0;\n        return 1 + Math.max(height(node.left), height(node.right));\n    }\n    function balanced(node) {\n        if (node === null)\n            return true;\n        if (Math.abs(height(node.left) - height(node.right)) > 1)\n            return false;\n        return balanced(node.left) && balanced(node.right);\n    }\n    return balanced(build(tree));\n}",
+      "timeComplexity": "O(n²) in the worst case, because height is recomputed for every ancestor",
+      "spaceComplexity": "O(h) recursion depth",
+      "commonMistakes": [
+        "Checking only the root's two branches and skipping deeper junctions.",
+        "Defining a missing branch's height as -1 in one place and 0 in another."
+      ],
+      "interviewExplanation": "Measuring heights at every junction is correct but recomputes the same subtree heights repeatedly, which is quadratic on chain-shaped trees. Returning the height from a single post-order traversal, with a sentinel for imbalance, removes the repeated measurement.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [4, 2, 7, 1, null, 6, 9], the root's branches have heights 2 and 2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Junction 2 has branch heights 1 and 0; junction 7 has 1 and 1; the leaves have 0 and 0, so the answer is true."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Return height and imbalance together",
+      "intuition": "A junction's height can be computed from its branches' heights, and the same bottom-up pass can report the first imbalance instead of a height.",
+      "approach": "Rebuild the junctions, then run one post-order traversal that returns a branch's height, or -1 if anything inside it is unbalanced. A junction returns -1 when either branch does or when their heights differ by more than one.",
+      "pseudocode": "checked(node): if null return 0; l = checked(left); if l < 0 return -1; r = checked(right); if r < 0 or |l - r| > 1 return -1; return max(l, r) + 1. Answer: checked(root) >= 0.",
+      "code": "function balancedCanopy(tree) {\n    function build(values) {\n        if (values.length === 0)\n            return null;\n        const root = { value: values[0], left: null, right: null };\n        const queue = [root];\n        let index = 1;\n        while (queue.length > 0 && index < values.length) {\n            const node = queue.shift();\n            const left = values[index++];\n            if (left !== undefined && left !== null)\n                queue.push(node.left = { value: left, left: null, right: null });\n            const right = values[index++];\n            if (right !== undefined && right !== null)\n                queue.push(node.right = { value: right, left: null, right: null });\n        }\n        return root;\n    }\n    function checkedHeight(node) {\n        if (node === null)\n            return 0;\n        const left = checkedHeight(node.left);\n        if (left < 0)\n            return -1;\n        const right = checkedHeight(node.right);\n        if (right < 0 || Math.abs(left - right) > 1)\n            return -1;\n        return Math.max(left, right) + 1;\n    }\n    return checkedHeight(build(tree)) >= 0;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(h) recursion depth",
+      "commonMistakes": [
+        "Continuing to compute the right branch after the left branch already reported -1, which wastes work but is still correct.",
+        "Forgetting to propagate -1 upward so a deep imbalance is masked by a balanced ancestor."
+      ],
+      "interviewExplanation": "I traverse bottom-up, returning each subtree's height and using -1 as an imbalance signal. Each junction combines its two children in constant time, so the whole check is linear, and the sentinel lets the recursion stop as soon as any imbalance is found. Building the tree from the level-order array is also linear.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [4, 2, 7, 1, null, 6, 9], the leaves 1, 6 and 9 return height 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Junction 2 combines heights 1 and 0 into 2; junction 7 combines 1 and 1 into 2."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The root combines 2 and 2 into 3, which is non-negative, so the tree is balanced."
+        }
+      ]
+    }
+  ]
+}

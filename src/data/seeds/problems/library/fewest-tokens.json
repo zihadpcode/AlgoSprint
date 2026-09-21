@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "slug": "fewest-tokens",
+  "title": "Fewest Tokens",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "one-dimensional-dp",
+  "statement": "An arcade pays out prizes in tokens of the values listed in tokens, and the machine has an unlimited supply of each value. Return the fewest tokens needed to pay out exactly amount. If the amount cannot be formed exactly, return -1. An amount of 0 needs zero tokens.",
+  "constraints": [
+    "1 <= tokens.length <= 50",
+    "1 <= tokens[i] <= 10000",
+    "0 <= amount <= 10000"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming"
+  ],
+  "tags": [
+    "state-transition",
+    "memoization"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tokens": [
+          1,
+          5,
+          12
+        ],
+        "amount": 15
+      },
+      "output": 3,
+      "explanation": "Three 5-tokens use fewer tokens than 12 + 1 + 1 + 1, so greedy largest-first is wrong here."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tokens": [
+          4,
+          6
+        ],
+        "amount": 7
+      },
+      "output": -1,
+      "explanation": "Every combination of 4 and 6 is even, so 7 is impossible."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Taking the largest token first fails for some token sets, so the answer needs a search over choices."
+    },
+    {
+      "position": 2,
+      "content": "The fewest tokens for an amount is one more than the fewest tokens for amount minus some token value."
+    },
+    {
+      "position": 3,
+      "content": "That recurrence revisits the same amounts many times, so store the answer for each amount."
+    },
+    {
+      "position": 4,
+      "content": "Fill a table from 0 up to amount, treating unreachable amounts as infinity."
+    },
+    {
+      "position": 5,
+      "content": "Convert a final infinity to -1; everything else is the fewest token count."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "fewestTokens",
+      "code": "function fewestTokens(tokens, amount) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tokens": [
+          1,
+          5,
+          12
+        ],
+        "amount": 15
+      },
+      "output": 3,
+      "explanation": "Three 5-tokens use fewer tokens than 12 + 1 + 1 + 1, so greedy largest-first is wrong here."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tokens": [
+          4,
+          6
+        ],
+        "amount": 7
+      },
+      "output": -1,
+      "explanation": "Every combination of 4 and 6 is even, so 7 is impossible."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          3
+        ],
+        "amount": 0
+      },
+      "output": 0,
+      "explanation": "Nothing to pay."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          2
+        ],
+        "amount": 3
+      },
+      "output": -1,
+      "explanation": "Odd amounts cannot be formed from 2s."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          1,
+          2,
+          5
+        ],
+        "amount": 11
+      },
+      "output": 3,
+      "explanation": "5 + 5 + 1 uses three tokens."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          9,
+          6,
+          5,
+          1
+        ],
+        "amount": 11
+      },
+      "output": 2,
+      "explanation": "6 + 5 beats 9 + 1 + 1."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          7,
+          3
+        ],
+        "amount": 20
+      },
+      "output": 4,
+      "explanation": "7 + 7 + 3 + 3 uses four tokens; no combination uses three."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          2,
+          5,
+          10,
+          1
+        ],
+        "amount": 27
+      },
+      "output": 4,
+      "explanation": "10 + 10 + 5 + 2 uses four tokens."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          173,
+          401,
+          79,
+          350
+        ],
+        "amount": 5993
+      },
+      "output": 19,
+      "explanation": "A larger amount with awkward token values; plain recursion is far too slow here."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every token recursively",
+      "intuition": "The last token paid out must be one of the values, and whatever remains before it must also be paid out with the fewest tokens.",
+      "approach": "Recursively try each token that fits, take the best sub-answer plus one, and treat an amount that no token fits as impossible. Convert infinity to -1 at the top.",
+      "pseudocode": "fewest(0) = 0; fewest(r) = 1 + min over tokens t <= r of fewest(r - t), or infinity if none; answer = fewest(amount) or -1.",
+      "code": "function fewestTokens(tokens, amount) {\n    function fewest(remaining) {\n        if (remaining === 0)\n            return 0;\n        let best = Infinity;\n        for (const token of tokens)\n            if (token <= remaining)\n                best = Math.min(best, 1 + fewest(remaining - token));\n        return best;\n    }\n    const result = fewest(amount);\n    return result === Infinity ? -1 : result;\n}",
+      "timeComplexity": "Exponential in amount",
+      "spaceComplexity": "O(amount) recursion depth",
+      "commonMistakes": [
+        "Returning -1 from inside the recursion and then adding 1 to it.",
+        "Trying the largest token greedily and never reconsidering."
+      ],
+      "interviewExplanation": "The recursion is correct but recomputes the same remaining amounts exponentially many times. Because there are only amount + 1 distinct sub-amounts, a bottom-up table computes each one once in O(amount × tokens).",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For tokens [1, 5, 12] and amount 15, the recursion explores 15 → 14, 15 → 10 and 15 → 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The branch 15 → 10 → 5 → 0 uses three tokens, and no branch uses fewer, so the answer is 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Bottom-up table over amounts",
+      "intuition": "Every amount's answer depends only on smaller amounts, so computing amounts in increasing order guarantees each dependency is ready.",
+      "approach": "Create a table where fewest[v] is the fewest tokens for amount v. Set fewest[0] = 0 and everything else to infinity. For each amount from 1 upward and each token that fits, take the better of the current value and fewest[v - token] + 1.",
+      "pseudocode": "fewest[0] = 0, others infinity; for v in 1..amount: for each token t <= v: fewest[v] = min(fewest[v], fewest[v - t] + 1); return fewest[amount] or -1.",
+      "code": "function fewestTokens(tokens, amount) {\n    const fewest = new Array(amount + 1).fill(Infinity);\n    fewest[0] = 0;\n    for (let value = 1; value <= amount; value++) {\n        for (const token of tokens) {\n            if (token <= value && fewest[value - token] + 1 < fewest[value])\n                fewest[value] = fewest[value - token] + 1;\n        }\n    }\n    return fewest[amount] === Infinity ? -1 : fewest[amount];\n}",
+      "timeComplexity": "O(amount × tokens)",
+      "spaceComplexity": "O(amount)",
+      "commonMistakes": [
+        "Initializing unreachable amounts to 0, which makes every amount look reachable.",
+        "Iterating tokens in the outer loop and amounts in the inner loop is also correct here, but mixing up which index to read is a common slip."
+      ],
+      "interviewExplanation": "I build a table from 0 to the amount where each entry is the minimum over tokens of the entry one token lower plus one. Infinity marks unreachable amounts and turns into -1 at the end. The table has amount + 1 entries and each considers every token, giving O(amount × tokens) time and O(amount) space, and unlike a greedy pass it is correct for any token set.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For tokens [1, 5, 12] and amount 15, the table reads 0, 1, 2, 3, 4, 1, 2, 3, 4, 5, 2 for amounts 0–10."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Amounts 11–14 become 3, 1, 2, 3, and amount 15 takes the minimum of fewest[14] + 1 = 4, fewest[10] + 1 = 3 and fewest[3] + 1 = 4."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "So fewest[15] = 3, achieved by three 5-tokens."
+        }
+      ]
+    }
+  ]
+}

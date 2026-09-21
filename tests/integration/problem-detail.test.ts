@@ -59,7 +59,10 @@ describe("problem details and personal writes against PostgreSQL", () => {
     expect(result?.starterCode.length).toBeGreaterThan(0);
     expect(result?.related.map((item) => item.slug)).toEqual(["parcel-checkpoints"]);
     const fallback = await queryProblem(db, "parcel-checkpoints", null);
-    expect(fallback?.related.map((item) => item.slug)).toContain("relay-window");
+    const sharedCategories = seeds.find((seed) => seed.slug === "parcel-checkpoints")!.categories;
+    expect(fallback?.related.length).toBeGreaterThan(0);
+    expect(fallback?.related.length).toBeLessThanOrEqual(3);
+    for (const item of fallback!.related) expect(seeds.find((seed) => seed.slug === item.slug)!.categories.some((c) => sharedCategories.includes(c))).toBe(true);
     expect(fallback?.related.every((item) => !privateSlugs.includes(item.slug) && item.slug !== "parcel-checkpoints")).toBe(true);
     expect(Object.keys(result!).sort()).toEqual(["slug", "title", "difficulty", "kind", "pattern", "statement", "constraints", "estimatedMinutes", "categories", "tags", "examples", "hints", "solutions", "starterCode", "related", "personal"].sort());
     const json = JSON.stringify(result);

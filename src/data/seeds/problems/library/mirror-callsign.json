@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "slug": "mirror-callsign",
+  "title": "Mirror Callsign",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "two-pointers",
+  "statement": "A radio club accepts a callsign when it reads the same forwards and backwards once you ignore every character that is not a letter or digit and treat uppercase and lowercase letters as equal. Given the string text, return true when it is such a mirror callsign and false otherwise. A string with no letters or digits at all counts as a mirror.",
+  "constraints": [
+    "0 <= text.length <= 10000",
+    "text contains printable ASCII characters only."
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "strings",
+    "two-pointers"
+  ],
+  "tags": [
+    "pointer-pair"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "text": "Never odd, or even!"
+      },
+      "output": true,
+      "explanation": "Keeping only letters gives neveroddoreven, which reads the same in both directions."
+    },
+    {
+      "position": 2,
+      "input": {
+        "text": "Sprint 5"
+      },
+      "output": false,
+      "explanation": "sprint5 reversed is 5tnirps, so the callsign is not a mirror."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Decide which characters matter before comparing anything."
+    },
+    {
+      "position": 2,
+      "content": "Building a cleaned copy and reversing it works; think about whether you can avoid the copy."
+    },
+    {
+      "position": 3,
+      "content": "Compare from both ends inward, moving a pointer past characters that do not count."
+    },
+    {
+      "position": 4,
+      "content": "Normalize case only at the moment of comparison."
+    },
+    {
+      "position": 5,
+      "content": "Stop when the pointers meet; every compared pair has already matched."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "mirrorCallsign",
+      "code": "function mirrorCallsign(text) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "Never odd, or even!"
+      },
+      "output": true,
+      "explanation": "Keeping only letters gives neveroddoreven, which reads the same in both directions."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "Sprint 5"
+      },
+      "output": false,
+      "explanation": "sprint5 reversed is 5tnirps, so the callsign is not a mirror."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": ""
+      },
+      "output": true,
+      "explanation": "An empty string has nothing to compare."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "!!! ---"
+      },
+      "output": true,
+      "explanation": "No letters or digits remain, which counts as a mirror."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "A1b1a"
+      },
+      "output": true,
+      "explanation": "a1b1a is symmetric once case is ignored."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "ab_ba"
+      },
+      "output": true,
+      "explanation": "The underscore is ignored and abba is a mirror."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "Q"
+      },
+      "output": true,
+      "explanation": "A single character is trivially a mirror."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "1 2 3 2 4"
+      },
+      "output": false,
+      "explanation": "12324 is not symmetric because the last digit is 4."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "Ab"
+      },
+      "output": false,
+      "explanation": "ab reversed is ba."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Clean, reverse and compare",
+      "intuition": "If you first write down the characters that count, the question becomes whether that word equals its own reversal.",
+      "approach": "Build a lowercase string of only letters and digits, build its reversal, and compare the two strings.",
+      "pseudocode": "cleaned = letters and digits of text in lowercase; reversed = cleaned backwards; return cleaned == reversed.",
+      "code": "function mirrorCallsign(text) {\n    let cleaned = \"\";\n    for (const symbol of text)\n        if (/[a-z0-9]/i.test(symbol))\n            cleaned += symbol.toLowerCase();\n    let reversed = \"\";\n    for (let i = cleaned.length - 1; i >= 0; i--)\n        reversed += cleaned[i];\n    return cleaned === reversed;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Filtering characters without lowercasing them makes Aba fail.",
+        "Reversing the original string including punctuation compares the wrong characters."
+      ],
+      "interviewExplanation": "The direct approach copies the relevant characters and compares with the reversal, which is linear but uses extra memory. Walking two indices inward from both ends gives the same answer in constant extra space.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For \"Never odd, or even!\" the cleaned string is neveroddoreven."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Its reversal is also neveroddoreven, so the callsign is a mirror."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Walk inward from both ends",
+      "intuition": "A mirror pairs the first counted character with the last, the second with the second last, and so on, which two pointers can visit directly.",
+      "approach": "Keep a left and a right index. Skip any character that does not count. When both point at counted characters, compare them case-insensitively and move both inward. Return false on the first mismatch.",
+      "pseudocode": "left = 0, right = n-1; while left < right: skip non-counted characters on either side; if lowered characters differ return false; move both inward; return true.",
+      "code": "function mirrorCallsign(text) {\n    const counts = (symbol) => /[a-z0-9]/i.test(symbol);\n    let left = 0;\n    let right = text.length - 1;\n    while (left < right) {\n        if (!counts(text[left])) {\n            left++;\n        } else if (!counts(text[right])) {\n            right--;\n        } else {\n            if (text[left].toLowerCase() !== text[right].toLowerCase())\n                return false;\n            left++;\n            right--;\n        }\n    }\n    return true;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Advancing both pointers when only one side was skipped drops a character from the comparison.",
+        "Comparing before lowercasing rejects mixed-case mirrors."
+      ],
+      "interviewExplanation": "I keep one index at each end and move them toward each other, skipping characters that do not count. Whenever both sit on counted characters I compare them in lowercase and stop at the first mismatch. Each index moves at most n times, so the check is linear with no extra string.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For \"Never odd, or even!\", right skips the exclamation mark and compares N with n."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The pointers continue inward, skipping spaces and the comma, matching e with e, v with v, and so on."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "They meet in the middle without a mismatch, so the result is true."
+        }
+      ]
+    }
+  ]
+}
