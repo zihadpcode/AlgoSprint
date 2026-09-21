@@ -62,38 +62,58 @@ describe("trusted verdict calculation", () => {
 describe("Judge0 transport with an inert HTTP stub", () => {
   const fetchMock = vi.fn();
   beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal("fetch", fetchMock); });
-  it("sends only source/stdin, forces sandbox limits, polls privately and compares output", async () => {
-    fetchMock.mockResolvedValueOnce(Response.json({ token: "00000000-0000-4000-8000-000000000001" })).mockResolvedValueOnce(Response.json(raw("13")));
-    const result = await executeJudge0(config, "source", [{ stdin: "[[1],1]", expected: 13 }], { timeMs: 2000, memoryKb: 262144 });
-    expect(result[0].status).toBe("ACCEPTED");
+  const token = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+  it("creates every case in one batch, forces sandbox limits, polls privately and compares output", async () => {
+    fetchMock.mockResolvedValueOnce(Response.json([{ token: token(1) }, { token: token(2) }]))
+      .mockResolvedValueOnce(Response.json({ submissions: [raw("13"), raw("", 2)] }))
+      .mockResolvedValueOnce(Response.json({ submissions: [raw("13"), raw("[1,2]")] }));
+    const result = await executeJudge0(config, "source", [{ stdin: "[[1],1]", expected: 13 }, { stdin: "[[2]]", expected: [1, 2] }], { timeMs: 2000, memoryKb: 262144 });
+    expect(result.map((r) => r.status)).toEqual(["ACCEPTED", "ACCEPTED"]);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     const [url, request] = fetchMock.mock.calls[0]; const body = JSON.parse(request.body);
-    expect(url.toString()).toBe("https://runner.example/submissions?base64_encoded=true&wait=false");
-    expect(body).toMatchObject({ enable_network: false, number_of_runs: 1, max_file_size: 64, wall_time_limit: 5, max_processes_and_or_threads: 32 });
-    for (const key of ["expected_output", "callback_url", "additional_files", "compiler_options", "command_line_arguments"]) expect(body).not.toHaveProperty(key);
-    expect(Buffer.from(body.source_code, "base64").toString()).toBe("source");
+    expect(url.toString()).toBe("https://runner.example/submissions/batch?base64_encoded=true");
+    expect(body.submissions).toHaveLength(2);
+    for (const submission of body.submissions) {
+      expect(submission).toMatchObject({ language_id: 102, enable_network: false, number_of_runs: 1, max_file_size: 64, wall_time_limit: 5, max_processes_and_or_threads: 32 });
+      for (const key of ["expected_output", "callback_url", "additional_files", "compiler_options", "command_line_arguments"]) expect(submission).not.toHaveProperty(key);
+      expect(Buffer.from(submission.source_code, "base64").toString()).toBe("source");
+    }
+    expect(Buffer.from(body.submissions[1].stdin, "base64").toString()).toBe("[[2]]");
     expect(request.headers).toMatchObject({ "X-Auth-Token": "private-key" });
     expect(request.redirect).toBe("error"); expect(request.cache).toBe("no-store");
-    expect(fetchMock.mock.calls[1][0].toString()).not.toContain("private-key");
+    const poll = fetchMock.mock.calls[1][0].toString();
+    expect(poll).toBe(`https://runner.example/submissions/batch?tokens=${token(1)},${token(2)}&base64_encoded=true&fields=status,stdout,stderr,compile_output,time,memory`);
+    expect(poll).not.toContain("private-key");
   });
   it("supports explicit RapidAPI headers without accepting browser header/URL overrides", async () => {
-    fetchMock.mockResolvedValueOnce(Response.json({ token: "00000000-0000-4000-8000-000000000002" })).mockResolvedValueOnce(Response.json(raw("0")));
+    fetchMock.mockResolvedValueOnce(Response.json([{ token: token(2) }])).mockResolvedValueOnce(Response.json({ submissions: [raw("0")] }));
     await executeJudge0({ ...config, auth: "rapidapi" }, "source", [{ stdin: "[]", expected: 0 }], { timeMs: 9000, memoryKb: 500000 });
     const req = fetchMock.mock.calls[0][1];
     expect(req.headers).toMatchObject({ "X-RapidAPI-Key": config.key, "X-RapidAPI-Host": "runner.example" });
-    expect(JSON.parse(req.body)).toMatchObject({ cpu_time_limit: 2, memory_limit: 262144 });
+    expect(JSON.parse(req.body).submissions[0]).toMatchObject({ cpu_time_limit: 2, memory_limit: 262144 });
   });
-  it("fails closed on provider errors, oversized responses and invalid tokens", async () => {
-    for (const response of [new Response("secret", { status: 401 }), new Response("x".repeat(128001)), Response.json({ token: "../../secret" })]) {
+  it("fails closed on provider errors, oversized responses, invalid tokens and mismatched batch sizes", async () => {
+    for (const response of [new Response("secret", { status: 401 }), new Response("x".repeat(128001)), Response.json([{ token: "../../secret" }]), Response.json([{ language_id: ["does not exist"] }]), Response.json([{ token: token(1) }, { token: token(2) }])]) {
       fetchMock.mockResolvedValueOnce(response);
       await expect(executeJudge0(config, "source", [{ stdin: "[]", expected: 0 }], { timeMs: 2000, memoryKb: 262144 })).rejects.toThrow();
     }
+    fetchMock.mockResolvedValueOnce(Response.json([{ token: token(1) }])).mockResolvedValueOnce(Response.json({ submissions: [raw("0"), raw("0")] }));
+    await expect(executeJudge0(config, "source", [{ stdin: "[]", expected: 0 }], { timeMs: 2000, memoryKb: 262144 })).rejects.toThrow();
   });
   it("bounds queue polling and never treats unfinished work as accepted", async () => {
     vi.useFakeTimers();
-    fetchMock.mockResolvedValueOnce(Response.json({ token: "00000000-0000-4000-8000-000000000002" }));
-    fetchMock.mockImplementation(async () => Response.json(raw("", 2)));
+    fetchMock.mockResolvedValueOnce(Response.json([{ token: token(2) }]));
+    fetchMock.mockImplementation(async () => Response.json({ submissions: [raw("", 2)] }));
     const promise = expect(executeJudge0(config, "source", [{ stdin: "[]", expected: 0 }], { timeMs: 2000, memoryKb: 262144 })).rejects.toThrow();
     await vi.advanceTimersByTimeAsync(21000); await promise;
-    expect(fetchMock.mock.calls.length).toBeLessThanOrEqual(31);
+    expect(fetchMock.mock.calls.length).toBeLessThanOrEqual(21);
+  });
+  it("keeps a finished case's verdict while waiting for the rest of the batch", async () => {
+    fetchMock.mockResolvedValueOnce(Response.json([{ token: token(1) }, { token: token(2) }]))
+      .mockResolvedValueOnce(Response.json({ submissions: [raw("7"), raw("", 1)] }))
+      .mockResolvedValueOnce(Response.json({ submissions: [raw("7"), raw("x", 4)] }));
+    const result = await executeJudge0(config, "source", [{ stdin: "[]", expected: 7 }, { stdin: "[]", expected: 8 }], { timeMs: 2000, memoryKb: 262144 });
+    expect(result.map((r) => r.status)).toEqual(["ACCEPTED", "WRONG_ANSWER"]);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 });

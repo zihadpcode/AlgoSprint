@@ -36,7 +36,7 @@ flowchart TD
 3. `reserveSubmission` uses a short PostgreSQL advisory transaction lock shared by all app instances. It applies quotas, verifies the problem is published and coding, reads its revision/starter/test snapshot, and saves a RUNNING record. No network call holds this transaction open.
 4. `makeProgram` builds a JavaScript source **string**; the app never evaluates it. `makeStdin` maps named input fields into an explicit argument array. JSONB object key order is not used as a function signature.
 5. Judge0 receives only source and one case's arguments per sandbox job. Expected outputs remain in the trusted application. A new process/job per test prevents one test's program state from directly contaminating another.
-6. The adapter polls private provider tokens. A provider Accepted status is not sufficient: the app parses the complete stdout as JSON and compares it to the trusted expected JSON without type coercion. Object property order does not matter; array order and types do.
+6. The adapter creates all cases with one `/submissions/batch` request and polls their private tokens together. A provider Accepted status is not sufficient: the app parses the complete stdout as JSON and compares it to the trusted expected JSON without type coercion. Object property order does not matter; array order and types do.
 7. The service constructs an explicit response DTO, then saves it with an owner-checked, one-time RUNNING-to-final transition. Only after persistence succeeds does the UI say the result was saved.
 
 Do not replace this boundary with `eval`, `new Function`, Node's `vm`, or an application-server child process that runs the submitted code. Harness source is only transported to the separate sandbox.
@@ -118,7 +118,7 @@ Open `http://localhost:3000/problems/relay-window`, sign into a confirmed develo
 | Memory | Up to 262,144 KB per test, further constrained by the problem |
 | Processes / output file size | At most 32 processes/threads and 64 KB files |
 | Provider network | Disabled on every submitted job |
-| Polling | Every 500 ms, at most 30 polls per test; 20-second overall deadline |
+| Polling | One batch creation request for all cases, then one batch poll every second (at most 20); 20-second overall deadline. Batch endpoints keep request-metered providers such as RapidAPI affordable. |
 | HTTP calls | Five-second timeout per call, no redirects or cache |
 | HTTP response size | At most 128,000 bytes before JSON parsing |
 | Visible output/diagnostics | Compare complete bounded output; display/store at most 4,000 characters per field |
