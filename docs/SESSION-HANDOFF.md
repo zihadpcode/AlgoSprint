@@ -1,3 +1,7 @@
+## September 20 live-setup checkpoint
+
+Supabase Free and Vercel Hobby resources exist and are integrated. Production variable names, including DATABASE_URL entered by the user after a password reset, were verified in Vercel. APP_URL and CODE_RUNNER_ENABLED=false are saved. The database remains empty; no deployment is verified yet. A one-time, guarded Vercel bootstrap job is being prepared; see DEPLOYMENT.md. Earlier statements below about unavailable plugins or uncreated resources are superseded by this checkpoint. Never log or commit credentials.
+
 # AlgoSprint — Phase 16 release preparation checkpoint
 
 **2026-09-19: The user continued after Phase 15 and connected both Supabase and Vercel. Finish verified publication of PR #17, then continue live setup when account tools or an authorized dashboard workflow are available. Earlier pauses below are historical.**
