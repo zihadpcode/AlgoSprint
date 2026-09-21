@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "slug": "ledger-tree-check",
+  "title": "Ledger Tree Check",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "bounded-recursion",
+  "statement": "An accounting tool stores transaction amounts in a binary tree and relies on the search property: for every node, every amount in its left subtree is strictly smaller than the node's amount, and every amount in its right subtree is strictly larger. Duplicate amounts are therefore not allowed. Return true when the given tree satisfies the property everywhere and false otherwise. An empty tree is valid. The tree is given as the array tree in level order: the first entry is the root, and each later entry is the left child then the right child of the next node that was listed, with null marking a missing child. Children of a missing node are not listed.",
+  "constraints": [
+    "0 <= tree.length <= 10000",
+    "Each entry is an integer from -100000 through 100000 or null.",
+    "If the tree is not empty, the first entry is not null."
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "binary-search-trees",
+    "trees",
+    "recursion"
+  ],
+  "tags": [
+    "recursion",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tree": [
+          8,
+          3,
+          10,
+          1,
+          6,
+          null,
+          14
+        ]
+      },
+      "output": true,
+      "explanation": "Every left subtree holds smaller amounts and every right subtree holds larger amounts."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tree": [
+          5,
+          1,
+          7,
+          null,
+          null,
+          4,
+          9
+        ]
+      },
+      "output": false,
+      "explanation": "4 sits in the right subtree of 5 but is smaller than 5, even though it is a valid left child of 7."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Comparing each node with only its direct children is not enough; the rule applies to whole subtrees."
+    },
+    {
+      "position": 2,
+      "content": "An in-order traversal of a valid tree visits amounts in strictly increasing order."
+    },
+    {
+      "position": 3,
+      "content": "Alternatively, carry an allowed range downward: the left child must be below its parent, the right child above it."
+    },
+    {
+      "position": 4,
+      "content": "Both range bounds tighten as you descend, and each node must lie strictly inside its range."
+    },
+    {
+      "position": 5,
+      "content": "Start with unbounded limits such as -Infinity and Infinity so extreme amounts are handled correctly."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "ledgerTreeCheck",
+      "code": "function ledgerTreeCheck(tree) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": [
+          8,
+          3,
+          10,
+          1,
+          6,
+          null,
+          14
+        ]
+      },
+      "output": true,
+      "explanation": "Every left subtree holds smaller amounts and every right subtree holds larger amounts."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": [
+          5,
+          1,
+          7,
+          null,
+          null,
+          4,
+          9
+        ]
+      },
+      "output": false,
+      "explanation": "4 sits in the right subtree of 5 but is smaller than 5, even though it is a valid left child of 7."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": []
+      },
+      "output": true,
+      "explanation": "An empty ledger is valid."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          2,
+          2
+        ]
+      },
+      "output": false,
+      "explanation": "A duplicate amount in the left subtree violates the strict rule."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          3,
+          1,
+          5,
+          0,
+          2,
+          4,
+          6
+        ]
+      },
+      "output": true,
+      "explanation": "A perfectly ordered tree."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          10,
+          5,
+          15,
+          null,
+          null,
+          6,
+          20
+        ]
+      },
+      "output": false,
+      "explanation": "6 is smaller than 10 but sits in the right subtree."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          1,
+          null,
+          2,
+          null,
+          3
+        ]
+      },
+      "output": true,
+      "explanation": "A right-leaning chain with increasing amounts is valid."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          -100000,
+          null,
+          100000
+        ]
+      },
+      "output": true,
+      "explanation": "Extreme amounts must not be confused with the bounds used during checking."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Compare each node with its whole subtrees",
+      "intuition": "The rule talks about entire subtrees, so the literal check visits every amount below a node and compares it with the node.",
+      "approach": "Rebuild the nodes. For each node, verify that every amount in its left subtree is smaller and every amount in its right subtree is larger, then recurse into both children.",
+      "pseudocode": "valid(node): if null true; if some left-subtree amount >= node.value false; if some right-subtree amount <= node.value false; return valid(left) and valid(right).",
+      "code": "function ledgerTreeCheck(tree) {\n    function build(values) {\n        if (values.length === 0)\n            return null;\n        const root = { value: values[0], left: null, right: null };\n        const queue = [root];\n        let index = 1;\n        while (queue.length > 0 && index < values.length) {\n            const node = queue.shift();\n            const left = values[index++];\n            if (left !== undefined && left !== null)\n                queue.push(node.left = { value: left, left: null, right: null });\n            const right = values[index++];\n            if (right !== undefined && right !== null)\n                queue.push(node.right = { value: right, left: null, right: null });\n        }\n        return root;\n    }\n    function allSatisfy(node, test) {\n        if (node === null)\n            return true;\n        return test(node.value) && allSatisfy(node.left, test) && allSatisfy(node.right, test);\n    }\n    function valid(node) {\n        if (node === null)\n            return true;\n        if (!allSatisfy(node.left, (amount) => amount < node.value))\n            return false;\n        if (!allSatisfy(node.right, (amount) => amount > node.value))\n            return false;\n        return valid(node.left) && valid(node.right);\n    }\n    return valid(build(tree));\n}",
+      "timeComplexity": "O(n²) in the worst case",
+      "spaceComplexity": "O(h) recursion depth",
+      "commonMistakes": [
+        "Only comparing a node with its immediate children, which accepts the second example.",
+        "Allowing equality on one side, which admits duplicates."
+      ],
+      "interviewExplanation": "Checking every subtree amount against each ancestor is quadratic because deep amounts are compared against every ancestor separately. Passing an allowed range down the tree checks each amount once against the tightest bounds implied by all of its ancestors.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [8, 3, 10, 1, 6, null, 14], the amounts 3, 1 and 6 are all below 8 and 10 and 14 are above it."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Node 3 has 1 on the left and 6 on the right; node 10 has 14 on the right. Every check passes, so the tree is valid."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Pass an allowed range downward",
+      "intuition": "Every ancestor constrains a node from one side, and all those constraints combine into a single open interval that the node must lie inside.",
+      "approach": "Rebuild the nodes and recurse with a lower and upper bound. The root is unbounded. Going left keeps the lower bound and lowers the upper bound to the parent's amount; going right raises the lower bound instead. Each node must be strictly inside its interval.",
+      "pseudocode": "within(node, low, high): if null true; if node.value <= low or >= high false; return within(left, low, node.value) and within(right, node.value, high).",
+      "code": "function ledgerTreeCheck(tree) {\n    function build(values) {\n        if (values.length === 0)\n            return null;\n        const root = { value: values[0], left: null, right: null };\n        const queue = [root];\n        let index = 1;\n        while (queue.length > 0 && index < values.length) {\n            const node = queue.shift();\n            const left = values[index++];\n            if (left !== undefined && left !== null)\n                queue.push(node.left = { value: left, left: null, right: null });\n            const right = values[index++];\n            if (right !== undefined && right !== null)\n                queue.push(node.right = { value: right, left: null, right: null });\n        }\n        return root;\n    }\n    function within(node, low, high) {\n        if (node === null)\n            return true;\n        if (node.value <= low || node.value >= high)\n            return false;\n        return within(node.left, low, node.value) && within(node.right, node.value, high);\n    }\n    return within(build(tree), -Infinity, Infinity);\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(h) recursion depth",
+      "commonMistakes": [
+        "Using the parent's amount as an inclusive bound, which accepts duplicates.",
+        "Initializing the bounds with the smallest and largest allowed amounts instead of infinities, which rejects those extreme values."
+      ],
+      "interviewExplanation": "I carry an open interval down the tree: a left child must be below its parent, a right child above it, and each bound is inherited from the nearest ancestor on that side. Every node is checked once against its interval, so the check is linear, and infinities as initial bounds avoid special-casing the extremes.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [8, 3, 10, 1, 6, null, 14], the root 8 is checked against (-∞, ∞)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "3 must lie in (-∞, 8), 1 in (-∞, 3), 6 in (3, 8); 10 must lie in (8, ∞) and 14 in (10, ∞)."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "All amounts fit their intervals, so the tree is valid."
+        }
+      ]
+    }
+  ]
+}

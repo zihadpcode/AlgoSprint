@@ -1,0 +1,404 @@
+{
+  "schemaVersion": 1,
+  "slug": "merge-shifts",
+  "title": "Merge the Shifts",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "interval-merge",
+  "statement": "A clinic's roster lists each volunteer's shift as [start, end] in the array shifts, using minutes since opening, with start <= end. Two shifts overlap when they share at least one minute, so [1, 4] and [4, 6] overlap at minute 4. Return the list of covered time blocks after merging every group of overlapping shifts into a single block, sorted by start time. Blocks that do not overlap stay separate.",
+  "constraints": [
+    "0 <= shifts.length <= 10000",
+    "-1000000 <= start <= end <= 1000000"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "intervals",
+    "sorting",
+    "arrays"
+  ],
+  "tags": [
+    "sorting",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "shifts": [
+          [
+            1,
+            3
+          ],
+          [
+            8,
+            10
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            15,
+            18
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          6
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          15,
+          18
+        ]
+      ],
+      "explanation": "[1, 3] and [2, 6] overlap and become [1, 6]. The other shifts stay separate."
+    },
+    {
+      "position": 2,
+      "input": {
+        "shifts": [
+          [
+            1,
+            4
+          ],
+          [
+            4,
+            5
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          5
+        ]
+      ],
+      "explanation": "The shifts touch at minute 4, which counts as overlapping."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Two shifts overlap exactly when neither ends before the other starts."
+    },
+    {
+      "position": 2,
+      "content": "Merging pairs in arbitrary order works but may need many passes as merged blocks create new overlaps."
+    },
+    {
+      "position": 3,
+      "content": "If the shifts are sorted by start, a shift can only overlap the block being built right now, never an earlier finished block."
+    },
+    {
+      "position": 4,
+      "content": "Compare each shift's start with the current block's end; extend the block or start a new one."
+    },
+    {
+      "position": 5,
+      "content": "When extending, keep the larger end, because a shift can be entirely inside the block."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "mergeShifts",
+      "code": "function mergeShifts(shifts) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "shifts": [
+          [
+            1,
+            3
+          ],
+          [
+            8,
+            10
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            15,
+            18
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          6
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          15,
+          18
+        ]
+      ],
+      "explanation": "[1, 3] and [2, 6] overlap and become [1, 6]. The other shifts stay separate."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "shifts": [
+          [
+            1,
+            4
+          ],
+          [
+            4,
+            5
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          5
+        ]
+      ],
+      "explanation": "The shifts touch at minute 4, which counts as overlapping."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "shifts": []
+      },
+      "output": [],
+      "explanation": "No shifts, no blocks."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "shifts": [
+          [
+            5,
+            5
+          ]
+        ]
+      },
+      "output": [
+        [
+          5,
+          5
+        ]
+      ],
+      "explanation": "A one-minute shift is its own block."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "shifts": [
+          [
+            1,
+            10
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          10
+        ]
+      ],
+      "explanation": "Shifts fully inside another shift merge into it."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "shifts": [
+          [
+            6,
+            7
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "explanation": "Unsorted, non-overlapping shifts are returned sorted."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "shifts": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            5
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          5
+        ]
+      ],
+      "explanation": "A chain of touching shifts merges into one block [1, 5]."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "shifts": [
+          [
+            -5,
+            -1
+          ],
+          [
+            -2,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "output": [
+        [
+          -5,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "explanation": "Negative starts are fine; the first three shifts merge into [-5, 2] and [3, 3] stays separate."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Merge any overlapping pair until none remain",
+      "intuition": "Whenever two blocks overlap they can be replaced by their union, and repeating that until nothing overlaps leaves the final blocks.",
+      "approach": "Copy the shifts. Repeatedly find any two overlapping blocks, replace them with one block spanning both, and restart. When no pair overlaps, sort the blocks by start.",
+      "pseudocode": "repeat: find overlapping pair (i, j); replace with [min start, max end]; until none; sort by start; return.",
+      "code": "function mergeShifts(shifts) {\n    const blocks = shifts.map(([start, end]) => [start, end]);\n    let merged = true;\n    while (merged) {\n        merged = false;\n        for (let i = 0; i < blocks.length && !merged; i++) {\n            for (let j = i + 1; j < blocks.length && !merged; j++) {\n                if (blocks[i][0] <= blocks[j][1] && blocks[j][0] <= blocks[i][1]) {\n                    blocks[i] = [Math.min(blocks[i][0], blocks[j][0]), Math.max(blocks[i][1], blocks[j][1])];\n                    blocks.splice(j, 1);\n                    merged = true;\n                }\n            }\n        }\n    }\n    return blocks.sort((a, b) => a[0] - b[0]);\n}",
+      "timeComplexity": "O(n³) in the worst case",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Checking overlap with strict inequalities, which fails to merge touching shifts.",
+        "Forgetting to restart after a merge, so a newly enlarged block is not compared with earlier ones."
+      ],
+      "interviewExplanation": "Pairwise merging is a correct fixed-point computation but does a lot of rescanning. Sorting by start turns the problem into a single sweep, because every shift either extends the block currently being built or starts a new one.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [[1,3],[8,10],[2,6],[15,18]], the pair [1,3] and [2,6] overlaps and becomes [1,6]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "No other pair overlaps, so the sorted result is [[1,6],[8,10],[15,18]]."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Sort by start and sweep",
+      "intuition": "Once shifts are in start order, the only block a shift can overlap is the most recent one, because every earlier block ended before that block began.",
+      "approach": "Sort copies of the shifts by start. Walk them, keeping the last merged block. If the current shift starts at or before the block's end, extend the block's end to the larger of the two; otherwise append the shift as a new block.",
+      "pseudocode": "sort by start; result = []; for each (s, e): if result nonempty and s <= last.end: last.end = max(last.end, e) else push [s, e]; return result.",
+      "code": "function mergeShifts(shifts) {\n    const sorted = shifts.map(([start, end]) => [start, end]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);\n    const merged = [];\n    for (const [start, end] of sorted) {\n        const last = merged[merged.length - 1];\n        if (last !== undefined && start <= last[1])\n            last[1] = Math.max(last[1], end);\n        else\n            merged.push([start, end]);\n    }\n    return merged;\n}",
+      "timeComplexity": "O(n log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Assigning last.end = e instead of the maximum, which shrinks a block when a shift is nested inside it.",
+        "Mutating the input arrays, which surprises callers that reuse them."
+      ],
+      "interviewExplanation": "I sort by start time and sweep once. Each shift is compared with only the block under construction: overlapping shifts extend it, taking the maximum end so nested shifts do not shrink it, and a gap starts a new block. The sort dominates at n log n and the sweep is linear. Copying the pairs avoids mutating the caller's data.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [[1,3],[8,10],[2,6],[15,18]], sorting gives [[1,3],[2,6],[8,10],[15,18]]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "[1,3] starts the first block; [2,6] starts at 2 <= 3 and extends it to [1,6]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "[8,10] starts after 6 and becomes a new block, as does [15,18]."
+        }
+      ]
+    }
+  ]
+}

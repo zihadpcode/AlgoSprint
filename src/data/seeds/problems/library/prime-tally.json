@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "slug": "prime-tally",
+  "title": "Prime Tally",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "sieve",
+  "statement": "A lock designer wants to know how many prime numbers are available below a given size. Given the integer limit, return the count of prime numbers that are strictly less than limit. Recall that a prime is an integer greater than 1 whose only positive divisors are 1 and itself.",
+  "constraints": [
+    "0 <= limit <= 1000000"
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "math",
+    "arrays"
+  ],
+  "tags": [
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "limit": 12
+      },
+      "output": 5,
+      "explanation": "The primes below 12 are 2, 3, 5, 7 and 11."
+    },
+    {
+      "position": 2,
+      "input": {
+        "limit": 2
+      },
+      "output": 0,
+      "explanation": "No prime is strictly less than 2."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Testing each number by trial division works, but each test costs up to the square root of the number."
+    },
+    {
+      "position": 2,
+      "content": "Instead of asking whether each number is prime, mark the numbers that are definitely not prime."
+    },
+    {
+      "position": 3,
+      "content": "Every multiple of a prime p, starting from p × p, is composite."
+    },
+    {
+      "position": 4,
+      "content": "Smaller multiples of p were already marked by smaller primes, which is why starting at p × p is enough."
+    },
+    {
+      "position": 5,
+      "content": "Count the numbers that survive unmarked; each of them is prime."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "primeTally",
+      "code": "function primeTally(limit) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "limit": 12
+      },
+      "output": 5,
+      "explanation": "The primes below 12 are 2, 3, 5, 7 and 11."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "limit": 2
+      },
+      "output": 0,
+      "explanation": "No prime is strictly less than 2."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 0
+      },
+      "output": 0,
+      "explanation": "Nothing is below zero."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 3
+      },
+      "output": 1,
+      "explanation": "Only 2 is below 3."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 30
+      },
+      "output": 10,
+      "explanation": "Ten primes lie below 30: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 100
+      },
+      "output": 25,
+      "explanation": "There are 25 primes below 100."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 1000
+      },
+      "output": 168,
+      "explanation": "There are 168 primes below 1000."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 10000
+      },
+      "output": 1229,
+      "explanation": "There are 1229 primes below 10000; trial division is noticeably slower here."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Trial division for each number",
+      "intuition": "A number is composite exactly when some divisor no larger than its square root divides it.",
+      "approach": "For every n below limit, test divisors from 2 up to the square root of n. Count the numbers with no divisor.",
+      "pseudocode": "count = 0; for n from 2 to limit-1: if no d in [2, sqrt(n)] divides n then count++; return count.",
+      "code": "function primeTally(limit) {\n    let count = 0;\n    for (let n = 2; n < limit; n++) {\n        let prime = true;\n        for (let d = 2; d * d <= n; d++) {\n            if (n % d === 0) {\n                prime = false;\n                break;\n            }\n        }\n        if (prime)\n            count++;\n    }\n    return count;\n}",
+      "timeComplexity": "O(n × √n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Testing divisors all the way to n instead of stopping at the square root.",
+        "Counting 1 as prime, or starting the loop at 0."
+      ],
+      "interviewExplanation": "Trial division is easy to justify and fine for small limits. When many numbers must be classified at once, a sieve shares the work: each prime marks all of its multiples in one sweep instead of every number re-checking every divisor.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For limit 12, the numbers 2 and 3 have no divisor up to their square root."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "4, 6, 8, 9 and 10 have a small divisor; 5, 7 and 11 do not, giving 5 primes."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Sieve of composites",
+      "intuition": "Rather than testing each number, let each prime cross out all of its multiples; whatever is never crossed out is prime.",
+      "approach": "Allocate a flag per number. Walk upward; when a number is still unmarked, count it as prime and mark every multiple from its square onward. Multiples below the square were already marked by smaller primes.",
+      "pseudocode": "flags = all false; for n from 2 to limit-1: if flags[n] is false then count++ and mark n*n, n*n+n, ... as composite; return count.",
+      "code": "function primeTally(limit) {\n    if (limit < 3)\n        return 0;\n    const composite = new Uint8Array(limit);\n    let count = 0;\n    for (let n = 2; n < limit; n++) {\n        if (composite[n])\n            continue;\n        count++;\n        for (let multiple = n * n; multiple < limit; multiple += n)\n            composite[multiple] = 1;\n    }\n    return count;\n}",
+      "timeComplexity": "O(n log log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Starting the marking at 2n instead of n×n, which still works but wastes time.",
+        "Allocating limit + 1 flags and accidentally counting limit itself."
+      ],
+      "interviewExplanation": "I use a sieve: an array of flags where each unmarked number is prime and marks its multiples starting at its square. The total marking work is bounded by n log log n, far below trial division for large limits, at the cost of one byte per number. The strict inequality means I allocate exactly limit flags.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For limit 12, 2 is unmarked, so count it and mark 4, 6, 8 and 10."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "3 is unmarked, so count it and mark 9. 4 is marked; 5 counts and its square 25 is beyond the limit."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "7 and 11 are still unmarked and counted, for a total of 5."
+        }
+      ]
+    }
+  ]
+}

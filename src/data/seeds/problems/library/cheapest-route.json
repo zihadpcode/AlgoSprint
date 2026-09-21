@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 1,
+  "slug": "cheapest-route",
+  "title": "Cheapest Route",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "dijkstra",
+  "statement": "A delivery network has stops numbered from 0 to stops - 1. Each entry of roads is [a, b, toll] and describes a two-way road between stops a and b that costs toll to use in either direction. Two stops may be joined by several roads with different tolls. Return the smallest total toll to travel from stop start to stop target, or -1 if target cannot be reached. Travelling from a stop to itself costs 0.",
+  "constraints": [
+    "1 <= stops <= 2000",
+    "0 <= roads.length <= 10000",
+    "0 <= a, b, start, target < stops",
+    "0 <= toll <= 1000000"
+  ],
+  "estimatedMinutes": 40,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "graphs",
+    "heaps",
+    "greedy"
+  ],
+  "tags": [
+    "priority-queue",
+    "graph-traversal"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "stops": 4,
+        "roads": [
+          [
+            0,
+            1,
+            5
+          ],
+          [
+            0,
+            2,
+            1
+          ],
+          [
+            2,
+            1,
+            1
+          ],
+          [
+            1,
+            3,
+            2
+          ]
+        ],
+        "start": 0,
+        "target": 3
+      },
+      "output": 4,
+      "explanation": "Going 0 → 2 → 1 → 3 costs 1 + 1 + 2 = 4, cheaper than the direct road 0 → 1 → 3 at 7."
+    },
+    {
+      "position": 2,
+      "input": {
+        "stops": 3,
+        "roads": [
+          [
+            0,
+            1,
+            4
+          ]
+        ],
+        "start": 0,
+        "target": 2
+      },
+      "output": -1,
+      "explanation": "Stop 2 has no roads at all."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Breadth-first search counts roads, not tolls, so it can prefer a route with fewer but more expensive roads."
+    },
+    {
+      "position": 2,
+      "content": "Keep a best-known toll for every stop and improve it whenever a cheaper way to reach the stop appears."
+    },
+    {
+      "position": 3,
+      "content": "If you always finalize the unfinished stop with the smallest known toll, its toll can never improve again because all tolls are non-negative."
+    },
+    {
+      "position": 4,
+      "content": "A min-heap keyed by toll hands you that stop efficiently; push a new entry whenever a stop's toll improves."
+    },
+    {
+      "position": 5,
+      "content": "Skip heap entries that are stale, meaning their toll is larger than the stop's current best."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "cheapestRoute",
+      "code": "function cheapestRoute(stops, roads, start, target) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "stops": 4,
+        "roads": [
+          [
+            0,
+            1,
+            5
+          ],
+          [
+            0,
+            2,
+            1
+          ],
+          [
+            2,
+            1,
+            1
+          ],
+          [
+            1,
+            3,
+            2
+          ]
+        ],
+        "start": 0,
+        "target": 3
+      },
+      "output": 4,
+      "explanation": "Going 0 → 2 → 1 → 3 costs 1 + 1 + 2 = 4, cheaper than the direct road 0 → 1 → 3 at 7."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "stops": 3,
+        "roads": [
+          [
+            0,
+            1,
+            4
+          ]
+        ],
+        "start": 0,
+        "target": 2
+      },
+      "output": -1,
+      "explanation": "Stop 2 has no roads at all."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "stops": 1,
+        "roads": [],
+        "start": 0,
+        "target": 0
+      },
+      "output": 0,
+      "explanation": "Start and target coincide."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "stops": 2,
+        "roads": [
+          [
+            0,
+            1,
+            9
+          ],
+          [
+            0,
+            1,
+            3
+          ],
+          [
+            1,
+            0,
+            6
+          ]
+        ],
+        "start": 1,
+        "target": 0
+      },
+      "output": 3,
+      "explanation": "Three parallel roads; the cheapest costs 3 and works in both directions."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "stops": 5,
+        "roads": [
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            1,
+            2,
+            2
+          ],
+          [
+            2,
+            3,
+            2
+          ],
+          [
+            3,
+            4,
+            2
+          ],
+          [
+            0,
+            4,
+            9
+          ]
+        ],
+        "start": 0,
+        "target": 4
+      },
+      "output": 8,
+      "explanation": "The four-road chain costs 8, cheaper than the direct road at 9."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "stops": 5,
+        "roads": [
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            1,
+            2,
+            1
+          ],
+          [
+            3,
+            4,
+            1
+          ]
+        ],
+        "start": 0,
+        "target": 4
+      },
+      "output": -1,
+      "explanation": "Stops 3 and 4 form a separate network."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "stops": 4,
+        "roads": [
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            0
+          ],
+          [
+            2,
+            3,
+            0
+          ]
+        ],
+        "start": 0,
+        "target": 3
+      },
+      "output": 0,
+      "explanation": "Free roads give a total of 0 even though three roads are used."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "stops": 6,
+        "roads": [
+          [
+            0,
+            1,
+            7
+          ],
+          [
+            0,
+            2,
+            9
+          ],
+          [
+            0,
+            5,
+            14
+          ],
+          [
+            1,
+            2,
+            10
+          ],
+          [
+            1,
+            3,
+            15
+          ],
+          [
+            2,
+            3,
+            11
+          ],
+          [
+            2,
+            5,
+            2
+          ],
+          [
+            3,
+            4,
+            6
+          ],
+          [
+            4,
+            5,
+            9
+          ]
+        ],
+        "start": 0,
+        "target": 4
+      },
+      "output": 20,
+      "explanation": "The best route is 0 → 2 → 5 → 4 with tolls 9 + 2 + 9 = 20."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Relax every road repeatedly",
+      "intuition": "Any cheapest route uses at most stops - 1 roads, and one pass over all roads extends every route by one more road, so that many passes settle every toll.",
+      "approach": "Start with toll 0 at the start stop and infinity elsewhere. Repeat up to stops - 1 times: for every road, try to lower the toll at either end using the other end's toll plus the road's toll. Stop early when a pass changes nothing.",
+      "pseudocode": "best = infinity, best[start] = 0; repeat stops-1 times: for each road (a, b, toll): best[b] = min(best[b], best[a] + toll); best[a] = min(best[a], best[b] + toll); return best[target] or -1.",
+      "code": "function cheapestRoute(stops, roads, start, target) {\n    const best = new Array(stops).fill(Infinity);\n    best[start] = 0;\n    for (let round = 1; round < stops; round++) {\n        let changed = false;\n        for (const [a, b, toll] of roads) {\n            if (best[a] + toll < best[b]) {\n                best[b] = best[a] + toll;\n                changed = true;\n            }\n            if (best[b] + toll < best[a]) {\n                best[a] = best[b] + toll;\n                changed = true;\n            }\n        }\n        if (!changed)\n            break;\n    }\n    return best[target] === Infinity ? -1 : best[target];\n}",
+      "timeComplexity": "O(stops × roads)",
+      "spaceComplexity": "O(stops)",
+      "commonMistakes": [
+        "Relaxing in only one direction on two-way roads.",
+        "Running a fixed single pass, which misses routes that need several roads."
+      ],
+      "interviewExplanation": "Repeated relaxation over all roads is the Bellman-Ford idea and is correct for any tolls, but it costs stops times roads. Because all tolls are non-negative, a priority queue lets me finalize stops in increasing toll order and relax each road only when its cheaper endpoint is settled, which is Dijkstra's algorithm.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For the first example, pass one sets best[1] = 5, best[2] = 1, then lowers best[1] to 2 via road 2–1, and sets best[3] = 4."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Pass two changes nothing, so the answer is best[3] = 4."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Dijkstra with a binary heap",
+      "intuition": "With non-negative tolls, the unsettled stop with the smallest known toll cannot be reached more cheaply through any other unsettled stop, so it can be finalized immediately.",
+      "approach": "Build adjacency lists. Keep a best toll per stop and a min-heap of [toll, stop] entries. Pop the cheapest entry, skip it if stale, return if it is the target, otherwise relax each neighboring road and push improved tolls.",
+      "pseudocode": "best = infinity, best[start] = 0; heap = [(0, start)]; while heap: (toll, stop) = pop; if toll > best[stop] continue; if stop == target return toll; for each (next, extra): if toll + extra < best[next]: update and push.",
+      "code": "function cheapestRoute(stops, roads, start, target) {\n    const adjacent = Array.from({ length: stops }, () => []);\n    for (const [a, b, toll] of roads) {\n        adjacent[a].push([b, toll]);\n        adjacent[b].push([a, toll]);\n    }\n    const heap = [];\n    const push = (entry) => {\n        heap.push(entry);\n        let i = heap.length - 1;\n        while (i > 0) {\n            const parent = (i - 1) >> 1;\n            if (heap[parent][0] <= heap[i][0])\n                break;\n            [heap[parent], heap[i]] = [heap[i], heap[parent]];\n            i = parent;\n        }\n    };\n    const pop = () => {\n        const top = heap[0];\n        const last = heap.pop();\n        if (heap.length > 0) {\n            heap[0] = last;\n            let i = 0;\n            while (true) {\n                const left = 2 * i + 1;\n                const right = left + 1;\n                let smallest = i;\n                if (left < heap.length && heap[left][0] < heap[smallest][0])\n                    smallest = left;\n                if (right < heap.length && heap[right][0] < heap[smallest][0])\n                    smallest = right;\n                if (smallest === i)\n                    break;\n                [heap[smallest], heap[i]] = [heap[i], heap[smallest]];\n                i = smallest;\n            }\n        }\n        return top;\n    };\n    const best = new Array(stops).fill(Infinity);\n    best[start] = 0;\n    push([0, start]);\n    while (heap.length > 0) {\n        const [toll, stop] = pop();\n        if (toll > best[stop])\n            continue;\n        if (stop === target)\n            return toll;\n        for (const [next, extra] of adjacent[stop]) {\n            if (toll + extra < best[next]) {\n                best[next] = toll + extra;\n                push([toll + extra, next]);\n            }\n        }\n    }\n    return -1;\n}",
+      "timeComplexity": "O((stops + roads) log stops)",
+      "spaceComplexity": "O(stops + roads)",
+      "commonMistakes": [
+        "Skipping the stale-entry check, which processes outdated tolls and can produce wrong relaxations or wasted work.",
+        "Returning when the target is first pushed rather than when it is popped, which can return a non-minimal toll."
+      ],
+      "interviewExplanation": "I run Dijkstra's algorithm with a hand-built binary heap. Each improvement pushes a new heap entry, and stale entries are discarded when popped, which is simpler than decrease-key and keeps the complexity at (stops + roads) log stops. Stopping when the target is popped is safe because popped tolls are final. Negative tolls would break the argument, but the constraints rule them out.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For the first example, pop (0, 0) and push (5, 1) and (1, 2)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Pop (1, 2), improve stop 1 to 2 and push (2, 1). Pop (2, 1), push (4, 3)."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Pop (4, 3), which is the target, so return 4. The stale (5, 1) entry is never used."
+        }
+      ]
+    }
+  ]
+}

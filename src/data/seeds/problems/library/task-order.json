@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "slug": "task-order",
+  "title": "Task Order",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "topological-sort",
+  "statement": "A build system has tasks numbered 0 to tasks - 1. Each entry of prerequisites is [before, after] and means task before must finish before task after can start. Return an order that runs every task once and respects every prerequisite. When several orders are possible, return the one that is smallest when compared position by position, meaning at each step you run the smallest-numbered task that is ready. If the prerequisites contain a cycle, no order exists; return an empty array.",
+  "constraints": [
+    "1 <= tasks <= 10000",
+    "0 <= prerequisites.length <= 10000",
+    "0 <= before, after < tasks",
+    "The same prerequisite may appear more than once."
+  ],
+  "estimatedMinutes": 35,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "topological-sort",
+    "graphs",
+    "heaps"
+  ],
+  "tags": [
+    "graph-traversal",
+    "priority-queue"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tasks": 4,
+        "prerequisites": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      "output": [
+        2,
+        3,
+        1,
+        0
+      ],
+      "explanation": "Tasks 2 and 3 are ready at the start; 2 is smaller. Then 3, which unlocks 1, and finally 0."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tasks": 3,
+        "prerequisites": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      },
+      "output": [],
+      "explanation": "Every task waits on another, so nothing can start."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "A task can run as soon as all of its prerequisites have run, so track how many are still unfinished for each task."
+    },
+    {
+      "position": 2,
+      "content": "Tasks with zero unfinished prerequisites are ready; among them you must always pick the smallest number."
+    },
+    {
+      "position": 3,
+      "content": "Running a task reduces the pending count of every task that depended on it; some become ready."
+    },
+    {
+      "position": 4,
+      "content": "A min-heap of ready tasks gives the smallest one quickly as new tasks become ready."
+    },
+    {
+      "position": 5,
+      "content": "If you run out of ready tasks before running all of them, the remaining tasks form a cycle."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "taskOrder",
+      "code": "function taskOrder(tasks, prerequisites) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tasks": 4,
+        "prerequisites": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      "output": [
+        2,
+        3,
+        1,
+        0
+      ],
+      "explanation": "Tasks 2 and 3 are ready at the start; 2 is smaller. Then 3, which unlocks 1, and finally 0."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tasks": 3,
+        "prerequisites": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      },
+      "output": [],
+      "explanation": "Every task waits on another, so nothing can start."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tasks": 1,
+        "prerequisites": []
+      },
+      "output": [
+        0
+      ],
+      "explanation": "A single task with no prerequisites."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tasks": 3,
+        "prerequisites": []
+      },
+      "output": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "With no constraints the smallest order is simply 0, 1, 2."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tasks": 4,
+        "prerequisites": [
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "output": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "explanation": "A chain forces the reverse order."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tasks": 5,
+        "prerequisites": [
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ]
+      },
+      "output": [
+        3,
+        2,
+        4,
+        0,
+        1
+      ],
+      "explanation": "3 and 4 are ready first; 3 runs, unlocking 2, which is the smallest ready task, then 4, 0, 1."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tasks": 3,
+        "prerequisites": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      "output": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "A duplicated prerequisite does not change the order."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "tasks": 4,
+        "prerequisites": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "output": [],
+      "explanation": "Tasks 1 and 2 wait on each other, so no complete order exists even though 0 could run."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Repeatedly scan for the smallest ready task",
+      "intuition": "At each step the rule says to run the smallest task whose prerequisites are all finished, which can be found by checking every task against every prerequisite.",
+      "approach": "Repeat until all tasks are done: scan tasks in increasing order and pick the first one that is not done and has every prerequisite done. If none qualifies, report a cycle.",
+      "pseudocode": "while not all done: for task in order: if not done and all prerequisites done: run it, break; if none found return [].",
+      "code": "function taskOrder(tasks, prerequisites) {\n    const done = new Array(tasks).fill(false);\n    const order = [];\n    while (order.length < tasks) {\n        let chosen = -1;\n        for (let task = 0; task < tasks && chosen === -1; task++) {\n            if (done[task])\n                continue;\n            let ready = true;\n            for (const [before, after] of prerequisites)\n                if (after === task && !done[before])\n                    ready = false;\n            if (ready)\n                chosen = task;\n        }\n        if (chosen === -1)\n            return [];\n        done[chosen] = true;\n        order.push(chosen);\n    }\n    return order;\n}",
+      "timeComplexity": "O(tasks × (tasks + prerequisites))",
+      "spaceComplexity": "O(tasks)",
+      "commonMistakes": [
+        "Picking any ready task instead of the smallest, which breaks the tie-break rule.",
+        "Not detecting the stuck state and looping forever on a cycle."
+      ],
+      "interviewExplanation": "Rescanning every task and prerequisite per step is correct but quadratic. Counting pending prerequisites and keeping ready tasks in a min-heap is Kahn's algorithm with a priority queue, which produces the lexicographically smallest order in (tasks + prerequisites) log tasks time.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For prerequisites [[1,0],[2,0],[3,1]], the first scan finds 0 blocked, 1 blocked and 2 ready, so 2 runs."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Next 3 runs, then 1 becomes ready and runs, then 0. The order is [2, 3, 1, 0]."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Kahn's algorithm with a min-heap",
+      "intuition": "Each task only needs to know how many prerequisites are still pending, and finishing a task decrements that count for its dependents; a min-heap of ready tasks enforces the smallest-first rule.",
+      "approach": "Count pending prerequisites per task and record which tasks each task unlocks. Push all tasks with zero pending into a min-heap. Pop the smallest, append it, and decrement its dependents, pushing any that reach zero. If fewer than all tasks were output, a cycle exists.",
+      "pseudocode": "blocked[after]++ for each prerequisite; heap = tasks with blocked 0; while heap: t = pop; append; for each dependent d: if --blocked[d] == 0 push d; return order if complete else [].",
+      "code": "function taskOrder(tasks, prerequisites) {\n    const blocked = new Array(tasks).fill(0);\n    const unlocks = Array.from({ length: tasks }, () => []);\n    for (const [before, after] of prerequisites) {\n        unlocks[before].push(after);\n        blocked[after]++;\n    }\n    const heap = [];\n    const push = (value) => {\n        heap.push(value);\n        let i = heap.length - 1;\n        while (i > 0) {\n            const parent = (i - 1) >> 1;\n            if (heap[parent] <= heap[i])\n                break;\n            [heap[parent], heap[i]] = [heap[i], heap[parent]];\n            i = parent;\n        }\n    };\n    const pop = () => {\n        const top = heap[0];\n        const last = heap.pop();\n        if (heap.length > 0) {\n            heap[0] = last;\n            let i = 0;\n            while (true) {\n                const left = 2 * i + 1;\n                const right = left + 1;\n                let smallest = i;\n                if (left < heap.length && heap[left] < heap[smallest])\n                    smallest = left;\n                if (right < heap.length && heap[right] < heap[smallest])\n                    smallest = right;\n                if (smallest === i)\n                    break;\n                [heap[smallest], heap[i]] = [heap[i], heap[smallest]];\n                i = smallest;\n            }\n        }\n        return top;\n    };\n    for (let task = 0; task < tasks; task++)\n        if (blocked[task] === 0)\n            push(task);\n    const order = [];\n    while (heap.length > 0) {\n        const task = pop();\n        order.push(task);\n        for (const next of unlocks[task]) {\n            blocked[next]--;\n            if (blocked[next] === 0)\n                push(next);\n        }\n    }\n    return order.length === tasks ? order : [];\n}",
+      "timeComplexity": "O((tasks + prerequisites) log tasks)",
+      "spaceComplexity": "O(tasks + prerequisites)",
+      "commonMistakes": [
+        "Using a plain queue, which gives a valid order but not the smallest one.",
+        "Counting a duplicated prerequisite once in blocked but twice in unlocks, which lets a task run early."
+      ],
+      "interviewExplanation": "This is a topological sort where ties must be broken by task number, so I replace Kahn's queue with a min-heap. Each task is pushed and popped once and each prerequisite edge is relaxed once, giving (tasks + prerequisites) log tasks. Duplicate edges are handled consistently because the count and the adjacency list both include them. An incomplete output means a cycle.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For prerequisites [[1,0],[2,0],[3,1]], blocked counts are [2, 1, 0, 0], so the heap starts with 2 and 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Pop 2, which lowers blocked[0] to 1. Pop 3, which lowers blocked[1] to 0 and pushes 1."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Pop 1, which frees 0; pop 0. The order [2, 3, 1, 0] contains all four tasks."
+        }
+      ]
+    }
+  ]
+}

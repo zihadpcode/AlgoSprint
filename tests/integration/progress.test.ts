@@ -102,7 +102,7 @@ it("computes owner-only counts by difficulty/category without leaking code, resu
   await writeProblemChange(db, users[1], { slug: "quiet-badge", operation: "mark-solved" });
   await db.userSubmission.update({ where: { id: saved.id }, data: { result: { secret: "HIDDEN-RESULT-SENTINEL" } } });
   const summary = await queryProgress(db, users[0]);
-  expect(summary.overall).toMatchObject({ total: 5, started: 1, attempted: 1, solved: 1, verifiedCurrent: 1, manualSolved: 0, reviewLater: 1 });
+  expect(summary.overall).toMatchObject({ total: slugs.length, started: 1, attempted: 1, solved: 1, verifiedCurrent: 1, manualSolved: 0, reviewLater: 1 });
   expect(summary.difficulty.EASY.solved).toBe(1); expect(summary.categories.find((c) => c.slug === "arrays")?.counts.solved).toBe(1);
   expect(summary.categories.find((c) => c.slug === "sliding-window")?.counts.solved).toBe(1);
   expect(summary.recentAttempts).toHaveLength(1); expect(summary.recentProgress).toHaveLength(1);

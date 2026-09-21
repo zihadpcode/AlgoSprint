@@ -50,7 +50,7 @@ afterAll(async () => {
 describe("published library against PostgreSQL", () => {
   it("excludes draft/archive data and private-only facets from every public DTO", async () => {
     const result = await queryLibrary(db, filters({ status: "DRAFT" }), null);
-    expect(result.total).toBe(5);
+    expect(result.total).toBe(seeds.length);
     expect(result.facets.categories.some((entry) => entry.slug === privateSlug)).toBe(false);
     expect(result.facets.tags.some((entry) => entry.slug === privateSlug)).toBe(false);
     expect(result.facets.patterns).not.toContain(privateSlug);
@@ -79,7 +79,7 @@ describe("published library against PostgreSQL", () => {
     expect(solved.items[0].progress).toEqual({ status: "SOLVED", reviewLater: true, selfMarked: true, verification: null });
     expect((await queryLibrary(db, filters({ completion: "SOLVED" }), users[1])).total).toBe(0);
     expect((await queryLibrary(db, filters({ review: "1" }), users[1])).total).toBe(0);
-    expect((await queryLibrary(db, filters({ completion: "NOT_STARTED" }), users[1])).total).toBe(4);
+    expect((await queryLibrary(db, filters({ completion: "NOT_STARTED" }), users[1])).total).toBe(seeds.length - 1);
     expect((await queryLibrary(db, filters({ completion: "ATTEMPTED" }), users[1])).total).toBe(1);
     await expect(queryLibrary(db, filters({ completion: "SOLVED" }), null)).rejects.toThrow("Verified viewer");
     const shortest = await queryLibrary(db, filters({ sort: "time" }), null);

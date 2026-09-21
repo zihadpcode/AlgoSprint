@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "slug": "orchard-plots",
+  "title": "Orchard Plots",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "flood-fill",
+  "statement": "A drone photographs a field and produces the array grid, where each string is one row, T marks a cell with a tree and . marks bare ground. Trees that are directly above, below, left or right of each other belong to the same plot; diagonal neighbors do not. Return how many separate plots the field contains. A field with no trees has zero plots.",
+  "constraints": [
+    "0 <= grid.length <= 100 and 0 <= grid[i].length <= 100",
+    "All rows have the same length.",
+    "grid contains only the characters T and ."
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dfs",
+    "graphs"
+  ],
+  "tags": [
+    "grid",
+    "graph-traversal"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "grid": [
+          "TT.",
+          "..T",
+          "T.T"
+        ]
+      },
+      "output": 3,
+      "explanation": "The two trees at the top form one plot, the three trees down the right side form another, and the bottom-left tree is a third."
+    },
+    {
+      "position": 2,
+      "input": {
+        "grid": [
+          "...",
+          "..."
+        ]
+      },
+      "output": 0,
+      "explanation": "No trees, no plots."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Each tree belongs to exactly one plot, so a plot can be counted the first time you touch any of its trees."
+    },
+    {
+      "position": 2,
+      "content": "After counting a plot, make sure none of its other trees are counted again."
+    },
+    {
+      "position": 3,
+      "content": "From one tree, visit every tree reachable through up/down/left/right neighbors and mark them all as seen."
+    },
+    {
+      "position": 4,
+      "content": "That reachability walk is a depth-first search; an explicit stack avoids deep recursion on large fields."
+    },
+    {
+      "position": 5,
+      "content": "Scan every cell; start a new walk only from unseen trees and increment the plot count each time."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "orchardPlots",
+      "code": "function orchardPlots(grid) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "TT.",
+          "..T",
+          "T.T"
+        ]
+      },
+      "output": 3,
+      "explanation": "The two trees at the top form one plot, the three trees down the right side form another, and the bottom-left tree is a third."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "...",
+          "..."
+        ]
+      },
+      "output": 0,
+      "explanation": "No trees, no plots."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": []
+      },
+      "output": 0,
+      "explanation": "An empty photo has no plots."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "T"
+        ]
+      },
+      "output": 1,
+      "explanation": "A single tree is one plot."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "TTT",
+          "TTT"
+        ]
+      },
+      "output": 1,
+      "explanation": "All six trees connect into one plot."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "T.T",
+          ".T.",
+          "T.T"
+        ]
+      },
+      "output": 5,
+      "explanation": "Diagonal trees are not connected, so there are five plots."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "T.T.T",
+          ".....",
+          "T.T.T"
+        ]
+      },
+      "output": 6,
+      "explanation": "Six isolated trees."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "TT..T",
+          "T..TT",
+          "..T..",
+          "TT.TT"
+        ]
+      },
+      "output": 5,
+      "explanation": "Plots: the top-left three, the right cluster of three, the center tree, the bottom-left pair and the bottom-right pair, for 5."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Spread labels until they stabilize",
+      "intuition": "If every tree starts with a unique label and neighbors keep adopting the smaller label, all trees in one plot end up sharing the same label.",
+      "approach": "Give each tree its own label. Sweep the grid repeatedly, letting each tree take the smallest label among its neighbors, until a sweep changes nothing. The number of distinct labels left is the number of plots.",
+      "pseudocode": "label each tree uniquely; repeat: for each tree: label = min(label, neighbor labels); until stable; return count of distinct labels.",
+      "code": "function orchardPlots(grid) {\n    const rows = grid.length;\n    const cols = rows === 0 ? 0 : grid[0].length;\n    const label = grid.map((row, r) => row.split(\"\").map((cell, c) => cell === \"T\" ? r * cols + c : -1));\n    let changed = true;\n    while (changed) {\n        changed = false;\n        for (let r = 0; r < rows; r++) {\n            for (let c = 0; c < cols; c++) {\n                if (label[r][c] === -1)\n                    continue;\n                for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n                    const nr = r + dr;\n                    const nc = c + dc;\n                    if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || label[nr][nc] === -1)\n                        continue;\n                    if (label[nr][nc] < label[r][c]) {\n                        label[r][c] = label[nr][nc];\n                        changed = true;\n                    }\n                }\n            }\n        }\n    }\n    const plots = new Set();\n    for (const row of label)\n        for (const value of row)\n            if (value !== -1)\n                plots.add(value);\n    return plots.size;\n}",
+      "timeComplexity": "O((rows × cols)²) in the worst case",
+      "spaceComplexity": "O(rows × cols)",
+      "commonMistakes": [
+        "Spreading labels through bare cells, which merges plots that are not connected.",
+        "Stopping after a single sweep when labels need many sweeps to travel along a winding plot."
+      ],
+      "interviewExplanation": "Label propagation is a correct but slow way to compute connected components, because a label may need many sweeps to travel across a long plot. A flood fill from each unseen tree visits every tree of a plot exactly once, giving a linear-time count.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [\"TT.\", \"..T\", \"T.T\"], the trees start with labels 0, 1, 5, 6 and 8."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Label 0 spreads to the neighboring top tree; label 5 spreads down to 8. Labels 0, 5 and 6 remain, so there are 3 plots."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Flood fill from each unseen tree",
+      "intuition": "Touching any tree of a plot lets you walk to every other tree in that plot, so one walk per plot is enough to count and retire it.",
+      "approach": "Scan all cells. When an unseen tree is found, count a new plot and run a depth-first walk with an explicit stack, marking every connected tree as seen so later scanning skips it.",
+      "pseudocode": "plots = 0; for each cell: if tree and not seen: plots++; stack = [cell]; while stack: pop; for each tree neighbor not seen: mark and push; return plots.",
+      "code": "function orchardPlots(grid) {\n    const rows = grid.length;\n    const cols = rows === 0 ? 0 : grid[0].length;\n    const seen = new Set();\n    let plots = 0;\n    for (let r = 0; r < rows; r++) {\n        for (let c = 0; c < cols; c++) {\n            if (grid[r][c] !== \"T\" || seen.has(r * cols + c))\n                continue;\n            plots++;\n            const stack = [r * cols + c];\n            seen.add(r * cols + c);\n            while (stack.length > 0) {\n                const cell = stack.pop();\n                const cr = Math.floor(cell / cols);\n                const cc = cell % cols;\n                for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n                    const nr = cr + dr;\n                    const nc = cc + dc;\n                    if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || grid[nr][nc] !== \"T\")\n                        continue;\n                    const next = nr * cols + nc;\n                    if (!seen.has(next)) {\n                        seen.add(next);\n                        stack.push(next);\n                    }\n                }\n            }\n        }\n    }\n    return plots;\n}",
+      "timeComplexity": "O(rows × cols)",
+      "spaceComplexity": "O(rows × cols)",
+      "commonMistakes": [
+        "Recursing on very large fields without a stack, which can overflow the call stack.",
+        "Marking cells as seen when popped instead of when pushed, which can push the same tree repeatedly."
+      ],
+      "interviewExplanation": "I flood fill: each unseen tree starts a new plot and a depth-first walk marks every tree connected to it. Because trees are marked when pushed, each cell is pushed at most once and the total work is proportional to the grid size. An explicit stack avoids recursion depth limits on 100 × 100 fields.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [\"TT.\", \"..T\", \"T.T\"], the tree at (0,0) starts plot 1 and the walk marks (0,1)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The tree at (1,2) starts plot 2 and the walk marks (2,2). The tree at (2,0) starts plot 3."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Every remaining tree is already seen, so the answer is 3."
+        }
+      ]
+    }
+  ]
+}

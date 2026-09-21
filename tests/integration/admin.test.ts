@@ -42,7 +42,7 @@ it("rechecks database authorization for reads/writes and rejects revoked adminis
     await expect(writeAdmin(db, id, { operation: "import", payload: "[]", reviewed: false })).rejects.toThrow(/Administrator/);
   }
   await db.user.update({ where: { id: admin }, data: { role: "USER" } });
-  await expect(save(custom("revoked"))).rejects.toThrow(/Administrator/); expect(await db.problem.count()).toBe(5);
+  await expect(save(custom("revoked"))).rejects.toThrow(/Administrator/); expect(await db.problem.count()).toBe(seeds.length);
 });
 it("creates complete structured content and keeps hidden tests out of public projections", async () => {
   const p = custom("complete", { status: "PUBLISHED" }); p.testCases.find((x) => x.visibility === "HIDDEN")!.explanation = "PRIVATE-ADMIN-TEST";
@@ -86,7 +86,7 @@ it("imports create-only batches with internal links and rolls back every new row
   await expect(writeAdmin(db, admin, { operation: "import", payload: JSON.stringify([custom("rollback"), a]), reviewed: false })).rejects.toThrow(/already exists/);
   expect(await db.problem.count({ where: { slug: custom("rollback").slug } })).toBe(0);
   await expect(writeAdmin(db, admin, { operation: "import", payload: JSON.stringify([custom("rollback"), custom("bad", { relatedSlugs: ["missing-problem"] })]), reviewed: false })).rejects.toThrow(/related problem/);
-  expect(await db.problem.count()).toBe(7);
+  expect(await db.problem.count()).toBe(seeds.length + 2);
 });
 it("archives with stale checks and only deletes unreferenced archived problems", async () => {
   const p = custom("deletion"); await save(p); await expect(lifecycle(p.slug, 1, "delete")).rejects.toThrow(/Only archived/);

@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "slug": "rising-marks",
+  "title": "Rising Marks",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "increasing-subsequence",
+  "statement": "A student's quiz marks are listed in chronological order in the array marks. A rising run is a selection of quizzes, kept in chronological order, whose marks strictly increase from one selected quiz to the next; the selected quizzes do not need to be consecutive. Return the length of the longest rising run. An empty list has a longest run of 0.",
+  "constraints": [
+    "0 <= marks.length <= 10000",
+    "-1000000 <= marks[i] <= 1000000"
+  ],
+  "estimatedMinutes": 35,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "binary-search",
+    "arrays"
+  ],
+  "tags": [
+    "state-transition",
+    "monotone-search"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "marks": [
+          5,
+          2,
+          8,
+          6,
+          3,
+          6,
+          9,
+          7
+        ]
+      },
+      "output": 4,
+      "explanation": "One longest run is 2, 3, 6, 9 with length 4. No run of length 5 exists."
+    },
+    {
+      "position": 2,
+      "input": {
+        "marks": [
+          9,
+          7,
+          7,
+          5
+        ]
+      },
+      "output": 1,
+      "explanation": "Marks never rise, so any single quiz is the longest run."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Choosing for each quiz whether to include it gives 2^n selections, far too many to test."
+    },
+    {
+      "position": 2,
+      "content": "Define best[i] as the longest run that ends exactly at quiz i; it is one more than the best run ending at an earlier, lower mark."
+    },
+    {
+      "position": 3,
+      "content": "That quadratic table is a solid answer; the next idea is to avoid re-scanning earlier quizzes."
+    },
+    {
+      "position": 4,
+      "content": "Keep, for each run length, the smallest possible mark that can end a run of that length; those values are increasing."
+    },
+    {
+      "position": 5,
+      "content": "Each new mark either extends the longest run or replaces the first stored mark that is not smaller, which binary search finds."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "risingMarks",
+      "code": "function risingMarks(marks) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "marks": [
+          5,
+          2,
+          8,
+          6,
+          3,
+          6,
+          9,
+          7
+        ]
+      },
+      "output": 4,
+      "explanation": "One longest run is 2, 3, 6, 9 with length 4. No run of length 5 exists."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "marks": [
+          9,
+          7,
+          7,
+          5
+        ]
+      },
+      "output": 1,
+      "explanation": "Marks never rise, so any single quiz is the longest run."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "marks": []
+      },
+      "output": 0,
+      "explanation": "No quizzes."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "marks": [
+          4
+        ]
+      },
+      "output": 1,
+      "explanation": "A single quiz is a run of length 1."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "marks": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "output": 5,
+      "explanation": "Strictly increasing marks give a run of the whole list."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "marks": [
+          3,
+          3,
+          3
+        ]
+      },
+      "output": 1,
+      "explanation": "Equal marks do not rise, so the answer is 1."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "marks": [
+          10,
+          1,
+          11,
+          2,
+          12,
+          3,
+          13
+        ]
+      },
+      "output": 4,
+      "explanation": "Either 10, 11, 12, 13 or 1, 2, 3, 13 gives length 4."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "marks": [
+          -5,
+          -1,
+          -3,
+          0,
+          -2,
+          4
+        ]
+      },
+      "output": 4,
+      "explanation": "-5, -3, -2, 4 or -5, -1, 0, 4 has length 4."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every selection",
+      "intuition": "Each quiz is either included in the run or skipped, and inclusion is only allowed when its mark beats the last included mark.",
+      "approach": "Recurse over quizzes with the last chosen mark as state. At each quiz, take the better of skipping it and, when allowed, including it.",
+      "pseudocode": "longest(i, last): if i == n return 0; best = longest(i+1, last); if marks[i] > last: best = max(best, 1 + longest(i+1, marks[i])); return best.",
+      "code": "function risingMarks(marks) {\n    function longest(index, previous) {\n        if (index === marks.length)\n            return 0;\n        let best = longest(index + 1, previous);\n        if (marks[index] > previous)\n            best = Math.max(best, 1 + longest(index + 1, marks[index]));\n        return best;\n    }\n    return longest(0, -Infinity);\n}",
+      "timeComplexity": "O(2^n)",
+      "spaceComplexity": "O(n) recursion depth",
+      "commonMistakes": [
+        "Allowing equal marks to extend the run.",
+        "Forgetting the skip branch, which forces every quiz into the run."
+      ],
+      "interviewExplanation": "The include-or-skip recursion is exponential. A table indexed by the ending quiz is quadratic, and the patience-style tail array with binary search gets to n log n by only remembering the smallest ending mark for each run length.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [5, 2, 8, 6, 3, 6, 9, 7], the recursion tries including 5 or skipping it, and so on for every quiz."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Among all selections, 2, 3, 6, 9 has length 4 and none has length 5."
+        }
+      ]
+    },
+    {
+      "kind": "BETTER",
+      "language": "JAVASCRIPT",
+      "title": "Longest run ending at each quiz",
+      "intuition": "A run ending at quiz i is a run ending at some earlier quiz with a lower mark, extended by one.",
+      "approach": "For each quiz, look at every earlier quiz with a strictly lower mark and take the longest run ending there plus one. The answer is the largest table entry.",
+      "pseudocode": "best[i] = 1; for each i: for each j < i with marks[j] < marks[i]: best[i] = max(best[i], best[j] + 1); return max(best) or 0.",
+      "code": "function risingMarks(marks) {\n    const best = new Array(marks.length).fill(1);\n    let longest = 0;\n    for (let i = 0; i < marks.length; i++) {\n        for (let j = 0; j < i; j++)\n            if (marks[j] < marks[i])\n                best[i] = Math.max(best[i], best[j] + 1);\n        longest = Math.max(longest, best[i]);\n    }\n    return longest;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Returning best[n-1] instead of the maximum over all entries.",
+        "Using <= when comparing earlier marks."
+      ],
+      "interviewExplanation": "The quadratic table is the standard first dynamic-programming answer and is easy to justify. When n is large, the tails array with binary search improves it to n log n.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [5, 2, 8, 6, 3, 6, 9, 7], the table becomes [1, 1, 2, 2, 2, 3, 4, 4]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The largest entry is 4, at the quiz with mark 9 or the one with mark 7."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Smallest tail for each run length",
+      "intuition": "Among all runs of a given length, only the one with the smallest ending mark matters for future extension, and those smallest ends are increasing with the length.",
+      "approach": "Maintain tails where tails[k] is the smallest mark ending a run of length k + 1. For each mark, binary search the first tail that is not smaller and overwrite it, or append when every tail is smaller. The length of tails is the answer.",
+      "pseudocode": "tails = []; for each mark: k = first index with tails[k] >= mark (or tails.length); tails[k] = mark; return tails.length.",
+      "code": "function risingMarks(marks) {\n    const tails = [];\n    for (const mark of marks) {\n        let left = 0;\n        let right = tails.length;\n        while (left < right) {\n            const middle = (left + right) >> 1;\n            if (tails[middle] < mark)\n                left = middle + 1;\n            else\n                right = middle;\n        }\n        tails[left] = mark;\n    }\n    return tails.length;\n}",
+      "timeComplexity": "O(n log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Using <= in the search, which lets equal marks extend a run.",
+        "Reading tails as the actual run; it only records lengths, not a valid sequence."
+      ],
+      "interviewExplanation": "I keep the smallest possible ending mark for every run length. A new mark that exceeds all tails starts a longer run; otherwise it replaces the first tail that is at least as large, which keeps future extensions as easy as possible. The tails array is sorted, so each update is a binary search, giving n log n overall. Its length is the answer even though its contents are not necessarily a real run.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [5, 2, 8, 6, 3, 6, 9, 7], tails evolve: [5] → [2] → [2, 8] → [2, 6] → [2, 3] → [2, 3, 6]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "9 appends to give [2, 3, 6, 9]; 7 replaces 9 to give [2, 3, 6, 7]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The length of tails is 4, which is the longest rising run."
+        }
+      ]
+    }
+  ]
+}

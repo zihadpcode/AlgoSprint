@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "slug": "crate-combinations",
+  "title": "Crate Combinations",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "backtracking",
+  "statement": "A loading dock has crates with distinct positive weights listed in the array weights. A pallet must carry a set of crates whose weights add up to exactly target, using each crate at most once. Return every such set. Present each set as its weights in increasing order, and list the sets in lexicographic order (compare the first weights, then the second, and so on, with a shorter set coming before a longer one that starts the same way). Return an empty array when no set matches. An empty set matches a target of 0.",
+  "constraints": [
+    "0 <= weights.length <= 16",
+    "1 <= weights[i] <= 1000 and all weights are distinct",
+    "0 <= target <= 5000"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "backtracking",
+    "recursion"
+  ],
+  "tags": [
+    "recursion"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "weights": [
+          5,
+          2,
+          7,
+          3
+        ],
+        "target": 10
+      },
+      "output": [
+        [
+          2,
+          3,
+          5
+        ],
+        [
+          3,
+          7
+        ]
+      ],
+      "explanation": "2 + 3 + 5 and 3 + 7 both reach 10. The set starting with 2 comes first."
+    },
+    {
+      "position": 2,
+      "input": {
+        "weights": [
+          4,
+          6
+        ],
+        "target": 5
+      },
+      "output": [],
+      "explanation": "No combination of 4 and 6 reaches 5."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Every crate is either on the pallet or not, so there are 2^n candidate sets."
+    },
+    {
+      "position": 2,
+      "content": "Sorting the weights first makes it easy to produce each set in increasing order and to prune."
+    },
+    {
+      "position": 3,
+      "content": "Build sets by deciding crates from smallest to largest; once the remaining target is smaller than the next crate, stop that branch."
+    },
+    {
+      "position": 4,
+      "content": "Recursion with an index parameter avoids reusing a crate and avoids generating the same set twice."
+    },
+    {
+      "position": 5,
+      "content": "Collect the sets, then sort them lexicographically, or generate them in an order that is already sorted."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "crateCombinations",
+      "code": "function crateCombinations(weights, target) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "weights": [
+          5,
+          2,
+          7,
+          3
+        ],
+        "target": 10
+      },
+      "output": [
+        [
+          2,
+          3,
+          5
+        ],
+        [
+          3,
+          7
+        ]
+      ],
+      "explanation": "2 + 3 + 5 and 3 + 7 both reach 10. The set starting with 2 comes first."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "weights": [
+          4,
+          6
+        ],
+        "target": 5
+      },
+      "output": [],
+      "explanation": "No combination of 4 and 6 reaches 5."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [],
+        "target": 0
+      },
+      "output": [
+        []
+      ],
+      "explanation": "The empty set is the only set, and it matches 0."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          3
+        ],
+        "target": 0
+      },
+      "output": [
+        []
+      ],
+      "explanation": "Only the empty set sums to 0."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "target": 5
+      },
+      "output": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          5
+        ]
+      ],
+      "explanation": "Three sets reach 5: [1, 4], [2, 3] and [5]."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          10,
+          1,
+          2,
+          7,
+          6,
+          5
+        ],
+        "target": 8
+      },
+      "output": [
+        [
+          1,
+          2,
+          5
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "explanation": "Sets: [1, 2, 5], [1, 7], [2, 6]."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          8,
+          4,
+          2,
+          1
+        ],
+        "target": 15
+      },
+      "output": [
+        [
+          1,
+          2,
+          4,
+          8
+        ]
+      ],
+      "explanation": "Only the full set reaches 15."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          2,
+          4,
+          6,
+          8
+        ],
+        "target": 9
+      },
+      "output": [],
+      "explanation": "All weights are even, so an odd target is impossible."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Enumerate every subset with a bitmask",
+      "intuition": "Each crate is a yes-or-no decision, so every integer from 0 to 2^n - 1 describes one candidate set through its bits.",
+      "approach": "Sort the weights. For each bitmask, collect the weights whose bits are set and check the sum. Sort the matching sets lexicographically before returning.",
+      "pseudocode": "sort weights; for mask in 0..2^n-1: chosen = weights with set bits; if sum == target keep; sort kept sets; return.",
+      "code": "function crateCombinations(weights, target) {\n    const sorted = [...weights].sort((a, b) => a - b);\n    const results = [];\n    for (let mask = 0; mask < (1 << sorted.length); mask++) {\n        const chosen = [];\n        let sum = 0;\n        for (let i = 0; i < sorted.length; i++) {\n            if (mask & (1 << i)) {\n                chosen.push(sorted[i]);\n                sum += sorted[i];\n            }\n        }\n        if (sum === target)\n            results.push(chosen);\n    }\n    return results.sort((a, b) => {\n        for (let i = 0; i < Math.min(a.length, b.length); i++)\n            if (a[i] !== b[i])\n                return a[i] - b[i];\n        return a.length - b.length;\n    });\n}",
+      "timeComplexity": "O(2^n × n)",
+      "spaceComplexity": "O(n) beyond the output",
+      "commonMistakes": [
+        "Building sets from the unsorted weights, which produces unordered sets.",
+        "Comparing sets with a plain array comparison that is not lexicographic."
+      ],
+      "interviewExplanation": "Bitmask enumeration is the exhaustive baseline and is fine for sixteen crates. Backtracking over sorted weights explores the same sets but abandons a branch as soon as the remaining target cannot be reached, and it produces the sets already in the required order.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [5, 2, 7, 3] and target 10, sorting gives [2, 3, 5, 7]; masks 0b0111 (2, 3, 5) and 0b1010 (3, 7) sum to 10."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Sorting the two sets places [2, 3, 5] before [3, 7]."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Backtrack over sorted weights with pruning",
+      "intuition": "Choosing crates in increasing order and only from positions after the last choice generates every set exactly once and already sorted, and a crate heavier than what remains can be skipped along with everything after it.",
+      "approach": "Sort the weights. Recursively choose the next crate from a start index onward while it fits in the remaining target. Record a set when the remaining target hits zero. Because choices are made in increasing order, the results appear in lexicographic order without a final sort.",
+      "pseudocode": "sort; extend(from, remaining): if remaining == 0 record; for i from `from` while weight[i] <= remaining: choose, extend(i + 1, remaining - weight[i]), unchoose.",
+      "code": "function crateCombinations(weights, target) {\n    const sorted = [...weights].sort((a, b) => a - b);\n    const results = [];\n    const chosen = [];\n    function extend(from, remaining) {\n        if (remaining === 0) {\n            results.push([...chosen]);\n            return;\n        }\n        for (let i = from; i < sorted.length && sorted[i] <= remaining; i++) {\n            chosen.push(sorted[i]);\n            extend(i + 1, remaining - sorted[i]);\n            chosen.pop();\n        }\n    }\n    extend(0, target);\n    return results;\n}",
+      "timeComplexity": "O(2^n) in the worst case, typically far less due to pruning",
+      "spaceComplexity": "O(n) recursion depth beyond the output",
+      "commonMistakes": [
+        "Restarting the loop from index 0, which reuses crates and duplicates sets.",
+        "Pruning with < instead of <=, which skips a crate that exactly completes the target."
+      ],
+      "interviewExplanation": "I sort the weights and backtrack with a start index so each crate is used at most once and each set is built in increasing order. The loop stops as soon as a weight exceeds the remaining target, since all later weights are larger too. Depth-first order over sorted weights yields the sets lexicographically, so no post-sort is needed.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For sorted [2, 3, 5, 7] and target 10, choose 2, then 3, then 5: remaining hits 0 and [2, 3, 5] is recorded."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Backtracking tries 2 + 3 + 7 (too heavy), 2 + 5 (remaining 3, but 7 is too heavy), 2 + 7 (remaining 1, nothing fits)."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Starting with 3: 3 + 5 leaves 2 with no fit; 3 + 7 hits 0 and [3, 7] is recorded. Starting with 5 or 7 finds nothing."
+        }
+      ]
+    }
+  ]
+}

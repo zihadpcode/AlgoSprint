@@ -38,7 +38,13 @@ try {
   assert.equal(library.status, 200);
   assert.match(library.headers.get("cache-control") ?? "", /no-store/);
   const html = await library.text();
-  for (const title of ["Relay Window", "Quiet Badge", "Parcel Checkpoints", "Dock Threshold", "Lantern Steps"]) assert.ok(html.includes(title), title);
+  // The library is paginated, so locate each foundation problem through search rather than the first page.
+  for (const title of ["Relay Window", "Quiet Badge", "Parcel Checkpoints", "Dock Threshold", "Lantern Steps"]) {
+    const found = await fetch(origin + "/problems?q=" + encodeURIComponent(title));
+    assert.equal(found.status, 200, title);
+    assert.ok((await found.text()).includes(title), title);
+  }
+  assert.ok(html.includes("Ridge Count") || html.includes("Bake Batches"), "First page shows library problems");
   for (const privateField of ["seedHash", "testCases", "starterCode"]) assert.ok(!html.includes(privateField), privateField);
   const search = await fetch(origin + "/problems?q=RELAY");
   const searchHtml = await search.text();
@@ -54,9 +60,11 @@ try {
   assert.ok(!personalHtml.includes("Relay Window"));
   const page = await fetch(origin + "/problems?page=999", { redirect: "manual" });
   assert.equal(page.status, 307);
-  assert.equal(page.headers.get("location"), "/problems");
-  for (const slug of ["relay-window", "quiet-badge", "parcel-checkpoints", "dock-threshold", "lantern-steps"]) {
-    assert.ok(html.includes(`/problems/${slug}`), "Card must link to its detail page");
+  // Out-of-range pages clamp to the last real page (page 1 renders as the bare path).
+  assert.match(page.headers.get("location") ?? "", /^\/problems(\?page=[1-9]\d?)?$/);
+  for (const slug of ["relay-window", "quiet-badge", "parcel-checkpoints", "dock-threshold", "lantern-steps", "ridge-count", "cheapest-route"]) {
+    const card = await fetch(origin + "/problems?q=" + slug.replaceAll("-", " "));
+    assert.ok((await card.text()).includes(`/problems/${slug}`), "Card must link to its detail page");
     const detail = await fetch(origin + `/problems/${slug}?userId=forged&role=ADMIN`);
     assert.equal(detail.status, 200, slug);
     assert.match(detail.headers.get("cache-control") ?? "", /no-store/);

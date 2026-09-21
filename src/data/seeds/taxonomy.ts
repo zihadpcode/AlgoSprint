@@ -19,7 +19,17 @@ export const TAGS = [
   ["prefix-sum", "Prefix Sum"], ["frequency-count", "Frequency Count"],
   ["fixed-window", "Fixed Window"], ["monotone-search", "Monotone Search"],
   ["state-transition", "State Transition"], ["linear-scan", "Linear Scan"],
+  ["hashing", "Hashing"], ["pointer-pair", "Pointer Pair"], ["simulation", "Simulation"],
+  ["grid", "Grid"], ["graph-traversal", "Graph Traversal"], ["priority-queue", "Priority Queue"],
+  ["recursion", "Recursion"], ["memoization", "Memoization"], ["sorting", "Sorting"],
+  ["bitwise", "Bitwise"], ["invariant", "Invariant"],
 ] as const;
 
 export const INTERVIEW_STYLES = [["general-software", "General Software Interview"]] as const;
-export const PATTERNS = ["prefix-sum", "frequency-count", "fixed-window", "lower-bound", "one-dimensional-dp", "two-pointers", "upper-bound"] as const;
+export const PATTERNS = [
+  "prefix-sum", "frequency-count", "fixed-window", "lower-bound", "one-dimensional-dp", "two-pointers", "upper-bound",
+  "linear-scan", "hash-map", "variable-window", "stack-matching", "monotonic-stack", "queue-simulation",
+  "fast-slow-pointers", "tree-recursion", "bounded-recursion", "heap-greedy", "bfs", "flood-fill", "dijkstra",
+  "backtracking", "two-dimensional-dp", "increasing-subsequence", "greedy", "binary-search-answer",
+  "interval-merge", "union-find", "topological-sort", "trie", "xor", "sieve", "design",
+] as const;

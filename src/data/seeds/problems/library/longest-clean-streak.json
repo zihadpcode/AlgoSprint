@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "slug": "longest-clean-streak",
+  "title": "Longest Clean Streak",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "variable-window",
+  "statement": "A machine writes one lowercase status letter per second into the string log. Engineers call a stretch of consecutive seconds clean when no status letter repeats inside it. Return the length of the longest clean stretch. An empty log has a longest clean stretch of 0.",
+  "constraints": [
+    "0 <= log.length <= 10000",
+    "log contains only lowercase English letters a through z."
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "sliding-window",
+    "strings",
+    "hash-maps"
+  ],
+  "tags": [
+    "hashing",
+    "pointer-pair",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "log": "abcabcbb"
+      },
+      "output": 3,
+      "explanation": "abc is the longest stretch with no repeated letter. Any longer stretch repeats a letter."
+    },
+    {
+      "position": 2,
+      "input": {
+        "log": "bbbb"
+      },
+      "output": 1,
+      "explanation": "Every stretch longer than one second repeats b."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Every clean stretch inside a longer clean stretch is also clean, so growing a window is safe until a repeat appears."
+    },
+    {
+      "position": 2,
+      "content": "When a repeat appears, the window must drop everything up to and including the earlier copy of that letter."
+    },
+    {
+      "position": 3,
+      "content": "Remember the last index where each letter occurred."
+    },
+    {
+      "position": 4,
+      "content": "Only move the window start forward; a last-seen index that is before the current start is not a conflict."
+    },
+    {
+      "position": 5,
+      "content": "After each step, the window from start to the current index is clean, so its length is a candidate answer."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "longestCleanStreak",
+      "code": "function longestCleanStreak(log) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "log": "abcabcbb"
+      },
+      "output": 3,
+      "explanation": "abc is the longest stretch with no repeated letter. Any longer stretch repeats a letter."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "log": "bbbb"
+      },
+      "output": 1,
+      "explanation": "Every stretch longer than one second repeats b."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "log": ""
+      },
+      "output": 0,
+      "explanation": "An empty log has no seconds."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "log": "z"
+      },
+      "output": 1,
+      "explanation": "One second is trivially clean."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "log": "abcdef"
+      },
+      "output": 6,
+      "explanation": "The whole log is clean."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "log": "pwwkew"
+      },
+      "output": 3,
+      "explanation": "wke is the longest clean stretch; pwke is not contiguous."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "log": "abba"
+      },
+      "output": 2,
+      "explanation": "The stretch must restart after the second b; the answer is 2, not 3."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "log": "tmmzuxt"
+      },
+      "output": 5,
+      "explanation": "mzuxt is clean and has length 5; the final t only conflicts with the first t, which is already outside the window."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Grow from every start",
+      "intuition": "For a fixed starting second, the clean stretch extends until the first repeated letter.",
+      "approach": "For each start index, extend the end index while tracking the letters seen. Stop at the first repeat and record the length reached.",
+      "pseudocode": "best = 0; for each start: seen = {}; for end from start: if log[end] in seen break; add; best = max(best, end - start + 1); return best.",
+      "code": "function longestCleanStreak(log) {\n    let best = 0;\n    for (let start = 0; start < log.length; start++) {\n        const seen = new Set();\n        for (let end = start; end < log.length; end++) {\n            if (seen.has(log[end]))\n                break;\n            seen.add(log[end]);\n            best = Math.max(best, end - start + 1);\n        }\n    }\n    return best;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1), since at most 26 letters are tracked",
+      "commonMistakes": [
+        "Checking all substrings with a fresh scan each time, which is cubic.",
+        "Forgetting to reset the seen set for each start."
+      ],
+      "interviewExplanation": "The quadratic approach restarts the scan from every start. Because a repeat tells you exactly how far the start must jump, a single moving window with last-seen indices reaches the same answer in one pass.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For abcabcbb, starting at index 0 the letters a, b, c are clean and the fourth letter a repeats, giving length 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Starts at 1, 2 and 3 also reach length 3; later starts are shorter. The best is 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Slide a window with last-seen indices",
+      "intuition": "As the end of the window advances, the start only ever needs to jump forward, to just past the earlier copy of a repeated letter.",
+      "approach": "Maintain a window [start, i] that is always clean. For each new letter, if it was last seen inside the window, move start to one past that position. Record the letter's index and update the best length.",
+      "pseudocode": "start = 0; for each i: if lastSeen[log[i]] >= start then start = lastSeen[log[i]] + 1; lastSeen[log[i]] = i; best = max(best, i - start + 1).",
+      "code": "function longestCleanStreak(log) {\n    const lastSeen = new Map();\n    let best = 0;\n    let start = 0;\n    for (let i = 0; i < log.length; i++) {\n        const previous = lastSeen.get(log[i]);\n        if (previous !== undefined && previous >= start)\n            start = previous + 1;\n        lastSeen.set(log[i], i);\n        best = Math.max(best, i - start + 1);\n    }\n    return best;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1), bounded by the alphabet size",
+      "commonMistakes": [
+        "Moving start backward when the previous occurrence is before the window, which reintroduces repeats.",
+        "Updating the best length before adjusting the start."
+      ],
+      "interviewExplanation": "I keep a window that is clean by construction and a map of each letter's last index. When the incoming letter was seen inside the window, the start jumps just past that earlier copy; otherwise the window simply grows. Each index enters and leaves the window once, so the scan is linear with a constant-size map.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For abcabcbb, the window grows to abc with best 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The second a was last seen at index 0, so start becomes 1; b and c likewise shift the start, keeping length 3."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The final b letters shrink the window to length 1 or 2, so the best stays 3."
+        }
+      ]
+    }
+  ]
+}

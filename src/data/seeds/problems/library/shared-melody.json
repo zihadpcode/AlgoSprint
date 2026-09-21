@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "slug": "shared-melody",
+  "title": "Shared Melody",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "two-dimensional-dp",
+  "statement": "Two musicians each wrote a melody as a string of lowercase letters, first and second, one letter per note. A shared melody is a sequence of notes that appears in both strings in the same order, not necessarily consecutively, and can be obtained from each string by deleting some notes. Return the length of the longest shared melody. Two strings with no letter in common share a melody of length 0.",
+  "constraints": [
+    "0 <= first.length, second.length <= 1000",
+    "Both strings contain only lowercase English letters."
+  ],
+  "estimatedMinutes": 35,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "strings"
+  ],
+  "tags": [
+    "state-transition",
+    "memoization"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "first": "cadence",
+        "second": "dance"
+      },
+      "output": 4,
+      "explanation": "The notes d, n, c, e appear in that order in both strings (ca-d-e-n-c-e and d-a-n-c-e), giving length 4."
+    },
+    {
+      "position": 2,
+      "input": {
+        "first": "abc",
+        "second": "xyz"
+      },
+      "output": 0,
+      "explanation": "No letter appears in both strings."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "If the last notes of both strings match, they can end a shared melody and the rest is a smaller instance of the same problem."
+    },
+    {
+      "position": 2,
+      "content": "If they do not match, at least one of the two last notes is not part of the best shared melody."
+    },
+    {
+      "position": 3,
+      "content": "Define a table entry as the answer for a prefix of the first string and a prefix of the second."
+    },
+    {
+      "position": 4,
+      "content": "Each entry comes from up to three neighbors: diagonal plus one on a match, or the larger of left and above otherwise."
+    },
+    {
+      "position": 5,
+      "content": "Only the previous row is needed to fill the current row, so two rows of memory suffice."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "sharedMelody",
+      "code": "function sharedMelody(first, second) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "first": "cadence",
+        "second": "dance"
+      },
+      "output": 4,
+      "explanation": "The notes d, n, c, e appear in that order in both strings (ca-d-e-n-c-e and d-a-n-c-e), giving length 4."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "first": "abc",
+        "second": "xyz"
+      },
+      "output": 0,
+      "explanation": "No letter appears in both strings."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "",
+        "second": "notes"
+      },
+      "output": 0,
+      "explanation": "An empty melody shares nothing."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "same",
+        "second": "same"
+      },
+      "output": 4,
+      "explanation": "Identical strings share every note."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "abcba",
+        "second": "abcbcba"
+      },
+      "output": 5,
+      "explanation": "The whole of the first string appears inside the second, giving 5."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "aaaa",
+        "second": "aa"
+      },
+      "output": 2,
+      "explanation": "Only two a notes can be matched."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "harmony",
+        "second": "memory"
+      },
+      "output": 3,
+      "explanation": "The notes m, o, y appear in that order in both strings. The r cannot join them because it comes before m in harmony but after o in memory, so the answer is 3."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "abcdefgh",
+        "second": "hgfedcba"
+      },
+      "output": 1,
+      "explanation": "The strings reverse each other, so only one note can ever match in order."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Recurse on the last notes",
+      "intuition": "Either the two last notes end the melody together, or one of them can be dropped without losing the best answer.",
+      "approach": "Recursively compare the last notes of the two prefixes. On a match, add one and shrink both; otherwise take the better of shrinking either prefix. Empty prefixes share nothing.",
+      "pseudocode": "longest(i, j): if i == 0 or j == 0 return 0; if first[i-1] == second[j-1] return 1 + longest(i-1, j-1); return max(longest(i-1, j), longest(i, j-1)).",
+      "code": "function sharedMelody(first, second) {\n    function longest(i, j) {\n        if (i === 0 || j === 0)\n            return 0;\n        if (first[i - 1] === second[j - 1])\n            return 1 + longest(i - 1, j - 1);\n        return Math.max(longest(i - 1, j), longest(i, j - 1));\n    }\n    return longest(first.length, second.length);\n}",
+      "timeComplexity": "Exponential in the string lengths",
+      "spaceComplexity": "O(m + n) recursion depth",
+      "commonMistakes": [
+        "Only shrinking one side on a mismatch, which misses melodies that need the other side to shrink.",
+        "Comparing first[i] with second[j] when the prefixes have lengths i and j, an off-by-one."
+      ],
+      "interviewExplanation": "The recurrence is right but revisits the same prefix pairs exponentially often. Since there are only (m + 1)(n + 1) distinct pairs, filling a table row by row computes each once, and keeping just two rows brings memory down to the shorter string.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For cadence and dance, the last notes e and e match, so the answer is 1 + longest(cadenc, danc)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "c and c match again, then the recursion resolves cadenc versus dan into 2 through d and n, for a total of 4."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Two-row dynamic programming table",
+      "intuition": "The answer for a pair of prefixes depends only on answers for prefixes one note shorter, so a table filled in increasing prefix length never waits on an unknown entry.",
+      "approach": "Let table[i][j] be the shared length for the first i notes of first and the first j notes of second. Row 0 and column 0 are zero. On matching notes, table[i][j] = table[i-1][j-1] + 1; otherwise it is the larger of table[i-1][j] and table[i][j-1]. Keep only the previous and current rows.",
+      "pseudocode": "prev = zeros; for i in 1..m: cur = zeros; for j in 1..n: cur[j] = match ? prev[j-1] + 1 : max(prev[j], cur[j-1]); prev = cur; return prev[n].",
+      "code": "function sharedMelody(first, second) {\n    let previous = new Array(second.length + 1).fill(0);\n    for (let i = 1; i <= first.length; i++) {\n        const current = new Array(second.length + 1).fill(0);\n        for (let j = 1; j <= second.length; j++) {\n            if (first[i - 1] === second[j - 1])\n                current[j] = previous[j - 1] + 1;\n            else\n                current[j] = Math.max(previous[j], current[j - 1]);\n        }\n        previous = current;\n    }\n    return previous[second.length];\n}",
+      "timeComplexity": "O(m × n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Reading current[j - 1] before it has been written for this row, which happens when the loops are ordered wrongly.",
+        "Updating a single row in place from left to right, which overwrites the diagonal value before it is used."
+      ],
+      "interviewExplanation": "I fill the classic longest-common-subsequence table row by row: a match extends the diagonal entry by one and a mismatch inherits the better of the entries above and to the left. Because each row only reads the previous row, two arrays of size n + 1 are enough, giving O(mn) time and O(n) space. The full table would also let me recover the melody itself if asked.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For cadence against dance, the row for the prefix cad ends at 1 because only d has matched so far."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The rows for cade, caden and cadenc reach 2, 3 and 3 at the column for danc, via the matches d, n and c."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The final row for cadence ends at 4 after the matching e."
+        }
+      ]
+    }
+  ]
+}

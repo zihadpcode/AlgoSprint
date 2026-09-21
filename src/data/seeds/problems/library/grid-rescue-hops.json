@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "slug": "grid-rescue-hops",
+  "title": "Grid Rescue Hops",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "bfs",
+  "statement": "A rescue robot moves through a warehouse floor described by the array grid, where each string is one row. The character S marks the robot's start, T marks the trapped worker, # marks a shelf the robot cannot enter, and . marks open floor. Each hop moves the robot one cell up, down, left or right, never diagonally and never off the floor. Return the smallest number of hops needed to reach T, or -1 if T cannot be reached.",
+  "constraints": [
+    "1 <= grid.length <= 100 and 1 <= grid[i].length <= 100",
+    "All rows have the same length.",
+    "grid contains exactly one S and exactly one T."
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "bfs",
+    "graphs",
+    "queue"
+  ],
+  "tags": [
+    "grid",
+    "graph-traversal"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "grid": [
+          "S.#",
+          ".##",
+          "..T"
+        ]
+      },
+      "output": 4,
+      "explanation": "The shelves block the direct route, so the robot goes down twice and right twice for 4 hops."
+    },
+    {
+      "position": 2,
+      "input": {
+        "grid": [
+          "S#T"
+        ]
+      },
+      "output": -1,
+      "explanation": "The shelf splits the row and the robot can never reach T."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Every hop costs the same, so the first time you reach a cell you have found the shortest way to it."
+    },
+    {
+      "position": 2,
+      "content": "Explore cells in order of distance from the start rather than depth first."
+    },
+    {
+      "position": 3,
+      "content": "A queue that processes cells in the order they were discovered visits them by increasing hop count."
+    },
+    {
+      "position": 4,
+      "content": "Mark a cell as seen when you enqueue it, not when you dequeue it, to avoid enqueuing it many times."
+    },
+    {
+      "position": 5,
+      "content": "Stop as soon as you dequeue T; if the queue empties first, T is unreachable."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "gridRescueHops",
+      "code": "function gridRescueHops(grid) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "S.#",
+          ".##",
+          "..T"
+        ]
+      },
+      "output": 4,
+      "explanation": "The shelves block the direct route, so the robot goes down twice and right twice for 4 hops."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "S#T"
+        ]
+      },
+      "output": -1,
+      "explanation": "The shelf splits the row and the robot can never reach T."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "ST"
+        ]
+      },
+      "output": 1,
+      "explanation": "One hop to the right."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "S",
+          ".",
+          "T"
+        ]
+      },
+      "output": 2,
+      "explanation": "Two hops straight down."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "S...",
+          ".##.",
+          ".#T.",
+          "...."
+        ]
+      },
+      "output": 6,
+      "explanation": "The shortest route goes around the shelf block in 4 hops."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "S.#.",
+          "..#.",
+          "###.",
+          "T..."
+        ]
+      },
+      "output": -1,
+      "explanation": "The wall of shelves seals the start region, so the result is -1."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "....T",
+          ".###.",
+          ".#S#.",
+          ".#.#.",
+          "....."
+        ]
+      },
+      "output": 8,
+      "explanation": "The robot must exit downward and loop around the outside; the shortest path is 10 hops."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "S.....",
+          "#####.",
+          "T....."
+        ]
+      },
+      "output": 12,
+      "explanation": "The only gap is at the far right, giving a path of 12 hops."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Relax distances until nothing changes",
+      "intuition": "If a neighbor is reachable in d hops, the current cell is reachable in d + 1, and repeating that rule everywhere eventually settles every distance.",
+      "approach": "Set the start distance to 0 and every other cell to infinity. Sweep the whole grid repeatedly, lowering each open cell's distance to one more than its smallest neighbor, until a full sweep changes nothing. Read off the target's distance.",
+      "pseudocode": "dist = infinity, dist[S] = 0; repeat sweeps: for each open cell: dist = min(dist, neighbor dist + 1); until no change; return dist[T] or -1.",
+      "code": "function gridRescueHops(grid) {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    const distance = grid.map((row) => row.split(\"\").map(() => Infinity));\n    let target = null;\n    for (let r = 0; r < rows; r++) {\n        for (let c = 0; c < cols; c++) {\n            if (grid[r][c] === \"S\")\n                distance[r][c] = 0;\n            if (grid[r][c] === \"T\")\n                target = [r, c];\n        }\n    }\n    let changed = true;\n    while (changed) {\n        changed = false;\n        for (let r = 0; r < rows; r++) {\n            for (let c = 0; c < cols; c++) {\n                if (grid[r][c] === \"#\")\n                    continue;\n                for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n                    const nr = r + dr;\n                    const nc = c + dc;\n                    if (nr < 0 || nc < 0 || nr >= rows || nc >= cols)\n                        continue;\n                    if (distance[nr][nc] + 1 < distance[r][c]) {\n                        distance[r][c] = distance[nr][nc] + 1;\n                        changed = true;\n                    }\n                }\n            }\n        }\n    }\n    const best = distance[target[0]][target[1]];\n    return best === Infinity ? -1 : best;\n}",
+      "timeComplexity": "O((rows × cols)²) in the worst case",
+      "spaceComplexity": "O(rows × cols)",
+      "commonMistakes": [
+        "Stopping after a fixed number of sweeps instead of until nothing changes.",
+        "Relaxing through shelf cells, which lets paths pass through walls."
+      ],
+      "interviewExplanation": "Repeated relaxation converges to the true distances but may rescan the grid many times. Breadth-first search reaches the same distances in one pass because it processes cells in order of hop count, so each cell is finalized the first time it is discovered.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [\"S.#\", \".##\", \"..T\"], the first sweep sets distances 1 for the cells beside S and larger values as the sweep moves down and right."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Later sweeps stop changing anything; the target cell holds 4, which is the answer."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Breadth-first search from the start",
+      "intuition": "With unit-cost moves, exploring cells in discovery order visits them by increasing distance, so the first visit to any cell is along a shortest path.",
+      "approach": "Encode each cell as a single index. Start a queue with S at distance 0. Repeatedly take the front cell; if it is T return its distance, otherwise enqueue each open, unvisited neighbor with distance plus one. An exhausted queue means T is unreachable.",
+      "pseudocode": "queue = [S]; dist[S] = 0; while queue: cell = dequeue; if cell is T return dist; for each open neighbor not in dist: dist = dist[cell] + 1; enqueue.",
+      "code": "function gridRescueHops(grid) {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    let start = 0;\n    for (let r = 0; r < rows; r++) {\n        const c = grid[r].indexOf(\"S\");\n        if (c >= 0)\n            start = r * cols + c;\n    }\n    const distance = new Map([[start, 0]]);\n    const queue = [start];\n    for (let head = 0; head < queue.length; head++) {\n        const cell = queue[head];\n        const r = Math.floor(cell / cols);\n        const c = cell % cols;\n        if (grid[r][c] === \"T\")\n            return distance.get(cell);\n        for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n            const nr = r + dr;\n            const nc = c + dc;\n            if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || grid[nr][nc] === \"#\")\n                continue;\n            const next = nr * cols + nc;\n            if (!distance.has(next)) {\n                distance.set(next, distance.get(cell) + 1);\n                queue.push(next);\n            }\n        }\n    }\n    return -1;\n}",
+      "timeComplexity": "O(rows × cols)",
+      "spaceComplexity": "O(rows × cols)",
+      "commonMistakes": [
+        "Using depth-first search, which finds some path but not necessarily the shortest.",
+        "Marking visited on dequeue, which can enqueue a cell many times and inflate the queue."
+      ],
+      "interviewExplanation": "This is unweighted shortest path, so breadth-first search is the tool. I record a cell's distance the moment it is enqueued, which guarantees each cell enters the queue at most once and that the recorded distance is minimal. Using an index pointer into the array instead of shift keeps dequeues constant time. The whole search is linear in the number of cells.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [\"S.#\", \".##\", \"..T\"], S is dequeued and enqueues (0,1) and (1,0) at distance 1."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "(1,0) enqueues (2,0) at distance 2; (2,0) enqueues (2,1) at 3; (2,1) enqueues (2,2) at 4."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "(2,2) is T, so the search returns 4."
+        }
+      ]
+    }
+  ]
+}
