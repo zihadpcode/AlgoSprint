@@ -99,7 +99,7 @@ Record the date, commit, environment, account roles and actual results. Use disp
 - [ ] Guest protected pages redirect. A normal user cannot access admin actions. Two test users cannot access each other's notes, bookmarks, progress or interview sessions by changing IDs.
 - [ ] Save and reload a note, bookmark and manual progress update; verify dashboard, review queue and roadmap behavior. Manual completion remains distinct from a verified judged solve.
 - [ ] Start an interview, explicitly save answers, reload, finish and read the report. Exercise expiry, a stale second tab, failed save and unsaved-text recovery. Scores are transparent self-assessments.
-- [ ] With the runner disabled, execution fails clearly. Enable it only after verifying the independently operated provider, authentication and JavaScript language ID. Then verify public runs and hidden-case submission behavior using the Phase 8–9 checklists. User code must never execute on the web server.
+- [ ] Run visible tests works in the browser for guests and members and saves nothing; with the provider disabled, Submit fails clearly. Enable it only after verifying the independently operated provider, authentication and JavaScript language ID. Then verify public runs and hidden-case submission behavior using the Phase 8–9 checklists. User code must never execute on the web server.
 - [ ] Complete the desktop/mobile, keyboard, zoom and capture checks in [SCREENSHOTS.md](SCREENSHOTS.md).
 - [ ] Inspect runtime errors, auth failures, database connection pressure and relevant Supabase advisors after the test session. Resolve issues before inviting users.
 

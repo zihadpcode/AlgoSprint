@@ -16,7 +16,10 @@ export type CaseResult = {
 export type ExecutionResult = {
   id: string; problemRevision?: number; mode: "RUN" | "SUBMIT"; status: Verdict; passedCount: number; totalCount: number;
   runtimeMs: number | null; memoryKb: number | null; cases: CaseResult[];
+  // Set when visible tests ran in the learner's browser: no attempt was saved and nothing reached the server.
+  browser?: true;
 };
+export type RunnerSignature = { entryPoint: string; keys: string[] };
 export type ExecutionState = { success: false; message: string } | { success: true; result: ExecutionResult };
 export const verdictLabels: Record<Verdict, string> = {
   ACCEPTED: "Passed", WRONG_ANSWER: "Wrong answer", COMPILE_ERROR: "Compilation error",

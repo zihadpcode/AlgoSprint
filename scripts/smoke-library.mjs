@@ -69,7 +69,7 @@ try {
     assert.equal(detail.status, 200, slug);
     assert.match(detail.headers.get("cache-control") ?? "", /no-store/);
     const body = await detail.text();
-    for (const section of ["Problem statement", "Examples", "Constraints", "Layered hints", "Reveal guided solutions", "Starter code", "Related problems", "Sign in to write notes", "Editor language", "Code execution is not available yet", "Reset to starter", "Test results", "No output yet", "Actual output: Not run", "Not measured", "Run visible tests", "Submit solution", "Sign in to run code"]) assert.ok(body.includes(section), `${slug}: ${section}`);
+    for (const section of ["Problem statement", "Examples", "Constraints", "Layered hints", "Reveal guided solutions", "Starter code", "Related problems", "Sign in to write notes", "Editor language", "Run executes the visible examples in your browser and saves nothing", "Submitting for a verified result is not available yet", "Reset to starter", "Test results", "No output yet", "Actual output: Not run", "Not measured", "Run visible tests", "Submit solution"]) assert.ok(body.includes(section), `${slug}: ${section}`);
     assert.match(body, /<details(?:\s[^>]*)?>/);
     assert.ok(!/<details[^>]*\sopen(?:[\s=>])/.test(body), "Solutions start collapsed");
     for (const field of ["testCases", "seedHash", "HIDDEN"]) assert.ok(!body.includes(field), field);

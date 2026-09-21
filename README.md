@@ -10,7 +10,7 @@ Phases 1–15 are merged, including private timed interviews in [PR #16](https:/
 
 Live Supabase/Vercel setup, deployment, authenticated/provider verification and browser captures remain pending. Both plugins are connected, but their account tools were not exposed in the working session. No live URL or production readiness is claimed. Follow [the deployment guide](docs/DEPLOYMENT.md), [screenshot checklist](docs/SCREENSHOTS.md) and [portfolio copy](docs/PORTFOLIO.md).
 
-Mock interview scores remain self-assessments, not correctness grades or verified solves. Save answers explicitly; the interview mode does not execute response code. The optional external coding runner has a separate configuration and verification checklist. Phase 14 generators remain a reviewed draft workflow; see [the generator guide](docs/PHASE-14-GUIDE.md).
+Mock interview scores remain self-assessments, not correctness grades or verified solves. Save answers explicitly; the interview mode does not execute response code. Visible tests run in the learner's browser and save nothing; verified submissions need the optional external coding runner, which has a separate configuration and verification checklist. Phase 14 generators remain a reviewed draft workflow; see [the generator guide](docs/PHASE-14-GUIDE.md).
 
 ## 🟩 Run locally
 

@@ -1381,3 +1381,14 @@ Read SESSION-HANDOFF.md and PR #9 for actual final check results. Passing mocked
 Pause after this checkpoint. Phase 9 connects attempts and accepted full-suite submissions to progress while preserving manual/verified provenance, review flags, dates and concurrency safety. The Phase 8 runner intentionally leaves existing manual progress unchanged.
 
 Later work can add a private submission-history UI, idempotent request keys, durable queued jobs and a worker, cancellation, provider cleanup/retention controls, reviewed signatures for more languages/problems, better language-aware diagnostics, and stronger operational monitoring. More than ten cases, 64 KB stdin, SQL execution, package imports, arbitrary runtime options and custom sandbox deployment need a separate reviewed design. Do not silently widen these limits as the seed collection grows.
+
+## 🟦 Browser execution of visible tests (September 21 follow-up)
+
+Hosted free code-execution APIs no longer exist (RapidAPI meters Judge0 from the first call, Judge0's Sulu marketplace closed, and Piston's public API became whitelist-only in February 2026). To keep the editor useful without a provider, **Run visible tests** now executes in the learner's own browser:
+
+- `src/features/submissions/browser-runner.ts` starts one Web Worker per public example from a Blob URL. The worker mirrors the Judge0 harness contract: positional arguments in signature order, the JSON-serialized return value as output, console output captured as diagnostics, `SyntaxError` reported as a compilation error, other throws as runtime errors. Network and `importScripts` are removed from the worker scope, each case has a 3-second wall-clock limit enforced by `terminate()`, output is compared structurally before truncation, and the result carries `browser: true`.
+- The problem page passes the problem's runner signature (entry point and argument order) from `signatures.ts`, so the client never infers argument order from JSON key order.
+- Run is available to everyone, including guests, and saves nothing: no submission row, no rate-limit reservation, no progress change. The panels say "Ran in your browser" instead of "Saved attempt". Runtime is wall-clock time on the learner's machine; memory is not measured.
+- **Submit** still requires the configured external provider and an account, because hidden tests never leave the server and a browser result cannot be trusted for a verified solve. The server RUN mode remains in the action contract for API and integration coverage but the interface no longer uses it.
+
+The browser sandbox protects the page from infinite loops and keeps the code the learner wrote on their own machine; it is not a security boundary against code the learner chooses to run, which is the same trust model as a browser devtools console. `tests/browser-runner.test.ts` executes the real worker script in a `vm` context to check the contract.

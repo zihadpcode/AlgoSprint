@@ -41,7 +41,8 @@ it("loads the supplied starter and exposes only languages supplied by that probl
   await render();
   expect(host.querySelector("textarea")?.value).toBe(starters[0].code);
   expect([...host.querySelectorAll("option")].map((option) => option.textContent)).toEqual(["JavaScript", "Python"]);
-  expect(host.textContent).toContain("Code execution is not available yet");
+  expect(host.textContent).toContain("Running code in the browser is not available for this problem");
+  expect(host.textContent).toContain("Submitting for a verified result is not available yet");
   expect(Object.keys(editorLanguages)).toHaveLength(6);
 });
 it("keeps independent drafts, including intentionally empty code, when switching languages", async () => {

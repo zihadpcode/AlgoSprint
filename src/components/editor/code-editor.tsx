@@ -9,13 +9,14 @@ import { RunnerControls } from "./runner-controls";
 import { ResetConfirmation } from "./reset-confirmation";
 import { CodeBlock } from "@/components/problems/code-block";
 import { draftFor, editorLanguages, type EditorDrafts, type EditorStarter } from "./editor-state";
+import type { RunnerSignature } from "@/features/submissions/contracts";
 
 const MonacoSurface = dynamic(() => import("./monaco-surface"), {
   ssr: false,
   loading: () => <p role="status" className="grid h-[420px] place-items-center rounded-xl border border-line text-sm text-muted">Loading code editor…</p>,
 });
 
-export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled = false, signedIn = false }: { starters: EditorStarter[]; examples?: EditorExample[]; slug?: string; runnerEnabled?: boolean; signedIn?: boolean }) {
+export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled = false, signedIn = false, signature }: { starters: EditorStarter[]; examples?: EditorExample[]; slug?: string; runnerEnabled?: boolean; signedIn?: boolean; signature?: RunnerSignature }) {
   const [selected, setSelected] = useState(starters[0]?.language);
   const [drafts, setDrafts] = useState<EditorDrafts>({});
   const [confirmReset, setConfirmReset] = useState(false);
@@ -55,7 +56,7 @@ export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled =
       }} />
     </EditorBoundary>
     <p className="text-xs leading-6 text-muted">Monaco supports keyboard navigation and screen readers. Use its command palette for accessibility options.</p>
-    <RunnerControls slug={slug} code={value} language={starter.language} enabled={runnerEnabled} signedIn={signedIn} examples={examples} />
+    <RunnerControls slug={slug} code={value} language={starter.language} enabled={runnerEnabled} signedIn={signedIn} examples={examples} signature={signature} />
   </div>;
 }
 
