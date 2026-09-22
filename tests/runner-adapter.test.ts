@@ -12,7 +12,10 @@ describe("runner configuration and harness", () => {
   it("requires explicit opt-in, credentials, HTTPS origin and a configured language", () => {
     for (const [key, value] of Object.entries({ CODE_RUNNER_ENABLED: "true", JUDGE0_API_URL: config.url, JUDGE0_API_KEY: config.key,
       JUDGE0_AUTH_MODE: "token", JUDGE0_JAVASCRIPT_LANGUAGE_ID: "102" })) vi.stubEnv(key, value);
-    expect(getRunnerConfig()).toEqual(config);
+    expect(getRunnerConfig()).toEqual({ provider: "judge0", ...config });
+    vi.stubEnv("CODE_RUNNER_PROVIDER", "sandbox"); expect(getRunnerConfig()).toEqual({ provider: "sandbox" });
+    vi.stubEnv("CODE_RUNNER_PROVIDER", "other"); expect(getRunnerConfig()).toBeNull();
+    vi.stubEnv("CODE_RUNNER_PROVIDER", "judge0");
     for (const url of ["", "bad", "http://runner.example/", "https://runner.example/?key=x", "https://user:pass@runner.example/", "https://runner.example/path"]) {
       vi.stubEnv("JUDGE0_API_URL", url); expect(getRunnerConfig()).toBeNull();
     }

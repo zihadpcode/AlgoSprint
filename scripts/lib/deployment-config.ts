@@ -18,7 +18,8 @@ export function deploymentIssues(env: Record<string, string | undefined>, migrat
   if (env.NODE_TLS_REJECT_UNAUTHORIZED === "0" || env.PGSSLMODE === "disable" || env.PGSSLMODE === "no-verify") issues.push("TLS verification must remain enabled.");
   if (Object.keys(env).some((name) => name.startsWith("NEXT_PUBLIC_") && /SECRET|PASSWORD|TOKEN|DATABASE|PRIVATE|SERVICE_ROLE|API_KEY/.test(name) && env[name])) issues.push("Potential private credential in a NEXT_PUBLIC_ setting: remove it from browser-exposed configuration.");
   if (env.CODE_RUNNER_ENABLED && !["true", "false"].includes(env.CODE_RUNNER_ENABLED)) issues.push("CODE_RUNNER_ENABLED: use exactly true or false.");
-  if (env.CODE_RUNNER_ENABLED === "true") {
+  if (env.CODE_RUNNER_PROVIDER && !["judge0", "sandbox"].includes(env.CODE_RUNNER_PROVIDER)) issues.push("CODE_RUNNER_PROVIDER: use judge0 or sandbox.");
+  if (env.CODE_RUNNER_ENABLED === "true" && (env.CODE_RUNNER_PROVIDER ?? "judge0") === "judge0") {
     httpsOrigin("JUDGE0_API_URL");
     if (!/^[\x21-\x7e]{1,512}$/.test(env.JUDGE0_API_KEY ?? "")) issues.push("JUDGE0_API_KEY: set the private provider key.");
     if (env.JUDGE0_AUTH_MODE && !["token", "rapidapi"].includes(env.JUDGE0_AUTH_MODE)) issues.push("JUDGE0_AUTH_MODE: use token or rapidapi.");

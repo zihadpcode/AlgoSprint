@@ -1382,6 +1382,21 @@ Pause after this checkpoint. Phase 9 connects attempts and accepted full-suite s
 
 Later work can add a private submission-history UI, idempotent request keys, durable queued jobs and a worker, cancellation, provider cleanup/retention controls, reviewed signatures for more languages/problems, better language-aware diagnostics, and stronger operational monitoring. More than ten cases, 64 KB stdin, SQL execution, package imports, arbitrary runtime options and custom sandbox deployment need a separate reviewed design. Do not silently widen these limits as the seed collection grows.
 
+## 🟦 In-process sandbox provider (September 22 follow-up)
+
+Because no hosted free execution service remains, the runner gained a second provider selected with `CODE_RUNNER_PROVIDER=sandbox`: the harness program runs inside a QuickJS interpreter compiled to WebAssembly (`quickjs-emscripten-core` with the single-file variant), hosted in a Node worker thread (`src/features/submissions/sandbox.ts`).
+
+**This is a deliberate, user-approved exception to the brief's rule that user code never executes on the web server.** The trade was made on 2026-09-22 so that verified submissions work without a paid or self-hosted provider. What makes it acceptable:
+
+- The interpreter is a separate WebAssembly realm with no access to Node, the filesystem, the network or the host process. The only host surface is the tiny Node-like prelude the harness needs: `require("fs").readFileSync(0)` returning the case's stdin, `process.stdout/stderr.write`, `process.exitCode` and `console`. `require` of anything else throws; `process` is not a global.
+- Every case runs in a fresh runtime with a memory cap (the problem's limit, at most 256 MB), a 4 MB interpreter stack (about 21,000 frames; a deeper recursion is a runtime error, never a host crash), and a wall-clock interrupt at the problem's time limit (at most 2 s plus 0.5 s grace). Output is capped at 90 KB. A 20-second budget covers the whole submission, and the main thread terminates the worker 5 s after that if it is wedged.
+- Exactly the same program text as the Judge0 path is executed (`makeProgram` / `makeStdin`), so verdict semantics, hidden-test privacy, quotas, stored results and verified solves are unchanged: the app still parses stdout as JSON and compares it to the trusted expected value itself. Interrupts map to `TIME_LIMIT`, out-of-memory to `MEMORY_LIMIT`, syntax errors to `COMPILE_ERROR`, everything else to `RUNTIME_ERROR`. Worker death or an unparsable message fails closed as `INTERNAL_ERROR`.
+- `quickjs-emscripten-core` and the variant are `serverExternalPackages`, so the worker (an `eval` worker with plain `require`) loads them from `node_modules` in the deployment.
+
+What it does not do: it does not isolate CPU time from the serving process beyond the interrupt deadline, so the existing per-user quotas (5 per minute, 30 per hour, plus the deployment-wide cap) remain the abuse control. The problem page declares `maxDuration = 60` so a slow submission cannot be cut off by the platform default. Switching back to an external provider is a configuration change (`CODE_RUNNER_PROVIDER=judge0` plus the Judge0 variables).
+
+Tests: `tests/sandbox-runner.test.ts` runs hostile programs through the real worker (infinite loop, memory bomb, deep recursion, output flood, host-surface probes, worker death) and `tests/integration/submissions.test.ts` verifies a full submission end to end against PostgreSQL, including the recorded verified solve.
+
 ## 🟦 Browser execution of visible tests (September 21 follow-up)
 
 Hosted free code-execution APIs no longer exist (RapidAPI meters Judge0 from the first call, Judge0's Sulu marketplace closed, and Piston's public API became whitelist-only in February 2026). To keep the editor useful without a provider, **Run visible tests** now executes in the learner's own browser:

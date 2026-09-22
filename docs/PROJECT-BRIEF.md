@@ -1,5 +1,7 @@
 # Original AlgoSprint project brief
 
+> **Amendment (2026-09-22):** with the user's explicit approval, verified submissions may execute inside an in-process WebAssembly sandbox (QuickJS in a worker thread) when `CODE_RUNNER_PROVIDER=sandbox`, as an exception to the rule below that user code never executes on the web server. See the Phase 8 guide's sandbox section for the limits and rationale. Visible-test runs happen in the learner's browser.
+
 This is the original user-provided brief, preserved for continuity. Phases 1–15 are merged. The user continued into Phase 16 and connected Supabase and Vercel. Phase 16 interface polish and deployment preparation are implemented in PR #17, with complete source, deployment, screenshot and portfolio guides. Implementation CI 35461544519 passed all 249 tests and production build/HTTP gates; PR #17 records final-head and merge evidence. Live project setup, environment configuration, deployment and browser/account/provider verification remain pending because connected account tools were not exposed in the session. No production writes or live deployment are claimed. Continue those release tasks when an authorized account workflow is available; do not repeat historical stop instructions below.
 
 ---

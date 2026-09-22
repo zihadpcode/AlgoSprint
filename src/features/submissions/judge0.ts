@@ -2,7 +2,7 @@ import "server-only";
 import { isDeepStrictEqual } from "node:util";
 import { setTimeout as delay } from "node:timers/promises";
 import { z } from "zod";
-import type { RunnerConfig } from "./config";
+import type { Judge0Config } from "./config";
 import type { Verdict } from "./contracts";
 
 export type RunnerCase = { stdin: string; expected: unknown };
@@ -15,7 +15,7 @@ const responseSchema = z.object({
   memory: z.number().int().nonnegative().max(2147483647).nullable().optional(),
 });
 
-async function request(config: RunnerConfig, path: string, signal: AbortSignal, body?: unknown) {
+async function request(config: Judge0Config, path: string, signal: AbortSignal, body?: unknown) {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (config.auth === "rapidapi") {
     headers["X-RapidAPI-Key"] = config.key; headers["X-RapidAPI-Host"] = new URL(config.url).host;
@@ -59,7 +59,7 @@ export function judgeOutcome(raw: unknown, expected: unknown): RunnerOutcome | n
 // Batch endpoints keep metered providers affordable: one request creates every case and one request polls them all.
 const createdSchema = z.array(z.object({ token: z.uuid() })).min(1).max(10);
 const batchSchema = z.object({ submissions: z.array(z.unknown()).min(1).max(10) });
-export async function executeJudge0(config: RunnerConfig, source: string, cases: RunnerCase[], limits: { timeMs: number; memoryKb: number }): Promise<RunnerOutcome[]> {
+export async function executeJudge0(config: Judge0Config, source: string, cases: RunnerCase[], limits: { timeMs: number; memoryKb: number }): Promise<RunnerOutcome[]> {
   if (!cases.length || cases.length > 10) throw new Error("Unsupported test count");
   const controller = new AbortController();
   const deadline = setTimeout(() => controller.abort(), 20_000);

@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 import { createDatabaseClient } from "@/lib/db/client";
 import { reserveSubmission, finishSubmission } from "@/features/submissions/store";
+import { runSubmission } from "@/features/submissions/service";
 import { loadProblems } from "../../scripts/lib/load-problems";
 import { seedProblems } from "../../prisma/seed-data";
 import type { ExecutionResult } from "@/features/submissions/contracts";
@@ -92,3 +93,20 @@ it("enforces the deployment-wide quota across different owners", async () => {
     createdAt: new Date(), completedAt: new Date() })) });
   expect(await reserveSubmission(db, owners[0], input)).toHaveProperty("error");
 });
+it("verifies a full submission end to end through the in-process sandbox and records a verified solve", async () => {
+  const optimal = "function relayWindow(loads, width) { let total = 0; for (let i = 0; i < width; i++) total += loads[i]; let best = total; for (let i = width; i < loads.length; i++) { total += loads[i] - loads[i - width]; best = Math.max(best, total); } return best; }";
+  const accepted = await runSubmission(db, owners[0], { ...input, mode: "SUBMIT", code: optimal }, { provider: "sandbox" });
+  expect(accepted).toMatchObject({ success: true, result: { mode: "SUBMIT", status: "ACCEPTED", cases: [] } });
+  if (!accepted.success) throw new Error("unreachable");
+  expect(accepted.result.passedCount).toBe(accepted.result.totalCount); expect(accepted.result.totalCount).toBeGreaterThan(2);
+  expect(accepted.result.runtimeMs).not.toBeNull(); expect(accepted.result.memoryKb).toBeGreaterThan(0);
+  const stored = await db.userSubmission.findUniqueOrThrow({ where: { id: accepted.result.id } });
+  expect(stored).toMatchObject({ userId: owners[0], status: "ACCEPTED", mode: "SUBMIT" });
+  const progress = await db.userProgress.findUnique({ where: { userId_problemId: { userId: owners[0], problemId } } });
+  expect(progress?.status).toBe("SOLVED");
+  const wrong = await runSubmission(db, owners[1], { ...input, mode: "SUBMIT", code: "function relayWindow() { return 13; }" }, { provider: "sandbox" });
+  expect(wrong).toMatchObject({ success: true, result: { status: "WRONG_ANSWER", cases: [] } });
+  if (!wrong.success) throw new Error("unreachable");
+  expect(wrong.result.passedCount).toBeLessThan(wrong.result.totalCount);
+  expect(JSON.stringify(wrong)).not.toContain("HIDDEN");
+}, 60_000);

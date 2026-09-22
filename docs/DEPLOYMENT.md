@@ -24,6 +24,7 @@ Use separate Supabase projects for Preview and Production. Give the preview a st
 | `JUDGE0_API_KEY` | Only for an enabled runner | Not needed | Private provider credential |
 | `JUDGE0_AUTH_MODE` | `token` or `rapidapi` when enabled | Not needed | Server configuration |
 | `JUDGE0_JAVASCRIPT_LANGUAGE_ID` | Verified provider ID when enabled | Not needed | Server configuration |
+| `CODE_RUNNER_PROVIDER` | `sandbox` for the in-process QuickJS sandbox (no Judge0 variables needed) or `judge0` (default) | Not needed | Server configuration |
 
 Keep Preview and Production values scoped separately. Browser-public settings are embedded in a build, so changing them requires a new build. Do not promote an artifact built with preview auth settings into production. Build and verify a production-configured artifact for the production release.
 
@@ -99,7 +100,7 @@ Record the date, commit, environment, account roles and actual results. Use disp
 - [ ] Guest protected pages redirect. A normal user cannot access admin actions. Two test users cannot access each other's notes, bookmarks, progress or interview sessions by changing IDs.
 - [ ] Save and reload a note, bookmark and manual progress update; verify dashboard, review queue and roadmap behavior. Manual completion remains distinct from a verified judged solve.
 - [ ] Start an interview, explicitly save answers, reload, finish and read the report. Exercise expiry, a stale second tab, failed save and unsaved-text recovery. Scores are transparent self-assessments.
-- [ ] Run visible tests works in the browser for guests and members and saves nothing; with the provider disabled, Submit fails clearly. Enable it only after verifying the independently operated provider, authentication and JavaScript language ID. Then verify public runs and hidden-case submission behavior using the Phase 8–9 checklists. User code must never execute on the web server.
+- [ ] Run visible tests works in the browser for guests and members and saves nothing; with the provider disabled, Submit fails clearly. With `CODE_RUNNER_PROVIDER=sandbox`, a correct Submit records a verified solve and a wrong one reports the summary only. Enable it only after verifying the independently operated provider, authentication and JavaScript language ID. Then verify public runs and hidden-case submission behavior using the Phase 8–9 checklists. User code must never execute on the web server.
 - [ ] Complete the desktop/mobile, keyboard, zoom and capture checks in [SCREENSHOTS.md](SCREENSHOTS.md).
 - [ ] Inspect runtime errors, auth failures, database connection pressure and relevant Supabase advisors after the test session. Resolve issues before inviting users.
 

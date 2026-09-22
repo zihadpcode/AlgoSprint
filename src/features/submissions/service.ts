@@ -3,6 +3,7 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import type { RunnerConfig } from "./config";
 import type { ExecutionInput, ExecutionResult, ExecutionState } from "./contracts";
 import { executeJudge0 } from "./judge0";
+import { executeSandbox } from "./sandbox";
 import { reserveSubmission, finishSubmission } from "./store";
 
 export async function runSubmission(db: PrismaClient, userId: string, input: ExecutionInput, config: RunnerConfig): Promise<ExecutionState> {
@@ -11,7 +12,8 @@ export async function runSubmission(db: PrismaClient, userId: string, input: Exe
   let result: ExecutionResult = { id: reservation.id, problemRevision: reservation.revision, mode: input.mode, status: "INTERNAL_ERROR", passedCount: 0,
     totalCount: reservation.cases.length, runtimeMs: null, memoryKb: null, cases: [] };
   try {
-    const outcomes = await executeJudge0(config, reservation.source, reservation.cases.map((t) => ({ stdin: t.stdin, expected: t.output })), reservation.limits);
+    const cases = reservation.cases.map((t) => ({ stdin: t.stdin, expected: t.output }));
+    const outcomes = config.provider === "sandbox" ? await executeSandbox(reservation.source, cases, reservation.limits) : await executeJudge0(config, reservation.source, cases, reservation.limits);
     const failure = outcomes.find((o) => o.status !== "ACCEPTED");
     const times = outcomes.map((o) => o.runtimeMs); const memories = outcomes.map((o) => o.memoryKb);
     result = { ...result, status: outcomes.some((o) => o.status === "INTERNAL_ERROR") ? "INTERNAL_ERROR" : failure?.status ?? "ACCEPTED",
