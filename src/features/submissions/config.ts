@@ -10,10 +10,15 @@ const schema = z.object({
   auth: z.enum(["token", "rapidapi"]),
   languageId: z.coerce.number().int().positive().max(10000),
 });
-export type RunnerConfig = z.infer<typeof schema>;
+export type Judge0Config = z.infer<typeof schema>;
+// "judge0" calls an external provider; "sandbox" runs the harness in the in-process QuickJS WebAssembly interpreter.
+export type RunnerConfig = ({ provider: "judge0" } & Judge0Config) | { provider: "sandbox" };
 export function getRunnerConfig(): RunnerConfig | null {
   if (process.env.CODE_RUNNER_ENABLED !== "true") return null;
+  const provider = process.env.CODE_RUNNER_PROVIDER ?? "judge0";
+  if (provider === "sandbox") return { provider: "sandbox" };
+  if (provider !== "judge0") return null;
   const parsed = schema.safeParse({ url: process.env.JUDGE0_API_URL, key: process.env.JUDGE0_API_KEY,
     auth: process.env.JUDGE0_AUTH_MODE ?? "token", languageId: process.env.JUDGE0_JAVASCRIPT_LANGUAGE_ID });
-  return parsed.success ? parsed.data : null;
+  return parsed.success ? { provider: "judge0", ...parsed.data } : null;
 }

@@ -24,5 +24,7 @@ describe("redacted deployment readiness checks", () => {
   it("checks enabled runner configuration without contacting any provider", () => {
     expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true" }).length).toBeGreaterThan(0);
     expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", JUDGE0_API_URL: "https://runner.example", JUDGE0_API_KEY: "private-runner-key", JUDGE0_JAVASCRIPT_LANGUAGE_ID: "102", JUDGE0_AUTH_MODE: "token" })).toEqual([]);
+    expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "sandbox" })).toEqual([]);
+    expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "other" }).join()).toContain("judge0 or sandbox");
   });
 });

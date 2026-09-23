@@ -1,12 +1,13 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const f = vi.hoisted(() => ({ reserve: vi.fn(), finish: vi.fn(), execute: vi.fn() }));
+const f = vi.hoisted(() => ({ reserve: vi.fn(), finish: vi.fn(), execute: vi.fn(), sandbox: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("@/features/submissions/store", () => ({ reserveSubmission: f.reserve, finishSubmission: f.finish }));
 vi.mock("@/features/submissions/judge0", () => ({ executeJudge0: f.execute }));
+vi.mock("@/features/submissions/sandbox", () => ({ executeSandbox: f.sandbox }));
 import { runSubmission } from "@/features/submissions/service";
 import type { PrismaClient } from "@/generated/prisma/client";
 const db = {} as PrismaClient;
-const config = { url: "https://runner.example/", key: "private", auth: "token" as const, languageId: 102 };
+const config = { provider: "judge0" as const, url: "https://runner.example/", key: "private", auth: "token" as const, languageId: 102 };
 const input = { slug: "relay-window", language: "JAVASCRIPT" as const, mode: "SUBMIT" as const, code: "source" };
 beforeEach(() => {
   vi.clearAllMocks(); f.finish.mockResolvedValue(undefined);
@@ -40,4 +41,11 @@ it("never calls the provider when a reservation is denied and surfaces failed pe
   expect(await runSubmission(db, "owner", input, config)).toEqual({ success: false, message: "Limit reached" }); expect(f.execute).not.toHaveBeenCalled();
   f.reserve.mockResolvedValue({ id: "own-attempt", cases: [], limits: {}, source: "" }); f.finish.mockRejectedValue(new Error("DB failed"));
   await expect(runSubmission(db, "owner", input, config)).rejects.toThrow("DB failed");
+});
+it("routes the sandbox provider to the in-process executor with the same reservation", async () => {
+  f.sandbox.mockResolvedValue([{ status: "ACCEPTED", stdout: "1", diagnostic: "", runtimeMs: 3, memoryKb: 900 }, { status: "ACCEPTED", stdout: '"HIDDEN-EXPECTED"', diagnostic: "", runtimeMs: 4, memoryKb: 950 }]);
+  const result = await runSubmission(db, "owner", input, { provider: "sandbox" });
+  expect(f.execute).not.toHaveBeenCalled();
+  expect(f.sandbox).toHaveBeenCalledWith("source", [{ stdin: "visible", expected: 1 }, { stdin: "HIDDEN-INPUT", expected: "HIDDEN-EXPECTED" }], { timeMs: 2000, memoryKb: 262144 });
+  expect(result).toMatchObject({ success: true, result: { status: "ACCEPTED", passedCount: 2, totalCount: 2, runtimeMs: 4, memoryKb: 950, cases: [] } });
 });
