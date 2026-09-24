@@ -24,6 +24,7 @@
     "test:integration": "vitest run --config vitest.integration.config.mts",
     "user:role": "node --import tsx scripts/set-user-role.ts",
     "test:smoke": "node scripts/smoke-auth.mjs",
+    "test:trace": "node --conditions=react-server --import tsx scripts/check-sandbox-trace.ts",
     "problems:generate": "node --import tsx scripts/generate-problems.ts",
     "problems:check": "npm run problems:generate -- --check",
     "deploy:check": "node --import tsx scripts/check-deployment.ts"
