@@ -5,11 +5,14 @@ import { beforeAll, afterAll, describe, expect, it } from "vitest";
 let db: PGlite;
 const problemId = "10000000-0000-4000-8000-000000000001";
 const userId = "20000000-0000-4000-8000-000000000001";
+const lockMigration = "prisma/migrations/202609240001_lock_migration_history/migration.sql";
 
 beforeAll(async () => {
   db = new PGlite();
   await db.exec(await readFile("prisma/migrations/202609130001_foundation/migration.sql", "utf8"));
   await db.exec(await readFile("prisma/migrations/202609160001_progress_verification/migration.sql", "utf8"));
+  // Plain PostgreSQL has no migration table or Supabase roles yet; the lock migration must be a no-op there.
+  await db.exec(await readFile(lockMigration, "utf8"));
   await db.query(`INSERT INTO app."Problem" (id,slug,title,difficulty,pattern,statement,constraints,"estimatedMinutes","updatedAt") VALUES ($1,'migration-fixture','Fixture','EASY','fixed-window','Fixture',ARRAY['Fixture'],15,now())`, [problemId]);
 }, 30_000);
 afterAll(async () => { await db?.close(); });
@@ -44,5 +47,22 @@ describe("PostgreSQL migration invariants", () => {
     try { expect((await db.query('SELECT * FROM app."TestCase"')).rows).toEqual([]); }
     finally { await db.exec('RESET ROLE;'); }
     expect((await db.query('SELECT * FROM app."TestCase"')).rows).toHaveLength(1);
+  });
+  it("locks Prisma's migration history away from Supabase's browser roles", async () => {
+    // Mirrors Supabase: the Data API roles exist and default privileges granted them everything on the table.
+    await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated;
+      CREATE TABLE public._prisma_migrations (id varchar(36) PRIMARY KEY, migration_name varchar(255) NOT NULL);
+      INSERT INTO public._prisma_migrations VALUES ('1', '202609130001_foundation');
+      GRANT ALL ON public._prisma_migrations TO anon, authenticated;`);
+    await db.exec(await readFile(lockMigration, "utf8"));
+    for (const role of ["anon", "authenticated"]) {
+      await db.exec(`SET ROLE ${role};`);
+      try {
+        await expect(db.query("SELECT * FROM public._prisma_migrations")).rejects.toMatchObject({ code: "42501" });
+        await expect(db.query("DELETE FROM public._prisma_migrations")).rejects.toMatchObject({ code: "42501" });
+      } finally { await db.exec("RESET ROLE;"); }
+    }
+    expect((await db.query("SELECT relrowsecurity FROM pg_class WHERE oid = 'public._prisma_migrations'::regclass")).rows).toEqual([{ relrowsecurity: true }]);
+    expect((await db.query("SELECT migration_name FROM public._prisma_migrations")).rows).toHaveLength(1);
   });
 });
