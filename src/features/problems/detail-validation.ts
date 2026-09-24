@@ -7,6 +7,8 @@ export const problemChange = z.discriminatedUnion("operation", [
   z.object({ operation: z.literal("mark-attempted"), slug: problemSlug }),
   z.object({ operation: z.literal("mark-solved"), slug: problemSlug }),
   z.object({ operation: z.literal("clear-solved"), slug: problemSlug }),
+  z.object({ operation: z.literal("clear-verified"), slug: problemSlug }),
+  z.object({ operation: z.literal("clear-attempted"), slug: problemSlug }),
   z.object({ operation: z.literal("set-review"), slug: problemSlug, review: z.enum(["true", "false"]) }),
   z.object({ operation: z.literal("set-bookmark"), slug: problemSlug, bookmarked: z.enum(["true", "false"]) }),
   z.object({ operation: z.literal("save-note"), slug: problemSlug, content: noteText, expectedContent: noteText }),

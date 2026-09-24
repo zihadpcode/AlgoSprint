@@ -15,17 +15,18 @@ const initial: ProblemActionState = {};
 export function ProgressControls({ slug, progress, bookmarked = false }: { slug: string; bookmarked?: boolean; progress: NonNullable<ProblemDetail["personal"]>["progress"] }) {
   const [state, action, pending] = useActionState(updateProblem, initial);
   const solved = progress.status === "SOLVED";
+  const attempted = progress.status === "ATTEMPTED";
   return <div className="mt-4 space-y-4">
     <div className="flex flex-wrap gap-2"><Badge tone="accent">{progressLabel(progress)}</Badge>
       {progress.reviewLater && <Badge tone="warm">Review later</Badge>}
     </div>
-    <p className="text-sm leading-7 text-muted">Manual marks record your own assessment. A verified solve requires passing the full suite for the current revision. Earlier verified solves remain in your history.</p>
+    <p className="text-sm leading-7 text-muted">Manual marks record your own assessment. A verified solve requires passing the full suite for the current revision. Any mark can be undone; your submission history is kept, and undoing a verified solve lasts until you pass the full suite again.</p>
     <form action={action} className="space-y-3">
       <input type="hidden" name="slug" value={slug} />
       <div className="flex flex-wrap gap-3">
-        <SubmitButton name="operation" value="mark-attempted" variant="secondary" disabled={pending || progress.status !== "NOT_STARTED"} pendingLabel="Saving…">Mark attempted</SubmitButton>
-        <SubmitButton name="operation" value={solved ? "clear-solved" : "mark-solved"} disabled={pending || (solved && !progress.selfMarked)} pendingLabel="Saving…">
-          {solved ? progress.selfMarked ? "Undo manual solve" : "Solved" : "Mark solved"}
+        <SubmitButton name="operation" value={attempted ? "clear-attempted" : "mark-attempted"} variant="secondary" disabled={pending || solved} pendingLabel="Saving…">{attempted ? "Undo attempted" : "Mark attempted"}</SubmitButton>
+        <SubmitButton name="operation" value={solved ? progress.selfMarked ? "clear-solved" : "clear-verified" : "mark-solved"} disabled={pending} pendingLabel="Saving…">
+          {solved ? progress.selfMarked ? "Undo manual solve" : progress.verification ? "Undo verified solve" : "Undo solve" : "Mark solved"}
         </SubmitButton>
 
       </div>
