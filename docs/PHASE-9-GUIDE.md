@@ -2290,3 +2290,18 @@ Read the handoff and PR #10 for the actual final head, test totals and CI eviden
 Pause at this completed checkpoint before Phase 10. Dashboard work can reuse the existing owner-scoped progress/query semantics, then add charts, weak topics, recommendations and a precisely defined streak policy. Preserve manual/current/earlier verified distinctions, authentication and result redaction. Do not infer a verified solve from browser-supplied state.
 
 Later scaling can move collection aggregation into SQL, add pagination to private history, and introduce an explicit activity-event model if a complete audit history is needed. Those changes should preserve existing dates and independently stored flags.
+
+## 🟦 Undoing any progress mark (September 24 follow-up)
+
+After testing live, the user asked to be able to undo a verified solve and an attempt, not only a manual solve. Every state now has an undo on the problem page, and each undo names the state it clears:
+
+| Current state | Buttons | Operation | Result |
+| --- | --- | --- | --- |
+| Not started | Mark attempted · Mark solved | `mark-attempted` / `mark-solved` | Unchanged |
+| Attempted | **Undo attempted** · Mark solved | `clear-attempted` | Not started; `attemptedAt` cleared |
+| Solved · self-marked | Mark attempted (disabled) · Undo manual solve | `clear-solved` | Unchanged: attempted if a prior attempt exists, else not started |
+| Solved · verified (or recorded) | Mark attempted (disabled) · **Undo verified solve** / **Undo solve** | `clear-verified` | Attempted if a prior attempt exists, else not started; `solvedAt`, `verifiedRevision` and `verifiedAt` cleared |
+
+Undo operations are explicit rather than a single "clear whatever is there" command, so a stale form cannot remove more than the learner saw: `clear-solved` still ignores a verified solve that landed concurrently, `clear-verified` ignores a manual solve, and `clear-attempted` does nothing while the problem is solved. Repeated undos write nothing. Bookmarks, review flags and notes are preserved. Submission history (`UserSubmission`) is never deleted, so recent attempts still list earlier runs, and passing the full suite again records a new verified solve. Undoing an attempt does not stop the next Run or Submit from marking the problem attempted again. No migration was needed: the existing `Progress_verification_check` and `Progress_solved_check` constraints already allow these states.
+
+Tests: two integration tests in `tests/integration/progress.test.ts` (verified undo then attempt undo with history, flags and note kept, followed by re-verification; manual solves unaffected by `clear-verified` and repeated undos idempotent) and `tests/progress-controls.test.ts` for the button labels and operations in each state.

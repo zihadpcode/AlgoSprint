@@ -3,6 +3,9 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import { writeProgress } from "@/features/progress/write";
 import type { ProblemChange } from "./detail-validation";
 
+// Each undo names the state it clears, so a stale "undo manual solve" cannot erase a verified solve that just landed.
+const PROGRESS_EVENTS = { "mark-attempted": "attempt", "mark-solved": "manual-solve", "clear-solved": "clear-manual", "clear-verified": "clear-verified", "clear-attempted": "clear-attempt" } as const;
+
 // Trusted helper: caller must validate input and verify the user before entering.
 export async function writeProblemChange(db: PrismaClient, userId: string, change: ProblemChange) {
   if (!userId) throw new Error("Verified viewer required");
@@ -30,7 +33,7 @@ export async function writeProblemChange(db: PrismaClient, userId: string, chang
     const at = new Date();
     if (change.operation === "set-review") await writeProgress(tx, userId, problem.id, { kind: "review", value: change.review === "true", at });
     else if (change.operation === "set-bookmark") await writeProgress(tx, userId, problem.id, { kind: "bookmark", value: change.bookmarked === "true", at });
-    else await writeProgress(tx, userId, problem.id, { kind: change.operation === "mark-attempted" ? "attempt" : change.operation === "mark-solved" ? "manual-solve" : "clear-manual", at });
+    else await writeProgress(tx, userId, problem.id, { kind: PROGRESS_EVENTS[change.operation], at });
     return "saved" as const;
   });
 }

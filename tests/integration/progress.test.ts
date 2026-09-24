@@ -71,6 +71,35 @@ it("serializes a verified completion with concurrent manual undo and review writ
   await Promise.all([finishSubmission(db, users[0], verdict(saved.id)), writeProblemChange(db, users[0], { slug, operation: "clear-solved" }), writeProblemChange(db, users[0], { slug, operation: "set-review", review: "true" })]);
   expect(await progress()).toMatchObject({ status: "SOLVED", selfMarked: false, verifiedRevision: 1, reviewLater: true });
 });
+it("undoes a verified solve and then the attempt, keeping submission history, flags and notes", async () => {
+  const saved = await reserve(); await finishSubmission(db, users[0], verdict(saved.id));
+  await writeProblemChange(db, users[0], { slug, operation: "set-review", review: "true" });
+  await writeProblemChange(db, users[0], { slug, operation: "save-note", content: "NOTE-SENTINEL", expectedContent: "" });
+  // A stale manual undo or attempt undo must not erase the verified solve.
+  const verified = await progress();
+  await writeProblemChange(db, users[0], { slug, operation: "clear-solved" });
+  await writeProblemChange(db, users[0], { slug, operation: "clear-attempted" });
+  expect(await progress()).toEqual(verified);
+  await writeProblemChange(db, users[0], { slug, operation: "clear-verified" });
+  expect(await progress()).toMatchObject({ status: "ATTEMPTED", selfMarked: false, solvedAt: null, verifiedRevision: null, verifiedAt: null, attemptedAt: verified.attemptedAt, reviewLater: true });
+  expect(await db.userSubmission.count({ where: { userId: users[0] } })).toBe(1);
+  await writeProblemChange(db, users[0], { slug, operation: "clear-attempted" });
+  expect(await progress()).toMatchObject({ status: "NOT_STARTED", attemptedAt: null, solvedAt: null, reviewLater: true });
+  expect((await queryProblem(db, slug, users[0]))?.personal).toMatchObject({ note: "NOTE-SENTINEL", progress: { status: "NOT_STARTED", verification: null } });
+  const again = await reserve(); await finishSubmission(db, users[0], verdict(again.id));
+  expect(await progress()).toMatchObject({ status: "SOLVED", verifiedRevision: 1, verifiedAt: expect.any(Date) });
+});
+it("leaves manual solves to their own undo and repeated undos unchanged", async () => {
+  await writeProblemChange(db, users[0], { slug, operation: "mark-solved" }); const manual = await progress();
+  await writeProblemChange(db, users[0], { slug, operation: "clear-verified" });
+  expect(await progress()).toEqual(manual);
+  await writeProblemChange(db, users[0], { slug, operation: "clear-solved" });
+  await writeProblemChange(db, users[0], { slug, operation: "clear-attempted" }); const cleared = await progress();
+  expect(cleared).toMatchObject({ status: "NOT_STARTED", selfMarked: false, solvedAt: null });
+  await writeProblemChange(db, users[0], { slug, operation: "clear-attempted" });
+  await writeProblemChange(db, users[0], { slug, operation: "clear-verified" });
+  expect((await progress()).updatedAt).toEqual(cleared.updatedAt);
+});
 it("rejects old-revision and archived in-flight solves while retaining their attempt results", async () => {
   const old = await reserve(); await db.problem.update({ where: { id: problemId }, data: { revision: 2 } });
   await finishSubmission(db, users[0], verdict(old.id)); expect(await progress()).toMatchObject({ status: "ATTEMPTED", verifiedRevision: null });

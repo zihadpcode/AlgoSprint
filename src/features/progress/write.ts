@@ -1,7 +1,7 @@
 import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 
-type ProgressEvent = { kind: "attempt" | "manual-solve" | "clear-manual"; at: Date }
+type ProgressEvent = { kind: "attempt" | "manual-solve" | "clear-manual" | "clear-verified" | "clear-attempt"; at: Date }
   | { kind: "review" | "bookmark"; value: boolean; at: Date }
   | { kind: "verified-solve"; revision: number; at: Date };
 
@@ -20,6 +20,11 @@ export async function writeProgress(tx: Prisma.TransactionClient, userId: string
     Object.assign(data, { status: "SOLVED", selfMarked: true, solvedAt: event.at });
   } else if (event.kind === "clear-manual" && row.status === "SOLVED" && row.selfMarked) {
     Object.assign(data, { status: row.attemptedAt ? "ATTEMPTED" : "NOT_STARTED", selfMarked: false, solvedAt: null });
+  } else if (event.kind === "clear-verified" && row.status === "SOLVED" && !row.selfMarked) {
+    // Submission history is kept; passing the full suite again verifies the solve anew.
+    Object.assign(data, { status: row.attemptedAt ? "ATTEMPTED" : "NOT_STARTED", solvedAt: null, verifiedRevision: null, verifiedAt: null });
+  } else if (event.kind === "clear-attempt" && row.status === "ATTEMPTED") {
+    Object.assign(data, { status: "NOT_STARTED", attemptedAt: null });
   } else if (event.kind === "review" && row.reviewLater !== event.value) {
     data.reviewLater = event.value;
   } else if (event.kind === "bookmark" && row.bookmarked !== event.value) {
