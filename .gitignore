@@ -44,3 +44,6 @@ next-env.d.ts
 # Generated database client
 /src/generated/
 /prisma/.cache/
+
+# Local coordination notes between agents (never commit)
+AGENT-COORDINATION.md
