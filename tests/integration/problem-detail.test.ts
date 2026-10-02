@@ -64,7 +64,8 @@ describe("problem details and personal writes against PostgreSQL", () => {
     expect(fallback?.related.length).toBeLessThanOrEqual(3);
     for (const item of fallback!.related) expect(seeds.find((seed) => seed.slug === item.slug)!.categories.some((c) => sharedCategories.includes(c))).toBe(true);
     expect(fallback?.related.every((item) => !privateSlugs.includes(item.slug) && item.slug !== "parcel-checkpoints")).toBe(true);
-    expect(Object.keys(result!).sort()).toEqual(["slug", "title", "difficulty", "kind", "pattern", "statement", "constraints", "estimatedMinutes", "categories", "tags", "examples", "hints", "solutions", "starterCode", "related", "personal"].sort());
+    // revision is public content versioning; device drafts are scoped to it.
+    expect(Object.keys(result!).sort()).toEqual(["slug", "title", "difficulty", "kind", "pattern", "statement", "constraints", "estimatedMinutes", "revision", "categories", "tags", "examples", "hints", "solutions", "starterCode", "related", "personal"].sort());
     const json = JSON.stringify(result);
     for (const forbidden of [hiddenSentinel, "Private detail", "testCases", "seedHash", '"id":', '"userId":', '"problemId":']) expect(json).not.toContain(forbidden);
   });
