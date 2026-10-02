@@ -62,3 +62,48 @@ it("shows a previously saved rating of zero rather than resetting it", async () 
   expect(selects).toEqual(["", "0", ""]);
   expect(host.textContent).toContain("No unsaved changes");
 });
+
+it("restores a local draft without saving, scoring or changing the original server token", async () => {
+  const { interviewDraftSchema, readDeviceDraft, writeDeviceDraft } = await import("@/features/drafts/storage");
+  const scope = { owner: "verified-user", kind: "interview" as const, target: session.id, revision: JSON.stringify([[session.questions[0].id, 1]]) };
+  const draft = [{ ...EMPTY_ANSWER, reasoning: "Recovered private answer", reasoningRating: null, tradeoffsRating: null, checksRating: null }];
+  expect(interviewDraftSchema.safeParse(draft).success).toBe(true);
+  localStorage.clear(); readDeviceDraft(localStorage, scope); writeDeviceDraft(localStorage, scope, JSON.stringify(draft), JSON.stringify([session.questions[0].token]));
+  await act(() => root.unmount()); root = createRoot(host);
+  await act(async () => root.render(createElement(InterviewSession, { session, draftOwner: scope.owner })));
+  expect(host.querySelector("textarea")!.value).toBe(""); expect(mocks.action).not.toHaveBeenCalled();
+  const restore = [...host.querySelectorAll("button")].find((button) => button.textContent === "Restore device draft")!;
+  await act(() => restore.click()); expect(host.querySelector("textarea")!.value).toBe("Recovered private answer"); expect(host.querySelector("select")!.value).toBe(""); expect(mocks.action).not.toHaveBeenCalled();
+  await rate("1"); mocks.action.mockResolvedValue({ success: false, message: "Conflict" }); await act(async () => save());
+  expect(mocks.action.mock.calls[0][0].token).toBe(session.questions[0].token); localStorage.clear();
+});
+it("does not allow restoring a local answer over a newer saved server answer", async () => {
+  const { readDeviceDraft, writeDeviceDraft } = await import("@/features/drafts/storage");
+  const scope = { owner: "verified-user", kind: "interview" as const, target: session.id, revision: JSON.stringify([[session.questions[0].id, 1]]) };
+  localStorage.clear(); readDeviceDraft(localStorage, scope); writeDeviceDraft(localStorage, scope, JSON.stringify([{ ...EMPTY_ANSWER, reasoning: "Older local answer" }]), JSON.stringify(["old-token"]));
+  await act(() => root.unmount()); root = createRoot(host);
+  const latest = { ...session, questions: [{ ...session.questions[0], answer: { ...EMPTY_ANSWER, reasoning: "Latest saved answer", reasoningRating: 1 } }] };
+  await act(async () => root.render(createElement(InterviewSession, { session: latest, draftOwner: scope.owner })));
+  expect(host.querySelector("textarea")!.readOnly).toBe(true);
+  expect(host.querySelector<HTMLTextAreaElement>("fieldset textarea")!.value).toBe("Latest saved answer");
+  expect([...host.querySelectorAll("button")].some((button) => button.textContent === "Restore device draft")).toBe(false); expect(mocks.action).not.toHaveBeenCalled(); localStorage.clear();
+});
+it("clears rendered private answers when another tab signs out", async () => {
+  const { clearBrowserDrafts } = await import("@/features/drafts/storage");
+  await act(() => root.unmount()); root = createRoot(host);
+  const saved = { ...session, questions: [{ ...session.questions[0], answer: { ...EMPTY_ANSWER, reasoning: "Saved private answer", reasoningRating: 1 } }] };
+  await act(async () => root.render(createElement(InterviewSession, { session: saved, draftOwner: "verified-user" })));
+  await act(() => clearBrowserDrafts()); expect(host.querySelector<HTMLTextAreaElement>("fieldset textarea")!.value).toBe(""); expect(mocks.action).not.toHaveBeenCalled(); localStorage.clear();
+});
+it("clears unsaved local recovery after explicitly finishing without recreating it", async () => {
+  const { draftKey } = await import("@/features/drafts/storage");
+  const scope = { owner: "verified-user", kind: "interview" as const, target: session.id, revision: JSON.stringify([[session.questions[0].id, 1]]) };
+  localStorage.clear(); await act(() => root.unmount()); root = createRoot(host);
+  await act(async () => root.render(createElement(InterviewSession, { session, draftOwner: scope.owner })));
+  await act(() => host.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click());
+  await edit(); expect(localStorage.getItem(draftKey(scope))).not.toBeNull();
+  const originalConfirm = window.confirm; window.confirm = vi.fn(() => true); mocks.action.mockResolvedValue({ success: true, ended: true, message: "Finished" });
+  const finish = [...host.querySelectorAll("button")].find((button) => button.textContent === "Finish and review")!;
+  await act(async () => finish.click()); expect(mocks.push).toHaveBeenCalledWith(`/interview-results/${session.id}`); expect(localStorage.getItem(draftKey(scope))).toBeNull(); expect(host.querySelector("fieldset")!.disabled).toBe(true);
+  window.confirm = originalConfirm; localStorage.clear();
+});

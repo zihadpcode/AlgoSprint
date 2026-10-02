@@ -1,11 +1,13 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { DeviceDraftRecovery } from "@/components/drafts/device-draft-recovery";
+import { interviewDraftSchema, removeDeviceDraft } from "@/features/drafts/storage";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { interviewAction } from "@/features/interviews/actions";
-import type { InterviewAnswer, SessionView } from "@/features/interviews/contracts";
+import { EMPTY_ANSWER, type InterviewAnswer, type SessionView } from "@/features/interviews/contracts";
 
 const DIMENSIONS = [["reasoning", "reasoningRating", "Reasoning and solution / code"], ["tradeoffs", "tradeoffsRating", "Complexity and tradeoffs"], ["checks", "checksRating", "Tests, examples and checks"]] as const;
 // A rating starts unchosen (null) so written text is never silently scored as 0. Only the saved contract uses 0–2.
@@ -22,13 +24,16 @@ export function unratedAreas(draft: Draft) {
   return DIMENSIONS.filter(([field, rating]) => draft[field].trim() && draft[rating] === null).map(([, , label]) => label.toLowerCase());
 }
 
-export function InterviewSession({ session }: { session: SessionView }) {
+export function InterviewSession({ session, draftOwner = null }: { session: SessionView; draftOwner?: string | null }) {
   const router = useRouter(); const busy = useRef(false);
   const [drafts, setDrafts] = useState(session.questions.map((q) => toDraft(q.answer)));
   const [tokens, setTokens] = useState(session.questions.map((q) => q.token));
   const [saved, setSaved] = useState(session.questions.map((q) => JSON.stringify(q.answer)));
+  const [ended, setEnded] = useState(false);
   const [pending, setPending] = useState(false); const [message, setMessage] = useState("");
   const [remaining, setRemaining] = useState(session.remainingMs); const baseline = useRef<number | null>(null);
+  const clearDrafts = useCallback(() => setDrafts(session.questions.map(() => toDraft(EMPTY_ANSWER))), [session.questions]);
+  const draftScope = draftOwner ? { owner: draftOwner, kind: "interview" as const, target: session.id, revision: JSON.stringify(session.questions.map((q) => [q.id, q.prompt.revision])) } : null;
   const dirty = drafts.some((d, i) => JSON.stringify(toAnswer(d)) !== saved[i]);
   useEffect(() => {
     baseline.current = performance.now(); const wallStart = Date.now();
@@ -53,7 +58,11 @@ export function InterviewSession({ session }: { session: SessionView }) {
     try {
       const result = await interviewAction(operation === "save" ? { operation, id: session.id, questionId: session.questions[index!].id, token: tokens[index!], answer: toAnswer(drafts[index!]) } : { operation, id: session.id });
       setMessage(result.message);
-      if (result.success && result.ended) { if (operation === "save") { setRemaining(0); setMessage(`${result.message} Your text remains here to copy before opening the report.`); } else router.push(`/interview-results/${session.id}`); return; }
+      if (result.success && result.ended) { if (operation === "save") { setRemaining(0); setMessage(`${result.message} Your text remains here to copy before opening the report.`); } else {
+        setEnded(true);
+        try { if (draftScope) removeDeviceDraft(window.localStorage, draftScope); } catch { /* Storage can be blocked. */ }
+        router.push(`/interview-results/${session.id}`);
+      } return; }
       if (result.success && result.token && index !== undefined) { setTokens((a) => a.map((t, i) => i === index ? result.token! : t)); setSaved((a) => a.map((s, i) => i === index ? JSON.stringify(toAnswer(drafts[index])) : s)); }
     } catch { setMessage("Could not confirm the save. Copy your draft, then reload to check the saved version."); }
     finally { busy.current = false; setPending(false); }
@@ -64,10 +73,14 @@ export function InterviewSession({ session }: { session: SessionView }) {
       {seconds === 0 && <p role="alert" className="mt-3 text-warm">Time is up. Copy any unsaved text if needed, then open the report. Only answers received before the server deadline count.</p>}
       <p role="status" className="mt-3 text-sm">{message}</p>
     </Card>
+    <DeviceDraftRecovery scope={draftScope} value={JSON.stringify(drafts)} dirty={dirty} baseline={JSON.stringify(tokens)} disabled={pending || seconds === 0 || ended} onClear={clearDrafts} onRestore={(payload) => {
+      const restored = interviewDraftSchema.safeParse(JSON.parse(payload));
+      if (restored.success && restored.data.length === session.questions.length) setDrafts(restored.data);
+    }} />
     {session.questions.map((q, index) => <Card key={q.id}>
       <p className="eyebrow text-xs text-muted">Question {q.position} · {q.kind.replaceAll("_", " ")}</p><h2 className="mt-3 text-xl font-semibold">{q.prompt.title}</h2>
       <p className="mt-4 whitespace-pre-wrap text-sm leading-7">{q.prompt.statement}</p><pre className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-muted">{q.prompt.details}</pre>
-      <fieldset disabled={pending || seconds === 0} className="mt-5 space-y-5"><legend className="mb-3 font-semibold">Your explanation and self-assessment</legend>
+      <fieldset disabled={pending || seconds === 0 || ended} className="mt-5 space-y-5"><legend className="mb-3 font-semibold">Your explanation and self-assessment</legend>
         <p className="text-sm text-muted">Write your answer, then rate each area honestly. Your score comes only from the three ratings; text without a rating cannot be saved.</p>
         {DIMENSIONS.map(([field, rating, label]) => <div key={field} className="space-y-2">
           <label htmlFor={`${q.id}-${field}`} className="block text-sm font-medium">{label}</label>
