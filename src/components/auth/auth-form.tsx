@@ -27,6 +27,10 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
       <p className="text-sm text-muted">{registering ? "Already have an account? " : "New to AlgoSprint? "}
         <Link className="rounded text-accent underline underline-offset-4" href={`${registering ? "/login" : "/register"}?next=${encodeURIComponent(returnTo)}`}>{registering ? "Sign in" : "Create an account"}</Link>
       </p>
+      <div className="flex flex-wrap gap-x-5 gap-y-3 text-sm">
+        {!registering && <Link href="/forgot-password" className="rounded text-accent underline underline-offset-4">Forgot password?</Link>}
+        <Link href="/resend-confirmation" className="rounded text-accent underline underline-offset-4">Resend confirmation email</Link>
+      </div>
     </form>
   );
 }
