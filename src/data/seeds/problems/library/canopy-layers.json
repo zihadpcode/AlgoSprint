@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "slug": "canopy-layers",
+  "title": "Canopy Layers",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "bfs",
+  "statement": "A forest survey records how many birds nest at each branch point of a tree, as a binary tree given in level order (tree), with null for a missing branch. The trunk is depth 0, its children depth 1, and so on. Return an array whose i-th entry is the total number of birds at depth i, from the trunk downward. Return an empty array for an empty tree. Counts may be negative when the survey records departures.",
+  "constraints": [
+    "0 <= number of nodes <= 10000",
+    "-100000 <= value <= 100000"
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "trees",
+    "bfs",
+    "queue"
+  ],
+  "tags": [
+    "graph-traversal",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tree": [
+          3,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      },
+      "output": [
+        3,
+        29,
+        22
+      ],
+      "explanation": "Depth 0: 3. Depth 1: 9 + 20 = 29. Depth 2: 15 + 7 = 22."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tree": []
+      },
+      "output": [],
+      "explanation": "An empty tree has no layers."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Rebuild the tree from its level-order form first."
+    },
+    {
+      "position": 2,
+      "content": "You need to know which nodes share a depth."
+    },
+    {
+      "position": 3,
+      "content": "A breadth-first traversal visits the tree one layer at a time."
+    },
+    {
+      "position": 4,
+      "content": "Keep a list of the current layer's nodes; their sum is one entry, and their non-null children form the next layer."
+    },
+    {
+      "position": 5,
+      "content": "Stop when a layer is empty. A depth-first traversal that adds each value into sums[depth] works too."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "canopyLayers",
+      "code": "function canopyLayers(tree) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": [
+          3,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      },
+      "output": [
+        3,
+        29,
+        22
+      ],
+      "explanation": "Depth 0: 3. Depth 1: 9 + 20 = 29. Depth 2: 15 + 7 = 22."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": []
+      },
+      "output": [],
+      "explanation": "An empty tree has no layers."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          5
+        ]
+      },
+      "output": [
+        5
+      ],
+      "explanation": "Only the trunk."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          1,
+          2,
+          null,
+          3,
+          null,
+          4
+        ]
+      },
+      "output": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "A left chain has one node per layer."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          1,
+          -1,
+          -1,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "output": [
+        1,
+        -2,
+        8
+      ],
+      "explanation": "Negative counts are summed like any other."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ]
+      },
+      "output": [
+        0,
+        3,
+        18,
+        84
+      ],
+      "explanation": "A complete tree with four layers."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          4,
+          null,
+          6,
+          null,
+          8,
+          9
+        ]
+      },
+      "output": [
+        4,
+        6,
+        8,
+        9
+      ],
+      "explanation": "Layers of a right-leaning tree: 4, 6, 8, 9."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Sum each depth with its own traversal",
+      "intuition": "For depth d, walk the whole tree and add the values found at exactly depth d.",
+      "approach": "Compute the tree height. For each depth, run a recursive walk that adds a node's value when its depth matches.",
+      "pseudocode": "h = height(root); for d in 0..h-1: sums[d] = sumAt(root, d)\nsumAt(node, d) = 0 if null; node.value if d == 0; else sumAt(left, d-1) + sumAt(right, d-1)",
+      "code": "function canopyLayers(tree) {\n  if (tree.length === 0) return [];\n  const nodes = [{ value: tree[0], left: null, right: null }];\n  for (let i = 1, head = 0; i < tree.length; head++) {\n    const node = nodes[head];\n    if (tree[i] !== null) nodes.push(node.left = { value: tree[i], left: null, right: null });\n    i++;\n    if (i < tree.length && tree[i] !== null) nodes.push(node.right = { value: tree[i], left: null, right: null });\n    i++;\n  }\n  const root = nodes[0];\n  const height = (n) => (n ? 1 + Math.max(height(n.left), height(n.right)) : 0);\n  const sumAt = (n, d) => (!n ? 0 : d === 0 ? n.value : sumAt(n.left, d - 1) + sumAt(n.right, d - 1));\n  const result = [];\n  for (let d = 0; d < height(root); d++) result.push(sumAt(root, d));\n  return result;\n}",
+      "timeComplexity": "O(n · h)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Treating null placeholders as zero-valued nodes, which adds phantom layers.",
+        "Recomputing height inside the loop condition (wasteful but still correct)."
+      ],
+      "interviewExplanation": "Each layer gets its own traversal, so the tree is walked once per depth. That costs O(n·h), which degrades to quadratic for a chain.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "The height of [3,9,20,null,null,15,7] is 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "sumAt(root, 0) = 3; sumAt(root, 1) = 29; sumAt(root, 2) = 22."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Breadth-first, one layer at a time",
+      "intuition": "BFS naturally processes all nodes of one depth before the next.",
+      "approach": "Rebuild the tree. Start with the root as the current layer. Push the layer's sum, then collect the non-null children of its nodes as the next layer. Repeat until a layer is empty.",
+      "pseudocode": "layer = [root] if root else []\nwhile layer: out.push(sum of layer values); layer = children of layer\nreturn out",
+      "code": "function canopyLayers(tree) {\n  if (tree.length === 0) return [];\n  const nodes = [{ value: tree[0], left: null, right: null }];\n  for (let i = 1, head = 0; i < tree.length; head++) {\n    const node = nodes[head];\n    if (tree[i] !== null) nodes.push(node.left = { value: tree[i], left: null, right: null });\n    i++;\n    if (i < tree.length && tree[i] !== null) nodes.push(node.right = { value: tree[i], left: null, right: null });\n    i++;\n  }\n  const sums = [];\n  let layer = [nodes[0]];\n  while (layer.length) {\n    let total = 0;\n    const next = [];\n    for (const node of layer) {\n      total += node.value;\n      if (node.left) next.push(node.left);\n      if (node.right) next.push(node.right);\n    }\n    sums.push(total);\n    layer = next;\n  }\n  return sums;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(w) for the widest layer, plus the rebuilt tree",
+      "commonMistakes": [
+        "Using a single queue without marking layer boundaries, which mixes depths.",
+        "Using shift() on a large array in a hot loop; swapping whole layer arrays avoids that cost."
+      ],
+      "interviewExplanation": "I rebuild the tree and run BFS layer by layer: the sum of the current layer is one output entry, and its children form the next layer. Every node is visited once, O(n), and extra space is the widest layer. A DFS that carries depth and adds into sums[depth] gives the same result with O(h) stack instead.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Layer [3] sums to 3; next layer [9, 20]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Layer [9, 20] sums to 29; next layer [15, 7]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Layer [15, 7] sums to 22; the next layer is empty, so stop."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "slug": "fuel-stretch",
+  "title": "Fuel Stretch",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "variable-window",
+  "statement": "A rally route passes fuel depots in order, and depot i provides fuel[i] liters (always positive). A driver may refill at one unbroken run of consecutive depots. Return the length of the shortest run whose total fuel is at least target, or 0 if no run reaches the target.",
+  "constraints": [
+    "1 <= fuel.length <= 10000",
+    "1 <= fuel[i] <= 10000",
+    "1 <= target <= 1000000000"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "sliding-window",
+    "arrays"
+  ],
+  "tags": [
+    "pointer-pair",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "fuel": [
+          2,
+          3,
+          1,
+          2,
+          4,
+          3
+        ],
+        "target": 7
+      },
+      "output": 2,
+      "explanation": "The run [4, 3] gives 7 liters with only two depots."
+    },
+    {
+      "position": 2,
+      "input": {
+        "fuel": [
+          1,
+          1,
+          1
+        ],
+        "target": 5
+      },
+      "output": 0,
+      "explanation": "All depots together give 3 liters, which is not enough."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Checking every start and end works but repeats a lot of additions."
+    },
+    {
+      "position": 2,
+      "content": "All values are positive, so extending a run only increases its total and shrinking it only decreases it."
+    },
+    {
+      "position": 3,
+      "content": "Keep a window [left, right] and its running sum. Move right forward one depot at a time."
+    },
+    {
+      "position": 4,
+      "content": "Whenever the window's sum reaches the target, record its length, then drop depots from the left while the sum still reaches the target."
+    },
+    {
+      "position": 5,
+      "content": "Each depot enters and leaves the window at most once. Return 0 if no window ever reached the target."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "fuelStretch",
+      "code": "function fuelStretch(fuel, target) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "fuel": [
+          2,
+          3,
+          1,
+          2,
+          4,
+          3
+        ],
+        "target": 7
+      },
+      "output": 2,
+      "explanation": "The run [4, 3] gives 7 liters with only two depots."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "fuel": [
+          1,
+          1,
+          1
+        ],
+        "target": 5
+      },
+      "output": 0,
+      "explanation": "All depots together give 3 liters, which is not enough."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "fuel": [
+          9
+        ],
+        "target": 9
+      },
+      "output": 1,
+      "explanation": "One depot exactly meets the target."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "fuel": [
+          1,
+          4,
+          4
+        ],
+        "target": 4
+      },
+      "output": 1,
+      "explanation": "A single depot of 4 is enough."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "fuel": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "target": 15
+      },
+      "output": 5,
+      "explanation": "Every depot is needed."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "fuel": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "target": 11
+      },
+      "output": 3,
+      "explanation": "[3, 4, 5] gives 12, which reaches 11 with three depots."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "fuel": [
+          5,
+          1,
+          1,
+          1,
+          1,
+          1,
+          5
+        ],
+        "target": 6
+      },
+      "output": 2,
+      "explanation": "Both [5, 1] and [1, 5] work, with length 2."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "fuel": [
+          3,
+          3,
+          3
+        ],
+        "target": 1000000000
+      },
+      "output": 0,
+      "explanation": "A huge target cannot be met."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Grow a run from every start",
+      "intuition": "For each starting depot, extend the run until it reaches the target; that is the shortest run with that start.",
+      "approach": "For each i, add fuel[j] for j = i, i + 1, ... and stop at the first j where the sum reaches the target, updating the best length.",
+      "pseudocode": "best = 0; for i: sum = 0; for j from i: sum += fuel[j]; if sum >= target: best = min(best or inf, j - i + 1); break\nreturn best",
+      "code": "function fuelStretch(fuel, target) {\n  let best = 0;\n  for (let i = 0; i < fuel.length; i++) {\n    let sum = 0;\n    for (let j = i; j < fuel.length; j++) {\n      sum += fuel[j];\n      if (sum >= target) {\n        if (best === 0 || j - i + 1 < best) best = j - i + 1;\n        break;\n      }\n    }\n  }\n  return best;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Not breaking after the first success, which wastes time without changing the answer.",
+        "Initializing best to 0 and taking Math.min with it, which always returns 0."
+      ],
+      "interviewExplanation": "For each start I extend until the target is reached, which gives the shortest run with that start. That's O(n²) in the worst case.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Start 0: 2+3+1+2 = 8 >= 7 after four depots."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Later starts give shorter runs; start 4 reaches 4+3 = 7 with two depots."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Shrinking sliding window",
+      "intuition": "With positive values, once a window reaches the target, moving its left edge forward is the only way to find a shorter run ending at the same depot.",
+      "approach": "Extend right one depot at a time, adding to sum. While sum >= target, record right - left + 1 and subtract fuel[left], moving left forward. Return the best length, or 0 if none.",
+      "pseudocode": "left = 0; sum = 0; best = inf\nfor right in 0..n-1: sum += fuel[right]\n  while sum >= target: best = min(best, right - left + 1); sum -= fuel[left++]\nreturn best if finite else 0",
+      "code": "function fuelStretch(fuel, target) {\n  let best = Infinity, sum = 0, left = 0;\n  for (let right = 0; right < fuel.length; right++) {\n    sum += fuel[right];\n    while (sum >= target) {\n      best = Math.min(best, right - left + 1);\n      sum -= fuel[left++];\n    }\n  }\n  return best === Infinity ? 0 : best;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Using if instead of while to shrink, which misses shorter windows after a large depot arrives.",
+        "Applying this technique when values can be negative; the monotonic property no longer holds."
+      ],
+      "interviewExplanation": "Because fuel values are positive, the window sum is monotone in both edges. I extend right, and whenever the sum reaches the target I record the length and shrink from the left as far as possible. Each index moves forward at most once, O(n) time and O(1) space. With negative values I'd need prefix sums and a monotonic deque instead.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Grow to [2,3,1,2] (sum 8): record 4, drop 2 → sum 6."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Add 4 → 10: record 4, drop 3 → 7, record 3, drop 1 → 6."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Add 3 → 9: record 3, drop 2 → 7, record 2 ([4, 3]), drop 4 → 3. The best is 2."
+        }
+      ]
+    }
+  ]
+}

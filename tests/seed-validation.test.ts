@@ -10,8 +10,8 @@ let problems: ProblemSeed[];
 beforeAll(async () => { problems = await loadProblems(); });
 
 describe("original seed contract", () => {
-  it("has thirty-five fully validated problems and complete executable-language listings", () => {
-    expect(problems).toHaveLength(35);
+  it("has one fully validated problem per runner signature and complete executable-language listings", () => {
+    expect(problems.map((p) => p.slug).sort()).toEqual(Object.keys(SIGNATURES).sort());
     for (const p of problems) {
       validateProblemSemantics(p);
       const entryPoint = p.starterCode[0].entryPoint;

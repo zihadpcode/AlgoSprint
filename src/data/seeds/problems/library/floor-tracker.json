@@ -1,0 +1,437 @@
+{
+  "schemaVersion": 1,
+  "slug": "floor-tracker",
+  "title": "Floor Tracker",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "design",
+  "statement": "Design a stack of integers that can also report its smallest value at any moment, with every operation in constant time. Operations arrive as a list: [\"push\", x] adds x on top, [\"pop\"] removes the top value, [\"top\"] reads the top value without removing it, and [\"min\"] reads the smallest value currently stored. Apply them in order and return the results of every pop, top and min operation, in order. pop, top and min are only issued when the stack is non-empty.",
+  "constraints": [
+    "0 <= operations.length <= 10000",
+    "-1000000 <= x <= 1000000",
+    "pop, top and min never target an empty stack"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "design",
+    "object-oriented",
+    "stack"
+  ],
+  "tags": [
+    "simulation",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "operations": [
+          [
+            "push",
+            5
+          ],
+          [
+            "push",
+            2
+          ],
+          [
+            "push",
+            7
+          ],
+          [
+            "min"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ]
+        ]
+      },
+      "output": [
+        2,
+        7,
+        2,
+        2,
+        5
+      ],
+      "explanation": "min is 2, popping returns 7, min is still 2, popping returns 2, and min becomes 5."
+    },
+    {
+      "position": 2,
+      "input": {
+        "operations": [
+          [
+            "push",
+            3
+          ],
+          [
+            "top"
+          ],
+          [
+            "push",
+            3
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ]
+        ]
+      },
+      "output": [
+        3,
+        3,
+        3
+      ],
+      "explanation": "Duplicates are tracked independently: after removing one 3 the minimum is still 3."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "push, pop and top are ordinary stack operations; min is the hard part."
+    },
+    {
+      "position": 2,
+      "content": "Scanning the whole stack for min costs linear time per query."
+    },
+    {
+      "position": 3,
+      "content": "A single 'current minimum' variable is not enough, because popping the minimum leaves you without the previous one."
+    },
+    {
+      "position": 4,
+      "content": "Store, alongside each value, the minimum of the stack up to and including that value."
+    },
+    {
+      "position": 5,
+      "content": "Keep a second stack of running minimums that is pushed and popped together with the main stack. Its top is always the current minimum."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "floorTracker",
+      "code": "function floorTracker(operations) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "operations": [
+          [
+            "push",
+            5
+          ],
+          [
+            "push",
+            2
+          ],
+          [
+            "push",
+            7
+          ],
+          [
+            "min"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ]
+        ]
+      },
+      "output": [
+        2,
+        7,
+        2,
+        2,
+        5
+      ],
+      "explanation": "min is 2, popping returns 7, min is still 2, popping returns 2, and min becomes 5."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "operations": [
+          [
+            "push",
+            3
+          ],
+          [
+            "top"
+          ],
+          [
+            "push",
+            3
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ]
+        ]
+      },
+      "output": [
+        3,
+        3,
+        3
+      ],
+      "explanation": "Duplicates are tracked independently: after removing one 3 the minimum is still 3."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": []
+      },
+      "output": [],
+      "explanation": "No operations, no results."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "push",
+            -4
+          ],
+          [
+            "min"
+          ],
+          [
+            "top"
+          ],
+          [
+            "pop"
+          ]
+        ]
+      },
+      "output": [
+        -4,
+        -4,
+        -4
+      ],
+      "explanation": "One value is both the top and the minimum."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "push",
+            1
+          ],
+          [
+            "push",
+            1
+          ],
+          [
+            "push",
+            0
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ]
+        ]
+      },
+      "output": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "explanation": "Repeated minimum values must survive pops."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "push",
+            9
+          ],
+          [
+            "push",
+            8
+          ],
+          [
+            "push",
+            7
+          ],
+          [
+            "min"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ],
+          [
+            "push",
+            10
+          ],
+          [
+            "min"
+          ],
+          [
+            "top"
+          ]
+        ]
+      },
+      "output": [
+        7,
+        7,
+        8,
+        9,
+        9,
+        10
+      ],
+      "explanation": "A decreasing run followed by pops and a larger push."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "push",
+            2
+          ],
+          [
+            "pop"
+          ],
+          [
+            "push",
+            6
+          ],
+          [
+            "min"
+          ],
+          [
+            "push",
+            -1
+          ],
+          [
+            "min"
+          ],
+          [
+            "pop"
+          ],
+          [
+            "min"
+          ]
+        ]
+      },
+      "output": [
+        2,
+        6,
+        -1,
+        -1,
+        6
+      ],
+      "explanation": "The stack empties and is reused."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Scan for the minimum on demand",
+      "intuition": "The minimum is simply the smallest value currently on the stack.",
+      "approach": "Keep a plain array stack. For min, compute Math.min over the array.",
+      "pseudocode": "for op: push → append; pop → output(pop); top → output(last); min → output(min(stack))",
+      "code": "function floorTracker(operations) {\n  const stack = [], results = [];\n  for (const op of operations) {\n    if (op[0] === 'push') stack.push(op[1]);\n    else if (op[0] === 'pop') results.push(stack.pop());\n    else if (op[0] === 'top') results.push(stack[stack.length - 1]);\n    else results.push(Math.min(...stack));\n  }\n  return results;\n}",
+      "timeComplexity": "O(n) per min, O(n²) overall",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Recording null for push operations; only pop, top and min produce results.",
+        "Spreading a huge array into Math.min, which can exceed engine argument limits."
+      ],
+      "interviewExplanation": "This is correct but min costs linear time, which misses the constant-time requirement.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "After pushing 5, 2, 7, min scans [5,2,7] and gets 2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "pop returns 7; min scans [5,2] and gets 2; pop returns 2; min scans [5] and gets 5."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Parallel stack of running minimums",
+      "intuition": "The minimum only changes at pushes and pops, so record what the minimum was at every height of the stack.",
+      "approach": "Maintain values and minimums stacks. On push, push x and min(x, current minimum). On pop, pop both and report the value. top reads values' top; min reads minimums' top.",
+      "pseudocode": "push x: values.push(x); mins.push(min(x, mins.top or x))\npop: mins.pop(); output(values.pop())\ntop: output(values.top); min: output(mins.top)",
+      "code": "function floorTracker(operations) {\n  const values = [], minimums = [], results = [];\n  for (const op of operations) {\n    if (op[0] === 'push') {\n      const x = op[1];\n      values.push(x);\n      minimums.push(minimums.length ? Math.min(minimums[minimums.length - 1], x) : x);\n    } else if (op[0] === 'pop') {\n      minimums.pop();\n      results.push(values.pop());\n    } else if (op[0] === 'top') results.push(values[values.length - 1]);\n    else results.push(minimums[minimums.length - 1]);\n  }\n  return results;\n}",
+      "timeComplexity": "O(1) per operation",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Only pushing onto the minimum stack when x is strictly smaller, then popping it unconditionally, which desynchronizes the stacks.",
+        "Keeping one variable for the minimum and failing to restore it after popping."
+      ],
+      "interviewExplanation": "I keep a second stack whose entry at each height is the minimum of everything at or below that height. Push stores min(x, previous minimum), pop removes from both, and min reads the top, all O(1). As a class this is push(x), pop(), top() and getMin() over two private arrays. To save space you can push to the minimum stack only when x <= the current minimum and pop it only when the popped value equals it. The <= is needed for duplicates.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Push 5, 2, 7: values [5,2,7], minimums [5,2,2]. min → 2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "pop → 7, minimums [5,2]; min → 2. pop → 2, minimums [5]; min → 5."
+        }
+      ]
+    }
+  ]
+}

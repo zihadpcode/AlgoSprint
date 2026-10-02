@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "slug": "tile-side",
+  "title": "Tile Side",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "gcd",
+  "statement": "A carpenter wants to cut every plank in planks into equal pieces of one shared whole-number length, with no leftover wood on any plank. Return the longest piece length that works for every plank.",
+  "constraints": [
+    "1 <= planks.length <= 10000",
+    "1 <= planks[i] <= 1000000"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "math",
+    "arrays"
+  ],
+  "tags": [
+    "linear-scan",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "planks": [
+          12,
+          18,
+          30
+        ]
+      },
+      "output": 6,
+      "explanation": "Pieces of length 6 divide all three planks, and nothing longer does."
+    },
+    {
+      "position": 2,
+      "input": {
+        "planks": [
+          7,
+          9
+        ]
+      },
+      "output": 1,
+      "explanation": "Only length 1 divides both 7 and 9."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The piece length must divide every plank length exactly."
+    },
+    {
+      "position": 2,
+      "content": "No piece can be longer than the shortest plank, so you could try lengths from there downward."
+    },
+    {
+      "position": 3,
+      "content": "The largest number dividing two numbers is their greatest common divisor, and gcd(a, b, c) = gcd(gcd(a, b), c)."
+    },
+    {
+      "position": 4,
+      "content": "Euclid's algorithm: gcd(a, b) = gcd(b, a mod b), and gcd(a, 0) = a."
+    },
+    {
+      "position": 5,
+      "content": "Fold the array with gcd, starting from the first plank."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "tileSide",
+      "code": "function tileSide(planks) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "planks": [
+          12,
+          18,
+          30
+        ]
+      },
+      "output": 6,
+      "explanation": "Pieces of length 6 divide all three planks, and nothing longer does."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "planks": [
+          7,
+          9
+        ]
+      },
+      "output": 1,
+      "explanation": "Only length 1 divides both 7 and 9."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "planks": [
+          42
+        ]
+      },
+      "output": 42,
+      "explanation": "A single plank can stay whole."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "planks": [
+          5,
+          5,
+          5
+        ]
+      },
+      "output": 5,
+      "explanation": "Equal planks keep their length."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "planks": [
+          100,
+          75,
+          50,
+          25
+        ]
+      },
+      "output": 25,
+      "explanation": "25 divides each plank."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "planks": [
+          1,
+          1000000
+        ]
+      },
+      "output": 1,
+      "explanation": "A plank of length 1 forces length 1."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "planks": [
+          999983,
+          999983,
+          999983
+        ]
+      },
+      "output": 999983,
+      "explanation": "A large prime length still works when every plank is identical."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "planks": [
+          48,
+          180,
+          600,
+          12
+        ]
+      },
+      "output": 12,
+      "explanation": "The answer is 12."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try lengths from the shortest plank downward",
+      "intuition": "The first length that divides every plank, counting down from the shortest plank, is the longest one.",
+      "approach": "Let low be the shortest plank. For side from low down to 1, return side if every plank is divisible by it.",
+      "pseudocode": "for side from min(planks) down to 1: if all p % side == 0: return side",
+      "code": "function tileSide(planks) {\n  for (let side = Math.min(...planks); side >= 1; side--) {\n    if (planks.every((p) => p % side === 0)) return side;\n  }\n  return 1;\n}",
+      "timeComplexity": "O(min · n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Starting from the longest plank, which wastes work and can return a length that does not divide the shortest plank.",
+        "Spreading a very large array into Math.min, which can exceed the call-argument limit in some engines."
+      ],
+      "interviewExplanation": "Counting down from the shortest plank finds the answer, but it can test up to a million candidates against every plank.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [12, 18, 30], start at 12: 18 % 12 is not 0. Try 11, 10, 9, 8 and 7, which all fail."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "6 divides 12, 18 and 30, so return 6."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Fold with Euclid's algorithm",
+      "intuition": "The answer is the greatest common divisor of all lengths, and gcd can be combined one plank at a time.",
+      "approach": "Define gcd(a, b) by repeatedly replacing (a, b) with (b, a % b). Reduce the planks with it.",
+      "pseudocode": "g = planks[0]; for p in planks[1:]: g = gcd(g, p); return g",
+      "code": "function tileSide(planks) {\n  const gcd = (a, b) => {\n    while (b !== 0) [a, b] = [b, a % b];\n    return a;\n  };\n  let g = planks[0];\n  for (let i = 1; i < planks.length; i++) g = gcd(g, planks[i]);\n  return g;\n}",
+      "timeComplexity": "O(n log M) for maximum length M",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Starting the fold at 0 without understanding why gcd(0, x) = x; starting from planks[0] is clearer.",
+        "Using subtraction-based gcd, which is far slower for unequal values."
+      ],
+      "interviewExplanation": "A piece length must divide every plank, so the longest one is the gcd of the whole array. gcd is associative, so I fold it across the planks with Euclid's algorithm, which takes logarithmic steps per pair. That's O(n log M) time and constant space. I could also stop early once the running gcd hits 1.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "gcd(12, 18): (12, 18) → (18, 12) → (12, 6) → (6, 0), giving 6."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "gcd(6, 30): (6, 30) → (30, 6) → (6, 0), giving 6."
+        }
+      ]
+    }
+  ]
+}
