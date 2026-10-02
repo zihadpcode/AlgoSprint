@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "slug": "mold-spread",
+  "title": "Mold Spread",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "multi-source-bfs",
+  "statement": "A pantry shelf is a grid of equal-length rows: 'F' is fresh bread, 'S' is spoiled bread and '.' is empty space. Every minute, each fresh loaf that shares an edge (up, down, left or right) with a spoiled loaf becomes spoiled. Return the number of minutes until no fresh bread remains, 0 if there is no fresh bread at the start, or -1 if some fresh loaf can never spoil.",
+  "constraints": [
+    "1 <= grid.length <= 100",
+    "1 <= grid[i].length <= 100, all rows have equal length",
+    "grid contains only 'F', 'S' and '.'"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "bfs",
+    "graphs",
+    "queue"
+  ],
+  "tags": [
+    "grid",
+    "graph-traversal"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "grid": [
+          "SFF",
+          "FF.",
+          ".FF"
+        ]
+      },
+      "output": 4,
+      "explanation": "Mold reaches the bottom-right loaf after 4 minutes."
+    },
+    {
+      "position": 2,
+      "input": {
+        "grid": [
+          "SF.",
+          ".FF",
+          "F.."
+        ]
+      },
+      "output": -1,
+      "explanation": "The loaf in the bottom-left corner touches nothing, so it never spoils."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Simulating minute by minute works but rescans the whole shelf each minute."
+    },
+    {
+      "position": 2,
+      "content": "A loaf spoils at the minute equal to its distance (in edge steps through bread) from the nearest initially spoiled loaf."
+    },
+    {
+      "position": 3,
+      "content": "Breadth-first search computes shortest distances, and it can start from many sources at once."
+    },
+    {
+      "position": 4,
+      "content": "Put every initially spoiled loaf in the first layer. Each layer spoils its fresh neighbors and forms the next layer."
+    },
+    {
+      "position": 5,
+      "content": "Count fresh loaves up front and decrement as they spoil. The number of layers that spoiled something is the answer; leftover fresh bread means -1."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "moldSpread",
+      "code": "function moldSpread(grid) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "SFF",
+          "FF.",
+          ".FF"
+        ]
+      },
+      "output": 4,
+      "explanation": "Mold reaches the bottom-right loaf after 4 minutes."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "SF.",
+          ".FF",
+          "F.."
+        ]
+      },
+      "output": -1,
+      "explanation": "The loaf in the bottom-left corner touches nothing, so it never spoils."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "..."
+        ]
+      },
+      "output": 0,
+      "explanation": "No bread at all: 0 minutes."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "SS",
+          "S."
+        ]
+      },
+      "output": 0,
+      "explanation": "Nothing fresh: 0 minutes."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "F"
+        ]
+      },
+      "output": -1,
+      "explanation": "Fresh bread with no mold can never spoil."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "SFFFS"
+        ]
+      },
+      "output": 2,
+      "explanation": "Mold spreads from both ends and meets in the middle after 2 minutes."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "FFFF",
+          "FFFF",
+          "FFFS"
+        ]
+      },
+      "output": 5,
+      "explanation": "From the corner the farthest loaf is 5 steps away."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "S.F",
+          "...",
+          "F.S"
+        ]
+      },
+      "output": -1,
+      "explanation": "Diagonal neighbors do not count, so the fresh corners never spoil."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "FSF",
+          "SFS",
+          "FSF"
+        ]
+      },
+      "output": 1,
+      "explanation": "Every fresh loaf touches mold: 1 minute."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Simulate whole-shelf minutes",
+      "intuition": "Apply the rule exactly as stated, one minute at a time.",
+      "approach": "Each minute, build a new grid where a fresh loaf next to spoiled bread becomes spoiled. Stop when no fresh bread remains (return the minute) or when a minute changes nothing (return -1).",
+      "pseudocode": "for minute = 0..: if no F: return minute\n  next = grid with each F adjacent to S turned to S\n  if next == grid: return -1; grid = next",
+      "code": "function moldSpread(grid) {\n  let state = grid.map((row) => [...row]);\n  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];\n  for (let minute = 0; ; minute++) {\n    if (!state.some((row) => row.includes('F'))) return minute;\n    let changed = false;\n    const next = state.map((row, r) => row.map((cell, c) => {\n      if (cell === 'F' && dirs.some(([dr, dc]) => state[r + dr] && state[r + dr][c + dc] === 'S')) { changed = true; return 'S'; }\n      return cell;\n    }));\n    if (!changed) return -1;\n    state = next;\n  }\n}",
+      "timeComplexity": "O((rows × cols)²)",
+      "spaceComplexity": "O(rows × cols)",
+      "commonMistakes": [
+        "Updating the grid in place, which lets mold spread several cells in a single minute.",
+        "Looping forever when some fresh bread is unreachable."
+      ],
+      "interviewExplanation": "A direct simulation with a copied grid each minute respects the 'everything spoils simultaneously' rule. It rescans the full grid every minute, so it's quadratic in the number of cells.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Minute 1 spoils (0,1) and (1,0); minute 2 spoils (0,2) and (1,1)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Minute 3 spoils (2,1); minute 4 spoils (2,2). No fresh bread remains, so return 4."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Multi-source breadth-first search",
+      "intuition": "Spoiling time is the shortest distance from any initial mold, which a BFS seeded with all molds computes directly.",
+      "approach": "Queue every 'S' cell and count every 'F'. While the queue and fresh count are non-zero, process one layer: spoil each fresh neighbor, decrement the fresh count, enqueue it. Count layers. Return -1 if fresh bread remains.",
+      "pseudocode": "queue = all S; fresh = count F; minutes = 0\nwhile queue and fresh: next = []; for cell in queue: for neighbor F: mark S; fresh--; next.push\n  queue = next; minutes++\nreturn fresh ? -1 : minutes",
+      "code": "function moldSpread(grid) {\n  const rows = grid.length, cols = grid[0].length;\n  const state = grid.map((row) => [...row]);\n  let queue = [], fresh = 0;\n  for (let r = 0; r < rows; r++)\n    for (let c = 0; c < cols; c++) {\n      if (state[r][c] === 'S') queue.push([r, c]);\n      else if (state[r][c] === 'F') fresh++;\n    }\n  let minutes = 0;\n  while (queue.length && fresh) {\n    const next = [];\n    for (const [r, c] of queue)\n      for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n        const nr = r + dr, nc = c + dc;\n        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && state[nr][nc] === 'F') {\n          state[nr][nc] = 'S';\n          fresh--;\n          next.push([nr, nc]);\n        }\n      }\n    queue = next;\n    minutes++;\n  }\n  return fresh ? -1 : minutes;\n}",
+      "timeComplexity": "O(rows × cols)",
+      "spaceComplexity": "O(rows × cols)",
+      "commonMistakes": [
+        "Running a separate BFS from each spoiled loaf and taking minimums, which repeats work.",
+        "Counting the final empty layer as an extra minute; stop as soon as fresh reaches zero."
+      ],
+      "interviewExplanation": "Each loaf spoils at its shortest distance from any initial mold, so I run one BFS with every spoiled loaf as a source. Each layer is one minute. I mark cells when I enqueue them so nothing is processed twice, and a fresh counter tells me when to stop and whether anything stayed unreachable. Linear in the number of cells.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Layer 0: (0,0). Minute 1 spoils (0,1) and (1,0)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Minute 2: (0,2) and (1,1). Minute 3: (2,1). Minute 4: (2,2)."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "fresh = 0, so return 4."
+        }
+      ]
+    }
+  ]
+}

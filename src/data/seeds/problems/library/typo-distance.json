@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "slug": "typo-distance",
+  "title": "Typo Distance",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "two-dimensional-dp",
+  "statement": "A spelling assistant measures how far a typed word is from the intended word as the smallest number of single-letter edits that turn typed into intended. One edit inserts a letter, deletes a letter, or replaces one letter with another. Return that smallest number of edits.",
+  "constraints": [
+    "0 <= typed.length, intended.length <= 500",
+    "Both strings contain only a-z"
+  ],
+  "estimatedMinutes": 40,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "strings"
+  ],
+  "tags": [
+    "memoization",
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "typed": "horse",
+        "intended": "ros"
+      },
+      "output": 3,
+      "explanation": "Replace h with r (rorse), delete r (rose), delete e (ros): 3 edits."
+    },
+    {
+      "position": 2,
+      "input": {
+        "typed": "focus",
+        "intended": "focus"
+      },
+      "output": 0,
+      "explanation": "Identical words need no edits."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Compare the words from the front. If the first letters match, they cost nothing and you can move past both."
+    },
+    {
+      "position": 2,
+      "content": "If they differ, try each edit: replace (advance both), delete from typed (advance typed), or insert (advance intended). Each costs 1."
+    },
+    {
+      "position": 3,
+      "content": "Those choices repeat the same (i, j) states many times, which is a sign to tabulate."
+    },
+    {
+      "position": 4,
+      "content": "Let dist[i][j] be the edits needed to turn the first i letters of typed into the first j letters of intended. Row 0 and column 0 are pure insertions or deletions."
+    },
+    {
+      "position": 5,
+      "content": "dist[i][j] = dist[i-1][j-1] if the letters match, else 1 + min(dist[i-1][j-1], dist[i-1][j], dist[i][j-1]). Two rows of the table are enough."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "typoDistance",
+      "code": "function typoDistance(typed, intended) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "typed": "horse",
+        "intended": "ros"
+      },
+      "output": 3,
+      "explanation": "Replace h with r (rorse), delete r (rose), delete e (ros): 3 edits."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "typed": "focus",
+        "intended": "focus"
+      },
+      "output": 0,
+      "explanation": "Identical words need no edits."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "typed": "",
+        "intended": "abc"
+      },
+      "output": 3,
+      "explanation": "Insert three letters."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "typed": "abc",
+        "intended": ""
+      },
+      "output": 3,
+      "explanation": "Delete three letters."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "typed": "kitten",
+        "intended": "sitting"
+      },
+      "output": 3,
+      "explanation": "Two replacements and one insertion."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "typed": "intention",
+        "intended": "execution"
+      },
+      "output": 5,
+      "explanation": "Five edits."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "typed": "ab",
+        "intended": "ba"
+      },
+      "output": 2,
+      "explanation": "Two replacements (there is no swap edit)."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "typed": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
+        "intended": "zyxwvutsrqponmlkjihgfedcbazyxwvutsrqponmlkjihgfedcbazyxwvutsrqponmlkjihgfedcba"
+      },
+      "output": 74,
+      "explanation": "Longer words that recursion without a table cannot finish in time."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every edit recursively",
+      "intuition": "At each pair of positions, either the letters match for free or one of three edits is applied.",
+      "approach": "go(i, j): if typed is used up, insert the rest; if intended is used up, delete the rest; if letters match, go(i+1, j+1); otherwise 1 + the minimum of the three edits.",
+      "pseudocode": "go(i, j): if i == n: return m - j; if j == m: return n - i\n  if a[i] == b[j]: return go(i+1, j+1)\n  return 1 + min(go(i+1, j+1), go(i+1, j), go(i, j+1))",
+      "code": "function typoDistance(typed, intended) {\n  const go = (i, j) => {\n    if (i === typed.length) return intended.length - j;\n    if (j === intended.length) return typed.length - i;\n    if (typed[i] === intended[j]) return go(i + 1, j + 1);\n    return 1 + Math.min(go(i + 1, j + 1), go(i + 1, j), go(i, j + 1));\n  };\n  return go(0, 0);\n}",
+      "timeComplexity": "O(3^(n + m))",
+      "spaceComplexity": "O(n + m) recursion depth",
+      "commonMistakes": [
+        "Charging 1 for matching letters.",
+        "Forgetting the base cases for an exhausted word."
+      ],
+      "interviewExplanation": "The recursion states the recurrence exactly, but it revisits the same (i, j) pairs exponentially often, so it only works for short words.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "horse vs ros: h ≠ r. The replace branch compares orse with os."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "o = o is free. rse vs s: deleting r, then e, reaches s = s, so the total is 1 + 2 = 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Two-row dynamic programming",
+      "intuition": "The answer for prefixes (i, j) depends only on (i-1, j-1), (i-1, j) and (i, j-1).",
+      "approach": "previous holds row i-1: initially [0, 1, ..., m]. For each i, current[0] = i; for each j, use the match rule or 1 + the minimum of the three neighbors. Swap rows. Return previous[m].",
+      "pseudocode": "prev = [0..m]\nfor i in 1..n: cur[0] = i\n  for j in 1..m: cur[j] = a[i-1] == b[j-1] ? prev[j-1] : 1 + min(prev[j-1], prev[j], cur[j-1])\n  prev = cur\nreturn prev[m]",
+      "code": "function typoDistance(typed, intended) {\n  let previous = Array.from({ length: intended.length + 1 }, (_, j) => j);\n  for (let i = 1; i <= typed.length; i++) {\n    const current = [i];\n    for (let j = 1; j <= intended.length; j++) {\n      current[j] = typed[i - 1] === intended[j - 1]\n        ? previous[j - 1]\n        : 1 + Math.min(previous[j - 1], previous[j], current[j - 1]);\n    }\n    previous = current;\n  }\n  return previous[intended.length];\n}",
+      "timeComplexity": "O(n × m)",
+      "spaceComplexity": "O(m)",
+      "commonMistakes": [
+        "Initializing row 0 or column 0 to zeros instead of 0..m and i.",
+        "Mixing up which neighbor means insertion and which means deletion; both cost 1, but indexing errors read the wrong cell."
+      ],
+      "interviewExplanation": "This is the Levenshtein recurrence. dist[i][j] covers the first i and j letters, matching letters inherit the diagonal, and otherwise I take 1 plus the best of replace (diagonal), delete (above) and insert (left). The borders are pure insertions or deletions. Each row only needs the previous one, so it's O(n·m) time and O(m) space. Keeping the full table would let me reconstruct the edits.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Row 0 for 'ros': [0,1,2,3]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Row 'h': [1,1,2,3]. Row 'o': [2,2,1,2]. Row 'r': [3,2,2,2]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Row 's': [4,3,3,2]. Row 'e': [5,4,4,3]. The answer is 3."
+        }
+      ]
+    }
+  ]
+}

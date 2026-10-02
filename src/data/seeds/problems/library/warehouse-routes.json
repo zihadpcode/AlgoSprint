@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "slug": "warehouse-routes",
+  "title": "Warehouse Routes",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "two-dimensional-dp",
+  "statement": "A floor robot starts at the top-left cell of a warehouse grid and must reach the bottom-right cell, moving only one cell right or one cell down at a time. grid is a list of equal-length rows where '.' is open floor and '#' is a shelf the robot cannot enter. Count the different routes, modulo 1000000007. If the start or the destination is a shelf, there are no routes.",
+  "constraints": [
+    "1 <= grid.length <= 100",
+    "1 <= grid[i].length <= 100, all rows have equal length",
+    "grid contains only '.' and '#'"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "arrays"
+  ],
+  "tags": [
+    "grid",
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "grid": [
+          "...",
+          ".#.",
+          "..."
+        ]
+      },
+      "output": 2,
+      "explanation": "The shelf in the middle leaves two routes: around the top-right or around the bottom-left."
+    },
+    {
+      "position": 2,
+      "input": {
+        "grid": [
+          "..",
+          ".."
+        ]
+      },
+      "output": 2,
+      "explanation": "Right then down, or down then right."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Every route into a cell arrives either from the cell above or from the cell to the left."
+    },
+    {
+      "position": 2,
+      "content": "So routes(r, c) = routes(r - 1, c) + routes(r, c - 1) for an open cell, and 0 for a shelf."
+    },
+    {
+      "position": 3,
+      "content": "Exploring every route one by one is exponential; count them instead."
+    },
+    {
+      "position": 4,
+      "content": "Fill a table row by row so both neighbors are ready when you need them."
+    },
+    {
+      "position": 5,
+      "content": "One row of counts is enough: ways[c] still holds the value from the row above, and ways[c - 1] already holds this row's left neighbor. Apply the modulo after each addition."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "warehouseRoutes",
+      "code": "function warehouseRoutes(grid) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "...",
+          ".#.",
+          "..."
+        ]
+      },
+      "output": 2,
+      "explanation": "The shelf in the middle leaves two routes: around the top-right or around the bottom-left."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "..",
+          ".."
+        ]
+      },
+      "output": 2,
+      "explanation": "Right then down, or down then right."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "."
+        ]
+      },
+      "output": 1,
+      "explanation": "Start and destination are the same open cell: one route."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "#"
+        ]
+      },
+      "output": 0,
+      "explanation": "A blocked start allows no routes."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "..#",
+          "...",
+          "#.."
+        ]
+      },
+      "output": 4,
+      "explanation": "Shelves in the corners still leave some routes."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          ".#",
+          "#."
+        ]
+      },
+      "output": 0,
+      "explanation": "Both paths out of the start are blocked."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "....",
+          "....",
+          "...#"
+        ]
+      },
+      "output": 0,
+      "explanation": "A blocked destination allows no routes."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          ".........."
+        ]
+      },
+      "output": 48620,
+      "explanation": "An open 10 × 10 grid has C(18, 9) = 48620 routes."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "....................................................................................................",
+          "...................................................................................................."
+        ]
+      },
+      "output": 477048118,
+      "explanation": "A wide open grid where the count must be taken modulo 1000000007."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Walk every route recursively",
+      "intuition": "From each cell, the routes to the destination are the routes going right plus the routes going down.",
+      "approach": "walk(r, c) returns 0 off the grid or on a shelf, 1 at the destination, and otherwise walk(r + 1, c) + walk(r, c + 1).",
+      "pseudocode": "walk(r, c): if outside or shelf: 0; if destination: 1; return walk(r+1, c) + walk(r, c+1)",
+      "code": "function warehouseRoutes(grid) {\n  const MOD = 1000000007;\n  const rows = grid.length, cols = grid[0].length;\n  const walk = (r, c) => {\n    if (r >= rows || c >= cols || grid[r][c] === '#') return 0;\n    if (r === rows - 1 && c === cols - 1) return 1;\n    return (walk(r + 1, c) + walk(r, c + 1)) % MOD;\n  };\n  return walk(0, 0);\n}",
+      "timeComplexity": "Exponential, O(2^(rows + cols))",
+      "spaceComplexity": "O(rows + cols) recursion depth",
+      "commonMistakes": [
+        "Forgetting to check whether the start itself is a shelf.",
+        "Counting the destination cell twice by also recursing out of it."
+      ],
+      "interviewExplanation": "Recursion mirrors the definition, but the same cell is reached by many routes and recounted every time, so the running time is exponential.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "From (0,0) in ['...','.#.','...'], going right leads only around the top-right, which is one route."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Going down leads only around the bottom-left, which is one route. Total 2."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Rolling one-row table",
+      "intuition": "The number of routes into a cell depends only on the cell above and the cell to the left.",
+      "approach": "ways[0] = 1 if the start is open. For each row and column: a shelf sets ways[c] = 0; otherwise ways[c] += ways[c - 1] for c > 0. ways[c] carries the value from the row above. Return the last entry.",
+      "pseudocode": "ways = [start open ? 1 : 0, 0, ...]\nfor each row: for c: if shelf: ways[c] = 0 elif c > 0: ways[c] = (ways[c] + ways[c-1]) mod M\nreturn ways[cols - 1]",
+      "code": "function warehouseRoutes(grid) {\n  const MOD = 1000000007;\n  const cols = grid[0].length;\n  const ways = new Array(cols).fill(0);\n  ways[0] = grid[0][0] === '.' ? 1 : 0;\n  for (const row of grid) {\n    for (let c = 0; c < cols; c++) {\n      if (row[c] === '#') ways[c] = 0;\n      else if (c > 0) ways[c] = (ways[c] + ways[c - 1]) % MOD;\n    }\n  }\n  return ways[cols - 1];\n}",
+      "timeComplexity": "O(rows × cols)",
+      "spaceComplexity": "O(cols)",
+      "commonMistakes": [
+        "Resetting ways at the start of each row, which loses the 'from above' contribution.",
+        "Not zeroing shelf cells, which lets routes pass through them."
+      ],
+      "interviewExplanation": "Routes into a cell come from above or from the left, so I count with a table. I keep a single row. Before an update, ways[c] is the value from the row above, and ways[c - 1] is already this row's left neighbor. Shelves reset to zero. That's O(rows × cols) time and O(cols) space, taking the modulo as I go.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Row 0 '...': ways = [1,1,1]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Row 1 '.#.': ways[0] stays 1, the shelf gives 0, ways[2] = 1 + 0 = 1, so ways = [1,0,1]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Row 2 '...': ways = [1,1,2]. The answer is 2."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,453 @@
+{
+  "schemaVersion": 1,
+  "slug": "nearest-beacons",
+  "title": "Nearest Beacons",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "top-k",
+  "statement": "A rescue drone at the origin (0, 0) can check k distress beacons before its battery runs low. Each beacon is [x, y]. Return the k beacons closest to the origin by straight-line distance, ordered from closest to farthest. Break distance ties by smaller x, then by smaller y. Beacons may share a position; each one counts separately.",
+  "constraints": [
+    "1 <= beacons.length <= 10000",
+    "-10000 <= x, y <= 10000",
+    "1 <= k <= beacons.length"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "heaps",
+    "sorting",
+    "math"
+  ],
+  "tags": [
+    "priority-queue",
+    "sorting"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "beacons": [
+          [
+            3,
+            3
+          ],
+          [
+            5,
+            -1
+          ],
+          [
+            -2,
+            4
+          ]
+        ],
+        "k": 2
+      },
+      "output": [
+        [
+          3,
+          3
+        ],
+        [
+          -2,
+          4
+        ]
+      ],
+      "explanation": "Squared distances are 18, 26 and 20, so [3, 3] then [-2, 4]."
+    },
+    {
+      "position": 2,
+      "input": {
+        "beacons": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "k": 3
+      },
+      "output": [
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "explanation": "All are at distance 1; ties go by x, then y: [-1, 0], [0, -1], [0, 1]."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Compare squared distances x² + y² to avoid square roots."
+    },
+    {
+      "position": 2,
+      "content": "Sorting all beacons and taking the first k works in n log n."
+    },
+    {
+      "position": 3,
+      "content": "If k is much smaller than n, you only need to remember the best k seen so far."
+    },
+    {
+      "position": 4,
+      "content": "Keep a max-heap of size k ordered by (distance, x, y). When a new beacon beats the heap's worst, replace the worst."
+    },
+    {
+      "position": 5,
+      "content": "The heap holds the right k beacons but in heap order, so sort those k with the same comparator before returning."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "nearestBeacons",
+      "code": "function nearestBeacons(beacons, k) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "beacons": [
+          [
+            3,
+            3
+          ],
+          [
+            5,
+            -1
+          ],
+          [
+            -2,
+            4
+          ]
+        ],
+        "k": 2
+      },
+      "output": [
+        [
+          3,
+          3
+        ],
+        [
+          -2,
+          4
+        ]
+      ],
+      "explanation": "Squared distances are 18, 26 and 20, so [3, 3] then [-2, 4]."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "beacons": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "k": 3
+      },
+      "output": [
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "explanation": "All are at distance 1; ties go by x, then y: [-1, 0], [0, -1], [0, 1]."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "beacons": [
+          [
+            7,
+            7
+          ]
+        ],
+        "k": 1
+      },
+      "output": [
+        [
+          7,
+          7
+        ]
+      ],
+      "explanation": "A single beacon."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "beacons": [
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "k": 2
+      },
+      "output": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "explanation": "Duplicates are kept: [1, 1] then one [2, 2]."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "beacons": [
+          [
+            0,
+            0
+          ],
+          [
+            10000,
+            10000
+          ],
+          [
+            -10000,
+            -10000
+          ]
+        ],
+        "k": 3
+      },
+      "output": [
+        [
+          0,
+          0
+        ],
+        [
+          -10000,
+          -10000
+        ],
+        [
+          10000,
+          10000
+        ]
+      ],
+      "explanation": "k equal to the count returns everything in order."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "beacons": [
+          [
+            3,
+            4
+          ],
+          [
+            -3,
+            -4
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            5,
+            0
+          ]
+        ],
+        "k": 4
+      },
+      "output": [
+        [
+          -3,
+          -4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          3
+        ]
+      ],
+      "explanation": "All five are at distance 5; the tie-break decides which four."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "beacons": [
+          [
+            1,
+            9
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            -3,
+            1
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            4,
+            -4
+          ]
+        ],
+        "k": 3
+      },
+      "output": [
+        [
+          0,
+          -2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          -3,
+          1
+        ]
+      ],
+      "explanation": "Squared distances 82, 8, 10, 36, 4 and 32: the closest three are [0, -2], [2, 2] and [-3, 1]."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Sort everything",
+      "intuition": "The required order is a total order, so sort all beacons by it and keep the first k.",
+      "approach": "Copy the beacons, sort by squared distance, then x, then y, and slice the first k.",
+      "pseudocode": "sort beacons by (x² + y², x, y); return first k",
+      "code": "function nearestBeacons(beacons, k) {\n  const key = (p) => p[0] * p[0] + p[1] * p[1];\n  return beacons.map(([x, y]) => [x, y])\n    .sort((a, b) => key(a) - key(b) || a[0] - b[0] || a[1] - b[1])\n    .slice(0, k);\n}",
+      "timeComplexity": "O(n log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Sorting by Math.hypot and comparing floating-point values for ties.",
+        "Forgetting the tie-breakers, which leaves the order engine-dependent."
+      ],
+      "interviewExplanation": "Sorting by the full key is simple and exact with integer squared distances. It costs n log n even when k is tiny.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Keys: [3,3] → 18, [5,-1] → 26, [-2,4] → 20."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Sorted: [3,3], [-2,4], [5,-1]. Keep the first two."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Bounded max-heap",
+      "intuition": "Only the k best candidates matter; a max-heap exposes the worst of them for quick replacement.",
+      "approach": "Use a comparator on (squared distance, x, y). Push beacons until the heap has k; afterwards, if a beacon is better than the heap's top (its worst), replace the top and sift down. Finally sort the k survivors with the comparator.",
+      "pseudocode": "for b in beacons: if size < k: push b elif b < top: replace top with b\nreturn sort(heap)",
+      "code": "function nearestBeacons(beacons, k) {\n  const cmp = (a, b) => (a[0] * a[0] + a[1] * a[1]) - (b[0] * b[0] + b[1] * b[1]) || a[0] - b[0] || a[1] - b[1];\n  const heap = [];\n  const up = (i) => {\n    while (i > 0) {\n      const p = (i - 1) >> 1;\n      if (cmp(heap[p], heap[i]) >= 0) break;\n      [heap[p], heap[i]] = [heap[i], heap[p]];\n      i = p;\n    }\n  };\n  const down = (i) => {\n    for (;;) {\n      const l = 2 * i + 1, r = l + 1;\n      let top = i;\n      if (l < heap.length && cmp(heap[l], heap[top]) > 0) top = l;\n      if (r < heap.length && cmp(heap[r], heap[top]) > 0) top = r;\n      if (top === i) return;\n      [heap[top], heap[i]] = [heap[i], heap[top]];\n      i = top;\n    }\n  };\n  for (const [x, y] of beacons) {\n    if (heap.length < k) { heap.push([x, y]); up(heap.length - 1); }\n    else if (cmp([x, y], heap[0]) < 0) { heap[0] = [x, y]; down(0); }\n  }\n  return heap.sort(cmp);\n}",
+      "timeComplexity": "O(n log k + k log k)",
+      "spaceComplexity": "O(k)",
+      "commonMistakes": [
+        "Using a min-heap of all n beacons and popping k times; correct, but O(n + k log n) memory-heavy.",
+        "Replacing the top when the new beacon ties it, which can swap in a beacon that loses the tie-break."
+      ],
+      "interviewExplanation": "I keep the k best beacons in a max-heap keyed by (distance², x, y), so the root is the worst of the current best. Each new beacon either loses to the root or replaces it and sifts down. That's O(n log k) with O(k) memory, then I sort the k survivors. Quickselect would give average O(n), but the heap also works on a stream.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "k = 2. Push [3,3] (18) and [5,-1] (26); the root is [5,-1]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "[-2,4] (20) beats 26, so it replaces the root, and the heap is {[3,3], [-2,4]}."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Sorted: [3,3], [-2,4]."
+        }
+      ]
+    }
+  ]
+}

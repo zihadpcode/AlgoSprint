@@ -1,0 +1,292 @@
+{
+  "schemaVersion": 1,
+  "slug": "signal-codes",
+  "title": "Signal Codes",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "bfs",
+  "statement": "A field radio can only switch between call codes that differ in exactly one letter position, and every code after the starting one must be on the approved list codes. Given start, goal and codes, return the number of codes in the shortest switching sequence from start to goal, counting both start and goal. Return 0 if goal cannot be reached. start does not need to be on the list, but goal does.",
+  "constraints": [
+    "1 <= start.length <= 10",
+    "start, goal and every code have the same length and contain only a-z",
+    "start != goal",
+    "0 <= codes.length <= 1000, and codes are distinct"
+  ],
+  "estimatedMinutes": 45,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "bfs",
+    "graphs",
+    "strings"
+  ],
+  "tags": [
+    "graph-traversal",
+    "hashing"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "start": "hit",
+        "goal": "cog",
+        "codes": [
+          "hot",
+          "dot",
+          "dog",
+          "lot",
+          "log",
+          "cog"
+        ]
+      },
+      "output": 5,
+      "explanation": "hit → hot → dot → dog → cog uses 5 codes."
+    },
+    {
+      "position": 2,
+      "input": {
+        "start": "hit",
+        "goal": "cog",
+        "codes": [
+          "hot",
+          "dot",
+          "dog",
+          "lot",
+          "log"
+        ]
+      },
+      "output": 0,
+      "explanation": "cog is not approved, so it cannot be reached."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Treat each code as a node, with an edge between codes that differ in exactly one position."
+    },
+    {
+      "position": 2,
+      "content": "The shortest sequence is a shortest path in an unweighted graph."
+    },
+    {
+      "position": 3,
+      "content": "Breadth-first search from start finds it layer by layer; the layer where goal appears gives the length."
+    },
+    {
+      "position": 4,
+      "content": "To find neighbors quickly, change each position to each of the 26 letters and check a set of unused codes, instead of comparing against every code."
+    },
+    {
+      "position": 5,
+      "content": "Remove codes from the set as soon as they are enqueued so they are never visited twice. Return 0 if goal is not in the set at all."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "signalCodes",
+      "code": "function signalCodes(start, goal, codes) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "start": "hit",
+        "goal": "cog",
+        "codes": [
+          "hot",
+          "dot",
+          "dog",
+          "lot",
+          "log",
+          "cog"
+        ]
+      },
+      "output": 5,
+      "explanation": "hit → hot → dot → dog → cog uses 5 codes."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "start": "hit",
+        "goal": "cog",
+        "codes": [
+          "hot",
+          "dot",
+          "dog",
+          "lot",
+          "log"
+        ]
+      },
+      "output": 0,
+      "explanation": "cog is not approved, so it cannot be reached."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "start": "a",
+        "goal": "c",
+        "codes": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "output": 2,
+      "explanation": "Single letters: a → c directly, 2 codes."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "start": "ab",
+        "goal": "cd",
+        "codes": [
+          "ad",
+          "cd"
+        ]
+      },
+      "output": 3,
+      "explanation": "ab → ad → cd."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "start": "ab",
+        "goal": "cd",
+        "codes": [
+          "cd"
+        ]
+      },
+      "output": 0,
+      "explanation": "ab and cd differ in two positions, with no code in between."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "start": "cold",
+        "goal": "warm",
+        "codes": [
+          "cord",
+          "card",
+          "ward",
+          "warm",
+          "word",
+          "worm",
+          "wore",
+          "core"
+        ]
+      },
+      "output": 5,
+      "explanation": "cold → cord → card → ward → warm is one of the shortest sequences."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "start": "aaa",
+        "goal": "bbb",
+        "codes": [
+          "aab",
+          "abb",
+          "bbb",
+          "baa",
+          "bba"
+        ]
+      },
+      "output": 4,
+      "explanation": "Any path needs three switches: 4 codes."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "start": "lead",
+        "goal": "gold",
+        "codes": [
+          "load",
+          "goad",
+          "gold",
+          "lend",
+          "bead"
+        ]
+      },
+      "output": 4,
+      "explanation": "lead → load → goad → gold."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Explore every simple path",
+      "intuition": "Try every sequence of approved codes without repeats and keep the shortest that reaches goal.",
+      "approach": "Depth-first search from start. At each code, recurse into every unused approved code that differs by one letter, tracking the length; record the minimum when goal is reached.",
+      "pseudocode": "dfs(word, used, length): if word == goal: best = min(best, length); return\n  for code not used and differs by one: dfs(code, used + code, length + 1)\nreturn best or 0",
+      "code": "function signalCodes(start, goal, codes) {\n  const oneApart = (a, b) => { let d = 0; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) d++; return d === 1; };\n  let best = 0;\n  const used = new Set([start]);\n  const visit = (word, length) => {\n    if (word === goal) { if (!best || length < best) best = length; return; }\n    for (const code of codes) {\n      if (used.has(code) || !oneApart(word, code)) continue;\n      used.add(code);\n      visit(code, length + 1);\n      used.delete(code);\n    }\n  };\n  visit(start, 1);\n  return best;\n}",
+      "timeComplexity": "Exponential in the number of codes",
+      "spaceComplexity": "O(codes) recursion and visited set",
+      "commonMistakes": [
+        "Marking codes visited globally in DFS, which can block the shortest path that reaches a code later.",
+        "Counting switches instead of codes (off by one)."
+      ],
+      "interviewExplanation": "Exhaustive DFS finds the true minimum but enumerates every simple path, which explodes combinatorially. It's here only to motivate BFS.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "From hit the only neighbor is hot. From hot: dot and lot."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Paths through dot and through lot both reach cog in 5 codes. The minimum is 5."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Breadth-first search with letter substitutions",
+      "intuition": "BFS visits codes in order of distance from start, so the first time goal appears, the path is shortest.",
+      "approach": "Put the codes in a set; return 0 if goal is missing. Remove start. Process layers: for each word, try every position and letter; any candidate in the set is a neighbor. Return the layer number + 1 when goal is found; remove and enqueue other neighbors.",
+      "pseudocode": "unused = set(codes); if goal not in unused: return 0; unused.remove(start)\nlayer = [start]; length = 1\nwhile layer: next = []\n  for w in layer: for each one-letter change c of w in unused: if c == goal: return length + 1; unused.remove(c); next.push(c)\n  layer = next; length++\nreturn 0",
+      "code": "function signalCodes(start, goal, codes) {\n  const unused = new Set(codes);\n  if (!unused.has(goal)) return 0;\n  unused.delete(start);\n  let layer = [start];\n  for (let length = 1; layer.length; length++) {\n    const next = [];\n    for (const word of layer) {\n      for (let i = 0; i < word.length; i++) {\n        for (let c = 97; c <= 122; c++) {\n          const candidate = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);\n          if (!unused.has(candidate)) continue;\n          if (candidate === goal) return length + 1;\n          unused.delete(candidate);\n          next.push(candidate);\n        }\n      }\n    }\n    layer = next;\n  }\n  return 0;\n}",
+      "timeComplexity": "O(N × L × 26) string generations, each O(L)",
+      "spaceComplexity": "O(N × L)",
+      "commonMistakes": [
+        "Comparing every pair of codes to build edges, which is O(N² L).",
+        "Removing codes only when they are dequeued, which lets the same code enter a layer many times."
+      ],
+      "interviewExplanation": "Codes are nodes and one-letter changes are edges, so this is a shortest path in an unweighted graph, which is what BFS is for. Rather than comparing all pairs, I generate each of the 26·L variants of a word and check a set. Deleting codes when I enqueue them guarantees each is processed once. Bidirectional BFS from both ends would cut the explored frontier further.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Layer 1: [hit]. Layer 2: [hot]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Layer 3: [dot, lot]. Layer 4: [dog, log]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "From dog, cog is the goal, so return 4 + 1 = 5."
+        }
+      ]
+    }
+  ]
+}

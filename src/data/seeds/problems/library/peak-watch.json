@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "slug": "peak-watch",
+  "title": "Peak Watch",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "monotonic-deque",
+  "statement": "A river gauge records one water level per hour in readings. Flood monitors watch a rolling window of the latest k hours. For every window of k consecutive readings, from the first window to the last, report the highest reading inside it. Return those maxima in order.",
+  "constraints": [
+    "1 <= k <= readings.length <= 10000",
+    "-10000 <= readings[i] <= 10000"
+  ],
+  "estimatedMinutes": 40,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "sliding-window",
+    "queue",
+    "arrays"
+  ],
+  "tags": [
+    "fixed-window",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "readings": [
+          1,
+          3,
+          -1,
+          -3,
+          5,
+          3,
+          6,
+          7
+        ],
+        "k": 3
+      },
+      "output": [
+        3,
+        3,
+        5,
+        5,
+        6,
+        7
+      ],
+      "explanation": "The six windows have maxima 3, 3, 5, 5, 6, 7."
+    },
+    {
+      "position": 2,
+      "input": {
+        "readings": [
+          4,
+          2
+        ],
+        "k": 1
+      },
+      "output": [
+        4,
+        2
+      ],
+      "explanation": "Windows of size 1 report each reading."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Taking the max of every window separately costs k per window."
+    },
+    {
+      "position": 2,
+      "content": "A reading that is followed by a higher reading can never again be a window's maximum."
+    },
+    {
+      "position": 3,
+      "content": "Keep candidate indices in a double-ended queue whose readings strictly decrease from front to back."
+    },
+    {
+      "position": 4,
+      "content": "Before adding index i, pop indices from the back whose readings are <= readings[i]. Drop the front index once it falls out of the window."
+    },
+    {
+      "position": 5,
+      "content": "Once i >= k - 1, the front of the deque is the index of the current window's maximum."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "peakWatch",
+      "code": "function peakWatch(readings, k) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "readings": [
+          1,
+          3,
+          -1,
+          -3,
+          5,
+          3,
+          6,
+          7
+        ],
+        "k": 3
+      },
+      "output": [
+        3,
+        3,
+        5,
+        5,
+        6,
+        7
+      ],
+      "explanation": "The six windows have maxima 3, 3, 5, 5, 6, 7."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "readings": [
+          4,
+          2
+        ],
+        "k": 1
+      },
+      "output": [
+        4,
+        2
+      ],
+      "explanation": "Windows of size 1 report each reading."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          9
+        ],
+        "k": 1
+      },
+      "output": [
+        9
+      ],
+      "explanation": "A single reading."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          5,
+          4,
+          3,
+          2,
+          1
+        ],
+        "k": 5
+      },
+      "output": [
+        5
+      ],
+      "explanation": "One window covering everything."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "k": 2
+      },
+      "output": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "explanation": "Rising levels: each window's max is its right end."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          5,
+          4,
+          3,
+          2,
+          1
+        ],
+        "k": 2
+      },
+      "output": [
+        5,
+        4,
+        3,
+        2
+      ],
+      "explanation": "Falling levels: each window's max is its left end."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          2,
+          2,
+          2,
+          2
+        ],
+        "k": 3
+      },
+      "output": [
+        2,
+        2
+      ],
+      "explanation": "Equal readings."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "readings": [
+          -7,
+          -8,
+          7,
+          5,
+          7,
+          1,
+          6,
+          0
+        ],
+        "k": 4
+      },
+      "output": [
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "explanation": "Repeated maxima and negative values."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Scan every window",
+      "intuition": "Compute each window's maximum directly.",
+      "approach": "For each start s from 0 to n - k, take the maximum of readings[s..s+k-1].",
+      "pseudocode": "for s in 0..n-k: out.push(max(readings[s .. s+k-1]))",
+      "code": "function peakWatch(readings, k) {\n  const result = [];\n  for (let s = 0; s + k <= readings.length; s++) {\n    let best = readings[s];\n    for (let i = s + 1; i < s + k; i++) best = Math.max(best, readings[i]);\n    result.push(best);\n  }\n  return result;\n}",
+      "timeComplexity": "O(n × k)",
+      "spaceComplexity": "O(1) beyond the output",
+      "commonMistakes": [
+        "Producing n windows instead of n - k + 1.",
+        "Starting best at 0, which fails for all-negative windows."
+      ],
+      "interviewExplanation": "Each window is scanned on its own, so the cost is O(n·k), up to 10^8 when k is around n/2.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Window [1,3,-1] → 3; [3,-1,-3] → 3; [-1,-3,5] → 5."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "[-3,5,3] → 5; [5,3,6] → 6; [3,6,7] → 7."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Monotonic deque of indices",
+      "intuition": "Older readings that are not larger than a newer one are useless; the survivors form a decreasing sequence whose front is the maximum.",
+      "approach": "Keep a deque (an array with a moving head) of indices with strictly decreasing readings. For each i: pop smaller-or-equal readings from the back, push i, advance the head if it is outside the window, and after the first full window record the reading at the head.",
+      "pseudocode": "dq = []\nfor i: while dq and r[dq.back] <= r[i]: pop back\n  push i; if dq.front <= i - k: pop front\n  if i >= k - 1: out.push(r[dq.front])",
+      "code": "function peakWatch(readings, k) {\n  const deque = [];\n  let head = 0;\n  const result = [];\n  for (let i = 0; i < readings.length; i++) {\n    while (deque.length > head && readings[deque[deque.length - 1]] <= readings[i]) deque.pop();\n    deque.push(i);\n    if (deque[head] <= i - k) head++;\n    if (i >= k - 1) result.push(readings[deque[head]]);\n  }\n  return result;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(k)",
+      "commonMistakes": [
+        "Storing values instead of indices, which makes expiry impossible to detect.",
+        "Using shift() for the front on a large array, which can make the loop quadratic; a moving head index avoids that."
+      ],
+      "interviewExplanation": "I keep a deque of indices whose readings strictly decrease. A new reading evicts everything not larger than it from the back, because those can never be a maximum again. The front leaves when it falls out of the window. The front is always the current maximum, and every index enters and leaves once, so it's O(n). I use a head pointer instead of shift() to keep pops constant time.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "i=0..2: the deque becomes [1(3), 2(-1)]; record 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "i=3 adds -3: [1,2,3]; record 3. i=4 (5) evicts everything: [4]; record 5."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "i=5 → [4,5], record 5; i=6 (6) → [6], record 6; i=7 (7) → [7], record 7."
+        }
+      ]
+    }
+  ]
+}

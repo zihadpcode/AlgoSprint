@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "slug": "fare-combinations",
+  "title": "Fare Combinations",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "unbounded-knapsack",
+  "statement": "A ferry accepts tickets of the distinct face values in coins, and a traveler may use any number of tickets of each value. Count the different combinations of tickets whose values add up to exactly amount. Combinations are unordered: two of value 1 plus one of value 2 is the same combination no matter which ticket is handed over first. Return the count modulo 1000000007. There is exactly one way to pay an amount of 0: use no tickets.",
+  "constraints": [
+    "1 <= coins.length <= 50",
+    "1 <= coins[i] <= 5000, values are distinct",
+    "0 <= amount <= 5000"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "arrays"
+  ],
+  "tags": [
+    "memoization",
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "coins": [
+          1,
+          2,
+          5
+        ],
+        "amount": 5
+      },
+      "output": 4,
+      "explanation": "5; 2+2+1; 2+1+1+1; 1+1+1+1+1 — four combinations."
+    },
+    {
+      "position": 2,
+      "input": {
+        "coins": [
+          3
+        ],
+        "amount": 7
+      },
+      "output": 0,
+      "explanation": "7 is not a multiple of 3, so there are no combinations."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Counting ordered sequences would count 1+2 and 2+1 separately; you want unordered combinations."
+    },
+    {
+      "position": 2,
+      "content": "Decide ticket values one at a time: how many tickets of the first value, then of the second, and so on."
+    },
+    {
+      "position": 3,
+      "content": "ways[t] = the number of combinations, using the values considered so far, that add up to t."
+    },
+    {
+      "position": 4,
+      "content": "When a new value c is allowed, every total t gains the combinations for t - c with at least one more c: ways[t] += ways[t - c]."
+    },
+    {
+      "position": 5,
+      "content": "Loop over coins in the outer loop and totals from c upward in the inner loop. The upward order is what allows unlimited tickets. Take the modulo after each addition."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "fareCombinations",
+      "code": "function fareCombinations(coins, amount) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "coins": [
+          1,
+          2,
+          5
+        ],
+        "amount": 5
+      },
+      "output": 4,
+      "explanation": "5; 2+2+1; 2+1+1+1; 1+1+1+1+1 — four combinations."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "coins": [
+          3
+        ],
+        "amount": 7
+      },
+      "output": 0,
+      "explanation": "7 is not a multiple of 3, so there are no combinations."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "coins": [
+          4,
+          9
+        ],
+        "amount": 0
+      },
+      "output": 1,
+      "explanation": "Paying nothing is one combination."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "coins": [
+          7
+        ],
+        "amount": 7
+      },
+      "output": 1,
+      "explanation": "A single ticket."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "coins": [
+          2,
+          3
+        ],
+        "amount": 12
+      },
+      "output": 3,
+      "explanation": "Three combinations: six 2s, three 2s and two 3s, or four 3s."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "coins": [
+          1,
+          5,
+          10,
+          25
+        ],
+        "amount": 100
+      },
+      "output": 242,
+      "explanation": "A larger amount checks the counting."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "coins": [
+          1,
+          2
+        ],
+        "amount": 5000
+      },
+      "output": 2501,
+      "explanation": "2501 combinations: choose how many 2s, from 0 to 2500."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "coins": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "amount": 3000
+      },
+      "output": 55119829,
+      "explanation": "The count is large and must be reported modulo 1000000007."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Choose a count for each value recursively",
+      "intuition": "A combination is fixed by how many tickets of each value it uses, so enumerate those counts value by value.",
+      "approach": "count(i, remaining) tries using 0, 1, 2, ... tickets of coins[i] and recurses to the next value with what remains. Reaching remaining 0 is one combination.",
+      "pseudocode": "count(i, r): if r == 0: return 1; if i == len: return 0\n  return sum over k >= 0 with k*coins[i] <= r of count(i + 1, r - k*coins[i])",
+      "code": "function fareCombinations(coins, amount) {\n  const MOD = 1000000007;\n  const count = (i, remaining) => {\n    if (remaining === 0) return 1;\n    if (i === coins.length) return 0;\n    let total = 0;\n    for (let k = 0; k * coins[i] <= remaining; k++) total = (total + count(i + 1, remaining - k * coins[i])) % MOD;\n    return total;\n  };\n  return count(0, amount);\n}",
+      "timeComplexity": "Exponential in the worst case",
+      "spaceComplexity": "O(number of values) recursion depth",
+      "commonMistakes": [
+        "Recursing over 'which ticket next' without an index, which counts orderings instead of combinations.",
+        "Forgetting the modulo until the end, which overflows exact integer range."
+      ],
+      "interviewExplanation": "Fixing the count of each value in turn guarantees each combination is produced once. Without memoization the same (index, remaining) state is solved over and over, so the running time explodes.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [1,2,5] and 5, choose 0 or 1 five. One five leaves 0, which is one combination."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Zero fives: the 2s can be 0, 1 or 2, and the 1s fill the rest. That's three more combinations, four in total."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "One-dimensional counting table",
+      "intuition": "Processing values one at a time and totals in increasing order counts each combination once, with tickets of the current value reusable.",
+      "approach": "ways[0] = 1. For each coin c, for t from c to amount, add ways[t - c] to ways[t] modulo 1000000007. Return ways[amount].",
+      "pseudocode": "ways = [1, 0, ..., 0]\nfor c in coins: for t in c..amount: ways[t] = (ways[t] + ways[t - c]) mod M\nreturn ways[amount]",
+      "code": "function fareCombinations(coins, amount) {\n  const MOD = 1000000007;\n  const ways = new Array(amount + 1).fill(0);\n  ways[0] = 1;\n  for (const coin of coins)\n    for (let t = coin; t <= amount; t++) ways[t] = (ways[t] + ways[t - coin]) % MOD;\n  return ways[amount];\n}",
+      "timeComplexity": "O(values × amount)",
+      "spaceComplexity": "O(amount)",
+      "commonMistakes": [
+        "Swapping the loops (totals outside, coins inside), which counts ordered sequences.",
+        "Iterating totals downward, which turns this into 'each value at most once'."
+      ],
+      "interviewExplanation": "I build the table one value at a time. ways[t] counts the combinations of the values seen so far that sum to t. Adding value c means ways[t] += ways[t - c], and walking t upward lets the same value be reused. Coins in the outer loop is what makes the combinations unordered. That's O(values × amount) time with a single array.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Start: ways = [1,0,0,0,0,0]. With 1s: every total has 1 way."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "With 2s: ways = [1,1,2,2,3,3]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "With 5s: ways[5] = 3 + ways[0] = 4."
+        }
+      ]
+    }
+  ]
+}
