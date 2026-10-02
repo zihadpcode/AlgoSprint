@@ -65,4 +65,18 @@ export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> 
   "signal-codes": { entryPoint: "signalCodes", keys: ["start", "goal", "codes"] },
   "billboard-space": { entryPoint: "billboardSpace", keys: ["heights"] },
   "pace-median": { entryPoint: "paceMedian", keys: ["paces"] },
+  // Library expansion batch 3.
+  "signal-flips": { entryPoint: "signalFlips", keys: ["a", "b"] },
+  "roster-merge": { entryPoint: "rosterMerge", keys: ["first", "second"] },
+  "tower-tiles": { entryPoint: "towerTiles", keys: ["length"] },
+  "badge-subsets": { entryPoint: "badgeSubsets", keys: ["badges"] },
+  "grid-turn": { entryPoint: "gridTurn", keys: ["matrix"] },
+  "charging-loop": { entryPoint: "chargingLoop", keys: ["gain", "cost"] },
+  "word-groups": { entryPoint: "wordGroups", keys: ["words"] },
+  "lane-merge": { entryPoint: "laneMerge", keys: ["lanes"] },
+  "ridge-trails": { entryPoint: "ridgeTrails", keys: ["grid"] },
+  "cipher-window": { entryPoint: "cipherWindow", keys: ["text", "pattern"] },
+  "pattern-gate": { entryPoint: "patternGate", keys: ["text", "pattern"] },
+  "fragile-links": { entryPoint: "fragileLinks", keys: ["hubs", "links"] },
+  "glyph-order": { entryPoint: "glyphOrder", keys: ["words"] },
 };

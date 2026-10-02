@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "slug": "roster-merge",
+  "title": "Roster Merge",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "two-pointers",
+  "statement": "Two coaches each keep a roster of player rankings sorted from lowest to highest, and rankings may repeat. Merge first and second into one roster that is still sorted from lowest to highest and keeps every entry from both lists.",
+  "constraints": [
+    "0 <= first.length, second.length <= 10000",
+    "-1000000 <= value <= 1000000",
+    "Both lists are sorted in non-decreasing order"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "two-pointers",
+    "sorting",
+    "arrays"
+  ],
+  "tags": [
+    "pointer-pair",
+    "sorting"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "first": [
+          1,
+          4,
+          7
+        ],
+        "second": [
+          2,
+          3,
+          9
+        ]
+      },
+      "output": [
+        1,
+        2,
+        3,
+        4,
+        7,
+        9
+      ],
+      "explanation": "Interleave by always taking the smaller front value."
+    },
+    {
+      "position": 2,
+      "input": {
+        "first": [],
+        "second": [
+          5,
+          5
+        ]
+      },
+      "output": [
+        5,
+        5
+      ],
+      "explanation": "An empty roster contributes nothing."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Concatenating and sorting works but ignores that both lists are already sorted."
+    },
+    {
+      "position": 2,
+      "content": "The smallest remaining value is always at the front of one of the two lists."
+    },
+    {
+      "position": 3,
+      "content": "Keep one index into each list."
+    },
+    {
+      "position": 4,
+      "content": "Repeatedly append the smaller of the two front values and advance that index."
+    },
+    {
+      "position": 5,
+      "content": "When one list runs out, append the rest of the other."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "rosterMerge",
+      "code": "function rosterMerge(first, second) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "first": [
+          1,
+          4,
+          7
+        ],
+        "second": [
+          2,
+          3,
+          9
+        ]
+      },
+      "output": [
+        1,
+        2,
+        3,
+        4,
+        7,
+        9
+      ],
+      "explanation": "Interleave by always taking the smaller front value."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "first": [],
+        "second": [
+          5,
+          5
+        ]
+      },
+      "output": [
+        5,
+        5
+      ],
+      "explanation": "An empty roster contributes nothing."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": [],
+        "second": []
+      },
+      "output": [],
+      "explanation": "Both empty."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": [
+          1,
+          2,
+          3
+        ],
+        "second": [
+          4,
+          5
+        ]
+      },
+      "output": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "explanation": "One list entirely before the other."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": [
+          6,
+          8
+        ],
+        "second": [
+          1,
+          2,
+          3
+        ]
+      },
+      "output": [
+        1,
+        2,
+        3,
+        6,
+        8
+      ],
+      "explanation": "One list entirely after the other."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": [
+          2,
+          2,
+          2
+        ],
+        "second": [
+          2,
+          2
+        ]
+      },
+      "output": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "explanation": "All equal values are kept."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": [
+          -5,
+          0,
+          10
+        ],
+        "second": [
+          -7,
+          -5,
+          11
+        ]
+      },
+      "output": [
+        -7,
+        -5,
+        -5,
+        0,
+        10,
+        11
+      ],
+      "explanation": "Negative values and a duplicate across lists."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Concatenate and sort",
+      "intuition": "A sorted combination of both lists is exactly what a sort produces.",
+      "approach": "Spread both lists into one array and sort numerically.",
+      "pseudocode": "return sort(first + second)",
+      "code": "function rosterMerge(first, second) {\n  return [...first, ...second].sort((a, b) => a - b);\n}",
+      "timeComplexity": "O((n + m) log(n + m))",
+      "spaceComplexity": "O(n + m)",
+      "commonMistakes": [
+        "Calling sort() without a comparator, which sorts numbers as strings."
+      ],
+      "interviewExplanation": "Sorting the concatenation is correct but discards the existing order and pays for a full sort.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Concatenate: [1,4,7,2,3,9]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Sort numerically: [1,2,3,4,7,9]."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Two-pointer merge",
+      "intuition": "Each step only needs to compare the two front values.",
+      "approach": "Advance i and j, pushing the smaller front value (taking from first on ties). Then append whatever remains.",
+      "pseudocode": "i = j = 0; while i < n and j < m: push(first[i] <= second[j] ? first[i++] : second[j++])\nappend first[i:], second[j:]",
+      "code": "function rosterMerge(first, second) {\n  const merged = [];\n  let i = 0, j = 0;\n  while (i < first.length && j < second.length) merged.push(first[i] <= second[j] ? first[i++] : second[j++]);\n  while (i < first.length) merged.push(first[i++]);\n  while (j < second.length) merged.push(second[j++]);\n  return merged;\n}",
+      "timeComplexity": "O(n + m)",
+      "spaceComplexity": "O(n + m) for the output",
+      "commonMistakes": [
+        "Forgetting the two tail loops, which drops leftover values.",
+        "Using < instead of <= when stability matters (it doesn't change values here, but it does for records)."
+      ],
+      "interviewExplanation": "This is the merge step of merge sort. Two indices, always take the smaller front, then copy the leftovers. It's linear, and taking from the first list on ties keeps it stable.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Compare 1 and 2 → 1; 4 and 2 → 2; 4 and 3 → 3; 4 and 9 → 4; 7 and 9 → 7."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "first is used up, so append 9: [1,2,3,4,7,9]."
+        }
+      ]
+    }
+  ]
+}

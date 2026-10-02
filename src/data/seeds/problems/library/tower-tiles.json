@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "slug": "tower-tiles",
+  "title": "Tower Tiles",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "one-dimensional-dp",
+  "statement": "A clock tower's facade is a strip two tiles tall and length tiles wide. It is covered with identical 1 × 2 tiles, each placed either upright (covering a column) or flat (covering two side-by-side cells in one row), with no gaps or overlaps. Return the number of different tilings modulo 1000000007.",
+  "constraints": [
+    "1 <= length <= 10000"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "recursion"
+  ],
+  "tags": [
+    "memoization",
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "length": 3
+      },
+      "output": 3,
+      "explanation": "Three upright tiles, or one upright tile plus a stacked pair of flat tiles on either side: 3 tilings."
+    },
+    {
+      "position": 2,
+      "input": {
+        "length": 1
+      },
+      "output": 1,
+      "explanation": "A single upright tile."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Look at the leftmost column of a tiling."
+    },
+    {
+      "position": 2,
+      "content": "Either one upright tile covers it, or two flat tiles stacked on top of each other cover the first two columns."
+    },
+    {
+      "position": 3,
+      "content": "So the tilings of length n split into those of length n - 1 and those of length n - 2."
+    },
+    {
+      "position": 4,
+      "content": "ways(n) = ways(n - 1) + ways(n - 2), with ways(0) = ways(1) = 1."
+    },
+    {
+      "position": 5,
+      "content": "Compute it bottom-up with two variables and apply the modulo after each addition; plain recursion repeats work exponentially."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "towerTiles",
+      "code": "function towerTiles(length) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "length": 3
+      },
+      "output": 3,
+      "explanation": "Three upright tiles, or one upright tile plus a stacked pair of flat tiles on either side: 3 tilings."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "length": 1
+      },
+      "output": 1,
+      "explanation": "A single upright tile."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "length": 2
+      },
+      "output": 2,
+      "explanation": "Two upright tiles, or two flat tiles stacked."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "length": 4
+      },
+      "output": 5,
+      "explanation": "5 tilings."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "length": 10
+      },
+      "output": 89,
+      "explanation": "89 tilings."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "length": 45
+      },
+      "output": 836311896,
+      "explanation": "The true count (1836311903) exceeds the modulus, so the answer is reduced modulo 1000000007."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "length": 10000
+      },
+      "output": 24223428,
+      "explanation": "A long strip that requires an iterative solution and the modulus."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Plain recursion",
+      "intuition": "The first column is covered either by one upright tile or by a stacked pair of flat tiles.",
+      "approach": "ways(n) returns 1 for n <= 1, otherwise ways(n - 1) + ways(n - 2) modulo 1000000007.",
+      "pseudocode": "ways(n): if n <= 1: return 1; return (ways(n-1) + ways(n-2)) mod M",
+      "code": "function towerTiles(length) {\n  const ways = (n) => (n <= 1 ? 1 : (ways(n - 1) + ways(n - 2)) % 1000000007);\n  return ways(length);\n}",
+      "timeComplexity": "O(φ^n), exponential",
+      "spaceComplexity": "O(n) recursion depth",
+      "commonMistakes": [
+        "Using ways(0) = 0, which makes every count wrong.",
+        "Expecting this to finish for large lengths; it recomputes the same subproblems repeatedly."
+      ],
+      "interviewExplanation": "The recurrence is right, but without memoization the call tree grows like the Fibonacci numbers themselves.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "ways(3) = ways(2) + ways(1)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "ways(2) = ways(1) + ways(0) = 2, so ways(3) = 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Iterative two-variable recurrence",
+      "intuition": "Each answer depends only on the previous two.",
+      "approach": "Start a = ways(0) = 1 and b = ways(1) = 1, then roll forward length - 1 times with (a, b) = (b, (a + b) mod M).",
+      "pseudocode": "a = 1; b = 1; repeat length - 1 times: (a, b) = (b, (a + b) mod M); return b",
+      "code": "function towerTiles(length) {\n  const MOD = 1000000007;\n  let a = 1, b = 1;\n  for (let i = 2; i <= length; i++) {\n    const next = (a + b) % MOD;\n    a = b;\n    b = next;\n  }\n  return b;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Applying the modulo only at the end, after values have exceeded the safe integer range.",
+        "Off-by-one in the loop bounds, which returns ways(n ± 1)."
+      ],
+      "interviewExplanation": "Splitting on the leftmost column gives ways(n) = ways(n-1) + ways(n-2), the Fibonacci recurrence. I roll it forward with two variables and reduce modulo 1e9+7 each step. That's O(n) time and O(1) space. Matrix exponentiation would give O(log n) if the length were huge.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "(a, b) = (1, 1)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "i=2: (1, 2). i=3: (2, 3). The answer is 3."
+        }
+      ]
+    }
+  ]
+}

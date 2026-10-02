@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "slug": "pattern-gate",
+  "title": "Pattern Gate",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "wildcard-dp",
+  "statement": "A security gate checks badge codes against a pattern. In the pattern, a letter matches that same letter, '?' matches any single letter, and '*' matches any run of letters, including an empty run. The whole text must be matched by the whole pattern. Return true if text matches pattern, otherwise false.",
+  "constraints": [
+    "0 <= text.length, pattern.length <= 300",
+    "text contains only a-z",
+    "pattern contains only a-z, '?' and '*'"
+  ],
+  "estimatedMinutes": 45,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "strings",
+    "backtracking"
+  ],
+  "tags": [
+    "memoization",
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "text": "badge",
+        "pattern": "b*e"
+      },
+      "output": true,
+      "explanation": "'*' absorbs 'adg'."
+    },
+    {
+      "position": 2,
+      "input": {
+        "text": "gate",
+        "pattern": "g?t"
+      },
+      "output": false,
+      "explanation": "The pattern covers only three letters, but the text has four."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Compare the text and pattern from the left. Letters and '?' consume exactly one character each."
+    },
+    {
+      "position": 2,
+      "content": "A '*' can either match nothing (skip the star) or swallow one more text letter (stay on the star)."
+    },
+    {
+      "position": 3,
+      "content": "That choice repeats for the same (text position, pattern position) pairs many times."
+    },
+    {
+      "position": 4,
+      "content": "Let ok[i][j] mean the first i text letters match the first j pattern characters. With a star: ok[i][j] = ok[i][j-1] (empty run) or ok[i-1][j] (one more letter)."
+    },
+    {
+      "position": 5,
+      "content": "Otherwise ok[i][j] = ok[i-1][j-1] when the characters match or the pattern has '?'. The first row is true only through leading stars. Two rows are enough."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "patternGate",
+      "code": "function patternGate(text, pattern) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "badge",
+        "pattern": "b*e"
+      },
+      "output": true,
+      "explanation": "'*' absorbs 'adg'."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "gate",
+        "pattern": "g?t"
+      },
+      "output": false,
+      "explanation": "The pattern covers only three letters, but the text has four."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "",
+        "pattern": ""
+      },
+      "output": true,
+      "explanation": "Empty matches empty."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "",
+        "pattern": "***"
+      },
+      "output": true,
+      "explanation": "Stars can all match nothing."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "a",
+        "pattern": ""
+      },
+      "output": false,
+      "explanation": "An empty pattern matches only empty text."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "abcde",
+        "pattern": "*?d*"
+      },
+      "output": true,
+      "explanation": "Mixed wildcards."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "aab",
+        "pattern": "c*a*b"
+      },
+      "output": false,
+      "explanation": "The leading 'c' must match exactly."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "mississippi",
+        "pattern": "m??*ss*?i*pi"
+      },
+      "output": false,
+      "explanation": "After 'm??' the earliest 'ss' ends at index 6, which leaves no room for '?i' followed by a final 'pi', so the text does not match."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
+        "pattern": "a*a*a*a*a*a*a*a*a*a*a*a*a*a*c"
+      },
+      "output": false,
+      "explanation": "Many stars and no match: plain backtracking explodes here."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Recursive backtracking",
+      "intuition": "Match one pattern character at a time, and let a star try every possible run length.",
+      "approach": "go(i, j): if the pattern is used up, succeed iff the text is too. For '*', try go(k, j + 1) for every k from i to the end. Otherwise the characters must match and go(i + 1, j + 1).",
+      "pseudocode": "go(i, j): if j == |p|: return i == |t|\n  if p[j] == '*': return any(go(k, j+1) for k in i..|t|)\n  return i < |t| and (p[j] == '?' or p[j] == t[i]) and go(i+1, j+1)",
+      "code": "function patternGate(text, pattern) {\n  const go = (i, j) => {\n    if (j === pattern.length) return i === text.length;\n    if (pattern[j] === '*') {\n      for (let k = i; k <= text.length; k++) if (go(k, j + 1)) return true;\n      return false;\n    }\n    return i < text.length && (pattern[j] === '?' || pattern[j] === text[i]) && go(i + 1, j + 1);\n  };\n  return go(0, 0);\n}",
+      "timeComplexity": "Exponential in the number of stars",
+      "spaceComplexity": "O(|t| + |p|) recursion",
+      "commonMistakes": [
+        "Letting '?' match an empty run.",
+        "Returning true when the pattern ends but text remains."
+      ],
+      "interviewExplanation": "Backtracking states the rules directly, but each star branches over every split point, and failing patterns with many stars take exponential time.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "'b' matches 'b'. The star tries runs '', 'a', 'ad', 'adg'…"
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "With 'adg', the next pattern 'e' matches the final 'e' and both strings end, so return true."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Two-row dynamic programming",
+      "intuition": "Whether prefixes match depends only on smaller prefixes, so tabulate it.",
+      "approach": "ok[j] holds row i - 1. Initialize ok[0] = true and ok[j] = ok[j - 1] for leading stars. For each text letter build next: next[0] = false; for a star next[j] = next[j - 1] || ok[j]; for a letter or '?' next[j] = matches && ok[j - 1].",
+      "pseudocode": "ok[0] = true; ok[j] = ok[j-1] and p[j-1] == '*'\nfor i in 1..|t|: next[0] = false\n  for j: next[j] = p[j-1] == '*' ? next[j-1] or ok[j] : (p[j-1] in {'?', t[i-1]}) and ok[j-1]\n  ok = next\nreturn ok[|p|]",
+      "code": "function patternGate(text, pattern) {\n  let ok = new Array(pattern.length + 1).fill(false);\n  ok[0] = true;\n  for (let j = 1; j <= pattern.length; j++) ok[j] = ok[j - 1] && pattern[j - 1] === '*';\n  for (let i = 1; i <= text.length; i++) {\n    const next = new Array(pattern.length + 1).fill(false);\n    for (let j = 1; j <= pattern.length; j++) {\n      const p = pattern[j - 1];\n      if (p === '*') next[j] = next[j - 1] || ok[j];\n      else next[j] = (p === '?' || p === text[i - 1]) && ok[j - 1];\n    }\n    ok = next;\n  }\n  return ok[pattern.length];\n}",
+      "timeComplexity": "O(|t| × |p|)",
+      "spaceComplexity": "O(|p|)",
+      "commonMistakes": [
+        "Initializing the first row to true everywhere instead of only through leading stars.",
+        "For a star, reading ok[j - 1] (previous row) instead of next[j - 1] (empty run in the current row)."
+      ],
+      "interviewExplanation": "ok[i][j] says whether the first i text letters match the first j pattern characters. A star either matches nothing (left in the same row) or absorbs one more letter (same column in the previous row). Letters and '?' use the diagonal. Only the previous row is needed, so it's O(|t|·|p|) time and O(|p|) space. A greedy two-pointer with star backtracking also works in practice, but the DP is easier to prove.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Pattern 'b*e', text 'badge'. Row 0: [T,F,F,F]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Row 'b': [F,T,T,F]. Rows 'a', 'd' and 'g' keep the star column true: [F,F,T,F]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Row 'e': [F,F,T,T]. The answer is true."
+        }
+      ]
+    }
+  ]
+}
