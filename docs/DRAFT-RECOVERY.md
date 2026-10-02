@@ -1,0 +1,21 @@
+# Device draft recovery
+
+Signed-in learners can choose **Keep unsaved drafts on this device for up to 7 days** in the code editor or a live interview. It is off by default on each new page. Clicking **Restore device draft** explicitly restores local text and enables recovery for that page. Guests keep their code only on the open page. Copy work before leaving when recovery is off or storage is unavailable.
+
+Recovery uses versioned browser `localStorage`, scoped to the verified server-supplied user ID and problem slug or interview session ID. Problem revisions and interview question IDs/revisions are recorded. Interview drafts also retain the original server answer concurrency tokens. No URL parameter supplies draft ownership. Switching to another verified owner or a guest purges the previous owner's browser drafts and tells other open draft pages to disable recovery and clear their text.
+
+The store retains at most 12 records. Each payload is limited to 150,000 characters; each code language to 64,000 characters; interview responses keep the existing 4,000-character limit per area and at most three questions. A draft expires seven days after its last local update and is removed when the store is next accessed. Malformed records, unknown schema versions and future timestamps are discarded. Quota failures and blocked storage leave editing available and show a message to copy work. A prior valid copy can survive a failed write. Concurrent tabs for the same problem or session share one local copy; the most recent local write wins. Server answer concurrency checks still protect explicit saves.
+
+An available draft is never applied automatically. **Restore device draft** replaces page text only; **Discard device draft** removes the local copy. A changed problem revision or server answer token makes recovery copy-only, so a local answer cannot overwrite the latest saved answer. Finished or expired interview reports also offer copy-only recovery and discard for unsaved text. Copy views preserve text and line breaks, with headings separating languages or interview areas.
+
+Restoring code never runs or submits it. Restoring interview text never saves, scores or marks progress. The existing **Save answer** action, rating choices, deadline enforcement and server concurrency checks remain authoritative. Confirmed clean state removes its local draft. Explicitly finishing or abandoning removes the session's local draft; a late save keeps text available for copying. Refreshing an expired interview opens its report, where retained unsaved text remains separate from saved responses.
+
+The sign-out form clears AlgoSprint drafts before sending logout, and the signed-out login page repeats cleanup after the server redirect. Other open draft pages receive a browser event and disable further writes; an owner marker also prevents an older account tab from writing after an account change. Opting out removes the current local copy. Unrelated browser application storage is left intact.
+
+Local storage is plaintext browser data, not encrypted account storage. Anyone with access to the same browser profile can inspect it. Enable it only on a trusted device, and sign out after use. Cleanup requires browser JavaScript and working storage access; deletion cannot be guaranteed when the browser denies storage access. The app does not log draft contents or send them to diagnostics.
+
+## Validation
+
+Focused automated tests cover consent, empty and language-specific code, restore/discard, revisions and changed server tokens, interview save-token preservation, no automatic scoring/saving, finished-session cleanup, copy-only reports, TTL, malformed data, ownership isolation, guest cleanup, quota/storage denial, bounded eviction and cross-tab logout/account-change events. Tests use an in-memory store and happy-dom. Validation passed on Node 24: all 47 unit-test files / 258 tests, including 33 focused draft/editor/interview checks, TypeScript and ESLint.
+
+Real-browser verification is still required for Monaco restoration, native reload warnings, quota denial, and simultaneous browser tabs. These browser checks require a local signed-in test session; automated tests do not establish a real authentication session or contact production.

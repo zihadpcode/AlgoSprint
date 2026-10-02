@@ -47,7 +47,7 @@ export async function queryProblem(db: PrismaClient, slug: string, viewerId: str
       }))?.content ?? "",
     } : null;
     return {
-      ...content, categories: categories.map((item) => item.category), tags: tags.map((item) => item.tag),
+      ...content, revision, categories: categories.map((item) => item.category), tags: tags.map((item) => item.tag),
       related: relatedProblems, personal,
     };
   }, { isolationLevel: "RepeatableRead" });

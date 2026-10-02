@@ -9,5 +9,5 @@ export const dynamic = "force-dynamic";
 export default async function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const view = await loadInterview((await params).id); if (!view) notFound();
   if (view.session.status !== "IN_PROGRESS") redirect(`/interview-results/${view.session.id}`);
-  return <AppShell signedIn admin={view.viewer.role === "ADMIN"}><PageHeading eyebrow="Deliberate practice" title="Your interview session" description="Write your reasoning, code or pseudocode, tradeoffs and checks. Save each response explicitly." /><InterviewSession key={view.session.id} session={view.session} /></AppShell>;
+  return <AppShell signedIn admin={view.viewer.role === "ADMIN"}><PageHeading eyebrow="Deliberate practice" title="Your interview session" description="Write your reasoning, code or pseudocode, tradeoffs and checks. Save each response explicitly." /><InterviewSession key={`${view.viewer.id}:${view.session.id}`} draftOwner={view.viewer.id} session={view.session} /></AppShell>;
 }

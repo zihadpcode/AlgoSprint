@@ -10,5 +10,5 @@ export async function loadProblem(slug: string) {
   const viewer = await getViewer();
   const problem = await queryProblem(getDatabase(), slug, viewer?.id ?? null);
   if (!problem) return { kind: "not-found" as const };
-  return { kind: "ready" as const, problem, signedIn: Boolean(viewer), admin: viewer?.role === "ADMIN" };
+  return { kind: "ready" as const, problem, draftOwner: viewer?.id ?? null, signedIn: Boolean(viewer), admin: viewer?.role === "ADMIN" };
 }
