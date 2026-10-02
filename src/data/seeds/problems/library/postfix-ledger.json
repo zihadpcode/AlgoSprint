@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "slug": "postfix-ledger",
+  "title": "Postfix Ledger",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "stack-evaluation",
+  "statement": "An old adding machine records calculations in postfix order, where each operator follows its two operands: '3 4 +' means 3 + 4, and '5 1 2 + *' means 5 × (1 + 2). Given the tokens of one valid postfix expression, each an integer or one of '+', '-', '*', '/', return its value. Division truncates toward zero, so -7 / 2 is -3. Inputs never divide by zero, and every intermediate value fits in a signed 32-bit integer.",
+  "constraints": [
+    "1 <= tokens.length <= 10000",
+    "Each integer token is between -999999 and 999999",
+    "tokens form one valid postfix expression"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "stack",
+    "math"
+  ],
+  "tags": [
+    "simulation",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tokens": [
+          "5",
+          "1",
+          "2",
+          "+",
+          "*"
+        ]
+      },
+      "output": 15,
+      "explanation": "1 + 2 = 3, then 5 * 3 = 15."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tokens": [
+          "-7",
+          "2",
+          "/"
+        ]
+      },
+      "output": -3,
+      "explanation": "-7 / 2 = -3.5, which truncates toward zero to -3."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Read the tokens left to right. Numbers wait until an operator needs them."
+    },
+    {
+      "position": 2,
+      "content": "Each operator applies to the two most recent values that have not been used yet."
+    },
+    {
+      "position": 3,
+      "content": "That last-in, first-out access pattern is exactly what a stack provides."
+    },
+    {
+      "position": 4,
+      "content": "Push numbers. On an operator, pop the right operand first, then the left, and push the result."
+    },
+    {
+      "position": 5,
+      "content": "Use Math.trunc for division so negative quotients round toward zero. The single value left on the stack is the answer."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "postfixLedger",
+      "code": "function postfixLedger(tokens) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tokens": [
+          "5",
+          "1",
+          "2",
+          "+",
+          "*"
+        ]
+      },
+      "output": 15,
+      "explanation": "1 + 2 = 3, then 5 * 3 = 15."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tokens": [
+          "-7",
+          "2",
+          "/"
+        ]
+      },
+      "output": -3,
+      "explanation": "-7 / 2 = -3.5, which truncates toward zero to -3."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          "42"
+        ]
+      },
+      "output": 42,
+      "explanation": "A single number is its own value."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          "4",
+          "9",
+          "-"
+        ]
+      },
+      "output": -5,
+      "explanation": "The first operand is on the left: 4 - 9 = -5."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          "8",
+          "3",
+          "/",
+          "2",
+          "*"
+        ]
+      },
+      "output": 4,
+      "explanation": "8 / 3 truncates to 2, then 2 * 2 = 4."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          "2",
+          "3",
+          "4",
+          "5",
+          "+",
+          "+",
+          "+"
+        ]
+      },
+      "output": 14,
+      "explanation": "Operands can stack up before any operator appears."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          "10",
+          "6",
+          "9",
+          "3",
+          "+",
+          "-11",
+          "*",
+          "/",
+          "*",
+          "17",
+          "+",
+          "5",
+          "+"
+        ]
+      },
+      "output": 22,
+      "explanation": "A longer expression that evaluates to 22."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "tokens": [
+          "1",
+          "3",
+          "/",
+          "-4",
+          "*"
+        ]
+      },
+      "output": 0,
+      "explanation": "1 / 3 truncates to 0, and 0 * -4 is 0."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Repeatedly collapse the first operator",
+      "intuition": "The first operator in a valid postfix list always applies to the two values immediately before it.",
+      "approach": "Convert numeric tokens to numbers. While more than one item remains, find the first operator, compute it with the two items before it, and splice the three items into one result.",
+      "pseudocode": "items = tokens with numbers parsed\nwhile len(items) > 1: i = index of first operator; replace items[i-2..i] with apply(items[i-2], items[i-1], items[i])\nreturn items[0]",
+      "code": "function postfixLedger(tokens) {\n  const items = tokens.map((t) => (['+', '-', '*', '/'].includes(t) ? t : Number(t)));\n  while (items.length > 1) {\n    const i = items.findIndex((t) => typeof t === 'string');\n    const a = items[i - 2], b = items[i - 1], op = items[i];\n    const value = op === '+' ? a + b : op === '-' ? a - b : op === '*' ? a * b : Math.trunc(a / b);\n    items.splice(i - 2, 3, value);\n  }\n  return items[0];\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Treating '-7' as an operator because it starts with '-'.",
+        "Using Math.floor, which rounds -3.5 down to -4."
+      ],
+      "interviewExplanation": "Collapsing the first operator into its result is correct because that operator's operands are always immediately before it. Each collapse rescans and splices the array, so the total is quadratic.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "[5,1,2,+,*]: the first operator is + at index 3, so 1 + 2 = 3 gives [5,3,*]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The first operator is * at index 2, so 5 * 3 = 15."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Operand stack",
+      "intuition": "Postfix order means every operator's operands are the two most recent unused values, which sit on top of a stack.",
+      "approach": "Scan tokens. Push numbers. For an operator, pop b then a, compute a op b with truncating division, and push the result. Return the final stack element.",
+      "pseudocode": "stack = []\nfor t in tokens: if t is operator: b = pop; a = pop; push(apply(a, b, t)) else push(number(t))\nreturn pop",
+      "code": "function postfixLedger(tokens) {\n  const stack = [];\n  for (const token of tokens) {\n    if (token === '+' || token === '-' || token === '*' || token === '/') {\n      const b = stack.pop(), a = stack.pop();\n      if (token === '+') stack.push(a + b);\n      else if (token === '-') stack.push(a - b);\n      else if (token === '*') stack.push(a * b);\n      else stack.push(Math.trunc(a / b));\n    } else stack.push(Number(token));\n  }\n  return stack.pop();\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Popping the operands in the wrong order, which breaks subtraction and division.",
+        "Detecting operators with token < '0' or similar tricks that misread negative numbers."
+      ],
+      "interviewExplanation": "Postfix is built for stack evaluation. Numbers are pushed, and each operator pops its right operand, then its left, and pushes the result, so the order matters for - and /. Math.trunc gives truncation toward zero. One pass, O(n) time, O(n) stack in the worst case.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Push 5, 1, 2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "+: pop 2 and 1, push 3. *: pop 3 and 5, push 15."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The stack holds [15], so return 15."
+        }
+      ]
+    }
+  ]
+}

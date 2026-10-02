@@ -1,6 +1,6 @@
 # Problem library guide
 
-The published library holds 35 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and thirty hand-authored problems in `src/data/seeds/problems/library/`. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The published library holds 48 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and forty-three hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
@@ -36,6 +36,19 @@ The published library holds 35 original coding problems: the five foundation pro
 | `cheapest-route` | Cheapest Route | Hard | dijkstra | graphs, heaps, greedy |
 | `watchtower-placements` | Watchtower Placements | Hard | backtracking | backtracking, recursion |
 | `gutter-capacity` | Gutter Capacity | Hard | two-pointers | two-pointers, arrays |
+| `studio-bookings` | Studio Bookings | Medium | sweep-line | intervals, sorting, heaps |
+| `slot-insert` | Slot Insert | Medium | interval-merge | intervals, arrays |
+| `prefix-suggestions` | Prefix Suggestions | Medium | trie | tries, strings, binary-search |
+| `radio-clusters` | Radio Clusters | Medium | union-find | union-find, graphs |
+| `module-plan` | Module Plan | Medium | topological-sort | topological-sort, graphs |
+| `lit-panels` | Lit Panels | Easy | bit-counting | bit-manipulation, dynamic-programming |
+| `tile-side` | Tile Side | Easy | gcd | math, arrays |
+| `kth-badge` | Kth Badge | Medium | inorder-traversal | binary-search-trees, trees, stack |
+| `canopy-layers` | Canopy Layers | Easy | bfs | trees, bfs, queue |
+| `dial-lookup` | Dial Lookup | Medium | rotated-binary-search | binary-search, arrays |
+| `fuel-stretch` | Fuel Stretch | Medium | variable-window | sliding-window, arrays |
+| `postfix-ledger` | Postfix Ledger | Medium | stack-evaluation | stack, math |
+| `floor-tracker` | Floor Tracker | Medium | design | design, object-oriented, stack |
 
 Trees are passed as level-order arrays with `null` for missing children. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
 
@@ -46,6 +59,10 @@ A problem is complete only when three pieces agree:
 1. **Seed JSON** in `src/data/seeds/problems/<group>/<slug>.json`. It must satisfy `problemSchema`: statement, constraints, at least two examples, exactly five progressive hints, starter code, at least four test cases with both visibilities, and at least a `BRUTE_FORCE` and an `OPTIMAL` solution with steps, complexities, common mistakes and an interview explanation. Statements, hints and explanations must be original.
 2. **Runner signature** in `src/features/submissions/signatures.ts`: the entry point name and the ordered argument keys. The Judge0 harness reads test inputs by these keys, so JSON key order never matters.
 3. **Trusted reference** in `scripts/lib/reference-library.ts`: a Zod input schema that rejects malformed inputs and a typed optimal implementation. `validateProblemSemantics` recomputes every example and test output with it and fails on any mismatch, both in `npm run seed:validate` and inside `seedProblems`.
+
+   Problems added after the first 35 put their reference in `scripts/lib/reference-expansion.ts` instead. Each entry there also carries an independent brute-force baseline and a seeded random-input sampler, and `tests/reference-expansion.test.ts` checks that the two implementations agree on 400 sampled inputs per problem.
+
+Every published problem must also pass the execution gate in `tests/library-sandbox.test.ts`, which runs each authored JavaScript solution through the same QuickJS sandbox and harness that verified submissions use. Optimal, better and alternative solutions must be accepted on every test. A brute-force solution may hit the time limit on a large case, but it must never return a wrong answer or crash. The untouched starter code must not be accepted. Keep each problem at or below 10 test cases, the default 2000 ms and 262144 KB limits, and 64,000 bytes of input per case so it stays executable by both runner providers.
 
 Then run:
 

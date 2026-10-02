@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "slug": "dial-lookup",
+  "title": "Dial Lookup",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "rotated-binary-search",
+  "statement": "A combination dial lists distinct numbers that were sorted in increasing order and then rotated: some prefix was moved to the end, so [10, 20, 30, 40, 50] might be stored as [40, 50, 10, 20, 30]. The rotation may also be zero. Given dial and a target, return the index of target in dial, or -1 if it is absent. Aim for logarithmic time.",
+  "constraints": [
+    "1 <= dial.length <= 10000",
+    "-1000000 <= dial[i], target <= 1000000",
+    "dial values are distinct and form a rotated increasing sequence"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "binary-search",
+    "arrays"
+  ],
+  "tags": [
+    "monotone-search",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "dial": [
+          40,
+          50,
+          10,
+          20,
+          30
+        ],
+        "target": 20
+      },
+      "output": 3,
+      "explanation": "20 is at index 3."
+    },
+    {
+      "position": 2,
+      "input": {
+        "dial": [
+          40,
+          50,
+          10,
+          20,
+          30
+        ],
+        "target": 35
+      },
+      "output": -1,
+      "explanation": "35 is not on the dial."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "A linear scan works, but the array is almost sorted."
+    },
+    {
+      "position": 2,
+      "content": "Cut the array at any middle index: at least one of the two halves is sorted in the ordinary way."
+    },
+    {
+      "position": 3,
+      "content": "You can tell which half is sorted by comparing the middle value with the value at the left end."
+    },
+    {
+      "position": 4,
+      "content": "If the target lies within the sorted half's value range, search that half; otherwise search the other half."
+    },
+    {
+      "position": 5,
+      "content": "Use inclusive bounds: when dial[lo] <= dial[mid], the left half [lo, mid] is sorted, so check dial[lo] <= target < dial[mid]. Otherwise the right half is sorted, so check dial[mid] < target <= dial[hi]."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "dialLookup",
+      "code": "function dialLookup(dial, target) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "dial": [
+          40,
+          50,
+          10,
+          20,
+          30
+        ],
+        "target": 20
+      },
+      "output": 3,
+      "explanation": "20 is at index 3."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "dial": [
+          40,
+          50,
+          10,
+          20,
+          30
+        ],
+        "target": 35
+      },
+      "output": -1,
+      "explanation": "35 is not on the dial."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "dial": [
+          7
+        ],
+        "target": 7
+      },
+      "output": 0,
+      "explanation": "A single value that matches."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "dial": [
+          7
+        ],
+        "target": 3
+      },
+      "output": -1,
+      "explanation": "A single value that does not match."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "dial": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "target": 6
+      },
+      "output": 5,
+      "explanation": "No rotation."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "dial": [
+          6,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "target": 6
+      },
+      "output": 0,
+      "explanation": "The largest value sits at index 0."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "dial": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          1
+        ],
+        "target": 1
+      },
+      "output": 5,
+      "explanation": "The smallest value sits at the end."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "dial": [
+          -3,
+          0,
+          4,
+          9,
+          -10,
+          -7
+        ],
+        "target": -7
+      },
+      "output": 5,
+      "explanation": "Negative values on the wrapped side."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "dial": [
+          15,
+          18,
+          22,
+          3,
+          7,
+          11
+        ],
+        "target": 16
+      },
+      "output": -1,
+      "explanation": "A value that falls between existing numbers is absent."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Linear scan",
+      "intuition": "Look at every position until the target appears.",
+      "approach": "Loop over indices and return the first index whose value equals target, or -1.",
+      "pseudocode": "for i in 0..n-1: if dial[i] == target: return i\nreturn -1",
+      "code": "function dialLookup(dial, target) {\n  for (let i = 0; i < dial.length; i++) if (dial[i] === target) return i;\n  return -1;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Returning the value instead of the index."
+      ],
+      "interviewExplanation": "A scan is always correct but ignores the rotated-sorted structure that allows logarithmic search.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Compare 40, 50 and 10 with 20; none match."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Index 3 holds 20, so return 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Binary search on the sorted half",
+      "intuition": "Every split of a rotated sorted array has at least one ordinary sorted half, and a sorted half lets you decide in O(1) whether the target can be there.",
+      "approach": "Keep lo and hi. Compute mid; return it if it matches. If dial[lo] <= dial[mid], the left half is sorted: move hi to mid - 1 when target is within [dial[lo], dial[mid]), otherwise move lo to mid + 1. Otherwise the right half is sorted: move lo to mid + 1 when target is within (dial[mid], dial[hi]], otherwise move hi to mid - 1.",
+      "pseudocode": "lo = 0; hi = n - 1\nwhile lo <= hi: mid = (lo + hi) / 2; if dial[mid] == target: return mid\n  if dial[lo] <= dial[mid]: if dial[lo] <= target < dial[mid]: hi = mid - 1 else lo = mid + 1\n  else: if dial[mid] < target <= dial[hi]: lo = mid + 1 else hi = mid - 1\nreturn -1",
+      "code": "function dialLookup(dial, target) {\n  let lo = 0, hi = dial.length - 1;\n  while (lo <= hi) {\n    const mid = (lo + hi) >> 1;\n    if (dial[mid] === target) return mid;\n    if (dial[lo] <= dial[mid]) {\n      if (dial[lo] <= target && target < dial[mid]) hi = mid - 1;\n      else lo = mid + 1;\n    } else if (dial[mid] < target && target <= dial[hi]) lo = mid + 1;\n    else hi = mid - 1;\n  }\n  return -1;\n}",
+      "timeComplexity": "O(log n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Using dial[lo] < dial[mid] when lo == mid, which misclassifies a one-element left half.",
+        "Testing the target against the unsorted half's endpoints, which says nothing about where it lies."
+      ],
+      "interviewExplanation": "I run binary search but first ask which half is normally sorted. Comparing dial[lo] with dial[mid] tells me. If the target falls within the sorted half's range I keep that half, otherwise the other, so each step discards half the array and the search is O(log n). The <= in dial[lo] <= dial[mid] matters when lo equals mid.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "lo=0, hi=4, mid=2 (10). dial[0]=40 > 10, so the right half [10,20,30] is sorted, and 20 is in (10, 30], so lo = 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "lo=3, hi=4, mid=3 (20) matches. Return 3."
+        }
+      ]
+    }
+  ]
+}

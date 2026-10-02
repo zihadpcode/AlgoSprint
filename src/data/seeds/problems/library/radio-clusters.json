@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "slug": "radio-clusters",
+  "title": "Radio Clusters",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "union-find",
+  "statement": "A mountain rescue network has towers numbered 0 to towers - 1. Each pair [a, b] in links is a two-way radio link. Towers that can reach each other through any chain of links form one cluster, and an isolated tower is a cluster on its own. Return the number of clusters.",
+  "constraints": [
+    "1 <= towers <= 10000",
+    "0 <= links.length <= 20000",
+    "0 <= a, b < towers",
+    "Links may repeat, and a tower may be linked to itself."
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "union-find",
+    "graphs"
+  ],
+  "tags": [
+    "graph-traversal",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "towers": 5,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "output": 2,
+      "explanation": "Towers 0, 1, 2 form one cluster and 3, 4 another."
+    },
+    {
+      "position": 2,
+      "input": {
+        "towers": 4,
+        "links": []
+      },
+      "output": 4,
+      "explanation": "With no links every tower is its own cluster."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Start by assuming every tower is its own cluster."
+    },
+    {
+      "position": 2,
+      "content": "Each link either joins two different clusters, reducing the count by one, or connects towers already in the same cluster."
+    },
+    {
+      "position": 3,
+      "content": "You need a fast way to ask 'which cluster is this tower in?' and to merge two clusters."
+    },
+    {
+      "position": 4,
+      "content": "A disjoint-set (union-find) structure stores a parent for each tower; following parents leads to a cluster's representative."
+    },
+    {
+      "position": 5,
+      "content": "Union by size and path compression keep the trees shallow. Start the count at towers and subtract one for every successful union."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "radioClusters",
+      "code": "function radioClusters(towers, links) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "towers": 5,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "output": 2,
+      "explanation": "Towers 0, 1, 2 form one cluster and 3, 4 another."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "towers": 4,
+        "links": []
+      },
+      "output": 4,
+      "explanation": "With no links every tower is its own cluster."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "towers": 1,
+        "links": []
+      },
+      "output": 1,
+      "explanation": "A single tower is one cluster."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "towers": 3,
+        "links": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "output": 3,
+      "explanation": "Self-links connect nothing new."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "towers": 4,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "output": 3,
+      "explanation": "Repeated links are harmless: clusters {0,1}, {2}, {3}."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "towers": 6,
+        "links": [
+          [
+            0,
+            5
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      },
+      "output": 1,
+      "explanation": "A long chain joins every tower."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "towers": 7,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            6,
+            6
+          ]
+        ]
+      },
+      "output": 3,
+      "explanation": "{0,1,2,3}, {4,5} and {6}."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "towers": 8,
+        "links": [
+          [
+            7,
+            0
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            2,
+            4
+          ]
+        ]
+      },
+      "output": 2,
+      "explanation": "{0,1,6,7} and {2,3,4,5}."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Propagate the smallest label",
+      "intuition": "If every tower repeatedly adopts the smallest label among its linked neighbors, each cluster eventually shares its smallest tower number.",
+      "approach": "Label each tower with its own index. Repeatedly scan all links and set both endpoints to the smaller label until nothing changes. Count distinct labels.",
+      "pseudocode": "label[i] = i; repeat: changed = false; for (a, b) in links: low = min(label[a], label[b]); if label[a] != low or label[b] != low: set both; changed = true\nuntil not changed; return count of distinct labels",
+      "code": "function radioClusters(towers, links) {\n  const label = Array.from({ length: towers }, (_, i) => i);\n  let changed = true;\n  while (changed) {\n    changed = false;\n    for (const [a, b] of links) {\n      const low = Math.min(label[a], label[b]);\n      if (label[a] !== low || label[b] !== low) { label[a] = low; label[b] = low; changed = true; }\n    }\n  }\n  return new Set(label).size;\n}",
+      "timeComplexity": "O(n · m) in the worst case",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Stopping after one pass; labels can need many passes to travel along a long chain.",
+        "Counting links instead of clusters."
+      ],
+      "interviewExplanation": "Label propagation is easy to reason about: labels only decrease and stop when every link's endpoints agree. A long chain can need many passes, though, so the worst case is quadratic.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Labels start [0,1,2,3,4]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Link [1,2] sets tower 2 to 1, and later passes leave towers 0 to 2 at 0; [3,4] sets tower 4 to 3."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Distinct labels {0, 3} give 2 clusters."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Union-find with path compression",
+      "intuition": "Each successful merge of two different clusters lowers the count by exactly one.",
+      "approach": "Keep parent and size arrays. find follows parents to a root, halving the path as it goes. For each link, find both roots; if they differ, attach the smaller tree under the larger and decrement the count.",
+      "pseudocode": "parent[i] = i; size[i] = 1; groups = towers\nfor (a, b) in links: ra = find(a); rb = find(b); if ra != rb: union by size; groups--\nreturn groups",
+      "code": "function radioClusters(towers, links) {\n  const parent = Array.from({ length: towers }, (_, i) => i);\n  const size = new Array(towers).fill(1);\n  const find = (x) => {\n    while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; }\n    return x;\n  };\n  let groups = towers;\n  for (const [a, b] of links) {\n    let ra = find(a), rb = find(b);\n    if (ra === rb) continue;\n    if (size[ra] < size[rb]) [ra, rb] = [rb, ra];\n    parent[rb] = ra;\n    size[ra] += size[rb];\n    groups--;\n  }\n  return groups;\n}",
+      "timeComplexity": "O((n + m) · α(n)), effectively linear",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Linking a to b directly instead of root to root, which corrupts other trees.",
+        "Decrementing the count even when both towers already share a root."
+      ],
+      "interviewExplanation": "I start with one cluster per tower and run each link through union-find. When the two roots differ I merge the smaller tree into the larger and decrement the count; when they match, the link is redundant. Path halving plus union by size makes each operation nearly constant, so the whole thing is effectively linear. BFS or DFS over an adjacency list also works in O(n + m). Union-find shines when links arrive as a stream.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "groups = 5. Link [0,1] merges two roots: 4. Link [1,2]: 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Link [3,4] merges two roots: 2. All links are processed, so the answer is 2."
+        }
+      ]
+    }
+  ]
+}

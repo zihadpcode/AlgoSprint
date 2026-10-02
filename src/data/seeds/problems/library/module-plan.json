@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "slug": "module-plan",
+  "title": "Module Plan",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "topological-sort",
+  "statement": "A self-paced course has modules numbered 0 to modules - 1. Each pair [module, needed] in prerequisites means module can only be taken after needed is complete. Return true if there is some order in which every module can be completed, and false if the requirements make that impossible.",
+  "constraints": [
+    "1 <= modules <= 10000",
+    "0 <= prerequisites.length <= 20000",
+    "0 <= module, needed < modules and module != needed",
+    "Pairs may repeat."
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "topological-sort",
+    "graphs"
+  ],
+  "tags": [
+    "graph-traversal",
+    "simulation"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "modules": 3,
+        "prerequisites": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      },
+      "output": true,
+      "explanation": "Take 0, then 1, then 2."
+    },
+    {
+      "position": 2,
+      "input": {
+        "modules": 2,
+        "prerequisites": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "output": false,
+      "explanation": "Each module waits for the other, so neither can start."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Think of modules as nodes and each requirement as an arrow from needed to module."
+    },
+    {
+      "position": 2,
+      "content": "Every module can be finished exactly when this directed graph has no cycle."
+    },
+    {
+      "position": 3,
+      "content": "A module with no unfinished requirements can be taken right away. Taking it may free others."
+    },
+    {
+      "position": 4,
+      "content": "Count each module's unfinished requirements (its in-degree). Keep a list of modules whose count is zero and repeatedly take one, decrementing the counts of modules it unlocks."
+    },
+    {
+      "position": 5,
+      "content": "If the process completes all modules, return true. If it stalls with modules left over, those modules sit on or behind a cycle."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "modulePlan",
+      "code": "function modulePlan(modules, prerequisites) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "modules": 3,
+        "prerequisites": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      },
+      "output": true,
+      "explanation": "Take 0, then 1, then 2."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "modules": 2,
+        "prerequisites": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "output": false,
+      "explanation": "Each module waits for the other, so neither can start."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "modules": 1,
+        "prerequisites": []
+      },
+      "output": true,
+      "explanation": "One module with no requirements."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "modules": 4,
+        "prerequisites": []
+      },
+      "output": true,
+      "explanation": "Independent modules can be taken in any order."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "modules": 4,
+        "prerequisites": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ]
+      },
+      "output": true,
+      "explanation": "A diamond is fine: 0, 1, 2, 3."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "modules": 4,
+        "prerequisites": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ]
+      },
+      "output": false,
+      "explanation": "1, 2, 3 form a cycle even though 0 is free."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "modules": 3,
+        "prerequisites": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      },
+      "output": true,
+      "explanation": "A repeated requirement does not create a cycle."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "modules": 6,
+        "prerequisites": [
+          [
+            5,
+            4
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            5
+          ]
+        ]
+      },
+      "output": false,
+      "explanation": "A cycle through all six modules."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Repeatedly scan for a module that can be taken",
+      "intuition": "Simulate a student: on each pass, take any module whose requirements are already complete.",
+      "approach": "Keep a completed set. Loop over modules; take one if every pair that names it as module has its needed module completed. Repeat passes until a pass takes nothing. Succeed if all modules are completed.",
+      "pseudocode": "done = {}; repeat: progress = false; for m not in done: if all needed for m are in done: add m; progress = true\nuntil not progress; return |done| == modules",
+      "code": "function modulePlan(modules, prerequisites) {\n  const done = new Set();\n  let progress = true;\n  while (progress) {\n    progress = false;\n    for (let m = 0; m < modules; m++) {\n      if (done.has(m)) continue;\n      if (prerequisites.every(([module, needed]) => module !== m || done.has(needed))) { done.add(m); progress = true; }\n    }\n  }\n  return done.size === modules;\n}",
+      "timeComplexity": "O(n² · m) in the worst case",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Reading the pair backwards, treating module as the prerequisite.",
+        "Stopping after a single pass."
+      ],
+      "interviewExplanation": "This simulates a student who keeps scanning for a module they're allowed to take. It's correct but rescans every requirement for every module on every pass.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Pass 1 takes module 0, then module 1 (its requirement 0 is done), then module 2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "All three are done, so the answer is true."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Kahn's algorithm",
+      "intuition": "Track how many unfinished requirements each module has. Modules at zero are ready, and finishing one updates only its direct dependents.",
+      "approach": "Build an adjacency list from needed to module and an in-degree count. Push every zero in-degree module to a stack. Pop modules, count them, and decrement each dependent's in-degree, pushing it when it reaches zero. Succeed if the count equals modules.",
+      "pseudocode": "indeg, unlocks from pairs; ready = modules with indeg 0; done = 0\nwhile ready: m = pop; done++; for x in unlocks[m]: if --indeg[x] == 0: push x\nreturn done == modules",
+      "code": "function modulePlan(modules, prerequisites) {\n  const indegree = new Array(modules).fill(0);\n  const unlocks = Array.from({ length: modules }, () => []);\n  for (const [module, needed] of prerequisites) { unlocks[needed].push(module); indegree[module]++; }\n  const ready = [];\n  for (let m = 0; m < modules; m++) if (indegree[m] === 0) ready.push(m);\n  let done = 0;\n  while (ready.length) {\n    const m = ready.pop();\n    done++;\n    for (const next of unlocks[m]) if (--indegree[next] === 0) ready.push(next);\n  }\n  return done === modules;\n}",
+      "timeComplexity": "O(n + m)",
+      "spaceComplexity": "O(n + m)",
+      "commonMistakes": [
+        "Deduplicating pairs in the adjacency list but not in the in-degree count (or the reverse), which leaves counts that never reach zero.",
+        "Returning true when the ready list empties without checking how many modules were finished."
+      ],
+      "interviewExplanation": "I model requirements as a directed graph and run Kahn's algorithm. Modules with in-degree zero are ready. Finishing one decrements its dependents, and any dependent that reaches zero becomes ready. If I finish all modules the graph is acyclic; otherwise the leftovers are stuck on a cycle. Each module and requirement is handled once, O(n + m). DFS with three-color cycle detection is the alternative.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "In-degrees for [[1,0],[2,1]]: [0,1,1]; ready = [0]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Finish 0: module 1 drops to 0 and becomes ready. Finish 1: module 2 becomes ready. Finish 2."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "done = 3 = modules, so the answer is true."
+        }
+      ]
+    }
+  ]
+}

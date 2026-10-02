@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "slug": "prefix-suggestions",
+  "title": "Prefix Suggestions",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "trie",
+  "statement": "A search box suggests catalog words while a visitor types. Given distinct lowercase words and the full text typed, return a list with one entry per typed character: after typing the first i characters, the entry holds up to three catalog words that start with those characters, in alphabetical order (the three smallest). When nothing matches, the entry is an empty list.",
+  "constraints": [
+    "0 <= words.length <= 1000",
+    "1 <= words[i].length <= 20",
+    "1 <= typed.length <= 20",
+    "words are distinct and contain only a-z; typed contains only a-z"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "tries",
+    "strings",
+    "binary-search"
+  ],
+  "tags": [
+    "sorting",
+    "monotone-search"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "words": [
+          "mango",
+          "map",
+          "mat",
+          "mast",
+          "melon"
+        ],
+        "typed": "mas"
+      },
+      "output": [
+        [
+          "mango",
+          "map",
+          "mast"
+        ],
+        [
+          "mango",
+          "map",
+          "mast"
+        ],
+        [
+          "mast"
+        ]
+      ],
+      "explanation": "After 'm' the three smallest matches are mango, map, mast; after 'ma' they are the same; after 'mas' only mast remains."
+    },
+    {
+      "position": 2,
+      "input": {
+        "words": [
+          "kite",
+          "kiwi"
+        ],
+        "typed": "kix"
+      },
+      "output": [
+        [
+          "kite",
+          "kiwi"
+        ],
+        [
+          "kite",
+          "kiwi"
+        ],
+        []
+      ],
+      "explanation": "'k' and 'ki' match both words; 'kix' matches nothing."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Each step only extends the previous prefix by one character, so the matching words can only shrink."
+    },
+    {
+      "position": 2,
+      "content": "In an alphabetically sorted list, all words with a given prefix sit next to each other."
+    },
+    {
+      "position": 3,
+      "content": "Find where the prefix would be inserted into the sorted list; the matches start there."
+    },
+    {
+      "position": 4,
+      "content": "Binary search for the first word that is not smaller than the prefix, then read forward while words still start with the prefix, stopping after three."
+    },
+    {
+      "position": 5,
+      "content": "Because prefixes grow, the insertion point never moves left, so you can start each search from the previous position. A trie that stores the three smallest words at each node is an equally good alternative."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "prefixSuggestions",
+      "code": "function prefixSuggestions(words, typed) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "mango",
+          "map",
+          "mat",
+          "mast",
+          "melon"
+        ],
+        "typed": "mas"
+      },
+      "output": [
+        [
+          "mango",
+          "map",
+          "mast"
+        ],
+        [
+          "mango",
+          "map",
+          "mast"
+        ],
+        [
+          "mast"
+        ]
+      ],
+      "explanation": "After 'm' the three smallest matches are mango, map, mast; after 'ma' they are the same; after 'mas' only mast remains."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "kite",
+          "kiwi"
+        ],
+        "typed": "kix"
+      },
+      "output": [
+        [
+          "kite",
+          "kiwi"
+        ],
+        [
+          "kite",
+          "kiwi"
+        ],
+        []
+      ],
+      "explanation": "'k' and 'ki' match both words; 'kix' matches nothing."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [],
+        "typed": "a"
+      },
+      "output": [
+        []
+      ],
+      "explanation": "An empty catalog suggests nothing."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "sun"
+        ],
+        "typed": "sun"
+      },
+      "output": [
+        [
+          "sun"
+        ],
+        [
+          "sun"
+        ],
+        [
+          "sun"
+        ]
+      ],
+      "explanation": "The word itself is suggested at every step."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "b",
+          "ba",
+          "bab",
+          "babe",
+          "bad"
+        ],
+        "typed": "ba"
+      },
+      "output": [
+        [
+          "b",
+          "ba",
+          "bab"
+        ],
+        [
+          "ba",
+          "bab",
+          "babe"
+        ]
+      ],
+      "explanation": "A word that equals the prefix counts as a match."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "zeta",
+          "alpha",
+          "beta"
+        ],
+        "typed": "q"
+      },
+      "output": [
+        []
+      ],
+      "explanation": "No word starts with q."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "cab",
+          "cabin",
+          "cable",
+          "cabana",
+          "cache",
+          "cat"
+        ],
+        "typed": "cabx"
+      },
+      "output": [
+        [
+          "cab",
+          "cabana",
+          "cabin"
+        ],
+        [
+          "cab",
+          "cabana",
+          "cabin"
+        ],
+        [
+          "cab",
+          "cabana",
+          "cabin"
+        ],
+        []
+      ],
+      "explanation": "Only the three smallest are kept, and the last step matches nothing."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "aa",
+          "ab",
+          "ac",
+          "ad",
+          "ae"
+        ],
+        "typed": "a"
+      },
+      "output": [
+        [
+          "aa",
+          "ab",
+          "ac"
+        ]
+      ],
+      "explanation": "Five matches are trimmed to three."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Filter and sort for every prefix",
+      "intuition": "Directly apply the definition: for each prefix, collect the words that start with it.",
+      "approach": "For each length from 1 to typed.length, filter words by startsWith, sort them, and keep the first three.",
+      "pseudocode": "for i in 1..len(typed): p = typed[0:i]; out.push(sorted(w for w in words if w startsWith p)[0:3])\nreturn out",
+      "code": "function prefixSuggestions(words, typed) {\n  const result = [];\n  for (let i = 1; i <= typed.length; i++) {\n    const prefix = typed.slice(0, i);\n    result.push(words.filter((w) => w.startsWith(prefix)).sort().slice(0, 3));\n  }\n  return result;\n}",
+      "timeComplexity": "O(m · n log n · L) for m typed characters, n words of length up to L",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Using includes instead of startsWith.",
+        "Returning more than three suggestions."
+      ],
+      "interviewExplanation": "This applies the definition directly. It re-filters and re-sorts the whole catalog for every keystroke, so it does far more work than needed.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For typed 'mas', prefix 'm' matches all five words; sorted: mango, map, mast, mat, melon. Keep three."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "'ma' drops melon; 'mas' leaves only mast."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Sort once and binary search each prefix",
+      "intuition": "Sorted order groups each prefix's matches into one block, and the block for a longer prefix sits inside the block for a shorter one.",
+      "approach": "Sort the words once. For each prefix, binary search the first index whose word is >= prefix, starting no earlier than the previous answer. Read up to three words from there while they start with the prefix.",
+      "pseudocode": "sort words; low = 0\nfor each prefix p: lo = lower_bound(words, p, from low); low = lo\n  take up to 3 words from lo while they start with p",
+      "code": "function prefixSuggestions(words, typed) {\n  const sorted = [...words].sort();\n  const result = [];\n  let low = 0;\n  for (let length = 1; length <= typed.length; length++) {\n    const prefix = typed.slice(0, length);\n    let lo = low, hi = sorted.length;\n    while (lo < hi) {\n      const mid = (lo + hi) >> 1;\n      if (sorted[mid] < prefix) lo = mid + 1; else hi = mid;\n    }\n    low = lo;\n    const picks = [];\n    for (let i = lo; i < sorted.length && picks.length < 3 && sorted[i].startsWith(prefix); i++) picks.push(sorted[i]);\n    result.push(picks);\n  }\n  return result;\n}",
+      "timeComplexity": "O(n log n · L + m · (log n + L))",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Sorting the caller's array in place.",
+        "Forgetting that the lower bound for a longer prefix can only be at or after the previous one; resetting is correct but slower, moving backward is a bug."
+      ],
+      "interviewExplanation": "I sort once so every prefix's matches form a contiguous block. For each keystroke I binary search for the first word that's at least the prefix, then read at most three words while they still match. Prefixes only grow, so the lower bound is monotone and I can reuse it. Sorting dominates. A trie that keeps the three smallest words per node answers each keystroke in O(1) after building, at the cost of more memory.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Sorted: mango, map, mast, mat, melon."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Prefix 'm' starts at index 0: mango, map, mast. Prefix 'ma' also starts at 0."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Prefix 'mas' starts at index 2 (mast); mat does not start with 'mas', so only mast is suggested."
+        }
+      ]
+    }
+  ]
+}

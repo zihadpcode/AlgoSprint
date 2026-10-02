@@ -1,5 +1,6 @@
 // Explicit argument order for every runnable problem: PostgreSQL JSONB object key order is not a function signature.
-// Adding a problem means adding its slug here, a JSON seed, and a trusted reference in scripts/lib/reference-library.ts.
+// Adding a problem means adding its slug here, a JSON seed, and a trusted reference in scripts/lib/reference-library.ts
+// (or scripts/lib/reference-expansion.ts for problems added after the first 35).
 export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> = {
   "relay-window": { entryPoint: "relayWindow", keys: ["loads", "width"] },
   "quiet-badge": { entryPoint: "quietBadge", keys: ["badges"] },
@@ -36,4 +37,18 @@ export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> 
   "prime-tally": { entryPoint: "primeTally", keys: ["limit"] },
   "lru-results": { entryPoint: "lruResults", keys: ["capacity", "operations"] },
   "gutter-capacity": { entryPoint: "gutterCapacity", keys: ["heights"] },
+  // Library expansion batch 1 (trusted references in scripts/lib/reference-expansion.ts).
+  "studio-bookings": { entryPoint: "studioBookings", keys: ["bookings"] },
+  "slot-insert": { entryPoint: "slotInsert", keys: ["slots", "newSlot"] },
+  "prefix-suggestions": { entryPoint: "prefixSuggestions", keys: ["words", "typed"] },
+  "radio-clusters": { entryPoint: "radioClusters", keys: ["towers", "links"] },
+  "module-plan": { entryPoint: "modulePlan", keys: ["modules", "prerequisites"] },
+  "lit-panels": { entryPoint: "litPanels", keys: ["count"] },
+  "tile-side": { entryPoint: "tileSide", keys: ["planks"] },
+  "kth-badge": { entryPoint: "kthBadge", keys: ["tree", "k"] },
+  "canopy-layers": { entryPoint: "canopyLayers", keys: ["tree"] },
+  "dial-lookup": { entryPoint: "dialLookup", keys: ["dial", "target"] },
+  "fuel-stretch": { entryPoint: "fuelStretch", keys: ["fuel", "target"] },
+  "postfix-ledger": { entryPoint: "postfixLedger", keys: ["tokens"] },
+  "floor-tracker": { entryPoint: "floorTracker", keys: ["operations"] },
 };

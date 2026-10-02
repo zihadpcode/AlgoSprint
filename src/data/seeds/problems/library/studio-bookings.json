@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 1,
+  "slug": "studio-bookings",
+  "title": "Studio Bookings",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "sweep-line",
+  "statement": "A recording collective rents identical studios. Each booking in bookings is [start, end] in minutes, and it occupies a studio from start up to but not including end, so a booking ending at minute 10 frees its studio for another booking starting at minute 10. Return the smallest number of studios that lets every booking happen at its scheduled time.",
+  "constraints": [
+    "0 <= bookings.length <= 10000",
+    "0 <= start < end <= 1000000"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "intervals",
+    "sorting",
+    "heaps"
+  ],
+  "tags": [
+    "sorting",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "bookings": [
+          [
+            0,
+            30
+          ],
+          [
+            5,
+            10
+          ],
+          [
+            15,
+            20
+          ]
+        ]
+      },
+      "output": 2,
+      "explanation": "[0, 30] overlaps both shorter bookings, but [5, 10] and [15, 20] never overlap each other, so two studios suffice."
+    },
+    {
+      "position": 2,
+      "input": {
+        "bookings": [
+          [
+            2,
+            6
+          ],
+          [
+            6,
+            9
+          ]
+        ]
+      },
+      "output": 1,
+      "explanation": "The second booking starts exactly when the first ends, so one studio is enough."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "The answer is the largest number of bookings that are in progress at the same moment."
+    },
+    {
+      "position": 2,
+      "content": "That peak always happens at some booking's start time, so you only need to check start times."
+    },
+    {
+      "position": 3,
+      "content": "Instead of re-scanning for every start, process events in time order and keep a running count of occupied studios."
+    },
+    {
+      "position": 4,
+      "content": "Sort the start times and the end times separately. Walk the starts; before counting a start, release every booking whose end is at or before it."
+    },
+    {
+      "position": 5,
+      "content": "Release ends with end <= start before taking the new studio, because the ranges are half-open. The maximum running count is the answer."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "studioBookings",
+      "code": "function studioBookings(bookings) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "bookings": [
+          [
+            0,
+            30
+          ],
+          [
+            5,
+            10
+          ],
+          [
+            15,
+            20
+          ]
+        ]
+      },
+      "output": 2,
+      "explanation": "[0, 30] overlaps both shorter bookings, but [5, 10] and [15, 20] never overlap each other, so two studios suffice."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "bookings": [
+          [
+            2,
+            6
+          ],
+          [
+            6,
+            9
+          ]
+        ]
+      },
+      "output": 1,
+      "explanation": "The second booking starts exactly when the first ends, so one studio is enough."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "bookings": []
+      },
+      "output": 0,
+      "explanation": "No bookings need no studios."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "bookings": [
+          [
+            1,
+            5
+          ]
+        ]
+      },
+      "output": 1,
+      "explanation": "A single booking needs one studio."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "bookings": [
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            4
+          ]
+        ]
+      },
+      "output": 3,
+      "explanation": "Three identical bookings all overlap."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "bookings": [
+          [
+            9,
+            12
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            10
+          ],
+          [
+            11,
+            15
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "output": 2,
+      "explanation": "[2, 10] overlaps [1, 3], [3, 4] and [9, 12] at different moments, and [9, 12] overlaps [11, 15], but no three bookings ever run at once."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "bookings": [
+          [
+            0,
+            100
+          ],
+          [
+            10,
+            20
+          ],
+          [
+            15,
+            25
+          ],
+          [
+            18,
+            19
+          ],
+          [
+            30,
+            40
+          ]
+        ]
+      },
+      "output": 4,
+      "explanation": "Minute 18 is covered by four bookings."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "bookings": [
+          [
+            5,
+            6
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "output": 1,
+      "explanation": "Back-to-back bookings in any order reuse one studio."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Count overlaps at every start time",
+      "intuition": "The number of busy studios only rises at a start time, so the busiest moment is one of the start times.",
+      "approach": "For each booking's start t, count bookings with start <= t < end. Return the largest count.",
+      "pseudocode": "best = 0; for each (t, _) in bookings: best = max(best, count of (s, e) with s <= t < e); return best",
+      "code": "function studioBookings(bookings) {\n  let best = 0;\n  for (const [t] of bookings) {\n    let busy = 0;\n    for (const [start, end] of bookings) if (start <= t && t < end) busy++;\n    best = Math.max(best, busy);\n  }\n  return best;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Using t <= end, which counts a booking that has already ended at minute t.",
+        "Checking only end times, where the count has just dropped."
+      ],
+      "interviewExplanation": "The demand curve only steps up at start times, so checking each start and counting the bookings covering it is correct. It costs n checks of n bookings each.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For [[0,30],[5,10],[15,20]], minute 0 is covered by one booking."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Minute 5 is covered by [0,30] and [5,10]; minute 15 by [0,30] and [15,20]. The maximum is 2."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Sweep sorted starts and ends",
+      "intuition": "Only the order of events matters. If starts and ends are each sorted, a pointer over the ends tells how many bookings have finished before each new start.",
+      "approach": "Sort start times and end times independently. For each start in order, advance the end pointer past every end <= start, decrementing the open count, then increment the open count for the new booking and track the maximum.",
+      "pseudocode": "starts = sorted starts; ends = sorted ends; open = best = j = 0\nfor s in starts:\n  while j < n and ends[j] <= s: j++; open--\n  open++; best = max(best, open)\nreturn best",
+      "code": "function studioBookings(bookings) {\n  const starts = bookings.map((b) => b[0]).sort((a, b) => a - b);\n  const ends = bookings.map((b) => b[1]).sort((a, b) => a - b);\n  let open = 0, best = 0, j = 0;\n  for (const start of starts) {\n    while (j < ends.length && ends[j] <= start) { j++; open--; }\n    open++;\n    best = Math.max(best, open);\n  }\n  return best;\n}",
+      "timeComplexity": "O(n log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Sorting with the default comparator, which orders numbers as strings.",
+        "Releasing only ends strictly before the start, which double-counts back-to-back bookings."
+      ],
+      "interviewExplanation": "I treat the bookings as start and end events. Sorting each list lets me sweep time once: before taking a studio for a new start I release every booking that ended at or before it, because ranges are half-open. The running count of open bookings peaks at the answer. Sorting dominates at O(n log n). A min-heap of end times gives the same bound and also tells you which studio to reuse.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Starts [0,5,15], ends [10,20,30]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Start 0: nothing to release, open = 1. Start 5: ends[0] = 10 > 5, open = 2."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Start 15: release end 10, open = 1, then open = 2. The best is 2."
+        }
+      ]
+    }
+  ]
+}

@@ -32,4 +32,5 @@ export const PATTERNS = [
   "fast-slow-pointers", "tree-recursion", "bounded-recursion", "heap-greedy", "bfs", "flood-fill", "dijkstra",
   "backtracking", "two-dimensional-dp", "increasing-subsequence", "greedy", "binary-search-answer",
   "interval-merge", "union-find", "topological-sort", "trie", "xor", "sieve", "design",
+  "sweep-line", "bit-counting", "gcd", "inorder-traversal", "rotated-binary-search", "stack-evaluation",
 ] as const;
