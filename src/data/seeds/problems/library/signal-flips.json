@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "slug": "signal-flips",
+  "title": "Signal Flips",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "xor",
+  "statement": "Two relay switches each store a non-negative integer as 31 binary toggles. To turn the pattern of a into the pattern of b, a technician flips toggles one at a time. Return how many toggles must be flipped, which is the number of bit positions where a and b differ.",
+  "constraints": [
+    "0 <= a, b <= 2147483647"
+  ],
+  "estimatedMinutes": 10,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "bit-manipulation",
+    "math"
+  ],
+  "tags": [
+    "bitwise"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "a": 1,
+        "b": 4
+      },
+      "output": 2,
+      "explanation": "1 is 001 and 4 is 100; they differ in two positions."
+    },
+    {
+      "position": 2,
+      "input": {
+        "a": 7,
+        "b": 7
+      },
+      "output": 0,
+      "explanation": "Identical patterns need no flips."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Look at the two numbers in binary, position by position."
+    },
+    {
+      "position": 2,
+      "content": "XOR produces 1 exactly where two bits differ."
+    },
+    {
+      "position": 3,
+      "content": "So the answer is the number of 1 bits in a ^ b."
+    },
+    {
+      "position": 4,
+      "content": "You can count 1 bits by testing x & 1 and shifting right, one position at a time."
+    },
+    {
+      "position": 5,
+      "content": "Faster: x &= x - 1 clears the lowest 1 bit, so count how many times you can do that before x becomes 0."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "signalFlips",
+      "code": "function signalFlips(a, b) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "a": 1,
+        "b": 4
+      },
+      "output": 2,
+      "explanation": "1 is 001 and 4 is 100; they differ in two positions."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "a": 7,
+        "b": 7
+      },
+      "output": 0,
+      "explanation": "Identical patterns need no flips."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "a": 0,
+        "b": 0
+      },
+      "output": 0,
+      "explanation": "Both all zeros."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "a": 0,
+        "b": 2147483647
+      },
+      "output": 31,
+      "explanation": "Every one of the 31 toggles differs."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "a": 3,
+        "b": 1
+      },
+      "output": 1,
+      "explanation": "11 versus 01: one flip."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "a": 1073741824,
+        "b": 1
+      },
+      "output": 2,
+      "explanation": "The highest and lowest positions differ."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "a": 93,
+        "b": 73
+      },
+      "output": 2,
+      "explanation": "1011101 versus 1001001: two flips."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "a": 2147483647,
+        "b": 1431655765
+      },
+      "output": 15,
+      "explanation": "All ones versus alternating bits: 15 flips."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Compare binary strings",
+      "intuition": "Write both numbers as 31-digit binary strings and count positions that differ.",
+      "approach": "Use toString(2) and padStart(31, '0') on both, then compare characters.",
+      "pseudocode": "sa = binary(a, 31 digits); sb = binary(b, 31 digits); return count of i with sa[i] != sb[i]",
+      "code": "function signalFlips(a, b) {\n  const sa = a.toString(2).padStart(31, '0');\n  const sb = b.toString(2).padStart(31, '0');\n  let flips = 0;\n  for (let i = 0; i < 31; i++) if (sa[i] !== sb[i]) flips++;\n  return flips;\n}",
+      "timeComplexity": "O(31)",
+      "spaceComplexity": "O(31)",
+      "commonMistakes": [
+        "Forgetting to pad, which misaligns numbers of different lengths.",
+        "Comparing the strings from the left without padding, which compares the wrong positions."
+      ],
+      "interviewExplanation": "Working with padded binary strings mirrors the definition. It's constant time for 31 bits but allocates strings.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "1 → ...0001 and 4 → ...0100."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "They differ at the 1s place and the 4s place: 2 flips."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Popcount of XOR",
+      "intuition": "XOR marks every differing position with a 1 bit.",
+      "approach": "Compute x = a ^ b and repeatedly clear its lowest set bit with x &= x - 1, counting iterations.",
+      "pseudocode": "x = a xor b; count = 0; while x != 0: x = x and (x - 1); count++; return count",
+      "code": "function signalFlips(a, b) {\n  let x = a ^ b, flips = 0;\n  while (x !== 0) {\n    x &= x - 1;\n    flips++;\n  }\n  return flips;\n}",
+      "timeComplexity": "O(number of differing bits)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Using >> on values with the sign bit set; here inputs stay below 2^31, so a ^ b is never negative.",
+        "Writing x & x - 1 without parentheses in languages where precedence differs."
+      ],
+      "interviewExplanation": "XOR leaves a 1 wherever the bits differ, so the answer is the popcount of a ^ b. Clearing the lowest set bit with x & (x - 1) runs once per set bit. Many languages also expose popcount as a built-in.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "1 ^ 4 = 5 (101)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "5 & 4 = 4, count 1; 4 & 3 = 0, count 2."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "slug": "word-groups",
+  "title": "Word Groups",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "hash-map",
+  "statement": "A word-game club sorts submitted words into groups where every word in a group uses exactly the same letters with the same counts (anagrams of each other). Given words, return the groups. Inside each group list the words alphabetically (repeated words stay, as separate entries), and order the groups by their first word alphabetically.",
+  "constraints": [
+    "0 <= words.length <= 1000",
+    "1 <= words[i].length <= 20",
+    "Words contain only a-z"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "hash-maps",
+    "strings",
+    "sorting"
+  ],
+  "tags": [
+    "hashing",
+    "sorting"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "words": [
+          "eat",
+          "tea",
+          "tan",
+          "ate",
+          "nat",
+          "bat"
+        ]
+      },
+      "output": [
+        [
+          "ate",
+          "eat",
+          "tea"
+        ],
+        [
+          "bat"
+        ],
+        [
+          "nat",
+          "tan"
+        ]
+      ],
+      "explanation": "Groups: [ate, eat, tea], [bat], [nat, tan], ordered by first word."
+    },
+    {
+      "position": 2,
+      "input": {
+        "words": [
+          "solo"
+        ]
+      },
+      "output": [
+        [
+          "solo"
+        ]
+      ],
+      "explanation": "A single word is a group of one."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Two words belong together exactly when their letters, sorted, are identical."
+    },
+    {
+      "position": 2,
+      "content": "Comparing every word with every group is quadratic in the number of words."
+    },
+    {
+      "position": 3,
+      "content": "Use the sorted letters as a key into a hash map from key to group."
+    },
+    {
+      "position": 4,
+      "content": "Append each word to its key's group. A 26-count signature also works as a key."
+    },
+    {
+      "position": 5,
+      "content": "Finally sort each group, then sort the groups by their first word."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "wordGroups",
+      "code": "function wordGroups(words) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "eat",
+          "tea",
+          "tan",
+          "ate",
+          "nat",
+          "bat"
+        ]
+      },
+      "output": [
+        [
+          "ate",
+          "eat",
+          "tea"
+        ],
+        [
+          "bat"
+        ],
+        [
+          "nat",
+          "tan"
+        ]
+      ],
+      "explanation": "Groups: [ate, eat, tea], [bat], [nat, tan], ordered by first word."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "solo"
+        ]
+      },
+      "output": [
+        [
+          "solo"
+        ]
+      ],
+      "explanation": "A single word is a group of one."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": []
+      },
+      "output": [],
+      "explanation": "No words, no groups."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "ab",
+          "ba",
+          "ab"
+        ]
+      },
+      "output": [
+        [
+          "ab",
+          "ab",
+          "ba"
+        ]
+      ],
+      "explanation": "Duplicates are kept inside their group."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "abc",
+          "def",
+          "ghi"
+        ]
+      },
+      "output": [
+        [
+          "abc"
+        ],
+        [
+          "def"
+        ],
+        [
+          "ghi"
+        ]
+      ],
+      "explanation": "No two words are anagrams."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "a",
+          "aa",
+          "aaa",
+          "a"
+        ]
+      },
+      "output": [
+        [
+          "a",
+          "a"
+        ],
+        [
+          "aa"
+        ],
+        [
+          "aaa"
+        ]
+      ],
+      "explanation": "Letter counts matter, not just which letters appear."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "listen",
+          "silent",
+          "enlist",
+          "google",
+          "gooegl",
+          "inlets",
+          "banana"
+        ]
+      },
+      "output": [
+        [
+          "banana"
+        ],
+        [
+          "enlist",
+          "inlets",
+          "listen",
+          "silent"
+        ],
+        [
+          "gooegl",
+          "google"
+        ]
+      ],
+      "explanation": "Mixed group sizes."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Compare against every existing group",
+      "intuition": "Scan the groups found so far and add the word to the first matching one.",
+      "approach": "For each word, find a group whose first word is an anagram (same sorted letters); otherwise start a new group. Sort words within groups, then groups by first word.",
+      "pseudocode": "for w: g = first group with sorted(g[0]) == sorted(w); if g: g.push(w) else groups.push([w])\nsort each group; sort groups by first word",
+      "code": "function wordGroups(words) {\n  const key = (w) => [...w].sort().join('');\n  const groups = [];\n  for (const word of words) {\n    const group = groups.find((g) => key(g[0]) === key(word));\n    if (group) group.push(word); else groups.push([word]);\n  }\n  for (const g of groups) g.sort();\n  return groups.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));\n}",
+      "timeComplexity": "O(n² · L log L)",
+      "spaceComplexity": "O(n · L)",
+      "commonMistakes": [
+        "Checking only that two words contain the same set of letters, which ignores counts ('a' vs 'aa').",
+        "Returning groups in insertion order instead of the required order."
+      ],
+      "interviewExplanation": "Linear search over groups works, but each word is compared with every group, so it's quadratic in the number of words.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "eat starts a group. tea joins it. tan starts one. ate joins eat's group. nat joins tan's. bat starts one."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "After sorting: [[ate,eat,tea],[bat],[nat,tan]]."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Hash map keyed by sorted letters",
+      "intuition": "Anagrams share a canonical form, so a hash map collects each group in one pass.",
+      "approach": "For each word compute its sorted letters and push it to that key's list in a Map. Sort each list, then sort the lists by their first word.",
+      "pseudocode": "groups = map; for w: groups[sorted(w)].push(w)\nreturn sort(groups.values with each sorted) by first word",
+      "code": "function wordGroups(words) {\n  const groups = new Map();\n  for (const word of words) {\n    const key = [...word].sort().join('');\n    if (!groups.has(key)) groups.set(key, []);\n    groups.get(key).push(word);\n  }\n  const result = [...groups.values()].map((g) => g.sort());\n  return result.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));\n}",
+      "timeComplexity": "O(n · L log L + n log n)",
+      "spaceComplexity": "O(n · L)",
+      "commonMistakes": [
+        "Using an object with a key like 'constructor' unguarded; a Map avoids prototype keys.",
+        "Using localeCompare in some places and < in others, which can order strings inconsistently."
+      ],
+      "interviewExplanation": "Sorting a word's letters gives a canonical key, so one hash-map pass groups everything. For long words, a 26-count signature avoids the per-word sort and makes keying O(L). The final sorts only enforce the required output order.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Keys: eat/tea/ate → aet, tan/nat → ant, bat → abt."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Sorted groups: [ate,eat,tea], [nat,tan], [bat]; ordered by first word: ate, bat, nat."
+        }
+      ]
+    }
+  ]
+}

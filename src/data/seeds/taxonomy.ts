@@ -34,4 +34,5 @@ export const PATTERNS = [
   "interval-merge", "union-find", "topological-sort", "trie", "xor", "sieve", "design",
   "sweep-line", "bit-counting", "gcd", "inorder-traversal", "rotated-binary-search", "stack-evaluation",
   "unbounded-knapsack", "multi-source-bfs", "top-k", "monotonic-deque", "two-heaps",
+  "matrix-transform", "k-way-merge", "memoized-dfs", "bridges", "wildcard-dp",
 ] as const;

@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "slug": "glyph-order",
+  "title": "Glyph Order",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "topological-sort",
+  "statement": "An archive holds words written with lowercase glyphs that follow an unknown alphabetical order, and the words are listed in that order. Return a string containing every glyph that appears in the words exactly once, arranged in an order consistent with the list. When several orders are consistent, return the one that is smallest in ordinary a-z dictionary order (always choose the a-z-smallest glyph that is allowed next). Return an empty string if no order is consistent, for example when a word is followed by its own proper prefix or the requirements contradict each other.",
+  "constraints": [
+    "1 <= words.length <= 1000",
+    "1 <= words[i].length <= 100",
+    "words contain only a-z"
+  ],
+  "estimatedMinutes": 50,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "topological-sort",
+    "graphs",
+    "strings"
+  ],
+  "tags": [
+    "graph-traversal",
+    "sorting"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "words": [
+          "wrt",
+          "wrf",
+          "er",
+          "ett",
+          "rftt"
+        ]
+      },
+      "output": "wertf",
+      "explanation": "The adjacent pairs give t < f, w < e, r < t and e < r, which chain into the single order 'wertf'."
+    },
+    {
+      "position": 2,
+      "input": {
+        "words": [
+          "z",
+          "x",
+          "z"
+        ]
+      },
+      "output": "",
+      "explanation": "z < x and x < z contradict each other."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Only adjacent words need comparing: the first position where they differ says which glyph comes first. Later positions say nothing."
+    },
+    {
+      "position": 2,
+      "content": "If one word is a prefix of the next, there is no requirement. But a longer word followed by its own prefix is impossible."
+    },
+    {
+      "position": 3,
+      "content": "The requirements form a directed graph on glyphs, and a consistent order is a topological order of it."
+    },
+    {
+      "position": 4,
+      "content": "Use Kahn's algorithm, counting incoming requirements for each glyph and repeatedly taking a glyph with none remaining."
+    },
+    {
+      "position": 5,
+      "content": "To get the a-z-smallest order, always take the smallest available glyph (a sorted ready list or a min-heap). If some glyphs are never freed, there is a cycle; return ''."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "glyphOrder",
+      "code": "function glyphOrder(words) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "wrt",
+          "wrf",
+          "er",
+          "ett",
+          "rftt"
+        ]
+      },
+      "output": "wertf",
+      "explanation": "The adjacent pairs give t < f, w < e, r < t and e < r, which chain into the single order 'wertf'."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "words": [
+          "z",
+          "x",
+          "z"
+        ]
+      },
+      "output": "",
+      "explanation": "z < x and x < z contradict each other."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "abc"
+        ]
+      },
+      "output": "abc",
+      "explanation": "No requirements: glyphs in a-z order."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "abc",
+          "ab"
+        ]
+      },
+      "output": "",
+      "explanation": "A word cannot come after its own proper prefix."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "ba",
+          "bc",
+          "ac",
+          "cab"
+        ]
+      },
+      "output": "bac",
+      "explanation": "a < c and b < a, with c last: 'bac'."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "z",
+          "z"
+        ]
+      },
+      "output": "z",
+      "explanation": "Equal words impose nothing."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "ca",
+          "cb",
+          "d"
+        ]
+      },
+      "output": "abcd",
+      "explanation": "a < b and c < d; the remaining freedom is resolved alphabetically: 'abcd'."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "words": [
+          "xa",
+          "ya",
+          "xb"
+        ]
+      },
+      "output": "",
+      "explanation": "x < y from the first pair, but y < x from the second: contradiction."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "All-pairs requirements and repeated scans",
+      "intuition": "Every ordered pair of words implies a requirement at their first difference; repeatedly pick the smallest glyph that nothing remaining must precede.",
+      "approach": "Compare every pair i < j to collect requirements (and detect prefix violations). Then repeatedly pick the a-z smallest remaining glyph with no requirement from another remaining glyph; fail if none exists.",
+      "pseudocode": "for i < j: find first difference → (a, b); prefix violation → ''\nwhile glyphs remain: free = remaining with no (p, g) where p remaining; if none: return ''; take min(free)",
+      "code": "function glyphOrder(words) {\n  const before = [];\n  for (let x = 0; x < words.length; x++)\n    for (let y = x + 1; y < words.length; y++) {\n      const a = words[x], b = words[y];\n      let i = 0;\n      while (i < a.length && i < b.length && a[i] === b[i]) i++;\n      if (i === a.length || i === b.length) { if (a.length > b.length) return ''; continue; }\n      before.push([a[i], b[i]]);\n    }\n  let remaining = [...new Set(words.join(''))];\n  let order = '';\n  while (remaining.length) {\n    const free = remaining.filter((g) => !before.some(([p, q]) => q === g && remaining.includes(p))).sort();\n    if (!free.length) return '';\n    order += free[0];\n    remaining = remaining.filter((g) => g !== free[0]);\n  }\n  return order;\n}",
+      "timeComplexity": "O(n² · L + G² · R) for n words, G glyphs and R requirements",
+      "spaceComplexity": "O(n² + G)",
+      "commonMistakes": [
+        "Comparing every position of two words instead of stopping at the first difference.",
+        "Missing the 'longer word before its prefix' rule."
+      ],
+      "interviewExplanation": "Collecting requirements from all pairs is safe, since adjacent pairs imply the rest transitively, but quadratic in the number of words. Repeatedly scanning for a free glyph is a slow topological sort.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Requirements include t<f, w<e, r<t, e<r, plus redundant ones from non-adjacent pairs."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Free glyphs in turn: w, then e, then r, then t, then f. That gives 'wertf'."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Adjacent pairs and Kahn's algorithm with a sorted ready list",
+      "intuition": "Adjacent comparisons give all the information, and choosing the smallest ready glyph at each step of Kahn's algorithm yields the a-z-smallest valid order.",
+      "approach": "Build edges from each adjacent pair's first difference (deduplicated), returning '' on a prefix violation. Compute in-degrees, start a sorted ready list of zero in-degree glyphs, and repeatedly take its smallest, decrementing neighbors. Return '' if not all glyphs were taken.",
+      "pseudocode": "for adjacent (a, b): first diff → edge a[i] -> b[i]; a longer and prefix of b... reversed → ''\nready = sorted glyphs with indeg 0\nwhile ready: g = smallest; out += g; for n in after[g]: if --indeg[n] == 0: insert n\nreturn |out| == |glyphs| ? out : ''",
+      "code": "function glyphOrder(words) {\n  const glyphs = [...new Set(words.join(''))];\n  const after = new Map(glyphs.map((g) => [g, new Set()]));\n  const indegree = new Map(glyphs.map((g) => [g, 0]));\n  for (let w = 0; w + 1 < words.length; w++) {\n    const a = words[w], b = words[w + 1];\n    let i = 0;\n    while (i < a.length && i < b.length && a[i] === b[i]) i++;\n    if (i === a.length || i === b.length) {\n      if (a.length > b.length) return '';\n      continue;\n    }\n    if (!after.get(a[i]).has(b[i])) {\n      after.get(a[i]).add(b[i]);\n      indegree.set(b[i], indegree.get(b[i]) + 1);\n    }\n  }\n  const ready = glyphs.filter((g) => indegree.get(g) === 0).sort();\n  let order = '';\n  while (ready.length) {\n    const g = ready.shift();\n    order += g;\n    for (const next of after.get(g)) {\n      indegree.set(next, indegree.get(next) - 1);\n      if (indegree.get(next) === 0) { ready.push(next); ready.sort(); }\n    }\n  }\n  return order.length === glyphs.length ? order : '';\n}",
+      "timeComplexity": "O(total letters + G² log G), with G <= 26",
+      "spaceComplexity": "O(G²)",
+      "commonMistakes": [
+        "Adding duplicate edges and incrementing in-degree twice for the same requirement.",
+        "Returning a partial order when a cycle stops Kahn's algorithm early."
+      ],
+      "interviewExplanation": "Only adjacent words matter, because their first differing glyph gives one requirement and the rest follow transitively. That builds a small graph on at most 26 glyphs. Kahn's algorithm finds a consistent order, and always taking the smallest ready glyph makes it the a-z-smallest one. If glyphs remain unreached there's a cycle. The prefix rule handles the only other way a list can be inconsistent.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Pairs: wrt/wrf → t<f; wrf/er → w<e; er/ett → r<t; ett/rftt → e<r."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "In-degree 0: w. Take w, which frees e; take e, which frees r; then r, which frees t; then t, which frees f; then f."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The result is 'wertf'."
+        }
+      ]
+    }
+  ]
+}

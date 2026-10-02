@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "slug": "fragile-links",
+  "title": "Fragile Links",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "bridges",
+  "statement": "A data center has hubs numbered 0 to hubs - 1 joined by two-way cables in links (at most one cable per pair, never a hub to itself). A cable is fragile if cutting it alone would split some pair of hubs that can currently reach each other. Return every fragile cable as [smaller hub, larger hub], sorted by the first hub and then the second.",
+  "constraints": [
+    "1 <= hubs <= 2000",
+    "0 <= links.length <= 4000",
+    "0 <= a, b < hubs, a != b, and each pair appears at most once"
+  ],
+  "estimatedMinutes": 50,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "graphs",
+    "dfs"
+  ],
+  "tags": [
+    "graph-traversal",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "hubs": 4,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            3
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          3
+        ]
+      ],
+      "explanation": "The triangle 0-1-2 survives any single cut, but cutting [1, 3] isolates hub 3."
+    },
+    {
+      "position": 2,
+      "input": {
+        "hubs": 2,
+        "links": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "output": [
+        [
+          0,
+          1
+        ]
+      ],
+      "explanation": "The only cable is fragile."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Cutting a cable and checking connectivity for each cable works, but repeats a full traversal per cable."
+    },
+    {
+      "position": 2,
+      "content": "A cable is fragile exactly when it is not part of any cycle."
+    },
+    {
+      "position": 3,
+      "content": "Run a depth-first search and number hubs in visiting order. For each hub compute low: the earliest visiting number reachable from its subtree using at most one non-tree cable."
+    },
+    {
+      "position": 4,
+      "content": "A tree cable from parent p to child c is fragile exactly when low[c] > order[p]: nothing below c reaches back to p or above."
+    },
+    {
+      "position": 5,
+      "content": "Skip only the cable you arrived by (track it by index), take the minimum with children's low values after they finish, and sort the results at the end."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "fragileLinks",
+      "code": "function fragileLinks(hubs, links) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "hubs": 4,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            3
+          ]
+        ]
+      },
+      "output": [
+        [
+          1,
+          3
+        ]
+      ],
+      "explanation": "The triangle 0-1-2 survives any single cut, but cutting [1, 3] isolates hub 3."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "hubs": 2,
+        "links": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "output": [
+        [
+          0,
+          1
+        ]
+      ],
+      "explanation": "The only cable is fragile."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "hubs": 1,
+        "links": []
+      },
+      "output": [],
+      "explanation": "A lone hub has no cables."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "hubs": 3,
+        "links": []
+      },
+      "output": [],
+      "explanation": "No cables, nothing to cut."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "hubs": 5,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "output": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "explanation": "Every cable in a chain is fragile."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "hubs": 4,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      "output": [],
+      "explanation": "A ring has no fragile cables."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "hubs": 7,
+        "links": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            5,
+            3
+          ],
+          [
+            5,
+            6
+          ]
+        ]
+      },
+      "output": [
+        [
+          2,
+          3
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "explanation": "Two triangles joined by [2, 3], plus a tail [5, 6]."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "hubs": 6,
+        "links": [
+          [
+            4,
+            5
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "output": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "explanation": "Separate clusters: every cable is fragile, reported in sorted order."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Remove each cable and recount clusters",
+      "intuition": "A cable is fragile if removing it increases the number of connected clusters.",
+      "approach": "Count clusters with union-find using all cables. For each cable, recount without it and keep the cable if the count went up. Normalize and sort.",
+      "pseudocode": "base = clusters(all); for e: if clusters(all except e) > base: keep e\nreturn sorted normalized kept",
+      "code": "function fragileLinks(hubs, links) {\n  const clusters = (skip) => {\n    const parent = Array.from({ length: hubs }, (_, i) => i);\n    const find = (x) => { while (parent[x] !== x) x = parent[x] = parent[parent[x]]; return x; };\n    let count = hubs;\n    links.forEach(([a, b], id) => {\n      if (id === skip) return;\n      const ra = find(a), rb = find(b);\n      if (ra !== rb) { parent[ra] = rb; count--; }\n    });\n    return count;\n  };\n  const base = clusters(-1);\n  return links\n    .filter((_, id) => clusters(id) > base)\n    .map(([a, b]) => (a < b ? [a, b] : [b, a]))\n    .sort((x, y) => x[0] - y[0] || x[1] - y[1]);\n}",
+      "timeComplexity": "O(m · (n + m) α(n))",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Checking only whether the two endpoints are still connected but comparing the wrong way round.",
+        "Returning cables in input order or with unnormalized endpoints."
+      ],
+      "interviewExplanation": "Removing each cable and recounting clusters follows the definition directly. It costs a full union-find pass per cable, roughly quadratic.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Removing [0,1], [1,2] or [2,0] leaves the triangle connected through the other two."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Removing [1,3] isolates hub 3, so only [1,3] is fragile."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Tarjan's bridge-finding DFS",
+      "intuition": "A tree cable is a bridge when the child's subtree has no back cable reaching the parent or above, which the low values capture.",
+      "approach": "DFS from every unvisited hub, assigning order and low. For each neighbor other than via the arrival cable: if unvisited, recurse, then low[u] = min(low[u], low[v]) and report the cable if low[v] > order[u]; if visited, low[u] = min(low[u], order[v]). Sort the bridges.",
+      "pseudocode": "dfs(u, viaEdge): order[u] = low[u] = clock++\n  for (v, id) in adj[u]: if id == viaEdge: continue\n    if order[v] == -1: dfs(v, id); low[u] = min(low[u], low[v]); if low[v] > order[u]: bridge(u, v)\n    else: low[u] = min(low[u], order[v])",
+      "code": "function fragileLinks(hubs, links) {\n  const adj = Array.from({ length: hubs }, () => []);\n  links.forEach(([a, b], id) => { adj[a].push([b, id]); adj[b].push([a, id]); });\n  const order = new Array(hubs).fill(-1), low = new Array(hubs).fill(0);\n  const bridges = [];\n  let clock = 0;\n  const dfs = (u, via) => {\n    order[u] = low[u] = clock++;\n    for (const [v, id] of adj[u]) {\n      if (id === via) continue;\n      if (order[v] === -1) {\n        dfs(v, id);\n        low[u] = Math.min(low[u], low[v]);\n        if (low[v] > order[u]) bridges.push(u < v ? [u, v] : [v, u]);\n      } else low[u] = Math.min(low[u], order[v]);\n    }\n  };\n  for (let h = 0; h < hubs; h++) if (order[h] === -1) dfs(h, -1);\n  return bridges.sort((x, y) => x[0] - y[0] || x[1] - y[1]);\n}",
+      "timeComplexity": "O(n + m) plus sorting the bridges",
+      "spaceComplexity": "O(n + m)",
+      "commonMistakes": [
+        "Skipping the parent hub instead of the arrival cable; with parallel cables that would be wrong (they are excluded here, but tracking the cable index is the robust habit).",
+        "Using low[v] >= order[u], which is the articulation-point test, not the bridge test."
+      ],
+      "interviewExplanation": "A cable is a bridge iff it lies on no cycle. In a DFS tree every non-tree cable closes a cycle, so I compute low[u], the earliest discovery time reachable from u's subtree with one back cable. A tree cable (u, v) is a bridge exactly when low[v] > order[u]. One DFS gives O(n + m). For very deep graphs I'd make the DFS iterative to avoid stack limits.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "DFS 0 → 1 → 2. The back cable 2–0 gives low[2] = 0, which flows up: low[1] = 0."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "From 1, visit 3: low[3] = order[3] = 3 > order[1] = 1, so [1,3] is a bridge."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "low[2] = 0 is not greater than order[1], and low[1] = 0 is not greater than order[0], so those cables are not bridges."
+        }
+      ]
+    }
+  ]
+}
