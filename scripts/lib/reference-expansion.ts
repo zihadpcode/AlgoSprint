@@ -381,7 +381,8 @@ function fuelStretchBrute(fuel: number[], target: number) {
 
 // ---------- Postfix Ledger: evaluate reverse Polish notation ----------
 
-const LIMIT = 2 ** 31;
+// Signed 32-bit range: [-2^31, 2^31 - 1].
+const LOW = -(2 ** 31), HIGH = 2 ** 31 - 1;
 function evaluatePostfix(tokens: string[]): { ok: true; value: number } | { ok: false; reason: string } {
   const stack: number[] = [];
   for (const token of tokens) {
@@ -390,7 +391,7 @@ function evaluatePostfix(tokens: string[]): { ok: true; value: number } | { ok: 
     const right = stack.pop()!, left = stack.pop()!;
     if (token === "/" && right === 0) return { ok: false, reason: "Division by zero" };
     const value = token === "+" ? left + right : token === "-" ? left - right : token === "*" ? left * right : Math.trunc(left / right);
-    if (Math.abs(value) >= LIMIT) return { ok: false, reason: "Intermediate values must stay within 32-bit range" };
+    if (value < LOW || value > HIGH) return { ok: false, reason: "Intermediate values must stay within 32-bit range" };
     stack.push(value === 0 ? 0 : value);
   }
   return stack.length === 1 ? { ok: true, value: stack[0] } : { ok: false, reason: "The expression must reduce to one value" };

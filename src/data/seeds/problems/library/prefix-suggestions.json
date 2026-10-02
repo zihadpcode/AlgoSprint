@@ -85,23 +85,23 @@
   "hints": [
     {
       "position": 1,
-      "content": "Each step only extends the previous prefix by one character, so the matching words can only shrink."
+      "content": "Each keystroke only extends the previous prefix by one character, so the matching words can only shrink."
     },
     {
       "position": 2,
-      "content": "In an alphabetically sorted list, all words with a given prefix sit next to each other."
+      "content": "In a trie (prefix tree), every word is a path from the root, and all words sharing a prefix pass through that prefix's node."
     },
     {
       "position": 3,
-      "content": "Find where the prefix would be inserted into the sorted list; the matches start there."
+      "content": "If each node remembered its best suggestions, answering a keystroke would be a single step down the tree."
     },
     {
       "position": 4,
-      "content": "Binary search for the first word that is not smaller than the prefix, then read forward while words still start with the prefix, stopping after three."
+      "content": "Insert the words in alphabetical order. Then each node only needs to keep the first three words that pass through it."
     },
     {
       "position": 5,
-      "content": "Because prefixes grow, the insertion point never moves left, so you can start each search from the previous position. A trie that stores the three smallest words at each node is an equally good alternative."
+      "content": "Walk the typed letters from the root, reading each node's saved list. Once a letter has no child, every later prefix has no matches either."
     }
   ],
   "starterCode": [
@@ -331,6 +331,39 @@
     {
       "kind": "OPTIMAL",
       "language": "JAVASCRIPT",
+      "title": "Trie with the three best words at each node",
+      "intuition": "All words sharing a prefix pass through one trie node, so the node can remember that prefix's three smallest words ahead of time.",
+      "approach": "Sort the words and insert them into a trie in that order. Along each word's path, append the word to a node's list if it holds fewer than three. Then walk the typed letters from the root, outputting each node's list, or an empty list once the path falls off the trie.",
+      "pseudocode": "root = node(); for w in sorted(words): n = root; for ch in w: n = n.child(ch) or create; if len(n.top) < 3: n.top.push(w)\nn = root; for ch in typed: n = n and n.child(ch); out.push(n ? n.top : [])",
+      "code": "function prefixSuggestions(words, typed) {\n  const root = { children: new Map(), top: [] };\n  for (const word of [...words].sort()) {\n    let node = root;\n    for (const ch of word) {\n      if (!node.children.has(ch)) node.children.set(ch, { children: new Map(), top: [] });\n      node = node.children.get(ch);\n      if (node.top.length < 3) node.top.push(word);\n    }\n  }\n  const result = [];\n  let node = root;\n  for (const ch of typed) {\n    node = node ? node.children.get(ch) : undefined;\n    result.push(node ? node.top : []);\n  }\n  return result;\n}",
+      "timeComplexity": "O(n log n · L) to build, then O(1) per keystroke",
+      "spaceComplexity": "O(total letters in words)",
+      "commonMistakes": [
+        "Inserting words unsorted and keeping the first three, which keeps arbitrary words instead of the smallest.",
+        "Continuing to read children after the path has fallen off the trie, which throws on undefined."
+      ],
+      "interviewExplanation": "I build a trie from the words in sorted order, and each node stores the first three words that pass through it, which are its prefix's three smallest matches. Each keystroke then moves one step down the tree and reads the saved list. Once a letter has no child, every later prefix is empty too. Building costs a sort plus the total length of the words, and queries are O(1) each. The trade-off is memory for the nodes. Sorting with binary search is a lighter alternative.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Sorted words: mango, map, mast, mat, melon. Node 'm' keeps mango, map, mast. Node 'ma' keeps the same three."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Node 'mas' is reached only by mast, so it keeps [mast]."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Typing 'mas' reads [mango, map, mast], [mango, map, mast], [mast]."
+        }
+      ]
+    },
+    {
+      "kind": "ALTERNATIVE",
+      "language": "JAVASCRIPT",
       "title": "Sort once and binary search each prefix",
       "intuition": "Sorted order groups each prefix's matches into one block, and the block for a longer prefix sits inside the block for a shorter one.",
       "approach": "Sort the words once. For each prefix, binary search the first index whose word is >= prefix, starting no earlier than the previous answer. Read up to three words from there while they start with the prefix.",
@@ -342,7 +375,7 @@
         "Sorting the caller's array in place.",
         "Forgetting that the lower bound for a longer prefix can only be at or after the previous one; resetting is correct but slower, moving backward is a bug."
       ],
-      "interviewExplanation": "I sort once so every prefix's matches form a contiguous block. For each keystroke I binary search for the first word that's at least the prefix, then read at most three words while they still match. Prefixes only grow, so the lower bound is monotone and I can reuse it. Sorting dominates. A trie that keeps the three smallest words per node answers each keystroke in O(1) after building, at the cost of more memory.",
+      "interviewExplanation": "I sort once so every prefix's matches form a contiguous block. For each keystroke I binary search for the first word that's at least the prefix, then read at most three words while they still match. Prefixes only grow, so the lower bound is monotone and I can reuse it. Sorting dominates. Compared with the trie it uses less memory, but each keystroke costs a binary search instead of one step.",
       "steps": [
         {
           "position": 1,

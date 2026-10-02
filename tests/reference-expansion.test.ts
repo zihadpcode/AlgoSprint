@@ -20,3 +20,23 @@ describe("library expansion references", () => {
     });
   }
 });
+
+describe("library expansion input boundaries", () => {
+  it("accepts both signed 32-bit endpoints in postfix-ledger and rejects values past them", () => {
+    expect(libraryResult("postfix-ledger", { tokens: ["-32768", "65536", "*"] })).toBe(-(2 ** 31));
+    expect(libraryResult("postfix-ledger", { tokens: ["65535", "32768", "*", "32767", "+"] })).toBe(2 ** 31 - 1);
+    expect(() => libraryResult("postfix-ledger", { tokens: ["32768", "65536", "*"] })).toThrow(/32-bit/);
+    expect(() => libraryResult("postfix-ledger", { tokens: ["-32768", "65536", "*", "1", "-"] })).toThrow(/32-bit/);
+    expect(() => libraryResult("postfix-ledger", { tokens: ["4", "0", "/"] })).toThrow(/zero/);
+    expect(() => libraryResult("postfix-ledger", { tokens: ["4", "+"] })).toThrow(/two operands/);
+  });
+  it("rejects malformed structural inputs", () => {
+    expect(() => libraryResult("slot-insert", { slots: [[1, 4], [3, 6]], newSlot: [0, 0] })).toThrow(/disjoint/);
+    expect(() => libraryResult("kth-badge", { tree: [5, 6, 4], k: 1 })).toThrow(/BST/);
+    expect(() => libraryResult("dial-lookup", { dial: [3, 1, 2, 0], target: 1 })).toThrow(/rotation/);
+    expect(() => libraryResult("floor-tracker", { operations: [["pop"]] })).toThrow(/non-empty/);
+    expect(() => libraryResult("module-plan", { modules: 2, prerequisites: [[1, 1]] })).toThrow(/different/);
+    expect(() => libraryResult("studio-bookings", { bookings: [[4, 4]] })).toThrow(/end after/);
+  });
+});
+
