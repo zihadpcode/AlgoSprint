@@ -749,7 +749,8 @@ function sampleSignal(rng: Rng) {
   const length = rng.int(1, 3);
   const make = () => randomWord(rng, length, "abc");
   const codes = [...new Set(Array.from({ length: rng.int(0, 7) }, make))];
-  let start = make(), goal = make();
+  const start = make();
+  let goal = make();
   while (goal === start) goal = make();
   if (rng.chance(0.7) && !codes.includes(goal)) codes.push(goal);
   return { start, goal, codes };
