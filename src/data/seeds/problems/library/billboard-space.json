@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "slug": "billboard-space",
+  "title": "Billboard Space",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "monotonic-stack",
+  "statement": "A row of adjacent buildings, each one unit wide, has the heights listed in heights. An advertiser wants to paint one axis-aligned rectangular billboard across the fronts of consecutive buildings, from ground level up. The billboard can be no taller than the shortest building it covers. Return the largest possible billboard area.",
+  "constraints": [
+    "1 <= heights.length <= 10000",
+    "0 <= heights[i] <= 10000"
+  ],
+  "estimatedMinutes": 45,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "stack",
+    "arrays"
+  ],
+  "tags": [
+    "invariant",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "heights": [
+          2,
+          1,
+          5,
+          6,
+          2,
+          3
+        ]
+      },
+      "output": 10,
+      "explanation": "Covering the buildings of height 5 and 6 at height 5 gives area 10."
+    },
+    {
+      "position": 2,
+      "input": {
+        "heights": [
+          2,
+          4
+        ]
+      },
+      "output": 4,
+      "explanation": "The single building of height 4 beats 2 × 2."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "For any choice of consecutive buildings, the best billboard uses the minimum height among them."
+    },
+    {
+      "position": 2,
+      "content": "Flip it around: for each building, find the widest stretch where it is the shortest building."
+    },
+    {
+      "position": 3,
+      "content": "That stretch ends at the nearest strictly shorter building on each side."
+    },
+    {
+      "position": 4,
+      "content": "A stack of indices with increasing heights reveals those boundaries: when a shorter building arrives, every taller building on the stack has found its right boundary, and the next element below it on the stack is its left boundary."
+    },
+    {
+      "position": 5,
+      "content": "Append a sentinel height of 0 at the end so everything left on the stack is resolved. Area = height × (right - left - 1)."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "billboardSpace",
+      "code": "function billboardSpace(heights) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "heights": [
+          2,
+          1,
+          5,
+          6,
+          2,
+          3
+        ]
+      },
+      "output": 10,
+      "explanation": "Covering the buildings of height 5 and 6 at height 5 gives area 10."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "heights": [
+          2,
+          4
+        ]
+      },
+      "output": 4,
+      "explanation": "The single building of height 4 beats 2 × 2."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          7
+        ]
+      },
+      "output": 7,
+      "explanation": "One building."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          0,
+          0,
+          0
+        ]
+      },
+      "output": 0,
+      "explanation": "No height, no area."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "output": 12,
+      "explanation": "Equal heights: the full width wins, 12."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "output": 9,
+      "explanation": "Rising heights: 3 × 3 = 9."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "output": 9,
+      "explanation": "Falling heights: 3 × 3 = 9."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          6,
+          2,
+          5,
+          4,
+          5,
+          1,
+          6
+        ]
+      },
+      "output": 12,
+      "explanation": "Height 4 across three buildings gives 12."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "heights": [
+          2,
+          0,
+          2
+        ]
+      },
+      "output": 2,
+      "explanation": "A zero-height gap splits the row."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Every stretch with a running minimum",
+      "intuition": "Fix the left building and extend right, keeping the minimum height seen so far.",
+      "approach": "For each i, set low = Infinity and for each j >= i update low and the best area low × (j - i + 1).",
+      "pseudocode": "best = 0; for i: low = inf; for j >= i: low = min(low, h[j]); best = max(best, low*(j-i+1))\nreturn best",
+      "code": "function billboardSpace(heights) {\n  let best = 0;\n  for (let i = 0; i < heights.length; i++) {\n    let low = Infinity;\n    for (let j = i; j < heights.length; j++) {\n      low = Math.min(low, heights[j]);\n      best = Math.max(best, low * (j - i + 1));\n    }\n  }\n  return best;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Recomputing the minimum of each stretch from scratch, which makes it cubic.",
+        "Using the maximum height instead of the minimum."
+      ],
+      "interviewExplanation": "With a running minimum, each pair (i, j) costs O(1), so this is quadratic. It's correct but too slow for 10,000 buildings in the worst case.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "From i=2: [5] → 5, [5,6] → 10, [5,6,2] → 6, [5,6,2,3] → 8."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "No other start beats 10."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Increasing stack with a zero sentinel",
+      "intuition": "Each building's best billboard spans until the nearest shorter building on each side, and an increasing stack discovers both boundaries when a shorter building arrives.",
+      "approach": "Scan i from 0 to n, using height 0 at i = n. While the stack's top height is >= the current height, pop it: its right boundary is i and its left boundary is the new stack top (or -1). Update the best area. Push i.",
+      "pseudocode": "stack = []; best = 0\nfor i in 0..n: h = i == n ? 0 : heights[i]\n  while stack and heights[top] >= h: height = heights[pop]; left = stack.top or -1; best = max(best, height * (i - left - 1))\n  push i\nreturn best",
+      "code": "function billboardSpace(heights) {\n  const stack = [];\n  let best = 0;\n  for (let i = 0; i <= heights.length; i++) {\n    const h = i === heights.length ? 0 : heights[i];\n    while (stack.length && heights[stack[stack.length - 1]] >= h) {\n      const height = heights[stack.pop()];\n      const left = stack.length ? stack[stack.length - 1] : -1;\n      best = Math.max(best, height * (i - left - 1));\n    }\n    stack.push(i);\n  }\n  return best;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Forgetting the final sentinel, which leaves rising buildings at the end unmeasured.",
+        "Computing the width as i - left instead of i - left - 1."
+      ],
+      "interviewExplanation": "For each building I want the widest stretch where it's the minimum, which ends at the nearest shorter building on each side. I keep indices in increasing height order. When a shorter height arrives, each popped building has found its right boundary at i, and the element beneath it is its left boundary. A zero sentinel flushes the stack. Every index is pushed and popped once, O(n). Popping on >= handles equal heights, because the last equal building popped computes the full width.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Push 0 (2). Height 1 pops 2: width 1, area 2. Push 1, 2 (5), 3 (6)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Height 2 pops 6 (width 1, area 6) and 5 (width 2, area 10). Push 4 (2), 5 (3)."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "The sentinel pops 3 (area 3), 2 (width 4, area 8) and 1 (width 6, area 6). The best is 10."
+        }
+      ]
+    }
+  ]
+}

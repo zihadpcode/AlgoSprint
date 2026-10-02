@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "slug": "balance-runs",
+  "title": "Balance Runs",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "prefix-sum",
+  "statement": "A bookkeeper lists daily balance changes in changes; values may be negative. Count the runs of consecutive days whose changes add up to exactly target. Runs are counted by position, so two different runs with the same values both count.",
+  "constraints": [
+    "1 <= changes.length <= 10000",
+    "-1000 <= changes[i] <= 1000",
+    "-1000000 <= target <= 1000000"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "hash-maps",
+    "arrays"
+  ],
+  "tags": [
+    "prefix-sum",
+    "hashing"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "changes": [
+          1,
+          2,
+          3,
+          -2,
+          2
+        ],
+        "target": 3
+      },
+      "output": 4,
+      "explanation": "[1, 2], [3], [3, -2, 2] and [2, 3, -2] each sum to 3: four runs."
+    },
+    {
+      "position": 2,
+      "input": {
+        "changes": [
+          1,
+          1,
+          1
+        ],
+        "target": 2
+      },
+      "output": 2,
+      "explanation": "Days 1–2 and days 2–3."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Checking every start and end pair works but is quadratic."
+    },
+    {
+      "position": 2,
+      "content": "Let prefix[j] be the sum of the first j changes. The run from i to j - 1 sums to prefix[j] - prefix[i]."
+    },
+    {
+      "position": 3,
+      "content": "So a run ending at day j sums to target exactly when some earlier prefix equals prefix[j] - target."
+    },
+    {
+      "position": 4,
+      "content": "Keep a hash map counting how many times each prefix sum has appeared so far."
+    },
+    {
+      "position": 5,
+      "content": "Seed the map with prefix 0 seen once (the empty prefix), and look up before inserting the current prefix. Sliding windows do not work here because values can be negative."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "balanceRuns",
+      "code": "function balanceRuns(changes, target) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "changes": [
+          1,
+          2,
+          3,
+          -2,
+          2
+        ],
+        "target": 3
+      },
+      "output": 4,
+      "explanation": "[1, 2], [3], [3, -2, 2] and [2, 3, -2] each sum to 3: four runs."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "changes": [
+          1,
+          1,
+          1
+        ],
+        "target": 2
+      },
+      "output": 2,
+      "explanation": "Days 1–2 and days 2–3."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          5
+        ],
+        "target": 5
+      },
+      "output": 1,
+      "explanation": "A single day matching the target."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          5
+        ],
+        "target": 0
+      },
+      "output": 0,
+      "explanation": "No run sums to 0."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          0,
+          0,
+          0
+        ],
+        "target": 0
+      },
+      "output": 6,
+      "explanation": "Every one of the six runs sums to 0."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          3,
+          -3,
+          3,
+          -3
+        ],
+        "target": 0
+      },
+      "output": 4,
+      "explanation": "Runs of even length starting anywhere cancel out: four runs."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          -1,
+          -1,
+          1
+        ],
+        "target": -1
+      },
+      "output": 3,
+      "explanation": "Negative targets work too: [-1], [-1], [-1, -1, 1]."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "changes": [
+          2,
+          -1,
+          4,
+          -3,
+          1,
+          2,
+          -2,
+          3
+        ],
+        "target": 3
+      },
+      "output": 7,
+      "explanation": "Several overlapping runs reach 3."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Extend every start",
+      "intuition": "Try every run by fixing a start and extending it one day at a time.",
+      "approach": "For each start i, keep a running sum while extending j and count each time it equals target.",
+      "pseudocode": "count = 0; for i: sum = 0; for j >= i: sum += changes[j]; if sum == target: count++\nreturn count",
+      "code": "function balanceRuns(changes, target) {\n  let count = 0;\n  for (let i = 0; i < changes.length; i++) {\n    let sum = 0;\n    for (let j = i; j < changes.length; j++) {\n      sum += changes[j];\n      if (sum === target) count++;\n    }\n  }\n  return count;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Stopping a start once the sum matches; later days can return to the target again.",
+        "Using a shrinking window, which fails with negative values."
+      ],
+      "interviewExplanation": "With negative values I can't stop early, so I check every run with a running sum: correct and quadratic.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Start at day 0: sums 1, 3 (match), 6, 4, 6."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Start at day 1: sums 2, 5, 3 (match), 5. Start at day 2: 3 (match), 1, 3 (match). Total 4."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Prefix sums with a frequency map",
+      "intuition": "A run ending here hits the target exactly once for every earlier prefix equal to the current prefix minus target.",
+      "approach": "Track the running prefix. For each day, add the count of (prefix - target) from the map, then record the current prefix. Start the map with {0: 1}.",
+      "pseudocode": "seen = {0: 1}; prefix = 0; count = 0\nfor c in changes: prefix += c; count += seen[prefix - target] or 0; seen[prefix]++\nreturn count",
+      "code": "function balanceRuns(changes, target) {\n  const seen = new Map([[0, 1]]);\n  let prefix = 0, count = 0;\n  for (const change of changes) {\n    prefix += change;\n    count += seen.get(prefix - target) || 0;\n    seen.set(prefix, (seen.get(prefix) || 0) + 1);\n  }\n  return count;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Forgetting the initial {0: 1}, which misses runs that start on day 0.",
+        "Recording the current prefix before looking up, which counts an empty run when target is 0."
+      ],
+      "interviewExplanation": "A run's sum is a difference of two prefix sums. For each day I look up how many earlier prefixes equal the current prefix minus the target, using a hash map of prefix counts. Seeding the map with the empty prefix and looking up before inserting are the two details that matter. It's linear time and works with negative values, which a sliding window can't handle.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Prefixes: 1, 3, 6, 4, 6; seen starts {0:1}."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "At 3: 3 - 3 = 0 is seen once, count 1. At 6: 6 - 3 = 3, count 2. At 4: 1, count 3. At 6: 3, count 4."
+        }
+      ]
+    }
+  ]
+}

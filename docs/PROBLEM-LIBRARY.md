@@ -1,6 +1,6 @@
 # Problem library guide
 
-The published library holds 48 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and forty-three hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The published library holds 61 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and fifty-six hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
@@ -49,6 +49,19 @@ The published library holds 48 original coding problems: the five foundation pro
 | `fuel-stretch` | Fuel Stretch | Medium | variable-window | sliding-window, arrays |
 | `postfix-ledger` | Postfix Ledger | Medium | stack-evaluation | stack, math |
 | `floor-tracker` | Floor Tracker | Medium | design | design, object-oriented, stack |
+| `shuffled-signs` | Shuffled Signs | Easy | frequency-count | hash-maps, strings, sorting |
+| `trail-gain` | Trail Gain | Easy | linear-scan | arrays, greedy |
+| `middle-car` | Middle Car | Easy | fast-slow-pointers | linked-list, two-pointers |
+| `fare-combinations` | Fare Combinations | Medium | unbounded-knapsack | dynamic-programming, arrays |
+| `warehouse-routes` | Warehouse Routes | Medium | two-dimensional-dp | dynamic-programming, arrays |
+| `mold-spread` | Mold Spread | Medium | multi-source-bfs | bfs, graphs, queue |
+| `nearest-beacons` | Nearest Beacons | Medium | top-k | heaps, sorting, math |
+| `balance-runs` | Balance Runs | Medium | prefix-sum | hash-maps, arrays |
+| `typo-distance` | Typo Distance | Hard | two-dimensional-dp | dynamic-programming, strings |
+| `peak-watch` | Peak Watch | Hard | monotonic-deque | sliding-window, queue, arrays |
+| `signal-codes` | Signal Codes | Hard | bfs | bfs, graphs, strings |
+| `billboard-space` | Billboard Space | Hard | monotonic-stack | stack, arrays |
+| `pace-median` | Pace Median | Hard | two-heaps | heaps, design |
 
 Trees are passed as level-order arrays with `null` for missing children. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
 

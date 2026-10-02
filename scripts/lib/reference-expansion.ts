@@ -381,7 +381,8 @@ function fuelStretchBrute(fuel: number[], target: number) {
 
 // ---------- Postfix Ledger: evaluate reverse Polish notation ----------
 
-const LIMIT = 2 ** 31;
+// Signed 32-bit range: [-2^31, 2^31 - 1].
+const LOW = -(2 ** 31), HIGH = 2 ** 31 - 1;
 function evaluatePostfix(tokens: string[]): { ok: true; value: number } | { ok: false; reason: string } {
   const stack: number[] = [];
   for (const token of tokens) {
@@ -390,7 +391,7 @@ function evaluatePostfix(tokens: string[]): { ok: true; value: number } | { ok: 
     const right = stack.pop()!, left = stack.pop()!;
     if (token === "/" && right === 0) return { ok: false, reason: "Division by zero" };
     const value = token === "+" ? left + right : token === "-" ? left - right : token === "*" ? left * right : Math.trunc(left / right);
-    if (Math.abs(value) >= LIMIT) return { ok: false, reason: "Intermediate values must stay within 32-bit range" };
+    if (value < LOW || value > HIGH) return { ok: false, reason: "Intermediate values must stay within 32-bit range" };
     stack.push(value === 0 ? 0 : value);
   }
   return stack.length === 1 ? { ok: true, value: stack[0] } : { ok: false, reason: "The expression must reduce to one value" };
@@ -469,6 +470,360 @@ function sampleTracker(rng: Rng) {
   return { operations };
 }
 
+// ---------- Shuffled Signs: anagram check ----------
+
+const letters = z.string().max(10_000).regex(/^[a-z]*$/);
+export const shuffledSignsInput = z.strictObject({ first: letters, second: letters });
+export function shuffledSigns(first: string, second: string) {
+  if (first.length !== second.length) return false;
+  const counts = new Array<number>(26).fill(0);
+  for (let i = 0; i < first.length; i++) { counts[first.charCodeAt(i) - 97]++; counts[second.charCodeAt(i) - 97]--; }
+  return counts.every((c) => c === 0);
+}
+function shuffledSignsBrute(first: string, second: string) { return [...first].sort().join("") === [...second].sort().join(""); }
+const randomWord = (rng: Rng, length: number, alphabet = "abc") => Array.from({ length }, () => alphabet[rng.int(0, alphabet.length - 1)]).join("");
+
+// ---------- Trail Gain: best single increase ----------
+
+export const trailGainInput = z.strictObject({ heights: z.array(z.int().min(0).max(1_000_000)).min(1).max(10_000) });
+export function trailGain(heights: number[]) {
+  let lowest = heights[0], best = 0;
+  for (const h of heights) { best = Math.max(best, h - lowest); lowest = Math.min(lowest, h); }
+  return best;
+}
+function trailGainBrute(heights: number[]) {
+  let best = 0;
+  for (let i = 0; i < heights.length; i++) for (let j = i + 1; j < heights.length; j++) best = Math.max(best, heights[j] - heights[i]);
+  return best;
+}
+
+// ---------- Middle Car: middle node of a linked chain ----------
+
+export const middleCarInput = z.strictObject({ next: z.array(z.int().min(-1)).min(1).max(10_000), head: z.int().min(0) }).refine((i) => {
+  if (i.head >= i.next.length) return false;
+  const seen = new Set<number>();
+  for (let node = i.head; node !== -1; node = i.next[node]) { if (node >= i.next.length || seen.has(node)) return false; seen.add(node); }
+  return seen.size === i.next.length;
+}, "The chain from head must visit every car exactly once and end with -1");
+export function middleCar(next: number[], head: number) {
+  let slow = head, fast = head;
+  while (fast !== -1 && next[fast] !== -1) { slow = next[slow]; fast = next[next[fast]]; }
+  return slow;
+}
+function middleCarBrute(next: number[], head: number) {
+  const order: number[] = [];
+  for (let node = head; node !== -1; node = next[node]) order.push(node);
+  return order[Math.floor(order.length / 2)];
+}
+function sampleChain(rng: Rng) {
+  const n = rng.int(1, 9);
+  const order = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) { const j = rng.int(0, i); [order[i], order[j]] = [order[j], order[i]]; }
+  const next = new Array<number>(n).fill(-1);
+  for (let i = 0; i + 1 < n; i++) next[order[i]] = order[i + 1];
+  return { next, head: order[0] };
+}
+
+// ---------- Fare Combinations: unbounded coin-change counting ----------
+
+const MOD = 1_000_000_007;
+export const fareCombinationsInput = z.strictObject({
+  coins: z.array(z.int().min(1).max(5000)).min(1).max(50).refine((c) => new Set(c).size === c.length, "Fare values must be distinct"),
+  amount: z.int().min(0).max(5000),
+});
+export function fareCombinations(coins: number[], amount: number) {
+  const ways = new Array<number>(amount + 1).fill(0);
+  ways[0] = 1;
+  for (const coin of coins) for (let total = coin; total <= amount; total++) ways[total] = (ways[total] + ways[total - coin]) % MOD;
+  return ways[amount];
+}
+function fareCombinationsBrute(coins: number[], amount: number) {
+  const count = (index: number, remaining: number): number => {
+    if (remaining === 0) return 1;
+    if (index === coins.length) return 0;
+    let total = 0;
+    for (let used = 0; used * coins[index] <= remaining; used++) total = (total + count(index + 1, remaining - used * coins[index])) % MOD;
+    return total;
+  };
+  return count(0, amount);
+}
+
+// ---------- Warehouse Routes: grid paths around blocked cells ----------
+
+const grid = (cells: string) => z.array(z.string().min(1).max(100).regex(new RegExp(`^[${cells}]+$`))).min(1).max(100)
+  .refine((g) => g.every((row) => row.length === g[0].length), "Rows must have equal length");
+export const warehouseRoutesInput = z.strictObject({ grid: grid(".#") });
+export function warehouseRoutes(rows: string[]) {
+  const width = rows[0].length;
+  const ways = new Array<number>(width).fill(0);
+  ways[0] = rows[0][0] === "." ? 1 : 0;
+  for (const row of rows) {
+    for (let c = 0; c < width; c++) {
+      if (row[c] === "#") ways[c] = 0;
+      else if (c > 0) ways[c] = (ways[c] + ways[c - 1]) % MOD;
+    }
+  }
+  return ways[width - 1];
+}
+function warehouseRoutesBrute(rows: string[]) {
+  const walk = (r: number, c: number): number => {
+    if (r >= rows.length || c >= rows[0].length || rows[r][c] === "#") return 0;
+    if (r === rows.length - 1 && c === rows[0].length - 1) return 1;
+    return (walk(r + 1, c) + walk(r, c + 1)) % MOD;
+  };
+  return walk(0, 0);
+}
+const randomGrid = (rng: Rng, cells: string, weights: number[]) => {
+  const h = rng.int(1, 5), w = rng.int(1, 5);
+  return Array.from({ length: h }, () => Array.from({ length: w }, () => {
+    let roll = rng.int(0, weights.reduce((a, b) => a + b) - 1);
+    for (let k = 0; k < cells.length; k++) { if (roll < weights[k]) return cells[k]; roll -= weights[k]; }
+    return cells[0];
+  }).join(""));
+};
+
+// ---------- Mold Spread: multi-source BFS on a grid ----------
+
+export const moldSpreadInput = z.strictObject({ grid: grid("FS.") });
+export function moldSpread(rows: string[]) {
+  const h = rows.length, w = rows[0].length;
+  const state = rows.map((row) => [...row]);
+  let queue: [number, number][] = [];
+  let fresh = 0;
+  state.forEach((row, r) => row.forEach((cell, c) => { if (cell === "S") queue.push([r, c]); else if (cell === "F") fresh++; }));
+  let minutes = 0;
+  while (queue.length && fresh) {
+    const next: [number, number][] = [];
+    for (const [r, c] of queue) for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < h && nc >= 0 && nc < w && state[nr][nc] === "F") { state[nr][nc] = "S"; fresh--; next.push([nr, nc]); }
+    }
+    queue = next;
+    minutes++;
+  }
+  return fresh ? -1 : minutes;
+}
+function moldSpreadBrute(rows: string[]) {
+  let state = rows.map((row) => [...row]);
+  for (let minute = 0; ; minute++) {
+    if (!state.some((row) => row.includes("F"))) return minute;
+    const next = state.map((row, r) => row.map((cell, c) => (cell === "F" && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dr, dc]) => state[r + dr]?.[c + dc] === "S") ? "S" : cell)));
+    if (next.every((row, r) => row.every((cell, c) => cell === state[r][c]))) return -1;
+    state = next;
+  }
+}
+
+// ---------- Nearest Beacons: k closest points with deterministic ties ----------
+
+const point = z.tuple([z.int().min(-10_000).max(10_000), z.int().min(-10_000).max(10_000)]);
+export const nearestBeaconsInput = z.strictObject({ beacons: z.array(point).min(1).max(10_000), k: z.int().min(1) })
+  .refine((i) => i.k <= i.beacons.length, "k cannot exceed the number of beacons");
+const beaconOrder = (a: [number, number], b: [number, number]) => (a[0] * a[0] + a[1] * a[1]) - (b[0] * b[0] + b[1] * b[1]) || a[0] - b[0] || a[1] - b[1];
+export function nearestBeacons(beacons: [number, number][], k: number) {
+  // Max-heap of size k under beaconOrder, then sort the survivors.
+  const heap: [number, number][] = [];
+  const up = (i: number) => { while (i > 0) { const p = (i - 1) >> 1; if (beaconOrder(heap[p], heap[i]) >= 0) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const down = (i: number) => {
+    for (;;) {
+      const l = 2 * i + 1, r = l + 1;
+      let top = i;
+      if (l < heap.length && beaconOrder(heap[l], heap[top]) > 0) top = l;
+      if (r < heap.length && beaconOrder(heap[r], heap[top]) > 0) top = r;
+      if (top === i) return;
+      [heap[top], heap[i]] = [heap[i], heap[top]]; i = top;
+    }
+  };
+  for (const b of beacons) {
+    const p: [number, number] = [b[0], b[1]];
+    if (heap.length < k) { heap.push(p); up(heap.length - 1); }
+    else if (beaconOrder(p, heap[0]) < 0) { heap[0] = p; down(0); }
+  }
+  return heap.sort(beaconOrder);
+}
+function nearestBeaconsBrute(beacons: [number, number][], k: number) {
+  return beacons.map((b) => [b[0], b[1]] as [number, number]).sort(beaconOrder).slice(0, k);
+}
+
+// ---------- Balance Runs: subarrays summing to a target ----------
+
+export const balanceRunsInput = z.strictObject({ changes: z.array(z.int().min(-1000).max(1000)).min(1).max(10_000), target: int });
+export function balanceRuns(changes: number[], target: number) {
+  const seen = new Map<number, number>([[0, 1]]);
+  let prefix = 0, count = 0;
+  for (const change of changes) {
+    prefix += change;
+    count += seen.get(prefix - target) ?? 0;
+    seen.set(prefix, (seen.get(prefix) ?? 0) + 1);
+  }
+  return count;
+}
+function balanceRunsBrute(changes: number[], target: number) {
+  let count = 0;
+  for (let i = 0; i < changes.length; i++) { let sum = 0; for (let j = i; j < changes.length; j++) if ((sum += changes[j]) === target) count++; }
+  return count;
+}
+
+// ---------- Typo Distance: edit distance ----------
+
+const shortWord = z.string().max(500).regex(/^[a-z]*$/);
+export const typoDistanceInput = z.strictObject({ typed: shortWord, intended: shortWord });
+export function typoDistance(typed: string, intended: string) {
+  let previous = Array.from({ length: intended.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= typed.length; i++) {
+    const current = [i];
+    for (let j = 1; j <= intended.length; j++) {
+      current[j] = typed[i - 1] === intended[j - 1] ? previous[j - 1] : 1 + Math.min(previous[j - 1], previous[j], current[j - 1]);
+    }
+    previous = current;
+  }
+  return previous[intended.length];
+}
+function typoDistanceBrute(typed: string, intended: string): number {
+  const go = (i: number, j: number): number => {
+    if (i === typed.length) return intended.length - j;
+    if (j === intended.length) return typed.length - i;
+    if (typed[i] === intended[j]) return go(i + 1, j + 1);
+    return 1 + Math.min(go(i + 1, j + 1), go(i + 1, j), go(i, j + 1));
+  };
+  return go(0, 0);
+}
+
+// ---------- Peak Watch: sliding window maximum ----------
+
+export const peakWatchInput = z.strictObject({ readings: z.array(z.int().min(-10_000).max(10_000)).min(1).max(10_000), k: z.int().min(1) })
+  .refine((i) => i.k <= i.readings.length, "k cannot exceed the number of readings");
+export function peakWatch(readings: number[], k: number) {
+  const deque: number[] = [];
+  let head = 0;
+  const result: number[] = [];
+  for (let i = 0; i < readings.length; i++) {
+    while (deque.length > head && readings[deque[deque.length - 1]] <= readings[i]) deque.pop();
+    deque.push(i);
+    if (deque[head] <= i - k) head++;
+    if (i >= k - 1) result.push(readings[deque[head]]);
+  }
+  return result;
+}
+function peakWatchBrute(readings: number[], k: number) {
+  return Array.from({ length: readings.length - k + 1 }, (_, s) => Math.max(...readings.slice(s, s + k)));
+}
+
+// ---------- Signal Codes: shortest one-letter transformation chain ----------
+
+export const signalCodesInput = z.strictObject({
+  start: z.string().min(1).max(10).regex(/^[a-z]+$/), goal: z.string().min(1).max(10).regex(/^[a-z]+$/),
+  codes: z.array(z.string().min(1).max(10).regex(/^[a-z]+$/)).max(1000),
+}).refine((i) => i.start !== i.goal && i.goal.length === i.start.length && i.codes.every((c) => c.length === i.start.length) && new Set(i.codes).size === i.codes.length,
+  "start and goal must differ, and every code must be distinct and the same length as start");
+export function signalCodes(start: string, goal: string, codes: string[]) {
+  const unused = new Set(codes);
+  if (!unused.has(goal)) return 0;
+  unused.delete(start);
+  let layer = [start];
+  for (let length = 1; layer.length; length++) {
+    const next: string[] = [];
+    for (const word of layer) {
+      for (let i = 0; i < word.length; i++) for (let c = 97; c <= 122; c++) {
+        const candidate = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
+        if (!unused.has(candidate)) continue;
+        if (candidate === goal) return length + 1;
+        unused.delete(candidate);
+        next.push(candidate);
+      }
+    }
+    layer = next;
+  }
+  return 0;
+}
+function signalCodesBrute(start: string, goal: string, codes: string[]) {
+  const differsByOne = (a: string, b: string) => [...a].filter((ch, i) => ch !== b[i]).length === 1;
+  let best = 0;
+  const visit = (word: string, used: Set<string>, length: number) => {
+    if (word === goal) { if (!best || length < best) best = length; return; }
+    for (const code of codes) if (!used.has(code) && differsByOne(word, code)) { used.add(code); visit(code, used, length + 1); used.delete(code); }
+  };
+  visit(start, new Set([start]), 1);
+  return best;
+}
+function sampleSignal(rng: Rng) {
+  const length = rng.int(1, 3);
+  const make = () => randomWord(rng, length, "abc");
+  const codes = [...new Set(Array.from({ length: rng.int(0, 7) }, make))];
+  const start = make();
+  let goal = make();
+  while (goal === start) goal = make();
+  if (rng.chance(0.7) && !codes.includes(goal)) codes.push(goal);
+  return { start, goal, codes };
+}
+
+// ---------- Billboard Space: largest rectangle in a histogram ----------
+
+export const billboardSpaceInput = z.strictObject({ heights: z.array(z.int().min(0).max(10_000)).min(1).max(10_000) });
+export function billboardSpace(heights: number[]) {
+  const stack: number[] = [];
+  let best = 0;
+  for (let i = 0; i <= heights.length; i++) {
+    const h = i === heights.length ? 0 : heights[i];
+    while (stack.length && heights[stack[stack.length - 1]] >= h) {
+      const height = heights[stack.pop()!];
+      const left = stack.length ? stack[stack.length - 1] + 1 : 0;
+      best = Math.max(best, height * (i - left));
+    }
+    stack.push(i);
+  }
+  return best;
+}
+function billboardSpaceBrute(heights: number[]) {
+  let best = 0;
+  for (let i = 0; i < heights.length; i++) {
+    let low = Infinity;
+    for (let j = i; j < heights.length; j++) { low = Math.min(low, heights[j]); best = Math.max(best, low * (j - i + 1)); }
+  }
+  return best;
+}
+
+// ---------- Pace Median: running median ----------
+
+export const paceMedianInput = z.strictObject({ paces: z.array(z.int().min(-100_000).max(100_000)).min(1).max(10_000) });
+export function paceMedian(paces: number[]) {
+  // lower is a max-heap (stored negated), upper a min-heap; lower holds the extra element when the count is odd.
+  const lower: number[] = [], upper: number[] = [];
+  const push = (heap: number[], value: number) => {
+    heap.push(value);
+    for (let i = heap.length - 1; i > 0;) { const p = (i - 1) >> 1; if (heap[p] <= heap[i]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; }
+  };
+  const pop = (heap: number[]) => {
+    const top = heap[0], last = heap.pop()!;
+    if (heap.length) {
+      heap[0] = last;
+      for (let i = 0; ;) {
+        const l = 2 * i + 1, r = l + 1;
+        let m = i;
+        if (l < heap.length && heap[l] < heap[m]) m = l;
+        if (r < heap.length && heap[r] < heap[m]) m = r;
+        if (m === i) break;
+        [heap[m], heap[i]] = [heap[i], heap[m]]; i = m;
+      }
+    }
+    return top;
+  };
+  const result: number[] = [];
+  for (const pace of paces) {
+    if (lower.length && pace > -lower[0]) push(upper, pace); else push(lower, -pace);
+    if (lower.length > upper.length + 1) push(upper, -pop(lower));
+    else if (upper.length > lower.length) push(lower, -pop(upper));
+    result.push(lower.length > upper.length ? -lower[0] : (-lower[0] + upper[0]) / 2);
+  }
+  return result;
+}
+function paceMedianBrute(paces: number[]) {
+  return paces.map((_, i) => {
+    const sorted = paces.slice(0, i + 1).sort((a, b) => a - b);
+    const mid = sorted.length >> 1;
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  });
+}
+
 // ---------- Registry ----------
 
 export const EXPANSION: Record<string, ExpansionEntry> = {
@@ -498,4 +853,27 @@ export const EXPANSION: Record<string, ExpansionEntry> = {
   "fuel-stretch": entry(fuelStretchInput, fuelStretch, fuelStretchBrute, (rng) => ({ fuel: ints(rng, rng.int(1, 10), 1, 9), target: rng.int(1, 40) })),
   "postfix-ledger": entry(postfixLedgerInput, postfixLedger, postfixLedgerBrute, samplePostfix),
   "floor-tracker": entry(floorTrackerInput, floorTracker, floorTrackerBrute, sampleTracker),
+  "shuffled-signs": entry(shuffledSignsInput, shuffledSigns, shuffledSignsBrute, (rng) => {
+    const first = randomWord(rng, rng.int(0, 6));
+    const second = rng.chance(0.5) ? [...first].sort(() => rng.int(-1, 1)).join("") : randomWord(rng, rng.int(0, 6));
+    return { first, second };
+  }),
+  "trail-gain": entry(trailGainInput, trailGain, trailGainBrute, (rng) => ({ heights: ints(rng, rng.int(1, 9), 0, 20) })),
+  "middle-car": entry(middleCarInput, middleCar, middleCarBrute, sampleChain),
+  "fare-combinations": entry(fareCombinationsInput, fareCombinations, fareCombinationsBrute, (rng) => ({ coins: distinct(rng, rng.int(1, 4), 1, 9), amount: rng.int(0, 25) })),
+  "warehouse-routes": entry(warehouseRoutesInput, warehouseRoutes, warehouseRoutesBrute, (rng) => ({ grid: randomGrid(rng, ".#", [4, 1]) })),
+  "mold-spread": entry(moldSpreadInput, moldSpread, moldSpreadBrute, (rng) => ({ grid: randomGrid(rng, "FS.", [5, 1, 2]) })),
+  "nearest-beacons": entry(nearestBeaconsInput, nearestBeacons, nearestBeaconsBrute, (rng) => {
+    const beacons = Array.from({ length: rng.int(1, 9) }, () => [rng.int(-4, 4), rng.int(-4, 4)]);
+    return { beacons, k: rng.int(1, beacons.length) };
+  }),
+  "balance-runs": entry(balanceRunsInput, balanceRuns, balanceRunsBrute, (rng) => ({ changes: ints(rng, rng.int(1, 10), -3, 3), target: rng.int(-4, 4) })),
+  "typo-distance": entry(typoDistanceInput, typoDistance, typoDistanceBrute, (rng) => ({ typed: randomWord(rng, rng.int(0, 6)), intended: randomWord(rng, rng.int(0, 6)) })),
+  "peak-watch": entry(peakWatchInput, peakWatch, peakWatchBrute, (rng) => {
+    const readings = ints(rng, rng.int(1, 10), -9, 9);
+    return { readings, k: rng.int(1, readings.length) };
+  }),
+  "signal-codes": entry(signalCodesInput, signalCodes, signalCodesBrute, sampleSignal),
+  "billboard-space": entry(billboardSpaceInput, billboardSpace, billboardSpaceBrute, (rng) => ({ heights: ints(rng, rng.int(1, 9), 0, 8) })),
+  "pace-median": entry(paceMedianInput, paceMedian, paceMedianBrute, (rng) => ({ paces: ints(rng, rng.int(1, 10), -9, 9) })),
 };

@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "slug": "shuffled-signs",
+  "title": "Shuffled Signs",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "frequency-count",
+  "statement": "A sign painter reuses the letter tiles from an old shop sign to build a new one. Given the old sign first and the new sign second, both written in lowercase letters, return true if second uses exactly the same tiles as first, every tile used once, rearranged in any order. Return false otherwise.",
+  "constraints": [
+    "0 <= first.length, second.length <= 10000",
+    "Both strings contain only a-z"
+  ],
+  "estimatedMinutes": 10,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "hash-maps",
+    "strings",
+    "sorting"
+  ],
+  "tags": [
+    "frequency-count",
+    "hashing"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "first": "listen",
+        "second": "silent"
+      },
+      "output": true,
+      "explanation": "Both use one each of e, i, l, n, s, t."
+    },
+    {
+      "position": 2,
+      "input": {
+        "first": "rat",
+        "second": "car"
+      },
+      "output": false,
+      "explanation": "The new sign needs a c and has no t."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Two signs match when every letter appears the same number of times in both."
+    },
+    {
+      "position": 2,
+      "content": "Different lengths mean the answer is false immediately."
+    },
+    {
+      "position": 3,
+      "content": "Sorting both strings and comparing works, but costs n log n."
+    },
+    {
+      "position": 4,
+      "content": "There are only 26 possible letters, so a fixed-size count array is enough."
+    },
+    {
+      "position": 5,
+      "content": "Add one for each letter of first and subtract one for each letter of second; every count must end at zero."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "shuffledSigns",
+      "code": "function shuffledSigns(first, second) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "first": "listen",
+        "second": "silent"
+      },
+      "output": true,
+      "explanation": "Both use one each of e, i, l, n, s, t."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "first": "rat",
+        "second": "car"
+      },
+      "output": false,
+      "explanation": "The new sign needs a c and has no t."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "",
+        "second": ""
+      },
+      "output": true,
+      "explanation": "Two empty signs use the same (no) tiles."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "a",
+        "second": "aa"
+      },
+      "output": false,
+      "explanation": "Different lengths can never match."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "aab",
+        "second": "abb"
+      },
+      "output": false,
+      "explanation": "Same letters but different counts."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "stressed",
+        "second": "desserts"
+      },
+      "output": true,
+      "explanation": "A full reversal is a valid rearrangement."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "abc",
+        "second": "abc"
+      },
+      "output": true,
+      "explanation": "Unchanged order also counts."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "first": "zzzzy",
+        "second": "yzzzz"
+      },
+      "output": true,
+      "explanation": "Repeated tiles are matched by count."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Sort both and compare",
+      "intuition": "Rearrangements of the same tiles become identical once sorted.",
+      "approach": "Split each string into characters, sort, join, and compare.",
+      "pseudocode": "return sort(first) == sort(second)",
+      "code": "function shuffledSigns(first, second) {\n  return [...first].sort().join('') === [...second].sort().join('');\n}",
+      "timeComplexity": "O(n log n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Comparing arrays with === instead of joined strings.",
+        "Forgetting that letters may repeat."
+      ],
+      "interviewExplanation": "Sorting puts any rearrangement into the same canonical form. It's short and clear but pays for a sort.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "'listen' sorts to 'eilnst'; 'silent' also sorts to 'eilnst'."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The strings are equal, so return true."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Count letters in one array",
+      "intuition": "Only letter counts matter, and there are just 26 letters.",
+      "approach": "Return false on different lengths. Walk both strings together, incrementing the count for first's letter and decrementing for second's. Return whether every count is zero.",
+      "pseudocode": "if lengths differ: return false\ncounts[26] = 0; for i: counts[first[i]]++; counts[second[i]]--\nreturn all counts == 0",
+      "code": "function shuffledSigns(first, second) {\n  if (first.length !== second.length) return false;\n  const counts = new Array(26).fill(0);\n  for (let i = 0; i < first.length; i++) {\n    counts[first.charCodeAt(i) - 97]++;\n    counts[second.charCodeAt(i) - 97]--;\n  }\n  return counts.every((c) => c === 0);\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1), 26 counters",
+      "commonMistakes": [
+        "Skipping the length check and walking past the end of the shorter string.",
+        "Using a Map when a fixed 26-slot array is simpler and faster."
+      ],
+      "interviewExplanation": "With a fixed alphabet I keep one array of 26 counters, adding for the first sign and subtracting for the second. Equal multisets leave all zeros. Linear time and constant space. For Unicode text I'd switch to a Map keyed by code point.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Lengths match (6). After processing both strings, each of e, i, l, n, s, t was added once and removed once."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Every counter is 0, so return true."
+        }
+      ]
+    }
+  ]
+}

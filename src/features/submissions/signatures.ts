@@ -51,4 +51,18 @@ export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> 
   "fuel-stretch": { entryPoint: "fuelStretch", keys: ["fuel", "target"] },
   "postfix-ledger": { entryPoint: "postfixLedger", keys: ["tokens"] },
   "floor-tracker": { entryPoint: "floorTracker", keys: ["operations"] },
+  // Library expansion batch 2.
+  "shuffled-signs": { entryPoint: "shuffledSigns", keys: ["first", "second"] },
+  "trail-gain": { entryPoint: "trailGain", keys: ["heights"] },
+  "middle-car": { entryPoint: "middleCar", keys: ["next", "head"] },
+  "fare-combinations": { entryPoint: "fareCombinations", keys: ["coins", "amount"] },
+  "warehouse-routes": { entryPoint: "warehouseRoutes", keys: ["grid"] },
+  "mold-spread": { entryPoint: "moldSpread", keys: ["grid"] },
+  "nearest-beacons": { entryPoint: "nearestBeacons", keys: ["beacons", "k"] },
+  "balance-runs": { entryPoint: "balanceRuns", keys: ["changes", "target"] },
+  "typo-distance": { entryPoint: "typoDistance", keys: ["typed", "intended"] },
+  "peak-watch": { entryPoint: "peakWatch", keys: ["readings", "k"] },
+  "signal-codes": { entryPoint: "signalCodes", keys: ["start", "goal", "codes"] },
+  "billboard-space": { entryPoint: "billboardSpace", keys: ["heights"] },
+  "pace-median": { entryPoint: "paceMedian", keys: ["paces"] },
 };
