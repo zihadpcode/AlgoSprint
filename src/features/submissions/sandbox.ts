@@ -1,6 +1,7 @@
 import "server-only";
 import { Worker } from "node:worker_threads";
 import type { RunnerCase, RunnerOutcome } from "./judge0";
+import { RUNNER_LIMITS } from "./limits";
 
 // In-process sandbox: the harness program runs inside a QuickJS interpreter compiled to WebAssembly, hosted in a
 // Node worker thread. The interpreter has no access to Node, the filesystem, the network or the host process; it sees
@@ -10,8 +11,9 @@ import type { RunnerCase, RunnerOutcome } from "./judge0";
 // chosen so verified submissions work without an external provider.
 
 export const SANDBOX_LIMITS = {
-  maxCpuMs: 2000, graceMs: 500, maxMemoryKb: 262144, interpreterStackBytes: 4 * 1024 * 1024, workerStackMb: 64,
-  outputBytes: 90_000, totalMs: 20_000, workerGraceMs: 5000,
+  maxCpuMs: RUNNER_LIMITS.maxTimeMs, graceMs: 500, maxMemoryKb: RUNNER_LIMITS.maxMemoryKb,
+  interpreterStackBytes: 4 * 1024 * 1024, workerStackMb: 64,
+  outputBytes: 90_000, totalMs: RUNNER_LIMITS.totalBudgetMs, workerGraceMs: 5000,
 } as const;
 
 // Runs inside the worker thread. Plain CommonJS so it needs no bundling; the interpreter packages resolve from the
@@ -114,7 +116,7 @@ function isOutcome(value: unknown): value is RunnerOutcome {
 }
 
 export async function executeSandbox(source: string, cases: RunnerCase[], limits: { timeMs: number; memoryKb: number }): Promise<RunnerOutcome[]> {
-  if (!cases.length || cases.length > 10) throw new Error("Unsupported test count");
+  if (!cases.length || cases.length > RUNNER_LIMITS.maxCases) throw new Error("Unsupported test count");
   return new Promise((resolve) => {
     const outcomes: (RunnerOutcome | null)[] = cases.map(() => null);
     let settled = false;

@@ -3,6 +3,7 @@ import type { PrismaClient, Prisma } from "@/generated/prisma/client";
 import type { ExecutionInput, ExecutionResult } from "./contracts";
 import { writeProgress } from "@/features/progress/write";
 import { makeProgram, makeStdin } from "./harness";
+import { RUNNER_LIMITS } from "./limits";
 
 // Caller authenticates first. A short database lock shares quotas across server instances.
 export async function reserveSubmission(db: PrismaClient, userId: string, input: ExecutionInput) {
@@ -26,10 +27,10 @@ export async function reserveSubmission(db: PrismaClient, userId: string, input:
     const problem = await tx.problem.findUniqueOrThrow({ where: { id: locked.id }, select: {
       id: true, revision: true, timeLimitMs: true, memoryLimitKb: true,
       starterCode: { where: { language: "JAVASCRIPT" }, select: { entryPoint: true } },
-      testCases: { where: input.mode === "RUN" ? { visibility: "VISIBLE" } : {}, orderBy: { position: "asc" }, take: 11,
+      testCases: { where: input.mode === "RUN" ? { visibility: "VISIBLE" } : {}, orderBy: { position: "asc" }, take: RUNNER_LIMITS.maxCases + 1,
         select: { position: true, visibility: true, input: true, output: true } },
     } });
-    if (!problem.starterCode[0] || !problem.testCases.length || problem.testCases.length > 10 ||
+    if (!problem.starterCode[0] || !problem.testCases.length || problem.testCases.length > RUNNER_LIMITS.maxCases ||
         (input.mode === "SUBMIT" && !problem.testCases.some((t) => t.visibility === "HIDDEN"))) {
       return { error: "This problem does not have a supported test suite yet." } as const;
     }
