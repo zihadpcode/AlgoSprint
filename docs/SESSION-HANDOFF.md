@@ -1,3 +1,23 @@
+# October 1 reliability and completion work
+
+The user resumed from [the shared repository review](https://chatgpt.com/share/6abf131c-9010-83ea-b8ab-ed45774bfa58) and explicitly requested working with Claude in parallel. The local checkout starts from real `main` at `5efe69d` with clean tracked files; the old synthetic-checkout restrictions and unavailable-tool statements below belong to historical sessions.
+
+Current lanes:
+
+- Codex lead: bound browser worker output before transfer; refresh README, release/portfolio/screenshot evidence; review and integrate the parallel changes.
+- Headless Claude Code: shared submission limits, server-side executable authoring validation, admin study-only/executable help and focused tests in this checkout.
+- Interactive Claude session: isolated `AlgoSprint-content` worktree, original problem expansion toward 100, broader roadmaps and noncoding interview questions. New content must pass trusted references and actual QuickJS before reviewed batch publication; no production seeding is implied.
+- Codex account agent: isolated `AlgoSprint-recovery` worktree, recovery/resend with generic responses and provider throttling; verified recovery-only reset flow.
+- Codex draft agent: isolated `AlgoSprint-drafts` worktree, explicit opt-in local recovery with owner/revision/session scoping and logout/account cleanup.
+
+The lead applied all three existing migrations to a fresh disposable local PostgreSQL 17 `_test` database. Before final integration, 236 unit/component tests and 76 integration tests passed on Node 24.21.0; lint, typecheck, production build and QuickJS trace checks passed. The baseline published CI has 231+76 tests; do not conflate it with these uncommitted changes.
+
+Production guest evidence on `5efe69d`: `/problems` HTTP 200; protected dashboard/admin/interview/notes routes redirect to login despite forged role cookies; missing/invalid callback codes redirect generically with no-store; Monaco-to-worker execution passed both public Relay Window examples and saved nothing. Guest desktop/mobile screenshots were captured and inspected, with no whole-page horizontal overflow in measured 1440px, 390px and 320px views. A separate real-browser exercise of the revised local worker source confirmed pre-transfer diagnostic/result limits. See [RELIABILITY-GUIDE.md](RELIABILITY-GUIDE.md) and [SCREENSHOTS.md](SCREENSHOTS.md).
+
+Vercel account tools are now exposed, but the runtime-error query returned 403 Forbidden and get_project rejects its documented arguments with an idOrName schema error. No Vercel runtime-log inspection is claimed. Authenticated two-user/live recovery/interview acceptance and full mobile/keyboard/screen-reader checks remain open. Parallel worktree drafts are not deployed or seeded. The untracked AGENT-COORDINATION.md is a local coordination channel and must remain out of commits.
+
+---
+
 ## September 21 library expansion checkpoint
 
 The published library grew from 5 to 35 original problems (`src/data/seeds/problems/library/`, 8 easy / 19 medium / 3 hard) covering arrays, strings, hash maps, two pointers, sliding window, stack, queue, linked list, trees, BST, heaps, BFS, DFS, Dijkstra, backtracking, dynamic programming, greedy, binary search on the answer, intervals, sorting, union-find, topological sort, tries, bit manipulation, math and an LRU design problem. Each problem carries a brute-force and an optimal JavaScript solution (three problems also include a BETTER tier), five hints, and six to nine test cases. The runner signature allowlist moved to `src/features/submissions/signatures.ts`, trusted typed references live in `scripts/lib/reference-library.ts`, and `PATTERNS`/`TAGS` in the taxonomy were extended (no migration needed; tags upsert on seed). Every expected output was recomputed by the TypeScript references, and the JavaScript solutions were executed against all tests plus 300 random inputs per problem before the JSON was written. Integration tests now derive counts from the loaded seed set. See [PROBLEM-LIBRARY.md](PROBLEM-LIBRARY.md). After PR #21 merged (`9df9791`) and Vercel deployed it, the user ran `npm run db:seed` from that checkout on 2026-09-21: `Problems: { created: 30, skipped: 5 }`, `Roadmaps: { created: 0, skipped: 2 }`. Verified live: 35 unique problem links across three library pages, new detail pages return 200 with hints/solutions/related sections, and pattern filters such as `dijkstra` work.

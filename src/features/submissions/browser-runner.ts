@@ -1,23 +1,56 @@
 import type { CaseResult, ExecutionResult, Verdict } from "./contracts";
 
 // Visible tests run inside a Web Worker in the learner's own browser. Nothing is sent to or saved on the server,
-// so this gives instant feedback for free; only Submit needs the external provider. The worker mirrors the Judge0
+// so this gives instant feedback for free; only Submit needs the configured server runner. The worker mirrors the Judge0
 // harness contract: positional JSON arguments in, the JSON-serialized return value out, console output as diagnostics.
 
 export const BROWSER_TIME_LIMIT_MS = 3000;
 export const BROWSER_OUTPUT_LIMIT = 4000;
+// Keep complete JSON for comparison up to this bound; the smaller limit is only for display and diagnostics.
+export const BROWSER_RESULT_LIMIT = 90_000;
 
 export const BROWSER_WORKER_SOURCE = `"use strict";
 self.onmessage = function (event) {
   var data = event.data;
-  var logs = [];
+  var outputLimit = ${BROWSER_OUTPUT_LIMIT};
+  var resultLimit = ${BROWSER_RESULT_LIMIT};
+  var logs = "";
+  var truncated = false;
+  var overflow = new Error("Output exceeds the browser runner limit.");
+  // Abort serialization before walking an enormous array or building an enormous JSON string. The final length
+  // check also accounts for escaping. User code can still allocate memory; a browser worker is not a memory sandbox.
+  var serialize = function (value, limit) {
+    var size = 0;
+    var nodes = 0;
+    var json = JSON.stringify(value, function (key, item) {
+      // Array indexes are traversal keys, not serialized object keys; counting them rejects valid compact arrays.
+      size += (Array.isArray(this) ? 0 : key.length) + (typeof item === "string" ? item.length : 1);
+      if (size > limit || ++nodes > limit) throw overflow;
+      return item;
+    });
+    if (json !== undefined && json.length > limit) throw overflow;
+    return json;
+  };
+  var append = function (text) {
+    if (truncated) return;
+    var room = outputLimit - logs.length;
+    logs += text.slice(0, room);
+    if (text.length > room) truncated = true;
+  };
   var record = function () {
-    var parts = [];
+    if (truncated) return;
+    if (logs) append("\\n");
     for (var i = 0; i < arguments.length; i++) {
+      if (truncated) break;
+      if (i) append(" ");
+      if (truncated) break;
       var item = arguments[i];
-      try { parts.push(typeof item === "string" ? item : JSON.stringify(item)); } catch (error) { parts.push(String(item)); }
+      if (typeof item === "string") append(item);
+      else {
+        try { append(serialize(item, outputLimit - logs.length) || ""); }
+        catch (error) { append(error === overflow ? "[Value exceeds output limit]" : "[Unserializable value]"); }
+      }
     }
-    logs.push(parts.join(" "));
   };
   console.log = record; console.info = record; console.warn = record; console.error = record; console.debug = record;
   // This scope keeps no network or code-loading capabilities.
@@ -28,9 +61,18 @@ self.onmessage = function (event) {
   var done = function (kind, stdout, diagnostic) {
     if (finished) return;
     finished = true;
-    var lines = logs.slice();
-    if (diagnostic) lines.push(diagnostic);
-    self.postMessage({ kind: kind, stdout: stdout, diagnostic: lines.join("\\n"), runtimeMs: Math.ceil(performance.now() - started) });
+    // Keep the failure reason visible even when learner logs have exhausted their budget.
+    if (diagnostic) {
+      var errorText = diagnostic.slice(0, outputLimit);
+      var room = Math.max(0, outputLimit - errorText.length - 1);
+      truncated = truncated || diagnostic.length > outputLimit || logs.length > room;
+      logs = errorText + (logs && room > 0 ? "\\n" + logs.slice(0, room) : "");
+    }
+    if (truncated) {
+      var marker = "\\n[Diagnostics truncated]";
+      logs = logs.slice(0, outputLimit - marker.length) + marker;
+    }
+    self.postMessage({ kind: kind, stdout: stdout, diagnostic: logs, runtimeMs: Math.ceil(performance.now() - started) });
   };
   var solve;
   try { solve = new Function(data.code + "\\n;return " + data.entryPoint + ";")(); }
@@ -39,7 +81,8 @@ self.onmessage = function (event) {
   try {
     Promise.resolve(solve.apply(null, data.args)).then(function (value) {
       var json;
-      try { json = JSON.stringify(value); } catch (error) { return done("runtime", "", describe(error)); }
+      try { json = serialize(value, resultLimit); }
+      catch (error) { return done(error === overflow ? "output-limit" : "runtime", "", describe(error)); }
       if (json === undefined) return done("runtime", "", "Return a JSON value from your function.");
       done("ok", json, "");
     }, function (error) { done("runtime", "", describe(error)); });
@@ -50,7 +93,7 @@ self.onmessage = function (event) {
 export type WorkerLike = { postMessage(message: unknown): void; terminate(): void; listen(handlers: { message: (data: unknown) => void; error: () => void }): void };
 export type BrowserCase = { position: number; input: Record<string, unknown>; expected: unknown };
 export type BrowserRunInput = { entryPoint: string; keys: string[]; code: string; cases: BrowserCase[] };
-type WorkerMessage = { kind: "ok" | "syntax" | "runtime"; stdout: string; diagnostic: string; runtimeMs: number };
+type WorkerMessage = { kind: "ok" | "syntax" | "runtime" | "output-limit"; stdout: string; diagnostic: string; runtimeMs: number };
 
 export function deepEqualJson(a: unknown, b: unknown): boolean {
   if (a === b) return true;
@@ -68,7 +111,10 @@ export function deepEqualJson(a: unknown, b: unknown): boolean {
 function isWorkerMessage(value: unknown): value is WorkerMessage {
   if (!value || typeof value !== "object") return false;
   const message = value as Record<string, unknown>;
-  return ["ok", "syntax", "runtime"].includes(message.kind as string) && typeof message.stdout === "string" && typeof message.diagnostic === "string" && typeof message.runtimeMs === "number";
+  return ["ok", "syntax", "runtime", "output-limit"].includes(message.kind as string)
+    && typeof message.stdout === "string" && message.stdout.length <= BROWSER_RESULT_LIMIT
+    && typeof message.diagnostic === "string" && message.diagnostic.length <= BROWSER_OUTPUT_LIMIT
+    && typeof message.runtimeMs === "number" && Number.isFinite(message.runtimeMs) && message.runtimeMs >= 0;
 }
 
 export function createBrowserWorker(): WorkerLike {
@@ -100,9 +146,9 @@ function runCase(test: BrowserCase, input: BrowserRunInput, createWorker: () => 
       message: (message) => {
         if (!isWorkerMessage(message)) { finish({ ...base, status: "INTERNAL_ERROR", stdout: "", diagnostic: "Unexpected worker response.", runtimeMs: null }); return; }
         const stdout = message.stdout.slice(0, BROWSER_OUTPUT_LIMIT), diagnostic = message.diagnostic.slice(0, BROWSER_OUTPUT_LIMIT);
-        let status: Verdict = message.kind === "syntax" ? "COMPILE_ERROR" : message.kind === "runtime" ? "RUNTIME_ERROR" : "WRONG_ANSWER";
+        let status: Verdict = message.kind === "syntax" ? "COMPILE_ERROR" : message.kind === "runtime" || message.kind === "output-limit" ? "RUNTIME_ERROR" : "WRONG_ANSWER";
         if (message.kind === "ok") {
-          // Compare the complete output before truncating it for display, exactly like the server verdict.
+          // Compare the complete bounded output before truncating it for display, exactly like the server verdict.
           try { if (deepEqualJson(JSON.parse(message.stdout), test.expected)) status = "ACCEPTED"; } catch { /* Non-JSON output is a wrong answer. */ }
         }
         finish({ ...base, status, stdout, diagnostic, runtimeMs: message.runtimeMs });

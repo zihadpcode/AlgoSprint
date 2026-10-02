@@ -2,7 +2,7 @@
 
 ## 🟦 Capture status
 
-No release screenshots are claimed yet. The working session's cloud browser could not reach the local server (`ERR_BLOCKED_BY_CLIENT`). Capture against the verified hosted preview when it exists. CSS changes and HTTP checks do not prove mobile, keyboard or visual correctness.
+Guest captures from the deployed `5efe69d` checkpoint are available in [screenshots/](screenshots/): the library at 1440×1000, Relay Window at 390×844, and a successful guest visible-test run at 1440×1000. They were captured on 2026-10-01 using Headless Chromium 154 and visually inspected. Whole-page scroll width matched the viewport for the library at 1440px and the problem page at 390px and 320px. These checks do not establish full keyboard, screen-reader, real-device or authenticated correctness. The historical cloud-browser localhost restriction belongs to the earlier working environment.
 
 Use synthetic test accounts and original sample work. Hide addresses, tokens, private IDs and personal notes. Never fabricate populated screenshots or label a mockup as the running application. Record the commit, environment, browser, viewport and date with each capture.
 
@@ -44,4 +44,7 @@ Add one row per completed check or capture; leave failures visible until fixed a
 
 | Date | Commit | URL/environment | Browser / viewport | Check or filename | Result / issue |
 | --- | --- | --- | --- | --- | --- |
-| Pending | Pending | Hosted preview pending | Pending | Live capture and accessibility checks | Not yet performed |
+| 2026-10-01 | `5efe69d` | Production `/problems` | Chromium 154 / 1440×1000 | [Library desktop](screenshots/2026-10-01-library-desktop.png) | Real 35-problem library; inspected; scroll width 1440px |
+| 2026-10-01 | `5efe69d` | Production `/problems/relay-window` | Chromium 154 / 390×844 | [Problem mobile](screenshots/2026-10-01-problem-mobile.png) | Inspected; scroll width 390px; separate 320px viewport check also passed |
+| 2026-10-01 | `5efe69d` | Production `/problems/relay-window` | Chromium 154 / 1440×1000 | [Guest visible run](screenshots/2026-10-01-problem-run-desktop.png) | Original synthetic solution passed 2/2 public examples; no submission or saved progress |
+| Pending | Pending | Authenticated production / controlled preview | Pending | Other screens, full keyboard, real-device and accessibility checks | Not yet performed |

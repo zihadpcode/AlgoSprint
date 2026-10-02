@@ -3,6 +3,7 @@ import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import type { ProblemSeed } from "@/lib/validators/problem";
 import { validateProblemSemantics } from "../../../scripts/lib/reference-problems";
 import { makeProgram, runnerSupports } from "@/features/submissions/harness";
+import { RUNNER_LIMITS } from "@/features/submissions/limits";
 import { AdminError, lockAdmin } from "./access";
 import { adminCommand, parseAdminProblems, parseAdminRoadmap, type AdminResult } from "./contracts";
 import { adminRoadmapSelect, roadmapToken } from "./query";
@@ -27,7 +28,10 @@ function checkProblem(p: ProblemSeed, reviewed: boolean) {
   if (p.status === "PUBLISHED" && !reviewed) throw new AdminError("Confirm that you reviewed originality, explanations and expected outputs before publishing.");
   if (runnerSupports(p.slug)) {
     const js = p.starterCode.find((s) => s.language === "JAVASCRIPT");
-    if (!js || p.testCases.length > 10) throw new AdminError("Existing runner problems require JavaScript and at most ten test cases.");
+    if (!js) throw new AdminError("Executable problems require a JavaScript starter.");
+    if (p.testCases.length > RUNNER_LIMITS.maxCases) throw new AdminError(`Executable problems support at most ${RUNNER_LIMITS.maxCases} test cases.`);
+    if (p.timeLimitMs > RUNNER_LIMITS.maxTimeMs) throw new AdminError(`Executable problems must set the time limit at or below ${RUNNER_LIMITS.maxTimeMs} ms.`);
+    if (p.memoryLimitKb > RUNNER_LIMITS.maxMemoryKb) throw new AdminError(`Executable problems must set the memory limit at or below ${RUNNER_LIMITS.maxMemoryKb} KB.`);
     try { makeProgram(p.slug, js.entryPoint, ""); validateProblemSemantics(p); }
     catch { throw new AdminError("An existing runner problem has an invalid signature, input or expected output. Keep its reviewed contract intact."); }
   }

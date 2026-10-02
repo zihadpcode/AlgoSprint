@@ -7,6 +7,7 @@ import { ContentFields } from "./content-fields";
 import { blankProblem, fromForm, problemFields, roadmapFields, toForm } from "@/features/admin/form-model";
 import { administer } from "@/features/admin/actions";
 import type { AdminCommand, AdminResult } from "@/features/admin/contracts";
+import { RUNNER_LIMITS, runnerSupportsSlug } from "@/features/submissions/limits";
 
 type EditorProps = { kind: "problem" | "roadmap"; initial?: Record<string, unknown>; slug?: string; revision?: number; token?: string; status?: string };
 export function ContentEditor({ kind, initial, slug, revision: initialRevision, token: initialToken, status: initialStatus }: EditorProps) {
@@ -19,6 +20,7 @@ export function ContentEditor({ kind, initial, slug, revision: initialRevision, 
   const [result, setResult] = useState<AdminResult | null>(null); const [pending, setPending] = useState(false);
   const busy = useRef(false); const [, startTransition] = useTransition(); const router = useRouter();
   const dirty = JSON.stringify(draft) !== baseline;
+  const executable = kind === "problem" && runnerSupportsSlug(String(draft.slug ?? ""));
   function send(command: AdminCommand) {
     if (busy.current) return;
     busy.current = true; setPending(true); setResult(null);
@@ -46,7 +48,9 @@ export function ContentEditor({ kind, initial, slug, revision: initialRevision, 
     } catch (error) { setResult({ success: false, message: error instanceof Error ? error.message : "Check the draft." }); }
   }
   return <div className="space-y-6">
-    <p className="text-sm leading-7 text-muted">Save explicitly before leaving. All required content must be complete, even for a draft. Input and expected-output boxes use JSON; code is stored as text. {kind === "problem" && "The current taxonomy supports five patterns. Only the five original runner problems support execution; custom problems remain study content until reviewed runner support is added."}</p>
+    <p className="text-sm leading-7 text-muted">Save explicitly before leaving. All required content must be complete, even for a draft. Input and expected-output boxes use JSON; code is stored as text. {kind === "problem" && (executable
+      ? `This slug is registered with the JavaScript runner, so submissions execute here: keep at most ${RUNNER_LIMITS.maxCases} test cases, a time limit at or below ${RUNNER_LIMITS.maxTimeMs} ms and a memory limit at or below ${RUNNER_LIMITS.maxMemoryKb} KB. Starter code must include a reviewed JavaScript entry.`
+      : "This slug is not registered with the runner, so the problem is study-only. Authoring stays flexible — a reviewed JavaScript signature is required before submissions can execute. Starter code alone does not make a problem executable.")}</p>
     <form onSubmit={save} className="space-y-6"><fieldset disabled={pending} className="min-w-0 space-y-6">
       <ContentFields fields={fields} value={draft} immutableSlug={Boolean(slug)} onChange={(next) => { setDraft(next); setReviewed(false); }} />
       {kind === "roadmap" && <label className="block space-y-2"><span>Publication status</span><Select value={status} onChange={(e) => { setStatus(e.target.value); setReviewed(false); }}>{["DRAFT", "PUBLISHED", "ARCHIVED"].map((s) => <option key={s}>{s}</option>)}</Select></label>}

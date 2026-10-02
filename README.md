@@ -2,13 +2,13 @@
 
 An original coding interview preparation platform built incrementally with Next.js, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Zod, and Supabase Auth.
 
-## 🟩 Current checkpoint: Phase 16 release preparation
+## 🟩 Current checkpoint: deployed MVP, reliability and release verification
 
-Phases 1–15 are merged, including private timed interviews in [PR #16](https://github.com/zihadpcode/AlgoSprint/pull/16). Phase 16 polishes the landing page, mobile form sizing, guarded loading and error recovery, adds deployment configuration checks and prepares the release documentation in [PR #17](https://github.com/zihadpcode/AlgoSprint/pull/17).
+Phases 1–16 are implemented. [AlgoSprint is deployed on Vercel](https://algosprint-brown.vercel.app) with Supabase Auth/PostgreSQL, 35 original JavaScript problems, two learning paths, private notes and saved practice, progress dashboards, content administration, reviewed draft generators and timed mock interviews. The September follow-ups enabled browser example execution, verified QuickJS submissions and progress undo, and protected Prisma migration history.
 
-**176 unit/component/migration and 73 PostgreSQL integration tests pass (249 total).** [Implementation CI 35461544519](https://github.com/zihadpcode/AlgoSprint/actions/runs/35461544519) passed every gate. PR #17 records final-head validation and merge evidence. Read [the complete Phase 16 source guide](docs/PHASE-16-GUIDE.md) and [the session handoff](docs/SESSION-HANDOFF.md).
+The published `5efe69d` checkpoint passed **231 unit/component/migration and 76 PostgreSQL integration tests (307 total)** in [GitHub CI 36171027927](https://github.com/zihadpcode/AlgoSprint/actions/runs/36171027927). The current reliability work bounds browser worker output before transfer and aligns runnable authoring with provider limits. See [the reliability guide](docs/RELIABILITY-GUIDE.md) for its validation and remaining work, and [the session handoff](docs/SESSION-HANDOFF.md) for project history.
 
-Live Supabase/Vercel setup, deployment, authenticated/provider verification and browser captures remain pending. Both plugins are connected, but their account tools were not exposed in the working session. No live URL or production readiness is claimed. Follow [the deployment guide](docs/DEPLOYMENT.md), [screenshot checklist](docs/SCREENSHOTS.md) and [portfolio copy](docs/PORTFOLIO.md).
+Registration, confirmation, login/logout, saved-practice flows and accepted/failing sandbox submissions have recorded production evidence. Release acceptance remains incomplete: two-user isolation, refreshed/invalid auth sessions, interview expiry and conflicting saves, progress undo, mobile/keyboard/accessibility checks, screenshots and Vercel runtime logs still need live verification. Follow [the deployment record](docs/DEPLOYMENT.md), [screenshot checklist](docs/SCREENSHOTS.md) and [portfolio copy](docs/PORTFOLIO.md).
 
 Mock interview scores remain self-assessments, not correctness grades or verified solves. Save answers explicitly; the interview mode does not execute response code. Visible tests run in the learner's browser and save nothing; verified submissions run either in the in-process WebAssembly sandbox (`CODE_RUNNER_PROVIDER=sandbox`) or through an external Judge0 provider; both have a configuration and verification checklist. Phase 14 generators remain a reviewed draft workflow; see [the generator guide](docs/PHASE-14-GUIDE.md).
 
@@ -92,8 +92,8 @@ npm run test:smoke
 
 Supabase owns passwords. The server verifies identity with `getUser()` and reads the role from the application database. Signup never accepts a role. Account cookies are HttpOnly and use Secure in production; there is no browser auth client. Protected data must be authorized in each server query/action, not just in a layout or navigation menu.
 
-Tables live in private `app` with RLS and revoked untrusted-role access. The trusted Prisma owner can bypass RLS, so ownership checks remain essential. Select only public fields for browser responses; never bundle seed JSON, hidden tests, or internal submission results. Do not execute submitted code in the app server.
+Tables live in private `app` with RLS and revoked untrusted-role access. The trusted Prisma owner can bypass RLS, so ownership checks remain essential. Select only public fields for browser responses; never bundle seed JSON, hidden tests, or internal submission results. Submitted code runs either in an external Judge0 service or in the approved QuickJS WebAssembly interpreter hosted in a server worker thread. QuickJS exposes no Node, filesystem or network access and enforces interpreter memory and execution budgets. Never evaluate submitted code directly in the application JavaScript context. Visible example runs use a worker in the learner's browser, save nothing and do not verify progress.
 
 ## 🟪 Road ahead
 
-Phase 9 is implemented and documented; live-provider/account/browser verification remains pending. Phase 10 is implemented and documented. Phase 11 is implemented and documented; the fixture failure is resolved. Phase 12 builds original roadmaps. Roadmaps, admin authoring, generators, interviews and deployment remain later phases. Reviewed original content grows from 5 to 20 to 100 to 1,000 problems.
+Complete the remaining live release checks, add account recovery and draft protection, expand learning paths across the existing 35 problems, then grow toward 100 reviewed problems. Measure submission concurrency and dashboard queries before larger expansion. JavaScript is the current execution language; additional languages, dynamic runnable authoring and 1,000 problems are later work. See [the reliability guide](docs/RELIABILITY-GUIDE.md) for completion criteria.

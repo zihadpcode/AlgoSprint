@@ -3,6 +3,7 @@ import { useRef, useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { administer } from "@/features/admin/actions";
 import { ADMIN_PAYLOAD_LIMIT, type AdminResult } from "@/features/admin/contracts";
+import { RUNNER_LIMITS } from "@/features/submissions/limits";
 export function ImportForm() {
   const [payload, setPayload] = useState(""); const [reviewed, setReviewed] = useState(false);
   const [result, setResult] = useState<AdminResult | null>(null); const [pending, setPending] = useState(false);
@@ -17,7 +18,7 @@ export function ImportForm() {
     });
   }
   return <form onSubmit={submit} className="space-y-5"><fieldset disabled={pending} className="min-w-0 space-y-5">
-    <p className="text-sm leading-7 text-muted">Import a JSON array of 1–10 complete problem objects, below 400 KB, using the existing version 1 seed format. The whole batch succeeds or rolls back. Existing slugs are never overwritten. Publishing requires your review; validation does not prove custom solution correctness, and imported code is never executed here.</p>
+    <p className="text-sm leading-7 text-muted">Import a JSON array of 1–10 complete problem objects, below 400 KB, using the existing version 1 seed format. The whole batch succeeds or rolls back. Existing slugs are never overwritten. Publishing requires your review; validation does not prove custom solution correctness, and imported code is never executed here. Problems whose slugs are registered with the JavaScript runner must respect the executable caps ({RUNNER_LIMITS.maxCases} test cases, {RUNNER_LIMITS.maxTimeMs} ms, {RUNNER_LIMITS.maxMemoryKb} KB); unregistered slugs stay study-only regardless of their starter code.</p>
     <label className="block space-y-2"><span>Choose a JSON file</span><input type="file" accept=".json,application/json" onChange={async (e) => {
       const file = e.target.files?.[0]; if (!file) return;
       if (file.size > ADMIN_PAYLOAD_LIMIT) { setResult({ success: false, message: "Choose a JSON file below 400 KB." }); return; }

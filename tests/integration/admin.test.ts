@@ -114,6 +114,23 @@ it("protects runner contracts and rejects reserved slugs before writing", async 
   expect((await queryAdminProblem(db, admin, p.slug))?.revision).toBe(1);
   await expect(save(custom("reserved", { slug: "new" }))).rejects.toThrow(/reserved/);
 });
+it("rejects executable problems above runner caps and keeps custom study-only authoring flexible", async () => {
+  const relay = structuredClone(seeds.find((x) => x.slug === "relay-window")!);
+  const inflated = Array.from({ length: 15 }, (_, i) => ({ ...structuredClone(relay.testCases[0]), position: i + 1, visibility: (i < 10 ? "VISIBLE" : "HIDDEN") as "VISIBLE" | "HIDDEN" }));
+  await expect(save({ ...relay, testCases: inflated }, 1, true)).rejects.toThrow(/at most 10 test cases/);
+  await expect(save({ ...relay, timeLimitMs: 5000 }, 1, true)).rejects.toThrow(/at or below 2000 ms/);
+  await expect(save({ ...relay, memoryLimitKb: 524_288 }, 1, true)).rejects.toThrow(/at or below 262144 KB/);
+  expect((await queryAdminProblem(db, admin, "relay-window"))?.revision).toBe(1);
+
+  const base = custom("study-only");
+  const bigTests = Array.from({ length: 50 }, (_, i) => ({ ...structuredClone(base.testCases[0]), position: i + 1, visibility: (i < 2 ? "VISIBLE" : "HIDDEN") as "VISIBLE" | "HIDDEN" }));
+  const flexible = { ...base, timeLimitMs: 25_000, memoryLimitKb: 900_000, testCases: bigTests };
+  expect((await save(flexible)).revision).toBe(1);
+  const saved = await queryAdminProblem(db, admin, flexible.slug);
+  expect(saved?.content.testCases).toHaveLength(50);
+  expect(saved?.content.timeLimitMs).toBe(25_000);
+  expect(saved?.content.memoryLimitKb).toBe(900_000);
+});
 it("lists twenty safe summaries per page with stable title search and status filters", async () => {
   for (let start = 0; start < 21; start += 10) await writeAdmin(db, admin, { operation: "import", payload: JSON.stringify(Array.from({ length: Math.min(10, 21-start) }, (_, i) => custom(`page-${String(start+i).padStart(2,"0")}`, { title: "AAA Admin tie" }))), reviewed: false });
   const first = await queryAdminIndex(db, admin, { ...filter, q: "aaa", status: "DRAFT" }); const last = await queryAdminIndex(db, admin, { ...filter, q: "AAA", page: 999 });

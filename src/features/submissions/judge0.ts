@@ -4,6 +4,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { z } from "zod";
 import type { Judge0Config } from "./config";
 import type { Verdict } from "./contracts";
+import { RUNNER_LIMITS } from "./limits";
 
 export type RunnerCase = { stdin: string; expected: unknown };
 export type RunnerOutcome = { status: Verdict; stdout: string; diagnostic: string; runtimeMs: number | null; memoryKb: number | null };
@@ -57,20 +58,20 @@ export function judgeOutcome(raw: unknown, expected: unknown): RunnerOutcome | n
   return { status, stdout: stdout.slice(0, 4000), diagnostic: diagnostic.slice(0, 4000), runtimeMs: ms, memoryKb: result.memory ?? null };
 }
 // Batch endpoints keep metered providers affordable: one request creates every case and one request polls them all.
-const createdSchema = z.array(z.object({ token: z.uuid() })).min(1).max(10);
-const batchSchema = z.object({ submissions: z.array(z.unknown()).min(1).max(10) });
+const createdSchema = z.array(z.object({ token: z.uuid() })).min(1).max(RUNNER_LIMITS.maxCases);
+const batchSchema = z.object({ submissions: z.array(z.unknown()).min(1).max(RUNNER_LIMITS.maxCases) });
 export async function executeJudge0(config: Judge0Config, source: string, cases: RunnerCase[], limits: { timeMs: number; memoryKb: number }): Promise<RunnerOutcome[]> {
-  if (!cases.length || cases.length > 10) throw new Error("Unsupported test count");
+  if (!cases.length || cases.length > RUNNER_LIMITS.maxCases) throw new Error("Unsupported test count");
   const controller = new AbortController();
-  const deadline = setTimeout(() => controller.abort(), 20_000);
+  const deadline = setTimeout(() => controller.abort(), RUNNER_LIMITS.totalBudgetMs);
   try {
     const created = createdSchema.parse(await request(config, "/submissions/batch?base64_encoded=true", controller.signal, {
       submissions: cases.map((test) => ({
         language_id: config.languageId,
         source_code: Buffer.from(source).toString("base64"), stdin: Buffer.from(test.stdin).toString("base64"),
         // Expected values stay in this application, outside the untrusted program.
-        cpu_time_limit: Math.min(limits.timeMs / 1000, 2), cpu_extra_time: 0.5,
-        wall_time_limit: 5, memory_limit: Math.min(limits.memoryKb, 262144), stack_limit: 64000,
+        cpu_time_limit: Math.min(limits.timeMs / 1000, RUNNER_LIMITS.maxTimeMs / 1000), cpu_extra_time: 0.5,
+        wall_time_limit: 5, memory_limit: Math.min(limits.memoryKb, RUNNER_LIMITS.maxMemoryKb), stack_limit: 64000,
         max_file_size: 64, max_processes_and_or_threads: 32,
         enable_per_process_and_thread_time_limit: false, enable_per_process_and_thread_memory_limit: false,
         enable_network: false, number_of_runs: 1, redirect_stderr_to_stdout: false,
