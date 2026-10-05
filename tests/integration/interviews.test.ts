@@ -61,7 +61,7 @@ it("freezes the prompt/reference across library edits and abandonment retains sa
   expect(after.questions[0].prompt).toEqual(before.questions[0].prompt); expect(after.status).toBe("ABANDONED"); expect(after.score).toBeNull(); expect(after.questions[0].reference).toBeTruthy();
 });
 it("supports original noncoding styles, rejects empty pools and finalizes expired sessions before restarting", async () => {
-  await expect(start({ count: 3, kind: "BEHAVIORAL" })).rejects.toThrow(/Only 1/);
+  await expect(start({ count: 1, kind: "BEHAVIORAL", topic: "sql" })).rejects.toThrow(/Only 0/);
   const old = await start({ count: 1, kind: "SYSTEM_DESIGN", topic: "design" }); expect((await queryInterview(db, owner, old.id!))!.questions[0].kind).toBe("SYSTEM_DESIGN");
   await db.mockInterview.update({ where: { id: old.id }, data: { startedAt: new Date(Date.now() - 16 * 60000) } });
   const next = await start(); expect(next.id).not.toBe(old.id); expect((await queryInterview(db, owner, old.id!))?.status).toBe("COMPLETED");

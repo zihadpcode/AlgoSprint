@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
+import { CATEGORIES } from "@/data/seeds/taxonomy";
 import { answerSchema, EMPTY_ANSWER, interviewCommand, setupSchema, snapshotSchema } from "@/features/interviews/contracts";
 import { assessment, readAnswer, remainingMs } from "@/features/interviews/policy";
 import { INTERVIEW_QUESTIONS } from "@/features/interviews/questions";
+
+// SHA-256 of JSON.stringify of the original five prompt objects as first published (questions.ts at 5efe69d).
+const ORIGINAL_FIVE_SHA256 = "337b4b43f0ec369404a439c4bb3efa3593f4342f40603e918e363850dd9902ed";
 describe("interview boundaries and self-assessment", () => {
   it("bounds setup, rejects forged fields and unknown selection values", () => {
     const valid = { duration: 30, count: 2, difficulty: "ANY", kind: "ANY", topic: "" };
@@ -30,5 +35,21 @@ describe("interview boundaries and self-assessment", () => {
     expect(() => readAnswer('{"score":100}')).toThrow();
     expect(new Set(INTERVIEW_QUESTIONS.map((q) => q.kind)).size).toBe(5);
     for (const q of INTERVIEW_QUESTIONS) { expect(snapshotSchema.safeParse(q.snapshot).success).toBe(true); expect(q.snapshot.reference.length).toBeGreaterThan(100); }
+  });
+  it("keeps the original prompt IDs and offers three prompts for every style and difficulty", () => {
+    const ids = INTERVIEW_QUESTIONS.map((q) => q.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    // The original five prompts must stay byte-for-byte identical (IDs, kinds, difficulty, topic and full snapshot).
+    expect(createHash("sha256").update(JSON.stringify(INTERVIEW_QUESTIONS.slice(0, 5))).digest("hex")).toBe(ORIGINAL_FIVE_SHA256);
+    expect(INTERVIEW_QUESTIONS.slice(0, 5).map((q) => [q.id, q.kind, q.difficulty, q.snapshot.title])).toEqual([
+      ["collection-membership", "CONCEPTUAL", "EASY", "Workshop Check-In Index"], ["last-crate", "DEBUGGING", "EASY", "The Missing Final Crate"],
+      ["repeated-ledger", "OPTIMIZATION", "EASY", "Repeated Depot Totals"], ["handoff-decision", "BEHAVIORAL", "EASY", "A Handoff Under Pressure"],
+      ["study-room-booking", "SYSTEM_DESIGN", "EASY", "Campus Study Room Booking"],
+    ]);
+    for (const kind of ["CONCEPTUAL", "DEBUGGING", "OPTIMIZATION", "BEHAVIORAL", "SYSTEM_DESIGN"] as const)
+      for (const difficulty of ["EASY", "MEDIUM", "HARD"] as const)
+        expect(INTERVIEW_QUESTIONS.filter((q) => q.kind === kind && q.difficulty === difficulty).length, `${kind} ${difficulty}`).toBeGreaterThanOrEqual(3);
+    for (const q of INTERVIEW_QUESTIONS) expect(CATEGORIES.some(([slug]) => slug === q.topic), q.id).toBe(true);
+    expect(new Set(INTERVIEW_QUESTIONS.map((q) => q.snapshot.title)).size).toBe(INTERVIEW_QUESTIONS.length);
   });
 });
