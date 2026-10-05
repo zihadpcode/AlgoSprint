@@ -1,6 +1,6 @@
 # Problem library guide
 
-The published library holds 61 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and fifty-six hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The published library holds 74 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and sixty-nine hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
@@ -62,6 +62,19 @@ The published library holds 61 original coding problems: the five foundation pro
 | `signal-codes` | Signal Codes | Hard | bfs | bfs, graphs, strings |
 | `billboard-space` | Billboard Space | Hard | monotonic-stack | stack, arrays |
 | `pace-median` | Pace Median | Hard | two-heaps | heaps, design |
+| `signal-flips` | Signal Flips | Easy | xor | bit-manipulation, math |
+| `roster-merge` | Roster Merge | Easy | two-pointers | two-pointers, sorting, arrays |
+| `tower-tiles` | Tower Tiles | Easy | one-dimensional-dp | dynamic-programming, recursion |
+| `badge-subsets` | Badge Subsets | Medium | backtracking | backtracking, recursion, bit-manipulation |
+| `grid-turn` | Grid Turn | Medium | matrix-transform | arrays, math |
+| `charging-loop` | Charging Loop | Medium | greedy | greedy, arrays |
+| `word-groups` | Word Groups | Medium | hash-map | hash-maps, strings, sorting |
+| `lane-merge` | Lane Merge | Hard | k-way-merge | heaps, sorting, arrays |
+| `ridge-trails` | Ridge Trails | Hard | memoized-dfs | dfs, dynamic-programming, graphs |
+| `cipher-window` | Cipher Window | Hard | variable-window | sliding-window, strings, hash-maps |
+| `pattern-gate` | Pattern Gate | Hard | wildcard-dp | dynamic-programming, strings, backtracking |
+| `fragile-links` | Fragile Links | Hard | bridges | graphs, dfs |
+| `glyph-order` | Glyph Order | Hard | topological-sort | topological-sort, graphs, strings |
 
 Trees are passed as level-order arrays with `null` for missing children. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
 

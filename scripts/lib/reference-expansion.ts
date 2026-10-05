@@ -824,6 +824,366 @@ function paceMedianBrute(paces: number[]) {
   });
 }
 
+// ---------- Signal Flips: Hamming distance ----------
+
+const u31 = z.int().min(0).max(2 ** 31 - 1);
+export const signalFlipsInput = z.strictObject({ a: u31, b: u31 });
+export function signalFlips(a: number, b: number) {
+  let x = a ^ b, count = 0;
+  while (x) { x &= x - 1; count++; }
+  return count;
+}
+function signalFlipsBrute(a: number, b: number) {
+  const pa = a.toString(2).padStart(31, "0"), pb = b.toString(2).padStart(31, "0");
+  return [...pa].filter((bit, i) => bit !== pb[i]).length;
+}
+
+// ---------- Roster Merge: merge two sorted arrays ----------
+
+const sortedInts = z.array(int).max(10_000).refine((a) => a.every((v, i) => i === 0 || a[i - 1] <= v), "Rosters must be sorted");
+export const rosterMergeInput = z.strictObject({ first: sortedInts, second: sortedInts });
+export function rosterMerge(first: number[], second: number[]) {
+  const out: number[] = [];
+  let i = 0, j = 0;
+  while (i < first.length && j < second.length) out.push(first[i] <= second[j] ? first[i++] : second[j++]);
+  while (i < first.length) out.push(first[i++]);
+  while (j < second.length) out.push(second[j++]);
+  return out;
+}
+function rosterMergeBrute(first: number[], second: number[]) { return [...first, ...second].sort((a, b) => a - b); }
+
+// ---------- Tower Tiles: domino tilings of a 2 x n strip ----------
+
+export const towerTilesInput = z.strictObject({ length: z.int().min(1).max(10_000) });
+export function towerTiles(length: number) {
+  let a = 1, b = 1;
+  for (let i = 2; i <= length; i++) [a, b] = [b, (a + b) % MOD];
+  return b;
+}
+function towerTilesBrute(length: number): number { return length <= 1 ? 1 : (towerTilesBrute(length - 1) + towerTilesBrute(length - 2)) % MOD; }
+
+// ---------- Badge Subsets: all subsets, by size then lexicographically ----------
+
+export const badgeSubsetsInput = z.strictObject({
+  badges: z.array(z.int().min(-100).max(100)).max(10).refine((b) => new Set(b).size === b.length, "Badges must be distinct"),
+});
+export function badgeSubsets(badges: number[]) {
+  const sorted = [...badges].sort((a, b) => a - b);
+  const result: number[][] = [];
+  const choose = (start: number, size: number, picked: number[]) => {
+    if (picked.length === size) { result.push([...picked]); return; }
+    for (let i = start; i <= sorted.length - (size - picked.length); i++) { picked.push(sorted[i]); choose(i + 1, size, picked); picked.pop(); }
+  };
+  for (let size = 0; size <= sorted.length; size++) choose(0, size, []);
+  return result;
+}
+function badgeSubsetsBrute(badges: number[]) {
+  const all: number[][] = [];
+  for (let mask = 0; mask < 1 << badges.length; mask++) all.push(badges.filter((_, i) => mask & (1 << i)).sort((a, b) => a - b));
+  return all.sort((x, y) => {
+    if (x.length !== y.length) return x.length - y.length;
+    for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i];
+    return 0;
+  });
+}
+
+// ---------- Grid Turn: rotate a square matrix clockwise ----------
+
+export const gridTurnInput = z.strictObject({
+  matrix: z.array(z.array(int).max(100)).min(1).max(100).refine((m) => m.every((row) => row.length === m.length), "The matrix must be square"),
+});
+export function gridTurn(matrix: number[][]) {
+  const m = matrix.map((row) => [...row]);
+  const n = m.length;
+  for (let r = 0; r < n; r++) for (let c = r + 1; c < n; c++) [m[r][c], m[c][r]] = [m[c][r], m[r][c]];
+  for (const row of m) row.reverse();
+  return m;
+}
+function gridTurnBrute(matrix: number[][]) {
+  const n = matrix.length;
+  return Array.from({ length: n }, (_, r) => Array.from({ length: n }, (_, c) => matrix[n - 1 - c][r]));
+}
+
+// ---------- Charging Loop: circular route start (gas station) ----------
+
+export const chargingLoopInput = z.strictObject({
+  gain: z.array(z.int().min(0).max(10_000)).min(1).max(10_000), cost: z.array(z.int().min(0).max(10_000)).min(1).max(10_000),
+}).refine((i) => i.gain.length === i.cost.length, "gain and cost must have the same length");
+export function chargingLoop(gain: number[], cost: number[]) {
+  let total = 0, tank = 0, start = 0;
+  for (let i = 0; i < gain.length; i++) {
+    total += gain[i] - cost[i];
+    tank += gain[i] - cost[i];
+    if (tank < 0) { start = i + 1; tank = 0; }
+  }
+  return total < 0 ? -1 : start;
+}
+function chargingLoopBrute(gain: number[], cost: number[]) {
+  const n = gain.length;
+  outer: for (let s = 0; s < n; s++) {
+    let tank = 0;
+    for (let k = 0; k < n; k++) { const i = (s + k) % n; tank += gain[i] - cost[i]; if (tank < 0) continue outer; }
+    return s;
+  }
+  return -1;
+}
+
+// ---------- Word Groups: group anagrams ----------
+
+export const wordGroupsInput = z.strictObject({ words: z.array(z.string().min(1).max(20).regex(/^[a-z]+$/)).max(1000) });
+const groupOrder = (a: string[], b: string[]) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+export function wordGroups(words: string[]) {
+  const groups = new Map<string, string[]>();
+  for (const word of words) {
+    const key = [...word].sort().join("");
+    const group = groups.get(key);
+    if (group) group.push(word); else groups.set(key, [word]);
+  }
+  return [...groups.values()].map((g) => g.sort()).sort(groupOrder);
+}
+function wordGroupsBrute(words: string[]) {
+  const same = (a: string, b: string) => a.length === b.length && [...a].sort().join("") === [...b].sort().join("");
+  const groups: string[][] = [];
+  for (const word of words) {
+    const group = groups.find((g) => same(g[0], word));
+    if (group) group.push(word); else groups.push([word]);
+  }
+  return groups.map((g) => g.sort()).sort(groupOrder);
+}
+
+// ---------- Lane Merge: k-way merge of sorted arrays ----------
+
+export const laneMergeInput = z.strictObject({ lanes: z.array(sortedInts).max(1000) })
+  .refine((i) => i.lanes.reduce((n, lane) => n + lane.length, 0) <= 10_000, "At most 10000 values in total");
+export function laneMerge(lanes: number[][]) {
+  // Min-heap of [value, lane, index].
+  const heap: [number, number, number][] = [];
+  const less = (a: [number, number, number], b: [number, number, number]) => a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);
+  const push = (item: [number, number, number]) => {
+    heap.push(item);
+    for (let i = heap.length - 1; i > 0;) { const p = (i - 1) >> 1; if (!less(heap[i], heap[p])) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; }
+  };
+  const pop = () => {
+    const top = heap[0], last = heap.pop()!;
+    if (heap.length) {
+      heap[0] = last;
+      for (let i = 0; ;) {
+        const l = 2 * i + 1, r = l + 1;
+        let m = i;
+        if (l < heap.length && less(heap[l], heap[m])) m = l;
+        if (r < heap.length && less(heap[r], heap[m])) m = r;
+        if (m === i) break;
+        [heap[m], heap[i]] = [heap[i], heap[m]]; i = m;
+      }
+    }
+    return top;
+  };
+  lanes.forEach((lane, k) => { if (lane.length) push([lane[0], k, 0]); });
+  const out: number[] = [];
+  while (heap.length) {
+    const [value, k, i] = pop();
+    out.push(value);
+    if (i + 1 < lanes[k].length) push([lanes[k][i + 1], k, i + 1]);
+  }
+  return out;
+}
+function laneMergeBrute(lanes: number[][]) { return lanes.flat().sort((a, b) => a - b); }
+
+// ---------- Ridge Trails: longest strictly increasing path in a grid ----------
+
+export const ridgeTrailsInput = z.strictObject({
+  grid: z.array(z.array(z.int().min(0).max(1_000_000)).min(1).max(50)).min(1).max(50)
+    .refine((g) => g.every((row) => row.length === g[0].length), "Rows must have equal length"),
+});
+export function ridgeTrails(grid: number[][]) {
+  // Process cells in increasing height so every lower neighbour is final before it is read.
+  const h = grid.length, w = grid[0].length;
+  const cells: [number, number][] = [];
+  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) cells.push([r, c]);
+  cells.sort((a, b) => grid[a[0]][a[1]] - grid[b[0]][b[1]]);
+  const best = grid.map((row) => row.map(() => 1));
+  let answer = 0;
+  for (const [r, c] of cells) {
+    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < h && nc >= 0 && nc < w && grid[nr][nc] < grid[r][c]) best[r][c] = Math.max(best[r][c], best[nr][nc] + 1);
+    }
+    answer = Math.max(answer, best[r][c]);
+  }
+  return answer;
+}
+function ridgeTrailsBrute(grid: number[][]) {
+  const walk = (r: number, c: number): number => {
+    let longest = 1;
+    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (grid[nr]?.[nc] !== undefined && grid[nr][nc] > grid[r][c]) longest = Math.max(longest, 1 + walk(nr, nc));
+    }
+    return longest;
+  };
+  let answer = 0;
+  grid.forEach((row, r) => row.forEach((_, c) => { answer = Math.max(answer, walk(r, c)); }));
+  return answer;
+}
+
+// ---------- Cipher Window: minimum window substring ----------
+
+export const cipherWindowInput = z.strictObject({
+  text: z.string().min(1).max(10_000).regex(/^[a-z]+$/), pattern: z.string().min(1).max(10_000).regex(/^[a-z]+$/),
+});
+export function cipherWindow(text: string, pattern: string) {
+  const need = new Array<number>(26).fill(0);
+  for (const ch of pattern) need[ch.charCodeAt(0) - 97]++;
+  let missing = pattern.length, bestStart = 0, bestLength = Infinity, left = 0;
+  for (let right = 0; right < text.length; right++) {
+    if (need[text.charCodeAt(right) - 97]-- > 0) missing--;
+    while (missing === 0) {
+      if (right - left + 1 < bestLength) { bestLength = right - left + 1; bestStart = left; }
+      if (++need[text.charCodeAt(left++) - 97] > 0) missing++;
+    }
+  }
+  return bestLength === Infinity ? "" : text.slice(bestStart, bestStart + bestLength);
+}
+function cipherWindowBrute(text: string, pattern: string) {
+  const covers = (s: string) => { const c = new Map<string, number>(); for (const ch of s) c.set(ch, (c.get(ch) ?? 0) + 1); for (const ch of pattern) { const v = c.get(ch) ?? 0; if (!v) return false; c.set(ch, v - 1); } return true; };
+  for (let length = pattern.length; length <= text.length; length++)
+    for (let s = 0; s + length <= text.length; s++) if (covers(text.slice(s, s + length))) return text.slice(s, s + length);
+  return "";
+}
+
+// ---------- Pattern Gate: wildcard matching ----------
+
+export const patternGateInput = z.strictObject({
+  text: z.string().max(300).regex(/^[a-z]*$/), pattern: z.string().max(300).regex(/^[a-z?*]*$/),
+});
+export function patternGate(text: string, pattern: string) {
+  // ok[j]: pattern[0..j) matches text[0..i) for the current i.
+  let ok = new Array<boolean>(pattern.length + 1).fill(false);
+  ok[0] = true;
+  for (let j = 1; j <= pattern.length; j++) ok[j] = ok[j - 1] && pattern[j - 1] === "*";
+  for (let i = 1; i <= text.length; i++) {
+    const next = new Array<boolean>(pattern.length + 1).fill(false);
+    for (let j = 1; j <= pattern.length; j++) {
+      const p = pattern[j - 1];
+      next[j] = p === "*" ? next[j - 1] || ok[j] : (p === "?" || p === text[i - 1]) && ok[j - 1];
+    }
+    ok = next;
+  }
+  return ok[pattern.length];
+}
+function patternGateBrute(text: string, pattern: string): boolean {
+  const go = (i: number, j: number): boolean => {
+    if (j === pattern.length) return i === text.length;
+    if (pattern[j] === "*") { for (let k = i; k <= text.length; k++) if (go(k, j + 1)) return true; return false; }
+    return i < text.length && (pattern[j] === "?" || pattern[j] === text[i]) && go(i + 1, j + 1);
+  };
+  return go(0, 0);
+}
+
+// ---------- Fragile Links: bridges in an undirected graph ----------
+
+export const fragileLinksInput = z.strictObject({
+  hubs: z.int().min(1).max(2000), links: z.array(z.tuple([z.int().min(0), z.int().min(0)])).max(4000),
+}).refine((i) => {
+  const seen = new Set<string>();
+  for (const [a, b] of i.links) {
+    if (a >= i.hubs || b >= i.hubs || a === b) return false;
+    const key = a < b ? `${a},${b}` : `${b},${a}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+  }
+  return true;
+}, "Links must join two different existing hubs, at most once per pair");
+export function fragileLinks(hubs: number, links: [number, number][]) {
+  const adj: [number, number][][] = Array.from({ length: hubs }, () => []);
+  links.forEach(([a, b], id) => { adj[a].push([b, id]); adj[b].push([a, id]); });
+  const order = new Array<number>(hubs).fill(-1), low = new Array<number>(hubs).fill(0);
+  const bridges: [number, number][] = [];
+  let clock = 0;
+  for (let root = 0; root < hubs; root++) {
+    if (order[root] !== -1) continue;
+    // Iterative DFS frames: [node, parent edge id, next adjacency index].
+    const stack: [number, number, number][] = [[root, -1, 0]];
+    order[root] = low[root] = clock++;
+    while (stack.length) {
+      const frame = stack[stack.length - 1];
+      const [node, parentEdge] = frame;
+      if (frame[2] < adj[node].length) {
+        const [next, id] = adj[node][frame[2]++];
+        if (id === parentEdge) continue;
+        if (order[next] === -1) { order[next] = low[next] = clock++; stack.push([next, id, 0]); }
+        else low[node] = Math.min(low[node], order[next]);
+      } else {
+        stack.pop();
+        if (stack.length) {
+          const parent = stack[stack.length - 1][0];
+          low[parent] = Math.min(low[parent], low[node]);
+          if (low[node] > order[parent]) bridges.push(parent < node ? [parent, node] : [node, parent]);
+        }
+      }
+    }
+  }
+  return bridges.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+}
+function fragileLinksBrute(hubs: number, links: [number, number][]) {
+  const components = (skip: number) => {
+    const parent = Array.from({ length: hubs }, (_, i) => i);
+    const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x])));
+    let count = hubs;
+    links.forEach(([a, b], id) => { if (id === skip) return; const ra = find(a), rb = find(b); if (ra !== rb) { parent[ra] = rb; count--; } });
+    return count;
+  };
+  const base = components(-1);
+  return links.filter((_, id) => components(id) > base).map(([a, b]) => (a < b ? [a, b] : [b, a]) as [number, number])
+    .sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+}
+
+// ---------- Glyph Order: alien alphabet from sorted words ----------
+
+export const glyphOrderInput = z.strictObject({ words: z.array(z.string().min(1).max(100).regex(/^[a-z]+$/)).min(1).max(1000) });
+export function glyphOrder(words: string[]) {
+  const letters = new Set(words.join(""));
+  const after = new Map<string, Set<string>>([...letters].map((ch) => [ch, new Set<string>()]));
+  const indegree = new Map<string, number>([...letters].map((ch) => [ch, 0]));
+  for (let w = 0; w + 1 < words.length; w++) {
+    const a = words[w], b = words[w + 1];
+    let i = 0;
+    while (i < a.length && i < b.length && a[i] === b[i]) i++;
+    if (i === a.length || i === b.length) { if (a.length > b.length) return ""; continue; }
+    if (!after.get(a[i])!.has(b[i])) { after.get(a[i])!.add(b[i]); indegree.set(b[i], indegree.get(b[i])! + 1); }
+  }
+  const ready = [...letters].filter((ch) => indegree.get(ch) === 0).sort();
+  let order = "";
+  while (ready.length) {
+    const ch = ready.shift()!;
+    order += ch;
+    for (const next of after.get(ch)!) {
+      indegree.set(next, indegree.get(next)! - 1);
+      if (indegree.get(next) === 0) { ready.push(next); ready.sort(); }
+    }
+  }
+  return order.length === letters.size ? order : "";
+}
+function glyphOrderBrute(words: string[]) {
+  const letters = [...new Set(words.join(""))];
+  const before: [string, string][] = [];
+  for (let x = 0; x < words.length; x++) for (let y = x + 1; y < words.length; y++) {
+    const a = words[x], b = words[y];
+    let i = 0;
+    while (i < a.length && i < b.length && a[i] === b[i]) i++;
+    if (i === a.length || i === b.length) { if (a.length > b.length) return ""; continue; }
+    before.push([a[i], b[i]]);
+  }
+  let remaining = letters, order = "";
+  while (remaining.length) {
+    const free = remaining.filter((ch) => !before.some(([p, q]) => q === ch && remaining.includes(p))).sort();
+    if (!free.length) return "";
+    order += free[0];
+    remaining = remaining.filter((ch) => ch !== free[0]);
+  }
+  return order;
+}
+
 // ---------- Registry ----------
 
 export const EXPANSION: Record<string, ExpansionEntry> = {
@@ -876,4 +1236,34 @@ export const EXPANSION: Record<string, ExpansionEntry> = {
   "signal-codes": entry(signalCodesInput, signalCodes, signalCodesBrute, sampleSignal),
   "billboard-space": entry(billboardSpaceInput, billboardSpace, billboardSpaceBrute, (rng) => ({ heights: ints(rng, rng.int(1, 9), 0, 8) })),
   "pace-median": entry(paceMedianInput, paceMedian, paceMedianBrute, (rng) => ({ paces: ints(rng, rng.int(1, 10), -9, 9) })),
+  "signal-flips": entry(signalFlipsInput, signalFlips, signalFlipsBrute, (rng) => ({ a: rng.chance(0.3) ? rng.int(0, 2 ** 31 - 1) : rng.int(0, 64), b: rng.chance(0.3) ? rng.int(0, 2 ** 31 - 1) : rng.int(0, 64) })),
+  "roster-merge": entry(rosterMergeInput, rosterMerge, rosterMergeBrute, (rng) => ({
+    first: ints(rng, rng.int(0, 7), -9, 9).sort((a, b) => a - b), second: ints(rng, rng.int(0, 7), -9, 9).sort((a, b) => a - b) })),
+  "tower-tiles": entry(towerTilesInput, towerTiles, towerTilesBrute, (rng) => ({ length: rng.int(1, 22) })),
+  "badge-subsets": entry(badgeSubsetsInput, badgeSubsets, badgeSubsetsBrute, (rng) => ({ badges: distinct(rng, rng.int(0, 5), -9, 9) })),
+  "grid-turn": entry(gridTurnInput, gridTurn, gridTurnBrute, (rng) => { const n = rng.int(1, 5); return { matrix: Array.from({ length: n }, () => ints(rng, n, -9, 9)) }; }),
+  "charging-loop": entry(chargingLoopInput, chargingLoop, chargingLoopBrute, (rng) => { const n = rng.int(1, 7); return { gain: ints(rng, n, 0, 5), cost: ints(rng, n, 0, 5) }; }),
+  "word-groups": entry(wordGroupsInput, wordGroups, wordGroupsBrute, (rng) => ({ words: Array.from({ length: rng.int(0, 8) }, () => randomWord(rng, rng.int(1, 3))) })),
+  "lane-merge": entry(laneMergeInput, laneMerge, laneMergeBrute, (rng) => ({ lanes: Array.from({ length: rng.int(0, 5) }, () => ints(rng, rng.int(0, 5), -9, 9).sort((a, b) => a - b)) })),
+  "ridge-trails": entry(ridgeTrailsInput, ridgeTrails, ridgeTrailsBrute, (rng) => { const h = rng.int(1, 4), w = rng.int(1, 4); return { grid: Array.from({ length: h }, () => ints(rng, w, 0, 9)) }; }),
+  "cipher-window": entry(cipherWindowInput, cipherWindow, cipherWindowBrute, (rng) => ({ text: randomWord(rng, rng.int(1, 10)), pattern: randomWord(rng, rng.int(1, 3)) })),
+  "pattern-gate": entry(patternGateInput, patternGate, patternGateBrute, (rng) => ({ text: randomWord(rng, rng.int(0, 6), "ab"), pattern: randomWord(rng, rng.int(0, 5), "ab?*") })),
+  "fragile-links": entry(fragileLinksInput, fragileLinks, fragileLinksBrute, (rng) => {
+    const hubs = rng.int(1, 8);
+    const seen = new Set<string>();
+    const links: [number, number][] = [];
+    for (let k = rng.int(0, hubs + 3); k > 0 && hubs > 1; k--) {
+      const a = rng.int(0, hubs - 1), b = rng.int(0, hubs - 1);
+      const key = a < b ? `${a},${b}` : `${b},${a}`;
+      if (a !== b && !seen.has(key)) { seen.add(key); links.push([a, b]); }
+    }
+    return { hubs, links };
+  }),
+  "glyph-order": entry(glyphOrderInput, glyphOrder, glyphOrderBrute, (rng) => {
+    const alphabet = [..."abcd"].sort(() => rng.int(-1, 1));
+    const rank = (w: string) => [...w].map((ch) => alphabet.indexOf(ch));
+    const words = Array.from({ length: rng.int(1, 6) }, () => randomWord(rng, rng.int(1, 3), "abcd"));
+    if (rng.chance(0.8)) words.sort((x, y) => { const a = rank(x), b = rank(y); for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i]; return a.length - b.length; });
+    return { words };
+  }),
 };

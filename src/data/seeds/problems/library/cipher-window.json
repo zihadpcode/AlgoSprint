@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "slug": "cipher-window",
+  "title": "Cipher Window",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "variable-window",
+  "statement": "A cryptographer looks for the shortest stretch of an intercepted message text that contains every letter of a key pattern, including repeats (a pattern of 'aab' needs two a's and one b inside the stretch). Return that shortest substring of text. If several stretches tie for shortest, return the leftmost one. If none exists, return an empty string.",
+  "constraints": [
+    "1 <= text.length, pattern.length <= 10000",
+    "text and pattern contain only a-z"
+  ],
+  "estimatedMinutes": 45,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "sliding-window",
+    "strings",
+    "hash-maps"
+  ],
+  "tags": [
+    "frequency-count",
+    "pointer-pair"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "text": "adobecodebanc",
+        "pattern": "abc"
+      },
+      "output": "banc",
+      "explanation": "'banc' is the shortest stretch containing a, b and c."
+    },
+    {
+      "position": 2,
+      "input": {
+        "text": "a",
+        "pattern": "aa"
+      },
+      "output": "",
+      "explanation": "The text has only one a, so no stretch works."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Checking every substring is cubic or worse."
+    },
+    {
+      "position": 2,
+      "content": "If a window contains the pattern, every larger window around it does too, so a two-pointer window fits."
+    },
+    {
+      "position": 3,
+      "content": "Count what the pattern needs, and track how many required letters are still missing from the window."
+    },
+    {
+      "position": 4,
+      "content": "Extend the right edge until nothing is missing. Then shrink from the left as long as nothing becomes missing, recording the best window."
+    },
+    {
+      "position": 5,
+      "content": "Use counts that go negative for surplus letters: a letter is newly missing only when its count rises above zero as it leaves. Only record a strictly shorter window, so ties keep the leftmost."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "cipherWindow",
+      "code": "function cipherWindow(text, pattern) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "adobecodebanc",
+        "pattern": "abc"
+      },
+      "output": "banc",
+      "explanation": "'banc' is the shortest stretch containing a, b and c."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "a",
+        "pattern": "aa"
+      },
+      "output": "",
+      "explanation": "The text has only one a, so no stretch works."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "a",
+        "pattern": "a"
+      },
+      "output": "a",
+      "explanation": "The whole text."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "ab",
+        "pattern": "b"
+      },
+      "output": "b",
+      "explanation": "A single letter at the end."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "aaflslflsldkalskaaa",
+        "pattern": "aaa"
+      },
+      "output": "aaa",
+      "explanation": "The final three a's are the shortest stretch."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "cabwefgewcwaefgcf",
+        "pattern": "cae"
+      },
+      "output": "cwae",
+      "explanation": "'cwae' is the shortest window."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "abcabc",
+        "pattern": "abc"
+      },
+      "output": "abc",
+      "explanation": "Several windows of length 3 tie; the leftmost is returned."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "xyz",
+        "pattern": "q"
+      },
+      "output": "",
+      "explanation": "A letter the text never contains."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try lengths from short to long",
+      "intuition": "The first length at which any window covers the pattern is the answer, and scanning starts left to right keeps the leftmost.",
+      "approach": "For each length from pattern.length upward, slide over all starts and test coverage by counting letters.",
+      "pseudocode": "for len in |pattern|..|text|: for s: if covers(text[s:s+len]): return it\nreturn ''",
+      "code": "function cipherWindow(text, pattern) {\n  const covers = (s) => {\n    const counts = new Array(26).fill(0);\n    for (const ch of s) counts[ch.charCodeAt(0) - 97]++;\n    for (const ch of pattern) if (--counts[ch.charCodeAt(0) - 97] < 0) return false;\n    return true;\n  };\n  for (let len = pattern.length; len <= text.length; len++)\n    for (let s = 0; s + len <= text.length; s++)\n      if (covers(text.slice(s, s + len))) return text.slice(s, s + len);\n  return '';\n}",
+      "timeComplexity": "O(n² · (n + m))",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Treating the pattern as a set and ignoring repeated letters.",
+        "Returning the last shortest window instead of the leftmost."
+      ],
+      "interviewExplanation": "Enumerating lengths from shortest, and starts from the left, returns exactly the required window, but it rechecks overlapping windows from scratch and is far too slow at n = 10,000.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Lengths 3 and 4 are tried in order: at length 4, the scan reaches 'banc' at index 9 before any other covering window."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Return 'banc'."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Sliding window with a missing counter",
+      "intuition": "The window only needs to know how many required letters it still lacks; moving either edge changes that count by at most one.",
+      "approach": "need[c] starts at the pattern counts and missing = pattern.length. For each right index, decrement need for that letter and reduce missing if it was positive. While missing is 0, record the window if strictly shorter, then remove the left letter: increment need, and if it becomes positive, missing goes up.",
+      "pseudocode": "need = counts(pattern); missing = |pattern|; left = 0\nfor right: if need[t[right]]-- > 0: missing--\n  while missing == 0: record if shorter; if ++need[t[left++]] > 0: missing++\nreturn best or ''",
+      "code": "function cipherWindow(text, pattern) {\n  const need = new Array(26).fill(0);\n  for (const ch of pattern) need[ch.charCodeAt(0) - 97]++;\n  let missing = pattern.length, left = 0, bestStart = 0, bestLength = Infinity;\n  for (let right = 0; right < text.length; right++) {\n    if (need[text.charCodeAt(right) - 97]-- > 0) missing--;\n    while (missing === 0) {\n      if (right - left + 1 < bestLength) { bestLength = right - left + 1; bestStart = left; }\n      if (++need[text.charCodeAt(left) - 97] > 0) missing++;\n      left++;\n    }\n  }\n  return bestLength === Infinity ? '' : text.slice(bestStart, bestStart + bestLength);\n}",
+      "timeComplexity": "O(n + m)",
+      "spaceComplexity": "O(1), 26 counters",
+      "commonMistakes": [
+        "Counting distinct letters satisfied instead of total letters missing, then mishandling repeats.",
+        "Recording windows with <=, which returns the rightmost of several equal-length windows."
+      ],
+      "interviewExplanation": "I keep need counts that go negative for surplus letters, plus a single missing counter. Extending right reduces missing only when the letter was still needed. While nothing is missing I record the window and shrink from the left, and missing only rises when a needed letter drops back above zero. Each index enters and leaves once, so it's O(n + m). Recording only strictly shorter windows keeps the leftmost on ties.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Extend until 'adobec' covers a, b, c. Record length 6, then shrink: removing 'a' makes it missing."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Extend to 'doba' (missing again 0 at index 10), shrink..."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "Eventually 'banc' (length 4) is recorded, and no shorter window appears."
+        }
+      ]
+    }
+  ]
+}

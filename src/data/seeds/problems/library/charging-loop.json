@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "slug": "charging-loop",
+  "title": "Charging Loop",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "greedy",
+  "statement": "An electric shuttle runs a circular route through stations 0, 1, ..., n - 1 and back to 0. At station i it charges gain[i] units, then spends cost[i] units driving to the next station. It starts empty at a station of your choice and must complete one full lap without its charge dropping below zero at any point. Return the smallest starting station that works, or -1 if no station does.",
+  "constraints": [
+    "1 <= n <= 10000",
+    "gain.length == cost.length == n",
+    "0 <= gain[i], cost[i] <= 10000"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "greedy",
+    "arrays"
+  ],
+  "tags": [
+    "prefix-sum",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "gain": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "cost": [
+          3,
+          4,
+          5,
+          1,
+          2
+        ]
+      },
+      "output": 3,
+      "explanation": "Starting at station 3 the charge goes 3, 6, 4, 2, 0 after each leg."
+    },
+    {
+      "position": 2,
+      "input": {
+        "gain": [
+          2,
+          3,
+          4
+        ],
+        "cost": [
+          3,
+          4,
+          3
+        ]
+      },
+      "output": -1,
+      "explanation": "Total charge 9 is less than total cost 10, so no start works."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "If the total gain is less than the total cost, no start can work."
+    },
+    {
+      "position": 2,
+      "content": "Simulating a lap from every start works but is quadratic."
+    },
+    {
+      "position": 3,
+      "content": "Suppose you start at s and first run out of charge on the leg leaving station i. Then no station between s and i can work as a start either."
+    },
+    {
+      "position": 4,
+      "content": "So when the running charge goes negative at i, jump the candidate start to i + 1 and reset the charge to 0."
+    },
+    {
+      "position": 5,
+      "content": "If the total is non-negative, the last candidate start is a valid start, and it is the smallest one."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "chargingLoop",
+      "code": "function chargingLoop(gain, cost) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "gain": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "cost": [
+          3,
+          4,
+          5,
+          1,
+          2
+        ]
+      },
+      "output": 3,
+      "explanation": "Starting at station 3 the charge goes 3, 6, 4, 2, 0 after each leg."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "gain": [
+          2,
+          3,
+          4
+        ],
+        "cost": [
+          3,
+          4,
+          3
+        ]
+      },
+      "output": -1,
+      "explanation": "Total charge 9 is less than total cost 10, so no start works."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "gain": [
+          5
+        ],
+        "cost": [
+          5
+        ]
+      },
+      "output": 0,
+      "explanation": "One station that exactly covers its own leg."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "gain": [
+          0
+        ],
+        "cost": [
+          1
+        ]
+      },
+      "output": -1,
+      "explanation": "One station that cannot cover its leg."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "gain": [
+          1,
+          1,
+          1
+        ],
+        "cost": [
+          1,
+          1,
+          1
+        ]
+      },
+      "output": 0,
+      "explanation": "Every start works; the smallest is 0."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "gain": [
+          0,
+          0,
+          6
+        ],
+        "cost": [
+          2,
+          2,
+          2
+        ]
+      },
+      "output": 2,
+      "explanation": "Only the station with all the charge works."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "gain": [
+          4,
+          0,
+          0,
+          2
+        ],
+        "cost": [
+          1,
+          3,
+          1,
+          1
+        ]
+      },
+      "output": 3,
+      "explanation": "Starting at 0: 3, 0, -1 fails. Starting at 3: 1, 4, 1, 0 completes the lap."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "gain": [
+          3,
+          1,
+          1
+        ],
+        "cost": [
+          1,
+          2,
+          2
+        ]
+      },
+      "output": 0,
+      "explanation": "Totals balance exactly and station 0 works."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Simulate a lap from every station",
+      "intuition": "Try each start in increasing order and return the first that survives a full lap.",
+      "approach": "For each s, add gain - cost around the circle; abandon s as soon as the charge is negative.",
+      "pseudocode": "for s in 0..n-1: tank = 0; ok = true; for k in 0..n-1: i = (s+k) mod n; tank += gain[i] - cost[i]; if tank < 0: ok = false; break\n  if ok: return s\nreturn -1",
+      "code": "function chargingLoop(gain, cost) {\n  const n = gain.length;\n  for (let s = 0; s < n; s++) {\n    let tank = 0, ok = true;\n    for (let k = 0; k < n && ok; k++) {\n      const i = (s + k) % n;\n      tank += gain[i] - cost[i];\n      if (tank < 0) ok = false;\n    }\n    if (ok) return s;\n  }\n  return -1;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Checking the charge before adding the station's gain.",
+        "Forgetting the wrap-around with % n."
+      ],
+      "interviewExplanation": "Trying each start in order returns the smallest valid one, but each lap costs O(n), so the whole thing is O(n²).",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Starts 0, 1 and 2 go negative on their first leg."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Start 3: running charge 3, 6, 4, 2, 0, never negative. Return 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "One-pass greedy reset",
+      "intuition": "A start that fails at station i rules out every station between it and i, because each of those begins with less charge than the original start had at that point.",
+      "approach": "Track total and tank. For each i, add gain[i] - cost[i] to both; if tank < 0, set start = i + 1 and tank = 0. Return start if total >= 0, otherwise -1.",
+      "pseudocode": "total = tank = start = 0\nfor i: d = gain[i] - cost[i]; total += d; tank += d; if tank < 0: start = i + 1; tank = 0\nreturn total >= 0 ? start : -1",
+      "code": "function chargingLoop(gain, cost) {\n  let total = 0, tank = 0, start = 0;\n  for (let i = 0; i < gain.length; i++) {\n    const delta = gain[i] - cost[i];\n    total += delta;\n    tank += delta;\n    if (tank < 0) { start = i + 1; tank = 0; }\n  }\n  return total < 0 ? -1 : start;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Returning start without checking the total, which can return n or an invalid start.",
+        "Resetting start to i instead of i + 1."
+      ],
+      "interviewExplanation": "If a run from s goes negative at i, every station between s and i starts with even less charge, so they all fail and I jump to i + 1. If the total balance is non-negative, the final candidate completes the lap, and because every earlier index was ruled out it's the smallest valid start. One pass, constant space.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Deltas: -2, -2, -2, 3, 3. i=0: tank -2, start 1. i=1: start 2. i=2: start 3."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "i=3: tank 3; i=4: tank 6. The total is 0 >= 0, so return 3."
+        }
+      ]
+    }
+  ]
+}
