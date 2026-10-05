@@ -12,6 +12,7 @@ import { seedRoadmaps } from "../../prisma/seed-roadmaps";
 let db: ReturnType<typeof createDatabaseClient>; let owns = false; let slugs: string[] = [];
 const users = [randomUUID(), randomUUID()]; const at = new Date("2026-01-01T00:00:00Z");
 const mainSlug = ROADMAPS[0].slug; const seedSlugs = ROADMAPS.map((r) => r.slug);
+const without = (slug: string) => ROADMAPS.filter((r) => !r.steps.some((s) => s.problemSlug === slug)).length;
 const fixturePrefix = `roadmap-${randomUUID()}`;
 const ownedRoadmaps = () => ({ OR: [{ slug: { in: seedSlugs } }, { slug: { startsWith: fixturePrefix } }] });
 beforeAll(async () => {
@@ -72,12 +73,12 @@ it("distinguishes manual and current/earlier verified progress; browsing writes 
 it("hides drafts, archived and empty paths and paths with any unavailable problem", async () => {
   for (const status of ["DRAFT", "ARCHIVED"] as const) {
     await db.roadmap.update({ where: { slug: mainSlug }, data: { status } });
-    expect(await queryRoadmap(db, users[0], mainSlug)).toBeNull(); expect((await queryRoadmaps(db, null)).total).toBe(1);
+    expect(await queryRoadmap(db, users[0], mainSlug)).toBeNull(); expect((await queryRoadmaps(db, null)).total).toBe(ROADMAPS.length - 1);
   }
   await db.roadmap.update({ where: { slug: mainSlug }, data: { status: "PUBLISHED" } });
   for (const status of ["DRAFT", "ARCHIVED"] as const) {
     await db.problem.update({ where: { slug: "relay-window" }, data: { status } });
-    expect(await queryRoadmap(db, null, mainSlug)).toBeNull(); expect((await queryRoadmaps(db, null)).total).toBe(1);
+    expect(await queryRoadmap(db, null, mainSlug)).toBeNull(); expect((await queryRoadmaps(db, null)).total).toBe(without("relay-window"));
   }
   await db.roadmap.create({ data: { slug: `${fixturePrefix}-empty`, title: "Empty private sentinel", description: "Private", difficulty: "EASY", estimatedMinutes: 1, status: "PUBLISHED" } });
   expect(await queryRoadmap(db, null, `${fixturePrefix}-empty`)).toBeNull();
@@ -85,15 +86,19 @@ it("hides drafts, archived and empty paths and paths with any unavailable proble
 });
 it("paginates deterministically with tied titles and clamps requests", async () => {
   await seedRoadmaps(db, Array.from({ length: 13 }, (_, i) => ({ ...ROADMAPS[0], title: "AAA tied title", slug: `${fixturePrefix}-${String(i).padStart(2, "0")}` })));
+  const total = ROADMAPS.length + 13, pages = Math.ceil(total / 12);
   const first = await queryRoadmaps(db, null, 1); const last = await queryRoadmaps(db, null, 999999);
-  expect(first).toMatchObject({ total: 15, pages: 2, page: 1 }); expect(first.items).toHaveLength(12); expect(last.items).toHaveLength(3); expect(last.page).toBe(2);
-  expect(new Set([...first.items, ...last.items].map((r) => r.slug)).size).toBe(15);
+  expect(first).toMatchObject({ total, pages, page: 1 }); expect(first.items).toHaveLength(12);
+  expect(last.page).toBe(pages); expect(last.items).toHaveLength(total - 12 * (pages - 1));
+  const all = [];
+  for (let page = 1; page <= pages; page++) all.push(...(await queryRoadmaps(db, null, page)).items);
+  expect(new Set(all.map((r) => r.slug)).size).toBe(total);
   expect(first.items.map((r) => r.slug)).toEqual(Array.from({ length: 12 }, (_, i) => `${fixturePrefix}-${String(i).padStart(2, "0")}`));
 });
 it("reruns and concurrent seed calls preserve roadmap/step IDs and user progress", async () => {
   const read = () => db.roadmap.findMany({ orderBy: { slug: "asc" }, include: { steps: { orderBy: { position: "asc" } } } });
   const before = await read(); await writeProblemChange(db, users[0], { slug: "quiet-badge", operation: "mark-solved" });
-  expect(await seedRoadmaps(db, ROADMAPS)).toEqual({ created: 0, skipped: 2 });
+  expect(await seedRoadmaps(db, ROADMAPS)).toEqual({ created: 0, skipped: ROADMAPS.length });
   const extra = [{ ...ROADMAPS[0], slug: `${fixturePrefix}-concurrent` }];
   const results = await Promise.all([seedRoadmaps(db, extra), seedRoadmaps(db, extra)]);
   expect(results.map((r) => r.created).sort()).toEqual([0, 1]);
@@ -103,10 +108,10 @@ it("reruns and concurrent seed calls preserve roadmap/step IDs and user progress
 it("rolls back the entire roadmap batch on content conflict or unpublished references", async () => {
   const extra = { ...ROADMAPS[0], slug: `${fixturePrefix}-rollback` };
   await expect(seedRoadmaps(db, [extra, { ...ROADMAPS[0], title: "Changed" }])).rejects.toThrow(/Roadmap seed conflict/);
-  expect(await db.roadmap.count()).toBe(2);
+  expect(await db.roadmap.count()).toBe(ROADMAPS.length);
   await db.problem.update({ where: { slug: "quiet-badge" }, data: { status: "ARCHIVED" } });
   await expect(seedRoadmaps(db, [extra])).rejects.toThrow(/requires published problem/);
-  expect(await db.roadmap.count()).toBe(2);
+  expect(await db.roadmap.count()).toBe(ROADMAPS.length);
   await db.problem.update({ where: { slug: "quiet-badge" }, data: { status: "PUBLISHED" } });
   await db.roadmap.update({ where: { slug: mainSlug }, data: { status: "ARCHIVED" } });
   await expect(seedRoadmaps(db, ROADMAPS)).rejects.toThrow(/Roadmap seed conflict/);
