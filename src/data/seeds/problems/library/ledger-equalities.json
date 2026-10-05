@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "slug": "ledger-equalities",
+  "title": "Ledger Equalities",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "union-find",
+  "statement": "An auditor writes facts about single-letter accounts as strings like \"a==b\" (the two accounts hold the same amount) or \"a!=c\" (they hold different amounts). Given the list of equations, return true if some assignment of amounts makes every fact true at once, and false otherwise.",
+  "constraints": [
+    "1 <= equations.length <= 500",
+    "Each equation has the form x==y or x!=y with lowercase letters x and y"
+  ],
+  "estimatedMinutes": 25,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "union-find",
+    "graphs",
+    "strings"
+  ],
+  "tags": [
+    "graph-traversal",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "equations": [
+          "a==b",
+          "b!=a"
+        ]
+      },
+      "output": false,
+      "explanation": "a and b cannot be both equal and different."
+    },
+    {
+      "position": 2,
+      "input": {
+        "equations": [
+          "a==b",
+          "b==c",
+          "a==c"
+        ]
+      },
+      "output": true,
+      "explanation": "All three hold when a, b and c share an amount."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Equalities chain together: if a==b and b==c, then a==c."
+    },
+    {
+      "position": 2,
+      "content": "Group letters that must be equal; an inequality is violated exactly when both its letters land in the same group."
+    },
+    {
+      "position": 3,
+      "content": "Process all equalities first, then check the inequalities."
+    },
+    {
+      "position": 4,
+      "content": "A disjoint-set (union-find) structure over 26 letters tracks the groups."
+    },
+    {
+      "position": 5,
+      "content": "Union the letters of every '==' equation, then for each '!=' check that the two letters have different roots."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "ledgerEqualities",
+      "code": "function ledgerEqualities(equations) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "equations": [
+          "a==b",
+          "b!=a"
+        ]
+      },
+      "output": false,
+      "explanation": "a and b cannot be both equal and different."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "equations": [
+          "a==b",
+          "b==c",
+          "a==c"
+        ]
+      },
+      "output": true,
+      "explanation": "All three hold when a, b and c share an amount."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "equations": [
+          "a!=a"
+        ]
+      },
+      "output": false,
+      "explanation": "An account always equals itself."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "equations": [
+          "a==a"
+        ]
+      },
+      "output": true,
+      "explanation": "Trivially true."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "equations": [
+          "a==b",
+          "b==c",
+          "c!=a"
+        ]
+      },
+      "output": false,
+      "explanation": "Equality chains are transitive: contradiction."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "equations": [
+          "c!=a",
+          "a==b",
+          "b==c"
+        ]
+      },
+      "output": false,
+      "explanation": "Order does not matter: still a contradiction."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "equations": [
+          "a==b",
+          "c==d",
+          "a!=c"
+        ]
+      },
+      "output": true,
+      "explanation": "Two separate groups may differ."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "equations": [
+          "x!=y",
+          "y!=z",
+          "x!=z",
+          "w==w"
+        ]
+      },
+      "output": true,
+      "explanation": "Only inequalities: always satisfiable."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Transitive closure table",
+      "intuition": "Compute which letters must be equal by closing the equality relation, then test the inequalities.",
+      "approach": "Start a 26 × 26 table with each letter equal to itself and every '==' pair. Apply Floyd–Warshall-style closure (if i~k and k~j then i~j). Then every '!=' pair must be unrelated.",
+      "pseudocode": "same[i][i] = true; mark == pairs both ways\nfor k, i, j: if same[i][k] and same[k][j]: same[i][j] = true\nreturn all != pairs have same == false",
+      "code": "function ledgerEqualities(equations) {\n  const id = (ch) => ch.charCodeAt(0) - 97;\n  const same = Array.from({ length: 26 }, (_, i) => Array.from({ length: 26 }, (_, j) => i === j));\n  for (const e of equations) if (e[1] === '=') { same[id(e[0])][id(e[3])] = true; same[id(e[3])][id(e[0])] = true; }\n  for (let k = 0; k < 26; k++)\n    for (let i = 0; i < 26; i++)\n      for (let j = 0; j < 26; j++) if (same[i][k] && same[k][j]) same[i][j] = true;\n  return equations.every((e) => e[1] === '=' || !same[id(e[0])][id(e[3])]);\n}",
+      "timeComplexity": "O(26³ + n)",
+      "spaceComplexity": "O(26²)",
+      "commonMistakes": [
+        "Checking inequalities before all equalities are applied.",
+        "Forgetting that a letter equals itself."
+      ],
+      "interviewExplanation": "The transitive closure makes the equality groups explicit. With only 26 letters the cubic closure is cheap, but it doesn't scale to large variable sets.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "a==b, b==c mark a~b and b~c; closure adds a~c."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "c!=a finds same[c][a] true: return false."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Union equalities, then check inequalities",
+      "intuition": "Equality is an equivalence relation, so union-find computes its classes directly.",
+      "approach": "Union the two letters of every '==' equation. Then return false if any '!=' equation has both letters with the same root.",
+      "pseudocode": "for e in ==: union(x, y)\nfor e in !=: if find(x) == find(y): return false\nreturn true",
+      "code": "function ledgerEqualities(equations) {\n  const parent = Array.from({ length: 26 }, (_, i) => i);\n  const find = (x) => { while (parent[x] !== x) x = parent[x] = parent[parent[x]]; return x; };\n  const id = (ch) => ch.charCodeAt(0) - 97;\n  for (const e of equations) if (e[1] === '=') parent[find(id(e[0]))] = find(id(e[3]));\n  for (const e of equations) if (e[1] === '!' && find(id(e[0])) === find(id(e[3]))) return false;\n  return true;\n}",
+      "timeComplexity": "O(n · α(26)), effectively O(n)",
+      "spaceComplexity": "O(26)",
+      "commonMistakes": [
+        "Interleaving unions and checks in input order, which misses equalities that appear later."
+      ],
+      "interviewExplanation": "Equalities define equivalence classes, so I union all '==' pairs first and then check every '!=' pair for a shared root. Order matters only in that two-phase sense. It runs in near-linear time, and the same idea extends to arbitrary variable names with a map from names to indices.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Union a,b and b,c: all share one root."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "c!=a: same root, so return false."
+        }
+      ]
+    }
+  ]
+}

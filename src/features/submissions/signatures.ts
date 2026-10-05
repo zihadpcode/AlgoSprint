@@ -93,4 +93,18 @@ export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> 
   "bracket-run": { entryPoint: "bracketRun", keys: ["text"] },
   "later-lower": { entryPoint: "laterLower", keys: ["values"] },
   "city-skyline": { entryPoint: "citySkyline", keys: ["buildings"] },
+  // Library expansion batch 5.
+  "reverse-convoy": { entryPoint: "reverseConvoy", keys: ["next", "head"] },
+  "badge-majority": { entryPoint: "badgeMajority", keys: ["badges"] },
+  "drop-nth-car": { entryPoint: "dropNthCar", keys: ["next", "head", "k"] },
+  "ledger-equalities": { entryPoint: "ledgerEqualities", keys: ["equations"] },
+  "quiet-hours": { entryPoint: "quietHours", keys: ["busy"] },
+  "crossword-trace": { entryPoint: "crosswordTrace", keys: ["grid", "word"] },
+  "shared-mentor": { entryPoint: "sharedMentor", keys: ["tree", "a", "b"] },
+  "twin-xor": { entryPoint: "twinXor", keys: ["values"] },
+  "floodgate-path": { entryPoint: "floodgatePath", keys: ["grid"] },
+  "canopy-gain": { entryPoint: "canopyGain", keys: ["tree"] },
+  "popularity-cache": { entryPoint: "popularityCache", keys: ["capacity", "operations"] },
+  "tile-shuffle": { entryPoint: "tileShuffle", keys: ["board"] },
+  "nested-crates": { entryPoint: "nestedCrates", keys: ["crates"] },
 };
