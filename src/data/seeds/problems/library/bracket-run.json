@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "slug": "bracket-run",
+  "title": "Bracket Run",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "stack-matching",
+  "statement": "A code formatter receives a string of '(' and ')' characters. Return the length of the longest contiguous stretch that is a well-formed bracket sequence: every '(' is closed by a later ')' and no ')' appears before its matching '('.",
+  "constraints": [
+    "0 <= text.length <= 10000",
+    "text contains only '(' and ')'"
+  ],
+  "estimatedMinutes": 40,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "stack",
+    "strings",
+    "dynamic-programming"
+  ],
+  "tags": [
+    "invariant",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "text": "(()"
+      },
+      "output": 2,
+      "explanation": "The longest well-formed stretch is '()', length 2."
+    },
+    {
+      "position": 2,
+      "input": {
+        "text": ")()())"
+      },
+      "output": 4,
+      "explanation": "'()()' has length 4."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Checking every substring for balance is cubic (or quadratic with care)."
+    },
+    {
+      "position": 2,
+      "content": "Scan left to right with a stack of indices of unmatched '('."
+    },
+    {
+      "position": 3,
+      "content": "Keep, at the bottom of the stack, the index just before the current valid stretch. Start with -1."
+    },
+    {
+      "position": 4,
+      "content": "On ')', pop. If the stack is now empty, this ')' is unmatched: push its index as the new base. Otherwise the stretch ending here starts after the new top."
+    },
+    {
+      "position": 5,
+      "content": "The length is i - stack.top. Track the maximum."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "bracketRun",
+      "code": "function bracketRun(text) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "(()"
+      },
+      "output": 2,
+      "explanation": "The longest well-formed stretch is '()', length 2."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": ")()())"
+      },
+      "output": 4,
+      "explanation": "'()()' has length 4."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": ""
+      },
+      "output": 0,
+      "explanation": "Empty text."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": ")("
+      },
+      "output": 0,
+      "explanation": "No well-formed stretch."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "(((())))"
+      },
+      "output": 8,
+      "explanation": "Fully nested: 8."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "()(()"
+      },
+      "output": 2,
+      "explanation": "The unmatched '(' in the middle splits the text: 2."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "()(())"
+      },
+      "output": 6,
+      "explanation": "Adjacent groups join: 6."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "())((())()"
+      },
+      "output": 6,
+      "explanation": "'(())()' has length 6."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))()"
+      },
+      "output": 6000,
+      "explanation": "A long, almost balanced text."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Check every even-length substring",
+      "intuition": "Test each substring for balance with a running depth counter.",
+      "approach": "For each start and each even end, check the depth never goes negative and ends at 0; keep the longest.",
+      "pseudocode": "for i: for j = i+2, i+4, ...: if valid(t[i..j)): best = max(best, j - i)",
+      "code": "function bracketRun(text) {\n  const valid = (i, j) => {\n    let depth = 0;\n    for (let k = i; k < j; k++) {\n      depth += text[k] === '(' ? 1 : -1;\n      if (depth < 0) return false;\n    }\n    return depth === 0;\n  };\n  let best = 0;\n  for (let i = 0; i < text.length; i++)\n    for (let j = i + 2; j <= text.length; j += 2)\n      if (j - i > best && valid(i, j)) best = j - i;\n  return best;\n}",
+      "timeComplexity": "O(n³)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Only checking that counts match, which accepts ')('."
+      ],
+      "interviewExplanation": "Checking every substring is a correct baseline but cubic.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "For ')()())', the substring from 1 to 5 '()()' stays non-negative and ends at 0."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "No longer substring is valid: 4."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Stack of indices with a base marker",
+      "intuition": "The bottom of the stack marks where the current valid stretch cannot extend past, and after each match the stretch length is the distance to the stack top.",
+      "approach": "stack = [-1]. For '(' push i. For ')' pop; if the stack is empty push i as a new base, otherwise best = max(best, i - top).",
+      "pseudocode": "stack = [-1]\nfor i: if t[i] == '(': push i\n  else: pop; if empty: push i else best = max(best, i - top)\nreturn best",
+      "code": "function bracketRun(text) {\n  const stack = [-1];\n  let best = 0;\n  for (let i = 0; i < text.length; i++) {\n    if (text[i] === '(') stack.push(i);\n    else {\n      stack.pop();\n      if (stack.length === 0) stack.push(i);\n      else best = Math.max(best, i - stack[stack.length - 1]);\n    }\n  }\n  return best;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Starting with an empty stack, which mishandles a valid stretch that begins at index 0.",
+        "Measuring i - poppedIndex + 1, which misses adjacent groups like '()()'."
+      ],
+      "interviewExplanation": "I keep indices of unmatched '(' above a base marker, the index just before the current stretch. A ')' pops its partner. If nothing is left, it becomes the new base; otherwise the valid stretch ending here runs from just after the stack top. That handles nesting and adjacency in one pass. A two-counter scan left to right and then right to left solves it in O(1) space as an alternative.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "')()())': i=0 ')' pops -1 → empty → push 0."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "i=1 '(' push; i=2 ')' pop → top 0 → length 2. i=3 push; i=4 pop → length 4."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "i=5 ')' pops 0 → empty → push 5. The best is 4."
+        }
+      ]
+    }
+  ]
+}

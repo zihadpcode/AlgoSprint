@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "slug": "one-slip-mirror",
+  "title": "One-Slip Mirror",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "two-pointers",
+  "statement": "A sign maker wants every banner to read the same forwards and backwards, but allows fixing one slip: deleting at most one letter. Given text in lowercase letters, return true if it reads the same forwards and backwards after deleting at most one letter, and false otherwise.",
+  "constraints": [
+    "1 <= text.length <= 10000",
+    "text contains only a-z"
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "two-pointers",
+    "strings"
+  ],
+  "tags": [
+    "pointer-pair"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "text": "abca"
+      },
+      "output": true,
+      "explanation": "Delete 'b' or 'c' to get 'aca' or 'aba'."
+    },
+    {
+      "position": 2,
+      "input": {
+        "text": "abc"
+      },
+      "output": false,
+      "explanation": "No single deletion makes a palindrome."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Trying every single deletion and checking for a palindrome works but is quadratic."
+    },
+    {
+      "position": 2,
+      "content": "Compare letters from both ends moving inward."
+    },
+    {
+      "position": 3,
+      "content": "While the ends match, they can stay; the first mismatch is where the slip must be."
+    },
+    {
+      "position": 4,
+      "content": "At the first mismatch, one of the two mismatched letters must be deleted."
+    },
+    {
+      "position": 5,
+      "content": "Check whether the remaining middle is a palindrome after skipping the left letter, or after skipping the right letter. You only branch once."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "oneSlipMirror",
+      "code": "function oneSlipMirror(text) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "abca"
+      },
+      "output": true,
+      "explanation": "Delete 'b' or 'c' to get 'aca' or 'aba'."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "abc"
+      },
+      "output": false,
+      "explanation": "No single deletion makes a palindrome."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "a"
+      },
+      "output": true,
+      "explanation": "One letter is already a palindrome."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "racecar"
+      },
+      "output": true,
+      "explanation": "Already a palindrome; no deletion needed."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "ab"
+      },
+      "output": true,
+      "explanation": "Delete either letter."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "deeee"
+      },
+      "output": true,
+      "explanation": "Only deleting the leading 'd' works."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "cbbcc"
+      },
+      "output": true,
+      "explanation": "Delete the last 'c'; skipping the wrong side first would fail."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "abcdba"
+      },
+      "output": true,
+      "explanation": "After matching the outer letters, 'cd' needs one more deletion: delete c or d."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "abcxyba"
+      },
+      "output": false,
+      "explanation": "After matching a and b, the middle 'cxy' would need two deletions."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every deletion",
+      "intuition": "Check the text itself and each version with one letter removed.",
+      "approach": "Return true if text is a palindrome; otherwise test each one-letter deletion.",
+      "pseudocode": "if pal(text): return true; for k: if pal(text without k): return true; return false",
+      "code": "function oneSlipMirror(text) {\n  const pal = (s) => s === [...s].reverse().join('');\n  if (pal(text)) return true;\n  for (let k = 0; k < text.length; k++) if (pal(text.slice(0, k) + text.slice(k + 1))) return true;\n  return false;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Forgetting the zero-deletion case."
+      ],
+      "interviewExplanation": "Trying each deletion is straightforward but builds and checks n strings of length n.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "'abca' is not a palindrome."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Deleting index 1 gives 'aca', which is a palindrome: return true."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Two pointers with one branch",
+      "intuition": "Matching outer letters never need deleting, so the first mismatch decides which letter the slip could be.",
+      "approach": "Move i and j inward while the letters match. On the first mismatch, return whether text[i+1..j] or text[i..j-1] is a palindrome.",
+      "pseudocode": "i = 0; j = n-1\nwhile i < j: if t[i] != t[j]: return pal(i+1, j) or pal(i, j-1); i++; j--\nreturn true",
+      "code": "function oneSlipMirror(text) {\n  const pal = (i, j) => {\n    while (i < j) if (text[i++] !== text[j--]) return false;\n    return true;\n  };\n  let i = 0, j = text.length - 1;\n  while (i < j) {\n    if (text[i] !== text[j]) return pal(i + 1, j) || pal(i, j - 1);\n    i++;\n    j--;\n  }\n  return true;\n}",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Only trying to skip the left letter; 'cbbcc' needs the right one skipped.",
+        "Allowing a second skip inside the helper."
+      ],
+      "interviewExplanation": "Two pointers walk inward while the ends match. At the first mismatch one of those two letters must go, so I check both remaining middles with a plain palindrome scan. There's only one branch point, so it's O(n) time and O(1) space.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "'abca': a = a, then b ≠ c at i=1, j=2."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Skip left: check text[2..2] = 'c', a palindrome. Return true."
+        }
+      ]
+    }
+  ]
+}
