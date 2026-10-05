@@ -1563,7 +1563,9 @@ export const EXPANSION: Record<string, ExpansionEntry> = {
   "floor-tracker": entry(floorTrackerInput, floorTracker, floorTrackerBrute, sampleTracker),
   "shuffled-signs": entry(shuffledSignsInput, shuffledSigns, shuffledSignsBrute, (rng) => {
     const first = randomWord(rng, rng.int(0, 6));
-    const second = rng.chance(0.5) ? [...first].sort(() => rng.int(-1, 1)).join("") : randomWord(rng, rng.int(0, 6));
+    const letters = [...first];
+    for (let i = letters.length - 1; i > 0; i--) { const j = rng.int(0, i); [letters[i], letters[j]] = [letters[j], letters[i]]; }
+    const second = rng.chance(0.5) ? letters.join("") : randomWord(rng, rng.int(0, 6));
     return { first, second };
   }),
   "trail-gain": entry(trailGainInput, trailGain, trailGainBrute, (rng) => ({ heights: ints(rng, rng.int(1, 9), 0, 20) })),

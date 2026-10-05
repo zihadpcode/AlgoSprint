@@ -1123,12 +1123,12 @@
       "pseudocode": "logs = map client → queue\nfor (c, t): q = logs[c]; while q.front <= t - window: pop front\n  if |q| >= limit: out false else q.push(t); out true",
       "code": "function rateGate(limit, window, requests) {\n  const logs = new Map();\n  return requests.map(([client, time]) => {\n    if (!logs.has(client)) logs.set(client, { times: [], head: 0 });\n    const log = logs.get(client);\n    while (log.head < log.times.length && log.times[log.head] <= time - window) log.head++;\n    if (log.times.length - log.head >= limit) return false;\n    log.times.push(time);\n    return true;\n  });\n}",
       "timeComplexity": "O(1) amortized per request",
-      "spaceComplexity": "O(clients × limit) live entries",
+      "spaceComplexity": "O(accepted requests) as written; O(clients × limit) if each queue is compacted",
       "commonMistakes": [
         "Using shift() on large arrays, which costs O(n) per call; a head index keeps it O(1).",
         "Sharing one queue across clients."
       ],
-      "interviewExplanation": "This is a sliding-log rate limiter. Each client has a queue of accepted timestamps, expired ones are popped from the front, and the request is allowed if fewer than limit remain. Amortized O(1), and memory is bounded by limit per active client if you compact the arrays. In production I'd compare it with a token bucket or a sliding-window counter, which use O(1) memory per client, and with a shared store like Redis when several gateway instances enforce the same limit.",
+      "interviewExplanation": "This is a sliding-log rate limiter. Each client has a queue of accepted timestamps, expired ones are popped from the front, and the request is allowed if fewer than limit remain. Amortized O(1). As written the arrays keep every accepted time, so memory is O(accepted requests); compacting each queue once its head passes half its length bounds it to O(limit) per active client. In production I'd compare it with a token bucket or a sliding-window counter, which use O(1) memory per client, and with a shared store like Redis when several gateway instances enforce the same limit.",
       "steps": [
         {
           "position": 1,
