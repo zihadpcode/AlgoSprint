@@ -35,4 +35,5 @@ export const PATTERNS = [
   "sweep-line", "bit-counting", "gcd", "inorder-traversal", "rotated-binary-search", "stack-evaluation",
   "unbounded-knapsack", "multi-source-bfs", "top-k", "monotonic-deque", "two-heaps",
   "matrix-transform", "k-way-merge", "memoized-dfs", "bridges", "wildcard-dp",
+  "sliding-log", "timestamp-binary-search", "partition-binary-search", "palindrome-dp", "fenwick-tree",
 ] as const;

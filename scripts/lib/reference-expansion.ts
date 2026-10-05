@@ -1184,6 +1184,354 @@ function glyphOrderBrute(words: string[]) {
   return order;
 }
 
+// ---------- Vault Account: a small bank-account object ----------
+
+type VaultOp = ["deposit", number] | ["withdraw", number] | ["balance"];
+const amount = z.int().min(1).max(1_000_000);
+export const vaultAccountInput = z.strictObject({
+  operations: z.array(z.union([z.tuple([z.literal("deposit"), amount]), z.tuple([z.literal("withdraw"), amount]), z.tuple([z.literal("balance")])])).max(10_000),
+});
+export function vaultAccount(operations: VaultOp[]) {
+  let balance = 0;
+  const results: (boolean | number)[] = [];
+  for (const op of operations) {
+    if (op[0] === "deposit") balance += op[1];
+    else if (op[0] === "withdraw") { const ok = op[1] <= balance; if (ok) balance -= op[1]; results.push(ok); }
+    else results.push(balance);
+  }
+  return results;
+}
+function vaultAccountBrute(operations: VaultOp[]) {
+  const history: number[] = [];
+  const results: (boolean | number)[] = [];
+  const total = () => history.reduce((a, b) => a + b, 0);
+  for (const op of operations) {
+    if (op[0] === "deposit") history.push(op[1]);
+    else if (op[0] === "withdraw") { const ok = total() >= op[1]; if (ok) history.push(-op[1]); results.push(ok); }
+    else results.push(total());
+  }
+  return results;
+}
+
+// ---------- Tally Ranges: range-sum queries ----------
+
+export const tallyRangesInput = z.strictObject({
+  values: z.array(z.int().min(-10_000).max(10_000)).min(1).max(10_000),
+  queries: z.array(z.tuple([z.int().min(0), z.int().min(0)])).max(10_000),
+}).refine((i) => i.queries.every(([l, r]) => l <= r && r < i.values.length), "Each query must satisfy 0 <= left <= right < values.length");
+export function tallyRanges(values: number[], queries: [number, number][]) {
+  const prefix = [0];
+  for (const v of values) prefix.push(prefix[prefix.length - 1] + v);
+  return queries.map(([l, r]) => prefix[r + 1] - prefix[l]);
+}
+function tallyRangesBrute(values: number[], queries: [number, number][]) {
+  return queries.map(([l, r]) => values.slice(l, r + 1).reduce((a, b) => a + b, 0));
+}
+
+// ---------- One-Slip Mirror: palindrome after at most one deletion ----------
+
+export const oneSlipMirrorInput = z.strictObject({ text: z.string().min(1).max(10_000).regex(/^[a-z]+$/) });
+const isMirror = (s: string, i: number, j: number) => { while (i < j) if (s[i++] !== s[j--]) return false; return true; };
+export function oneSlipMirror(text: string) {
+  let i = 0, j = text.length - 1;
+  while (i < j) {
+    if (text[i] !== text[j]) return isMirror(text, i + 1, j) || isMirror(text, i, j - 1);
+    i++; j--;
+  }
+  return true;
+}
+function oneSlipMirrorBrute(text: string) {
+  const ok = (s: string) => s === [...s].reverse().join("");
+  if (ok(text)) return true;
+  for (let k = 0; k < text.length; k++) if (ok(text.slice(0, k) + text.slice(k + 1))) return true;
+  return false;
+}
+
+// ---------- Rate Gate: per-client sliding-log rate limiter ----------
+
+export const rateGateInput = z.strictObject({
+  limit: z.int().min(1).max(100), window: z.int().min(1).max(1_000_000),
+  requests: z.array(z.tuple([z.string().min(1).max(10).regex(/^[a-z]+$/), z.int().min(0).max(1_000_000_000)])).max(10_000)
+    .refine((r) => r.every((req, i) => i === 0 || r[i - 1][1] <= req[1]), "Requests must arrive in non-decreasing time order"),
+});
+export function rateGate(limit: number, window: number, requests: [string, number][]) {
+  const logs = new Map<string, { times: number[]; head: number }>();
+  return requests.map(([client, time]) => {
+    let log = logs.get(client);
+    if (!log) logs.set(client, log = { times: [], head: 0 });
+    while (log.head < log.times.length && log.times[log.head] <= time - window) log.head++;
+    if (log.times.length - log.head >= limit) return false;
+    log.times.push(time);
+    return true;
+  });
+}
+function rateGateBrute(limit: number, window: number, requests: [string, number][]) {
+  const allowed: [string, number][] = [];
+  return requests.map(([client, time]) => {
+    const recent = allowed.filter(([c, t]) => c === client && t > time - window).length;
+    if (recent >= limit) return false;
+    allowed.push([client, time]);
+    return true;
+  });
+}
+
+// ---------- Snapshot Registry: time-keyed key/value store ----------
+
+type RegistryOp = ["set", string, string, number] | ["get", string, number];
+const regKey = z.string().min(1).max(10).regex(/^[a-z]+$/);
+const regTime = z.int().min(1).max(1_000_000_000);
+export const snapshotRegistryInput = z.strictObject({
+  operations: z.array(z.union([z.tuple([z.literal("set"), regKey, z.string().min(1).max(10).regex(/^[a-z]+$/), regTime]), z.tuple([z.literal("get"), regKey, regTime])])).max(10_000),
+}).refine((i) => {
+  let last = 0;
+  for (const op of i.operations) if (op[0] === "set") { if (op[3] <= last) return false; last = op[3]; }
+  return true;
+}, "set times must strictly increase");
+export function snapshotRegistry(operations: RegistryOp[]) {
+  const store = new Map<string, { times: number[]; values: string[] }>();
+  const results: string[] = [];
+  for (const op of operations) {
+    if (op[0] === "set") {
+      let entry = store.get(op[1]);
+      if (!entry) store.set(op[1], entry = { times: [], values: [] });
+      entry.times.push(op[3]); entry.values.push(op[2]);
+    } else {
+      const entry = store.get(op[1]);
+      if (!entry) { results.push(""); continue; }
+      let lo = 0, hi = entry.times.length;
+      while (lo < hi) { const mid = (lo + hi) >> 1; if (entry.times[mid] <= op[2]) lo = mid + 1; else hi = mid; }
+      results.push(lo ? entry.values[lo - 1] : "");
+    }
+  }
+  return results;
+}
+function snapshotRegistryBrute(operations: RegistryOp[]) {
+  const sets: [string, string, number][] = [];
+  const results: string[] = [];
+  for (const op of operations) {
+    if (op[0] === "set") sets.push([op[1], op[2], op[3]]);
+    else {
+      let best: [string, string, number] | null = null;
+      for (const s of sets) if (s[0] === op[1] && s[2] <= op[2] && (!best || s[2] > best[2])) best = s;
+      results.push(best ? best[1] : "");
+    }
+  }
+  return results;
+}
+
+// ---------- Quiet Heist: non-adjacent maximum sum on a circle ----------
+
+export const quietHeistInput = z.strictObject({ houses: z.array(z.int().min(0).max(10_000)).min(1).max(10_000) });
+function lineBest(values: number[], from: number, to: number) {
+  let take = 0, skip = 0;
+  for (let i = from; i <= to; i++) [take, skip] = [skip + values[i], Math.max(take, skip)];
+  return Math.max(take, skip);
+}
+export function quietHeist(houses: number[]) {
+  if (houses.length === 1) return houses[0];
+  return Math.max(lineBest(houses, 0, houses.length - 2), lineBest(houses, 1, houses.length - 1));
+}
+function quietHeistBrute(houses: number[]) {
+  const n = houses.length;
+  let best = 0;
+  for (let mask = 0; mask < 1 << n; mask++) {
+    let ok = true, sum = 0;
+    for (let i = 0; i < n && ok; i++) if (mask & (1 << i)) {
+      const next = (i + 1) % n;
+      if (n > 1 && next !== i && mask & (1 << next)) ok = false;
+      sum += houses[i];
+    }
+    if (ok) best = Math.max(best, sum);
+  }
+  return best;
+}
+
+// ---------- Lineup Orders: permutations in lexicographic order ----------
+
+export const lineupOrdersInput = z.strictObject({
+  players: z.array(z.int().min(-10).max(10)).max(6).refine((p) => new Set(p).size === p.length, "Players must be distinct"),
+});
+export function lineupOrders(players: number[]) {
+  const sorted = [...players].sort((a, b) => a - b);
+  const used = sorted.map(() => false), current: number[] = [], result: number[][] = [];
+  const place = () => {
+    if (current.length === sorted.length) { result.push([...current]); return; }
+    for (let i = 0; i < sorted.length; i++) if (!used[i]) { used[i] = true; current.push(sorted[i]); place(); current.pop(); used[i] = false; }
+  };
+  place();
+  return result;
+}
+function lineupOrdersBrute(players: number[]) {
+  const perms = (items: number[]): number[][] => (items.length === 0 ? [[]] : items.flatMap((x, i) => perms([...items.slice(0, i), ...items.slice(i + 1)]).map((p) => [x, ...p])));
+  return perms(players).sort((a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; });
+}
+
+// ---------- Spiral Survey: clockwise spiral order ----------
+
+export const spiralSurveyInput = z.strictObject({
+  matrix: z.array(z.array(int).min(1).max(100)).min(1).max(100).refine((m) => m.every((row) => row.length === m[0].length), "Rows must have equal length"),
+});
+export function spiralSurvey(matrix: number[][]) {
+  const out: number[] = [];
+  let top = 0, bottom = matrix.length - 1, left = 0, right = matrix[0].length - 1;
+  while (top <= bottom && left <= right) {
+    for (let c = left; c <= right; c++) out.push(matrix[top][c]);
+    for (let r = top + 1; r <= bottom; r++) out.push(matrix[r][right]);
+    if (top < bottom) for (let c = right - 1; c >= left; c--) out.push(matrix[bottom][c]);
+    if (left < right) for (let r = bottom - 1; r > top; r--) out.push(matrix[r][left]);
+    top++; bottom--; left++; right--;
+  }
+  return out;
+}
+function spiralSurveyBrute(matrix: number[][]) {
+  const h = matrix.length, w = matrix[0].length, seen = new Set<number>(), out: number[] = [];
+  const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+  let r = 0, c = 0, d = 0;
+  for (let k = 0; k < h * w; k++) {
+    out.push(matrix[r][c]); seen.add(r * w + c);
+    let nr = r + dirs[d][0], nc = c + dirs[d][1];
+    if (nr < 0 || nr >= h || nc < 0 || nc >= w || seen.has(nr * w + nc)) { d = (d + 1) % 4; nr = r + dirs[d][0]; nc = c + dirs[d][1]; }
+    r = nr; c = nc;
+  }
+  return out;
+}
+
+// ---------- Dual Median: median of two sorted arrays ----------
+
+export const dualMedianInput = z.strictObject({ first: sortedInts, second: sortedInts })
+  .refine((i) => i.first.length + i.second.length >= 1, "At least one value is required");
+export function dualMedian(first: number[], second: number[]) {
+  const [a, b] = first.length <= second.length ? [first, second] : [second, first];
+  const m = a.length, n = b.length, half = (m + n + 1) >> 1;
+  let lo = 0, hi = m;
+  for (;;) {
+    const i = (lo + hi) >> 1, j = half - i;
+    const aLeft = i ? a[i - 1] : -Infinity, aRight = i < m ? a[i] : Infinity;
+    const bLeft = j ? b[j - 1] : -Infinity, bRight = j < n ? b[j] : Infinity;
+    if (aLeft <= bRight && bLeft <= aRight) {
+      const leftMax = Math.max(aLeft, bLeft);
+      return (m + n) % 2 ? leftMax : (leftMax + Math.min(aRight, bRight)) / 2;
+    }
+    if (aLeft > bRight) hi = i - 1; else lo = i + 1;
+  }
+}
+function dualMedianBrute(first: number[], second: number[]) {
+  const all = [...first, ...second].sort((x, y) => x - y), mid = all.length >> 1;
+  return all.length % 2 ? all[mid] : (all[mid - 1] + all[mid]) / 2;
+}
+
+// ---------- Mirror Cuts: minimum palindrome partition cuts ----------
+
+export const mirrorCutsInput = z.strictObject({ text: z.string().min(1).max(2000).regex(/^[a-z]+$/) });
+export function mirrorCuts(text: string) {
+  const n = text.length;
+  const cuts = Array.from({ length: n + 1 }, (_, i) => i - 1); // cuts[i]: min cuts for text[0..i)
+  for (let center = 0; center < n; center++) {
+    for (const [startL, startR] of [[center, center], [center, center + 1]]) {
+      let l = startL, r = startR;
+      while (l >= 0 && r < n && text[l] === text[r]) { cuts[r + 1] = Math.min(cuts[r + 1], cuts[l] + 1); l--; r++; }
+    }
+  }
+  return cuts[n];
+}
+function mirrorCutsBrute(text: string) {
+  const ok = (s: string) => s === [...s].reverse().join("");
+  const go = (start: number): number => {
+    if (ok(text.slice(start))) return 0;
+    let best = Infinity;
+    for (let end = start + 1; end < text.length; end++) if (ok(text.slice(start, end))) best = Math.min(best, 1 + go(end));
+    return best;
+  };
+  return go(0);
+}
+
+// ---------- Bracket Run: longest valid parentheses substring ----------
+
+export const bracketRunInput = z.strictObject({ text: z.string().max(10_000).regex(/^[()]*$/) });
+export function bracketRun(text: string) {
+  const stack = [-1];
+  let best = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === "(") stack.push(i);
+    else {
+      stack.pop();
+      if (stack.length) best = Math.max(best, i - stack[stack.length - 1]); else stack.push(i);
+    }
+  }
+  return best;
+}
+function bracketRunBrute(text: string) {
+  const valid = (s: string) => { let d = 0; for (const ch of s) { d += ch === "(" ? 1 : -1; if (d < 0) return false; } return d === 0; };
+  let best = 0;
+  for (let i = 0; i < text.length; i++) for (let j = i + 2; j <= text.length; j += 2) if (j - i > best && valid(text.slice(i, j))) best = j - i;
+  return best;
+}
+
+// ---------- Later Lower: count smaller elements to the right ----------
+
+export const laterLowerInput = z.strictObject({ values: z.array(z.int().min(-10_000).max(10_000)).max(10_000) });
+export function laterLower(values: number[]) {
+  const offset = 10_001, size = 20_002;
+  const tree = new Array<number>(size + 1).fill(0);
+  const add = (i: number) => { for (; i <= size; i += i & -i) tree[i]++; };
+  const sum = (i: number) => { let s = 0; for (; i > 0; i -= i & -i) s += tree[i]; return s; };
+  const out = new Array<number>(values.length).fill(0);
+  for (let k = values.length - 1; k >= 0; k--) { out[k] = sum(values[k] + offset - 1); add(values[k] + offset); }
+  return out;
+}
+function laterLowerBrute(values: number[]) {
+  return values.map((v, i) => values.slice(i + 1).filter((w) => w < v).length);
+}
+
+// ---------- City Skyline: skyline key points ----------
+
+const building = z.tuple([z.int().min(0).max(1_000_000), z.int().min(0).max(1_000_000), z.int().min(1).max(1_000_000)])
+  .refine(([l, r]) => l < r, "A building must have positive width");
+export const citySkylineInput = z.strictObject({ buildings: z.array(building).max(2000) });
+export function citySkyline(buildings: [number, number, number][]) {
+  // Sweep x coordinates; max-heap of [height, right] with lazy removal of buildings that have ended.
+  const xs = [...new Set(buildings.flatMap(([l, r]) => [l, r]))].sort((a, b) => a - b);
+  const byLeft = [...buildings].sort((a, b) => a[0] - b[0]);
+  const heap: [number, number][] = [];
+  const higher = (a: [number, number], b: [number, number]) => a[0] > b[0];
+  const push = (item: [number, number]) => {
+    heap.push(item);
+    for (let i = heap.length - 1; i > 0;) { const p = (i - 1) >> 1; if (!higher(heap[i], heap[p])) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; }
+  };
+  const pop = () => {
+    const last = heap.pop()!;
+    if (heap.length) {
+      heap[0] = last;
+      for (let i = 0; ;) {
+        const l = 2 * i + 1, r = l + 1;
+        let m = i;
+        if (l < heap.length && higher(heap[l], heap[m])) m = l;
+        if (r < heap.length && higher(heap[r], heap[m])) m = r;
+        if (m === i) break;
+        [heap[m], heap[i]] = [heap[i], heap[m]]; i = m;
+      }
+    }
+  };
+  const points: [number, number][] = [];
+  let k = 0;
+  for (const x of xs) {
+    while (k < byLeft.length && byLeft[k][0] <= x) { push([byLeft[k][2], byLeft[k][1]]); k++; }
+    while (heap.length && heap[0][1] <= x) pop();
+    const h = heap.length ? heap[0][0] : 0;
+    if (!points.length || points[points.length - 1][1] !== h) points.push([x, h]);
+  }
+  return points;
+}
+function citySkylineBrute(buildings: [number, number, number][]) {
+  const xs = [...new Set(buildings.flatMap(([l, r]) => [l, r]))].sort((a, b) => a - b);
+  const points: [number, number][] = [];
+  for (const x of xs) {
+    const h = Math.max(0, ...buildings.filter(([l, r]) => l <= x && x < r).map((b) => b[2]));
+    if (!points.length || points[points.length - 1][1] !== h) points.push([x, h]);
+  }
+  return points;
+}
+
 // ---------- Registry ----------
 
 export const EXPANSION: Record<string, ExpansionEntry> = {
@@ -1215,7 +1563,9 @@ export const EXPANSION: Record<string, ExpansionEntry> = {
   "floor-tracker": entry(floorTrackerInput, floorTracker, floorTrackerBrute, sampleTracker),
   "shuffled-signs": entry(shuffledSignsInput, shuffledSigns, shuffledSignsBrute, (rng) => {
     const first = randomWord(rng, rng.int(0, 6));
-    const second = rng.chance(0.5) ? [...first].sort(() => rng.int(-1, 1)).join("") : randomWord(rng, rng.int(0, 6));
+    const letters = [...first];
+    for (let i = letters.length - 1; i > 0; i--) { const j = rng.int(0, i); [letters[i], letters[j]] = [letters[j], letters[i]]; }
+    const second = rng.chance(0.5) ? letters.join("") : randomWord(rng, rng.int(0, 6));
     return { first, second };
   }),
   "trail-gain": entry(trailGainInput, trailGain, trailGainBrute, (rng) => ({ heights: ints(rng, rng.int(1, 9), 0, 20) })),
@@ -1270,4 +1620,40 @@ export const EXPANSION: Record<string, ExpansionEntry> = {
     if (rng.chance(0.8)) words.sort((x, y) => { const a = rank(x), b = rank(y); for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i]; return a.length - b.length; });
     return { words };
   }),
+  "vault-account": entry(vaultAccountInput, vaultAccount, vaultAccountBrute, (rng) => ({
+    operations: Array.from({ length: rng.int(0, 10) }, () => rng.pick([["deposit", rng.int(1, 9)], ["withdraw", rng.int(1, 12)], ["balance"]])) })),
+  "tally-ranges": entry(tallyRangesInput, tallyRanges, tallyRangesBrute, (rng) => {
+    const values = ints(rng, rng.int(1, 8), -9, 9);
+    return { values, queries: Array.from({ length: rng.int(0, 6) }, () => { const l = rng.int(0, values.length - 1); return [l, rng.int(l, values.length - 1)]; }) };
+  }),
+  "one-slip-mirror": entry(oneSlipMirrorInput, oneSlipMirror, oneSlipMirrorBrute, (rng) => {
+    const half = randomWord(rng, rng.int(0, 4));
+    let text = half + (rng.chance(0.5) ? randomWord(rng, 1) : "") + [...half].reverse().join("");
+    if (rng.chance(0.6)) { const k = rng.int(0, text.length); text = text.slice(0, k) + randomWord(rng, 1) + text.slice(k); }
+    if (rng.chance(0.3)) { const k = rng.int(0, text.length); text = text.slice(0, k) + randomWord(rng, 1) + text.slice(k); }
+    return { text: text || "a" };
+  }),
+  "rate-gate": entry(rateGateInput, rateGate, rateGateBrute, (rng) => {
+    let t = 0;
+    return { limit: rng.int(1, 3), window: rng.int(1, 6), requests: Array.from({ length: rng.int(0, 12) }, () => [rng.pick(["a", "b"]), t += rng.int(0, 3)]) };
+  }),
+  "snapshot-registry": entry(snapshotRegistryInput, snapshotRegistry, snapshotRegistryBrute, (rng) => {
+    let t = 0;
+    return { operations: Array.from({ length: rng.int(0, 12) }, () => rng.chance(0.5)
+      ? ["set", rng.pick(["a", "b"]), rng.pick(["x", "y", "z"]), t += rng.int(1, 3)]
+      : ["get", rng.pick(["a", "b", "c"]), rng.int(1, t + 3)]) };
+  }),
+  "quiet-heist": entry(quietHeistInput, quietHeist, quietHeistBrute, (rng) => ({ houses: ints(rng, rng.int(1, 10), 0, 9) })),
+  "lineup-orders": entry(lineupOrdersInput, lineupOrders, lineupOrdersBrute, (rng) => ({ players: distinct(rng, rng.int(0, 4), -5, 5) })),
+  "spiral-survey": entry(spiralSurveyInput, spiralSurvey, spiralSurveyBrute, (rng) => { const h = rng.int(1, 5), w = rng.int(1, 5); return { matrix: Array.from({ length: h }, () => ints(rng, w, -9, 9)) }; }),
+  "dual-median": entry(dualMedianInput, dualMedian, dualMedianBrute, (rng) => {
+    const first = ints(rng, rng.int(0, 6), -9, 9).sort((a, b) => a - b);
+    const second = ints(rng, rng.int(first.length ? 0 : 1, 6), -9, 9).sort((a, b) => a - b);
+    return { first, second };
+  }),
+  "mirror-cuts": entry(mirrorCutsInput, mirrorCuts, mirrorCutsBrute, (rng) => ({ text: randomWord(rng, rng.int(1, 9), "ab") })),
+  "bracket-run": entry(bracketRunInput, bracketRun, bracketRunBrute, (rng) => ({ text: randomWord(rng, rng.int(0, 12), "()") })),
+  "later-lower": entry(laterLowerInput, laterLower, laterLowerBrute, (rng) => ({ values: ints(rng, rng.int(0, 10), -5, 5) })),
+  "city-skyline": entry(citySkylineInput, citySkyline, citySkylineBrute, (rng) => ({
+    buildings: Array.from({ length: rng.int(0, 6) }, () => { const l = rng.int(0, 12); return [l, l + rng.int(1, 6), rng.int(1, 5)]; }) })),
 };

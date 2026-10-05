@@ -1,0 +1,1146 @@
+{
+  "schemaVersion": 1,
+  "slug": "rate-gate",
+  "title": "Rate Gate",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "sliding-log",
+  "statement": "An API gateway allows each client at most limit accepted requests in any window-second span. A request from client at time t is accepted if fewer than limit of that client's previously accepted requests have times greater than t - window; otherwise it is rejected and not counted. Requests arrive in non-decreasing time order as [client, time]. Return true or false for each request, in order.",
+  "constraints": [
+    "1 <= limit <= 100",
+    "1 <= window <= 1000000",
+    "0 <= requests.length <= 10000",
+    "client is 1–10 lowercase letters; 0 <= time <= 1000000000; times are non-decreasing"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "system-design",
+    "design",
+    "queue"
+  ],
+  "tags": [
+    "fixed-window",
+    "simulation"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "limit": 2,
+        "window": 10,
+        "requests": [
+          [
+            "ana",
+            1
+          ],
+          [
+            "ana",
+            2
+          ],
+          [
+            "ana",
+            3
+          ],
+          [
+            "ana",
+            11
+          ],
+          [
+            "ana",
+            12
+          ]
+        ]
+      },
+      "output": [
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "explanation": "The third request is the third in [1, 3]: rejected. At 11 the request at 1 has aged out (1 <= 11 - 10), so 11 is accepted; at 12, 2 has also aged out."
+    },
+    {
+      "position": 2,
+      "input": {
+        "limit": 1,
+        "window": 5,
+        "requests": [
+          [
+            "ana",
+            0
+          ],
+          [
+            "bo",
+            0
+          ],
+          [
+            "ana",
+            4
+          ]
+        ]
+      },
+      "output": [
+        true,
+        true,
+        false
+      ],
+      "explanation": "Clients are limited independently."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Each client is limited separately, so keep state per client."
+    },
+    {
+      "position": 2,
+      "content": "Only accepted requests count toward the limit."
+    },
+    {
+      "position": 3,
+      "content": "A request at time t only cares about the client's accepted times greater than t - window."
+    },
+    {
+      "position": 4,
+      "content": "Because times never go backwards, once an accepted time falls out of the window it never matters again."
+    },
+    {
+      "position": 5,
+      "content": "Keep a queue of accepted times per client; drop from the front while the oldest time is <= t - window, then accept if the queue has fewer than limit entries."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "rateGate",
+      "code": "function rateGate(limit, window, requests) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "limit": 2,
+        "window": 10,
+        "requests": [
+          [
+            "ana",
+            1
+          ],
+          [
+            "ana",
+            2
+          ],
+          [
+            "ana",
+            3
+          ],
+          [
+            "ana",
+            11
+          ],
+          [
+            "ana",
+            12
+          ]
+        ]
+      },
+      "output": [
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "explanation": "The third request is the third in [1, 3]: rejected. At 11 the request at 1 has aged out (1 <= 11 - 10), so 11 is accepted; at 12, 2 has also aged out."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "limit": 1,
+        "window": 5,
+        "requests": [
+          [
+            "ana",
+            0
+          ],
+          [
+            "bo",
+            0
+          ],
+          [
+            "ana",
+            4
+          ]
+        ]
+      },
+      "output": [
+        true,
+        true,
+        false
+      ],
+      "explanation": "Clients are limited independently."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 3,
+        "window": 1,
+        "requests": []
+      },
+      "output": [],
+      "explanation": "No requests."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 1,
+        "window": 1,
+        "requests": [
+          [
+            "x",
+            5
+          ],
+          [
+            "x",
+            5
+          ],
+          [
+            "x",
+            6
+          ]
+        ]
+      },
+      "output": [
+        true,
+        false,
+        true
+      ],
+      "explanation": "Same-time requests count against each other; one second later the window has moved."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 2,
+        "window": 100,
+        "requests": [
+          [
+            "a",
+            0
+          ],
+          [
+            "a",
+            10
+          ],
+          [
+            "a",
+            20
+          ],
+          [
+            "a",
+            30
+          ],
+          [
+            "a",
+            100
+          ],
+          [
+            "a",
+            110
+          ]
+        ]
+      },
+      "output": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        true
+      ],
+      "explanation": "Rejected requests do not extend the block: 100 and 110 are accepted once 0 and 10 age out."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 2,
+        "window": 3,
+        "requests": [
+          [
+            "a",
+            1
+          ],
+          [
+            "b",
+            1
+          ],
+          [
+            "a",
+            2
+          ],
+          [
+            "b",
+            2
+          ],
+          [
+            "a",
+            3
+          ],
+          [
+            "b",
+            4
+          ],
+          [
+            "a",
+            4
+          ]
+        ]
+      },
+      "output": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true
+      ],
+      "explanation": "Two clients interleaved."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "limit": 100,
+        "window": 1000000,
+        "requests": [
+          [
+            "load",
+            0
+          ],
+          [
+            "load",
+            1
+          ],
+          [
+            "load",
+            2
+          ],
+          [
+            "load",
+            3
+          ],
+          [
+            "load",
+            4
+          ],
+          [
+            "load",
+            5
+          ],
+          [
+            "load",
+            6
+          ],
+          [
+            "load",
+            7
+          ],
+          [
+            "load",
+            8
+          ],
+          [
+            "load",
+            9
+          ],
+          [
+            "load",
+            10
+          ],
+          [
+            "load",
+            11
+          ],
+          [
+            "load",
+            12
+          ],
+          [
+            "load",
+            13
+          ],
+          [
+            "load",
+            14
+          ],
+          [
+            "load",
+            15
+          ],
+          [
+            "load",
+            16
+          ],
+          [
+            "load",
+            17
+          ],
+          [
+            "load",
+            18
+          ],
+          [
+            "load",
+            19
+          ],
+          [
+            "load",
+            20
+          ],
+          [
+            "load",
+            21
+          ],
+          [
+            "load",
+            22
+          ],
+          [
+            "load",
+            23
+          ],
+          [
+            "load",
+            24
+          ],
+          [
+            "load",
+            25
+          ],
+          [
+            "load",
+            26
+          ],
+          [
+            "load",
+            27
+          ],
+          [
+            "load",
+            28
+          ],
+          [
+            "load",
+            29
+          ],
+          [
+            "load",
+            30
+          ],
+          [
+            "load",
+            31
+          ],
+          [
+            "load",
+            32
+          ],
+          [
+            "load",
+            33
+          ],
+          [
+            "load",
+            34
+          ],
+          [
+            "load",
+            35
+          ],
+          [
+            "load",
+            36
+          ],
+          [
+            "load",
+            37
+          ],
+          [
+            "load",
+            38
+          ],
+          [
+            "load",
+            39
+          ],
+          [
+            "load",
+            40
+          ],
+          [
+            "load",
+            41
+          ],
+          [
+            "load",
+            42
+          ],
+          [
+            "load",
+            43
+          ],
+          [
+            "load",
+            44
+          ],
+          [
+            "load",
+            45
+          ],
+          [
+            "load",
+            46
+          ],
+          [
+            "load",
+            47
+          ],
+          [
+            "load",
+            48
+          ],
+          [
+            "load",
+            49
+          ],
+          [
+            "load",
+            50
+          ],
+          [
+            "load",
+            51
+          ],
+          [
+            "load",
+            52
+          ],
+          [
+            "load",
+            53
+          ],
+          [
+            "load",
+            54
+          ],
+          [
+            "load",
+            55
+          ],
+          [
+            "load",
+            56
+          ],
+          [
+            "load",
+            57
+          ],
+          [
+            "load",
+            58
+          ],
+          [
+            "load",
+            59
+          ],
+          [
+            "load",
+            60
+          ],
+          [
+            "load",
+            61
+          ],
+          [
+            "load",
+            62
+          ],
+          [
+            "load",
+            63
+          ],
+          [
+            "load",
+            64
+          ],
+          [
+            "load",
+            65
+          ],
+          [
+            "load",
+            66
+          ],
+          [
+            "load",
+            67
+          ],
+          [
+            "load",
+            68
+          ],
+          [
+            "load",
+            69
+          ],
+          [
+            "load",
+            70
+          ],
+          [
+            "load",
+            71
+          ],
+          [
+            "load",
+            72
+          ],
+          [
+            "load",
+            73
+          ],
+          [
+            "load",
+            74
+          ],
+          [
+            "load",
+            75
+          ],
+          [
+            "load",
+            76
+          ],
+          [
+            "load",
+            77
+          ],
+          [
+            "load",
+            78
+          ],
+          [
+            "load",
+            79
+          ],
+          [
+            "load",
+            80
+          ],
+          [
+            "load",
+            81
+          ],
+          [
+            "load",
+            82
+          ],
+          [
+            "load",
+            83
+          ],
+          [
+            "load",
+            84
+          ],
+          [
+            "load",
+            85
+          ],
+          [
+            "load",
+            86
+          ],
+          [
+            "load",
+            87
+          ],
+          [
+            "load",
+            88
+          ],
+          [
+            "load",
+            89
+          ],
+          [
+            "load",
+            90
+          ],
+          [
+            "load",
+            91
+          ],
+          [
+            "load",
+            92
+          ],
+          [
+            "load",
+            93
+          ],
+          [
+            "load",
+            94
+          ],
+          [
+            "load",
+            95
+          ],
+          [
+            "load",
+            96
+          ],
+          [
+            "load",
+            97
+          ],
+          [
+            "load",
+            98
+          ],
+          [
+            "load",
+            99
+          ],
+          [
+            "load",
+            100
+          ],
+          [
+            "load",
+            101
+          ],
+          [
+            "load",
+            102
+          ],
+          [
+            "load",
+            103
+          ],
+          [
+            "load",
+            104
+          ],
+          [
+            "load",
+            105
+          ],
+          [
+            "load",
+            106
+          ],
+          [
+            "load",
+            107
+          ],
+          [
+            "load",
+            108
+          ],
+          [
+            "load",
+            109
+          ],
+          [
+            "load",
+            110
+          ],
+          [
+            "load",
+            111
+          ],
+          [
+            "load",
+            112
+          ],
+          [
+            "load",
+            113
+          ],
+          [
+            "load",
+            114
+          ],
+          [
+            "load",
+            115
+          ],
+          [
+            "load",
+            116
+          ],
+          [
+            "load",
+            117
+          ],
+          [
+            "load",
+            118
+          ],
+          [
+            "load",
+            119
+          ],
+          [
+            "load",
+            120
+          ],
+          [
+            "load",
+            121
+          ],
+          [
+            "load",
+            122
+          ],
+          [
+            "load",
+            123
+          ],
+          [
+            "load",
+            124
+          ],
+          [
+            "load",
+            125
+          ],
+          [
+            "load",
+            126
+          ],
+          [
+            "load",
+            127
+          ],
+          [
+            "load",
+            128
+          ],
+          [
+            "load",
+            129
+          ],
+          [
+            "load",
+            130
+          ],
+          [
+            "load",
+            131
+          ],
+          [
+            "load",
+            132
+          ],
+          [
+            "load",
+            133
+          ],
+          [
+            "load",
+            134
+          ],
+          [
+            "load",
+            135
+          ],
+          [
+            "load",
+            136
+          ],
+          [
+            "load",
+            137
+          ],
+          [
+            "load",
+            138
+          ],
+          [
+            "load",
+            139
+          ],
+          [
+            "load",
+            140
+          ],
+          [
+            "load",
+            141
+          ],
+          [
+            "load",
+            142
+          ],
+          [
+            "load",
+            143
+          ],
+          [
+            "load",
+            144
+          ],
+          [
+            "load",
+            145
+          ],
+          [
+            "load",
+            146
+          ],
+          [
+            "load",
+            147
+          ],
+          [
+            "load",
+            148
+          ],
+          [
+            "load",
+            149
+          ]
+        ]
+      },
+      "output": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "explanation": "The first 100 requests are accepted; the next 50 fall in the same window."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Scan all accepted requests",
+      "intuition": "Count the client's accepted requests in the window by looking at all of them.",
+      "approach": "Keep a list of accepted [client, time]. For each request, count matching entries with time > t - window and compare with limit.",
+      "pseudocode": "accepted = []\nfor (c, t): recent = count of (c, s) in accepted with s > t - window; if recent >= limit: out false else accepted.push; out true",
+      "code": "function rateGate(limit, window, requests) {\n  const accepted = [];\n  return requests.map(([client, time]) => {\n    let recent = 0;\n    for (const [c, t] of accepted) if (c === client && t > time - window) recent++;\n    if (recent >= limit) return false;\n    accepted.push([client, time]);\n    return true;\n  });\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Counting rejected requests, which keeps a busy client blocked forever.",
+        "Using t >= time - window, which keeps a request one second too long."
+      ],
+      "interviewExplanation": "Scanning the full log is correct but grows with total traffic, which a gateway can't afford.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "At times 1 and 2, ana has 0 and then 1 recent requests: accepted. At 3 she has 2: rejected."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "At 11, only 2 > 1 counts (1 recent): accepted. At 12, only 11 counts: accepted."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Per-client sliding log",
+      "intuition": "Times only move forward, so a per-client queue can discard expired entries permanently.",
+      "approach": "Map each client to a queue of accepted times (an array with a head index). Advance the head past times <= t - window. Reject if the remaining count >= limit; otherwise append t and accept.",
+      "pseudocode": "logs = map client → queue\nfor (c, t): q = logs[c]; while q.front <= t - window: pop front\n  if |q| >= limit: out false else q.push(t); out true",
+      "code": "function rateGate(limit, window, requests) {\n  const logs = new Map();\n  return requests.map(([client, time]) => {\n    if (!logs.has(client)) logs.set(client, { times: [], head: 0 });\n    const log = logs.get(client);\n    while (log.head < log.times.length && log.times[log.head] <= time - window) log.head++;\n    if (log.times.length - log.head >= limit) return false;\n    log.times.push(time);\n    return true;\n  });\n}",
+      "timeComplexity": "O(1) amortized per request",
+      "spaceComplexity": "O(accepted requests) as written; O(clients × limit) if each queue is compacted",
+      "commonMistakes": [
+        "Using shift() on large arrays, which costs O(n) per call; a head index keeps it O(1).",
+        "Sharing one queue across clients."
+      ],
+      "interviewExplanation": "This is a sliding-log rate limiter. Each client has a queue of accepted timestamps, expired ones are popped from the front, and the request is allowed if fewer than limit remain. Amortized O(1). As written the arrays keep every accepted time, so memory is O(accepted requests); compacting each queue once its head passes half its length bounds it to O(limit) per active client. In production I'd compare it with a token bucket or a sliding-window counter, which use O(1) memory per client, and with a shared store like Redis when several gateway instances enforce the same limit.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "ana: [1], [1,2]; at 3 the queue holds 2 ≥ limit: reject."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "At 11: drop 1 (1 <= 1), queue [2], accept → [2,11]. At 12: drop 2, accept."
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Problem library guide
 
-The published library holds 74 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and sixty-nine hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The published library holds 87 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and eighty-two hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
@@ -75,6 +75,19 @@ The published library holds 74 original coding problems: the five foundation pro
 | `pattern-gate` | Pattern Gate | Hard | wildcard-dp | dynamic-programming, strings, backtracking |
 | `fragile-links` | Fragile Links | Hard | bridges | graphs, dfs |
 | `glyph-order` | Glyph Order | Hard | topological-sort | topological-sort, graphs, strings |
+| `vault-account` | Vault Account | Easy | design | object-oriented, design |
+| `tally-ranges` | Tally Ranges | Easy | prefix-sum | arrays, math |
+| `one-slip-mirror` | One-Slip Mirror | Easy | two-pointers | two-pointers, strings |
+| `rate-gate` | Rate Gate | Medium | sliding-log | system-design, design, queue |
+| `snapshot-registry` | Snapshot Registry | Medium | timestamp-binary-search | object-oriented, design, binary-search |
+| `quiet-heist` | Quiet Heist | Medium | one-dimensional-dp | dynamic-programming, arrays |
+| `lineup-orders` | Lineup Orders | Medium | backtracking | backtracking, recursion |
+| `spiral-survey` | Spiral Survey | Medium | matrix-transform | arrays |
+| `dual-median` | Dual Median | Hard | partition-binary-search | binary-search, arrays |
+| `mirror-cuts` | Mirror Cuts | Hard | palindrome-dp | dynamic-programming, strings |
+| `bracket-run` | Bracket Run | Hard | stack-matching | stack, strings, dynamic-programming |
+| `later-lower` | Later Lower | Hard | fenwick-tree | sorting, arrays, binary-search |
+| `city-skyline` | City Skyline | Hard | sweep-line | heaps, intervals, sorting |
 
 Trees are passed as level-order arrays with `null` for missing children. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
 

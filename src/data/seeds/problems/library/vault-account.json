@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "slug": "vault-account",
+  "title": "Vault Account",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "design",
+  "statement": "Model a simple savings vault as an object with three methods. deposit(amount) adds money. withdraw(amount) removes money only if the balance covers it, reporting true on success and false (with no change) otherwise. balance() reports the current balance. The vault starts at 0. Given a list of calls such as [\"deposit\", 50], [\"withdraw\", 20] or [\"balance\"], apply them in order and return the results of every withdraw and balance call, in order. Deposits produce no result.",
+  "constraints": [
+    "0 <= operations.length <= 10000",
+    "1 <= amount <= 1000000"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "object-oriented",
+    "design"
+  ],
+  "tags": [
+    "simulation",
+    "invariant"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "operations": [
+          [
+            "deposit",
+            50
+          ],
+          [
+            "withdraw",
+            20
+          ],
+          [
+            "balance"
+          ],
+          [
+            "withdraw",
+            40
+          ],
+          [
+            "balance"
+          ]
+        ]
+      },
+      "output": [
+        true,
+        30,
+        false,
+        30
+      ],
+      "explanation": "Withdrawing 20 succeeds (30 left); withdrawing 40 fails, so the balance stays 30."
+    },
+    {
+      "position": 2,
+      "input": {
+        "operations": [
+          [
+            "balance"
+          ]
+        ]
+      },
+      "output": [
+        0
+      ],
+      "explanation": "A new vault holds 0."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Treat this as a class with one private field: the current balance."
+    },
+    {
+      "position": 2,
+      "content": "deposit and balance are one-line methods."
+    },
+    {
+      "position": 3,
+      "content": "withdraw has to check before it changes anything."
+    },
+    {
+      "position": 4,
+      "content": "Only withdraw and balance produce results, so push to the results list only for those calls."
+    },
+    {
+      "position": 5,
+      "content": "Recomputing the balance from a history of transactions works, but a single running total makes every call O(1)."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "vaultAccount",
+      "code": "function vaultAccount(operations) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "operations": [
+          [
+            "deposit",
+            50
+          ],
+          [
+            "withdraw",
+            20
+          ],
+          [
+            "balance"
+          ],
+          [
+            "withdraw",
+            40
+          ],
+          [
+            "balance"
+          ]
+        ]
+      },
+      "output": [
+        true,
+        30,
+        false,
+        30
+      ],
+      "explanation": "Withdrawing 20 succeeds (30 left); withdrawing 40 fails, so the balance stays 30."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "operations": [
+          [
+            "balance"
+          ]
+        ]
+      },
+      "output": [
+        0
+      ],
+      "explanation": "A new vault holds 0."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": []
+      },
+      "output": [],
+      "explanation": "No calls, no results."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "withdraw",
+            1
+          ]
+        ]
+      },
+      "output": [
+        false
+      ],
+      "explanation": "Withdrawing from an empty vault fails."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "deposit",
+            10
+          ],
+          [
+            "withdraw",
+            10
+          ],
+          [
+            "balance"
+          ]
+        ]
+      },
+      "output": [
+        true,
+        0
+      ],
+      "explanation": "Withdrawing the exact balance succeeds and leaves 0."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "deposit",
+            1000000
+          ],
+          [
+            "deposit",
+            1000000
+          ],
+          [
+            "deposit",
+            1000000
+          ],
+          [
+            "balance"
+          ],
+          [
+            "withdraw",
+            1000000
+          ],
+          [
+            "balance"
+          ]
+        ]
+      },
+      "output": [
+        3000000,
+        true,
+        2000000
+      ],
+      "explanation": "Balances can exceed the per-call limit: 3000000, then 2000000 after withdrawing the maximum amount."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "operations": [
+          [
+            "deposit",
+            5
+          ],
+          [
+            "withdraw",
+            6
+          ],
+          [
+            "withdraw",
+            5
+          ],
+          [
+            "withdraw",
+            1
+          ],
+          [
+            "deposit",
+            2
+          ],
+          [
+            "balance"
+          ]
+        ]
+      },
+      "output": [
+        false,
+        true,
+        false,
+        2
+      ],
+      "explanation": "A failed withdrawal leaves the balance unchanged for the next call."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Recompute from the transaction history",
+      "intuition": "The balance is the sum of every successful transaction, so keep the history and add it up when needed.",
+      "approach": "Store each successful deposit as +amount and each successful withdrawal as -amount. For withdraw and balance, sum the history first.",
+      "pseudocode": "history = []\nfor op: deposit → history.push(+a); withdraw → ok = sum(history) >= a; if ok: history.push(-a); out.push(ok); balance → out.push(sum(history))",
+      "code": "function vaultAccount(operations) {\n  const history = [], results = [];\n  const total = () => history.reduce((sum, x) => sum + x, 0);\n  for (const op of operations) {\n    if (op[0] === 'deposit') history.push(op[1]);\n    else if (op[0] === 'withdraw') {\n      const ok = total() >= op[1];\n      if (ok) history.push(-op[1]);\n      results.push(ok);\n    } else results.push(total());\n  }\n  return results;\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Recording failed withdrawals in the history.",
+        "Pushing a result for deposits."
+      ],
+      "interviewExplanation": "Replaying the history is how an audit log works and is clearly correct, but each query costs O(history), so it's quadratic overall.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "History [50] → withdraw 20 succeeds → [50, -20]; balance 30."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "withdraw 40: 30 < 40 fails; balance 30."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Encapsulated running balance",
+      "intuition": "The only state that affects future calls is the current balance.",
+      "approach": "Write a small Vault class with a private balance and deposit, withdraw and balance methods, then dispatch each operation to it.",
+      "pseudocode": "class Vault: balance = 0; deposit(a): balance += a; withdraw(a): if a > balance: return false; balance -= a; return true; read(): return balance",
+      "code": "class Vault {\n  #balance = 0;\n  deposit(amount) { this.#balance += amount; }\n  withdraw(amount) {\n    if (amount > this.#balance) return false;\n    this.#balance -= amount;\n    return true;\n  }\n  balance() { return this.#balance; }\n}\n\nfunction vaultAccount(operations) {\n  const vault = new Vault(), results = [];\n  for (const [name, amount] of operations) {\n    if (name === 'deposit') vault.deposit(amount);\n    else if (name === 'withdraw') results.push(vault.withdraw(amount));\n    else results.push(vault.balance());\n  }\n  return results;\n}",
+      "timeComplexity": "O(1) per call, O(n) overall",
+      "spaceComplexity": "O(1) beyond the results",
+      "commonMistakes": [
+        "Letting callers modify the balance directly instead of through methods.",
+        "Subtracting first and checking for a negative balance afterwards, which briefly breaks the invariant."
+      ],
+      "interviewExplanation": "I'd model this as a class whose private field is the balance, with the invariant that it's never negative. withdraw checks before mutating, so a failed call has no side effects. Every call is O(1). In a real system I'd use integer cents to avoid floating-point error, and I'd keep an append-only transaction log alongside the running total for auditing.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "deposit 50 → balance 50. withdraw 20 → true, 30. balance → 30."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "withdraw 40 → false, still 30. balance → 30."
+        }
+      ]
+    }
+  ]
+}
