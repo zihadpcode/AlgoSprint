@@ -205,4 +205,23 @@ export const ROADMAPS = [
       { problemSlug: "cheapest-route", title: "Day 30: Expand the cheapest frontier", description: "Dijkstra's algorithm settles the nearest stop first. Skip stale heap entries." },
     ],
   },
+  {
+    slug: "capstone-mix", title: "Capstone Mix", difficulty: "HARD", estimatedMinutes: 580,
+    description: "A final mixed set that revisits pointers, voting, union-find, intervals, backtracking, tries, tree recursion, minimax paths, state-space search and cache design. Problems are deliberately not grouped by pattern: before each one, name the technique you expect to use and why, then check your guess against the hints.",
+    steps: [
+      { problemSlug: "reverse-convoy", title: "Reverse links in place", description: "Three pointers, previous, current and saved next, turn the chain around in one pass." },
+      { problemSlug: "badge-majority", title: "Cancel votes to find a majority", description: "Boyer–Moore voting pairs off different values; the majority survives with O(1) memory." },
+      { problemSlug: "drop-nth-car", title: "Keep a fixed gap", description: "Lead and trail pointers k apart find the k-th node from the end in one pass. Handle removing the head." },
+      { problemSlug: "shared-mentor", title: "Find where two searches split", description: "In a BST, both targets stay on the same side until their lowest common ancestor." },
+      { problemSlug: "ledger-equalities", title: "Union first, then check", description: "Apply every equality with union-find, then reject any inequality whose letters share a root." },
+      { problemSlug: "quiet-hours", title: "Find the gaps between merged blocks", description: "Sort by start and carry the latest end; a later start is a free gap." },
+      { problemSlug: "crossword-trace", title: "Backtrack on a board", description: "Match letters cell by cell, mark cells while in use and unmark on the way back." },
+      { problemSlug: "nested-crates", title: "Reduce to an increasing subsequence", description: "Sort by width, break ties by descending height, then run the n log n LIS." },
+      { problemSlug: "twin-xor", title: "Choose bits greedily in a trie", description: "A binary trie of earlier values lets each value find its best XOR partner from the top bit down." },
+      { problemSlug: "canopy-gain", title: "Return one side, record both", description: "Each node passes its best single chain upward while the answer considers both children." },
+      { problemSlug: "floodgate-path", title: "Minimize the worst step", description: "Dijkstra with max instead of + finds the lowest possible peak on a route." },
+      { problemSlug: "tile-shuffle", title: "Search a state space", description: "Encode each board as a string and run BFS over the 720 arrangements." },
+      { problemSlug: "popularity-cache", title: "Design for O(1) eviction", description: "Frequency buckets in recency order plus a minimum-frequency pointer make LFU eviction constant time." },
+    ],
+  },
 ] satisfies RoadmapSeed[];

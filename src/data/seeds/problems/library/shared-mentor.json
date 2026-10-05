@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "slug": "shared-mentor",
+  "title": "Shared Mentor",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "inorder-traversal",
+  "statement": "A mentorship program arranges members by badge number in a binary search tree: smaller numbers are in a member's left subtree and larger ones in the right, all distinct. The tree is given in level order with null for a missing child. Given two badge numbers a and b that are both in the tree, return the badge of their closest shared mentor: the deepest member that has both a and b in its subtree (a member counts as its own mentor).",
+  "constraints": [
+    "1 <= number of members <= 10000",
+    "Values are distinct and form a valid binary search tree",
+    "a and b are both in the tree (they may be equal)"
+  ],
+  "estimatedMinutes": 20,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "binary-search-trees",
+    "trees"
+  ],
+  "tags": [
+    "invariant",
+    "monotone-search"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "tree": [
+          6,
+          2,
+          8,
+          0,
+          4,
+          7,
+          9,
+          null,
+          null,
+          3,
+          5
+        ],
+        "a": 2,
+        "b": 8
+      },
+      "output": 6,
+      "explanation": "2 and 8 split at the root, 6."
+    },
+    {
+      "position": 2,
+      "input": {
+        "tree": [
+          6,
+          2,
+          8,
+          0,
+          4,
+          7,
+          9,
+          null,
+          null,
+          3,
+          5
+        ],
+        "a": 2,
+        "b": 4
+      },
+      "output": 2,
+      "explanation": "2 is an ancestor of 4, so 2 is the shared mentor."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "In a general tree you would search both subtrees, but a BST tells you which way to go."
+    },
+    {
+      "position": 2,
+      "content": "If both badges are smaller than the current member, the shared mentor is in the left subtree."
+    },
+    {
+      "position": 3,
+      "content": "If both are larger, it is in the right subtree."
+    },
+    {
+      "position": 4,
+      "content": "Otherwise they split here (or one of them is this member), so this member is the answer."
+    },
+    {
+      "position": 5,
+      "content": "Walk down from the root using those three rules; no recursion or extra memory needed."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "sharedMentor",
+      "code": "function sharedMentor(tree, a, b) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": [
+          6,
+          2,
+          8,
+          0,
+          4,
+          7,
+          9,
+          null,
+          null,
+          3,
+          5
+        ],
+        "a": 2,
+        "b": 8
+      },
+      "output": 6,
+      "explanation": "2 and 8 split at the root, 6."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "tree": [
+          6,
+          2,
+          8,
+          0,
+          4,
+          7,
+          9,
+          null,
+          null,
+          3,
+          5
+        ],
+        "a": 2,
+        "b": 4
+      },
+      "output": 2,
+      "explanation": "2 is an ancestor of 4, so 2 is the shared mentor."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          1
+        ],
+        "a": 1,
+        "b": 1
+      },
+      "output": 1,
+      "explanation": "A single member mentors itself."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          2,
+          1
+        ],
+        "a": 2,
+        "b": 1
+      },
+      "output": 2,
+      "explanation": "The root and its child."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          6,
+          2,
+          8,
+          0,
+          4,
+          7,
+          9,
+          null,
+          null,
+          3,
+          5
+        ],
+        "a": 3,
+        "b": 5
+      },
+      "output": 4,
+      "explanation": "Siblings under 4."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          6,
+          2,
+          8,
+          0,
+          4,
+          7,
+          9,
+          null,
+          null,
+          3,
+          5
+        ],
+        "a": 7,
+        "b": 7
+      },
+      "output": 7,
+      "explanation": "The same member twice."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "tree": [
+          10,
+          5,
+          15,
+          3,
+          7,
+          12,
+          20,
+          1,
+          null,
+          6,
+          8
+        ],
+        "a": 1,
+        "b": 8
+      },
+      "output": 5,
+      "explanation": "Deep nodes on the same side of the root."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Compare search paths",
+      "intuition": "The shared mentor is the last member that the search paths to a and to b have in common.",
+      "approach": "Record the path of values from the root to a and to b using BST search, then take the last common value.",
+      "pseudocode": "pa = search path to a; pb = search path to b; i = longest common prefix; return pa[i-1]",
+      "code": "function sharedMentor(tree, a, b) {\n  const nodes = [];\n  const root = { value: tree[0], left: null, right: null };\n  nodes.push(root);\n  for (let i = 1, head = 0; i < tree.length; head++) {\n    const node = nodes[head];\n    if (tree[i] !== null) nodes.push(node.left = { value: tree[i], left: null, right: null });\n    i++;\n    if (i < tree.length && tree[i] !== null) nodes.push(node.right = { value: tree[i], left: null, right: null });\n    i++;\n  }\n  const path = (target) => {\n    const out = [];\n    let node = root;\n    while (node) {\n      out.push(node.value);\n      if (node.value === target) break;\n      node = target < node.value ? node.left : node.right;\n    }\n    return out;\n  };\n  const pa = path(a), pb = path(b);\n  let i = 0;\n  while (i < pa.length && i < pb.length && pa[i] === pb[i]) i++;\n  return pa[i - 1];\n}",
+      "timeComplexity": "O(n) to build plus O(h)",
+      "spaceComplexity": "O(h) for the paths",
+      "commonMistakes": [
+        "Returning the first difference instead of the last common value."
+      ],
+      "interviewExplanation": "Storing both search paths and comparing them works and is easy to explain; it just keeps two path arrays.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Paths for 2 and 4: [6, 2] and [6, 2, 4]."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The common prefix is [6, 2]; return 2."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Walk down by splitting point",
+      "intuition": "The shared mentor is the first member on the way down where a and b stop being on the same side.",
+      "approach": "From the root: if both values are smaller go left, if both are larger go right, otherwise return the current value.",
+      "pseudocode": "node = root\nloop: if a < v and b < v: left elif a > v and b > v: right else return v",
+      "code": "function sharedMentor(tree, a, b) {\n  const nodes = [];\n  const root = { value: tree[0], left: null, right: null };\n  nodes.push(root);\n  for (let i = 1, head = 0; i < tree.length; head++) {\n    const node = nodes[head];\n    if (tree[i] !== null) nodes.push(node.left = { value: tree[i], left: null, right: null });\n    i++;\n    if (i < tree.length && tree[i] !== null) nodes.push(node.right = { value: tree[i], left: null, right: null });\n    i++;\n  }\n  let node = root;\n  while (node) {\n    if (a < node.value && b < node.value) node = node.left;\n    else if (a > node.value && b > node.value) node = node.right;\n    else return node.value;\n  }\n  return -1;\n}",
+      "timeComplexity": "O(n) to build plus O(h) to answer",
+      "spaceComplexity": "O(1) beyond the tree",
+      "commonMistakes": [
+        "Using <= in the comparisons, which walks past a when a is the mentor itself."
+      ],
+      "interviewExplanation": "The BST ordering means a and b stay on the same side until their shared mentor, so I walk down from the root and stop at the split point. That's O(h) per query and O(1) extra memory. In a plain binary tree I'd use a recursive search that returns which targets were found in each subtree.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "a = 2, b = 4 at 6: both smaller, go left."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "At 2: a equals the value, so they split here. Return 2."
+        }
+      ]
+    }
+  ]
+}
