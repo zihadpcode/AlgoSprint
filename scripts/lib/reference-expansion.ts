@@ -1260,7 +1260,11 @@ export const EXPANSION: Record<string, ExpansionEntry> = {
     return { hubs, links };
   }),
   "glyph-order": entry(glyphOrderInput, glyphOrder, glyphOrderBrute, (rng) => {
-    const alphabet = [..."abcd"].sort(() => rng.int(-1, 1));
+    const alphabet = [..."abcd"];
+    for (let i = alphabet.length - 1; i > 0; i--) {
+      const j = rng.int(0, i);
+      [alphabet[i], alphabet[j]] = [alphabet[j], alphabet[i]];
+    }
     const rank = (w: string) => [...w].map((ch) => alphabet.indexOf(ch));
     const words = Array.from({ length: rng.int(1, 6) }, () => randomWord(rng, rng.int(1, 3), "abcd"));
     if (rng.chance(0.8)) words.sort((x, y) => { const a = rank(x), b = rank(y); for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i]; return a.length - b.length; });

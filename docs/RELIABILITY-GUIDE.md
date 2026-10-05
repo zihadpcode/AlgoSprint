@@ -1,10 +1,10 @@
 # Reliability and release verification
 
-## October 1 checkpoint
+## October 5 checkpoint
 
-The published starting point is `5efe69d`, with [green CI](https://github.com/zihadpcode/AlgoSprint/actions/runs/36171027927), 231 unit/component/migration tests and 76 PostgreSQL integration tests. The [production application](https://algosprint-brown.vercel.app) has 35 published original problems and two learning paths. The repository's earlier statements that deployment, roadmaps, administration and interviews were all future work are superseded.
+The October 1 starting point was `5efe69d`, with [green CI](https://github.com/zihadpcode/AlgoSprint/actions/runs/36171027927), 231 unit/component/migration tests and 76 PostgreSQL integration tests. Main has since merged account recovery, draft recovery, worker/runner hardening and three content batches and the consent correction through `e3e7ed3`. The repository now has 74 original problem fixtures and two learning paths; the [production library](https://algosprint-brown.vercel.app/problems) still showed 35 published problems on October 5. Code deployment does not seed content.
 
-This work implements the shared review's execution hardening and publishing clarification. Account recovery and draft protection are being developed in isolated worktrees; content expansion is a separate Claude-owned lane. Do not count worktree drafts as merged, deployed or seeded.
+The shared review's execution hardening and publishing clarification are implemented. [Account recovery](ACCOUNT-RECOVERY.md) and [opt-in draft protection](DRAFT-RECOVERY.md) are integrated. Merged [PR39](https://github.com/zihadpcode/AlgoSprint/pull/39) fixes consent retention when a draft component changes scope in place. Content expansion remains a Claude-owned lane; reviewed source, merged code, deployed code and seeded production rows are separate checkpoints.
 
 ## Browser output bounds
 
@@ -32,11 +32,11 @@ Admin validation checks registered slugs on create, edit and import before conte
 
 ## Verification record
 
-Checks are recorded against the local work; published CI above proves only the starting commit. Final validation results will be recorded after the isolated changes are integrated.
+Validation is tied to the recorded checkout or exact PR head:
 
-- Node 24.21.0: worker regression tests and the full initial unit/component suite passed (236 tests after the worker changes).
-- PostgreSQL 17: all three existing migrations applied to a fresh disposable local `_test` database; all 76 initial integration tests passed, including owner isolation, concurrency, quotas, interrupted/stale submissions, interview deadlines and admin writes.
-- Initial lint, TypeScript, production build and sandbox trace checks passed. Final combined checks remain required after the parallel changes.
+- The 74-problem content head `ed6f93e` passed 400 unit/component/migration tests and 77 PostgreSQL 17 integration tests in [CI36959141124](https://github.com/zihadpcode/AlgoSprint/actions/runs/36959141124), along with lint, TypeScript, seed/generator checks, production build, sandbox trace, unconfigured-account HTTP smoke and seeded library/roadmap HTTP smoke.
+- Independent review ran 2,000 baseline comparisons per new batch-three reference and actual QuickJS probes of every new optimal solution at large or maximum dimensions. All 13 passed. Existing fixtures were preserved by that batch. The 64 KB fixture-input cap still limits simultaneous maximum dimensions and value widths.
+- On October 5, the two added scope-consent regressions failed on `280c764` before the fix. The locally fixed checkout passed 376 unit/component tests, lint, TypeScript and production build. Claude independently reviewed the keyed-remount fix and found no blocker; PR39 merged as `e3e7ed3`; its exact-head [CI37286786463](https://github.com/zihadpcode/AlgoSprint/actions/runs/37286786463), tested with the 74-problem base, passed 402 unit/component tests, 77 PostgreSQL integration tests and the full build/trace/smoke pipeline.
 - Production guest library returned HTTP 200; browser example execution passed 2/2 on Relay Window with an original synthetic solution, saving nothing. [Guest screenshots and viewport evidence](SCREENSHOTS.md) are recorded separately.
 - The Vercel runtime-error query returned HTTP 403. The `get_project` connector currently rejects its documented arguments with an `idOrName` input error. No runtime-log inspection is claimed.
 

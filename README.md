@@ -4,9 +4,9 @@ An original coding interview preparation platform built incrementally with Next.
 
 ## 🟩 Current checkpoint: deployed MVP, reliability and release verification
 
-Phases 1–16 are implemented. [AlgoSprint is deployed on Vercel](https://algosprint-brown.vercel.app) with Supabase Auth/PostgreSQL, 61 original JavaScript problems (35 published in production until the next seed run), two learning paths, private notes and saved practice, progress dashboards, content administration, reviewed draft generators and timed mock interviews. The September follow-ups enabled browser example execution, verified QuickJS submissions and progress undo, and protected Prisma migration history.
+Phases 1–16 are implemented. [AlgoSprint is deployed on Vercel](https://algosprint-brown.vercel.app) with Supabase Auth/PostgreSQL, 74 original JavaScript problem fixtures in the repository, two learning paths, private notes and saved practice, progress dashboards, content administration, reviewed draft generators and timed mock interviews. The production library still showed 35 problems on October 5; merged fixtures require a separate seed run. The September follow-ups enabled browser example execution, verified QuickJS submissions and progress undo, and protected Prisma migration history.
 
-The published `5efe69d` checkpoint passed **231 unit/component/migration and 76 PostgreSQL integration tests (307 total)** in [GitHub CI 36171027927](https://github.com/zihadpcode/AlgoSprint/actions/runs/36171027927). The current reliability work bounds browser worker output before transfer and aligns runnable authoring with provider limits. See [the reliability guide](docs/RELIABILITY-GUIDE.md) for its validation and remaining work, and [the session handoff](docs/SESSION-HANDOFF.md) for project history.
+The consent-fix checkpoint at `09458a2`, tested with the 74-problem library, passed **402 unit/component/migration and 77 PostgreSQL integration tests (479 total)** in [GitHub CI 37286786463](https://github.com/zihadpcode/AlgoSprint/actions/runs/37286786463). Browser worker output bounds, aligned runnable authoring limits, password recovery/confirmation resend and opt-in device draft recovery are implemented. See [the reliability guide](docs/RELIABILITY-GUIDE.md) for validation and remaining live checks, and [the session handoff](docs/SESSION-HANDOFF.md) for project history.
 
 Registration, confirmation, login/logout, saved-practice flows and accepted/failing sandbox submissions have recorded production evidence. Release acceptance remains incomplete: two-user isolation, refreshed/invalid auth sessions, interview expiry and conflicting saves, progress undo, mobile/keyboard/accessibility checks, screenshots and Vercel runtime logs still need live verification. Follow [the deployment record](docs/DEPLOYMENT.md), [screenshot checklist](docs/SCREENSHOTS.md) and [portfolio copy](docs/PORTFOLIO.md).
 
@@ -70,7 +70,7 @@ npm run test:smoke
 | `src/proxy.ts` | Refresh auth cookies before server rendering. |
 | `src/lib/prisma.ts` | Lazy server-only database access. |
 | `prisma/` | 22 models, SQL migration, repeatable insert-only seeding. |
-| `src/data/seeds/` | 61 original problem JSON files and taxonomy; see [the problem library guide](docs/PROBLEM-LIBRARY.md). |
+| `src/data/seeds/` | 74 original problem JSON files and taxonomy; see [the problem library guide](docs/PROBLEM-LIBRARY.md). |
 | `scripts/` | Seed validation, trusted reference algorithms for every published problem, role CLI, HTTP smoke check. |
 | `tests/` | Algorithms, imports, PostgreSQL constraints, auth boundaries, integration. |
 | `docs/PHASE-1-GUIDE.md` | Historical project foundation and complete source. |
@@ -96,4 +96,4 @@ Tables live in private `app` with RLS and revoked untrusted-role access. The tru
 
 ## 🟪 Road ahead
 
-Complete the remaining live release checks (including live password-recovery email and device-draft recovery), seed the 26 problems added since the last production seed, expand learning paths across the library, and continue the reviewed library expansion toward 100 problems. Measure submission concurrency and dashboard queries before larger expansion. JavaScript is the current execution language; additional languages, dynamic runnable authoring and 1,000 problems are later work. See [the reliability guide](docs/RELIABILITY-GUIDE.md) for completion criteria.
+Complete the remaining live release checks (including password-recovery email and device-draft recovery), seed the 39 problems added since the last production seed, expand learning paths across the library, and continue the reviewed library expansion toward 100 problems. Measure submission concurrency and dashboard queries before larger expansion. JavaScript is the current execution language; additional languages, dynamic runnable authoring and 1,000 problems are later work. See [the reliability guide](docs/RELIABILITY-GUIDE.md) for completion criteria.

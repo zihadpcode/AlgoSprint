@@ -1,6 +1,6 @@
 # Device draft recovery
 
-Signed-in learners can choose **Keep unsaved drafts on this device for up to 7 days** in the code editor or a live interview. It is off by default on each new page. Clicking **Restore device draft** explicitly restores local text and enables recovery for that page. Guests keep their code only on the open page. Copy work before leaving when recovery is off or storage is unavailable.
+Signed-in learners can choose **Keep unsaved drafts on this device for up to 7 days** in the code editor or a live interview. It is off by default on each new page. Changing the owner, draft kind, problem/session or revision resets consent before storage effects run, including when the page rerenders in place. Clicking **Restore device draft** explicitly restores local text and enables recovery for that page. Guests keep their code only on the open page. Copy work before leaving when recovery is off or storage is unavailable.
 
 Recovery uses versioned browser `localStorage`, scoped to the verified server-supplied user ID and problem slug or interview session ID. Problem revisions and interview question IDs/revisions are recorded. Interview drafts also retain the original server answer concurrency tokens. No URL parameter supplies draft ownership. Switching to another verified owner or a guest purges the previous owner's browser drafts and tells other open draft pages to disable recovery and clear their text.
 
