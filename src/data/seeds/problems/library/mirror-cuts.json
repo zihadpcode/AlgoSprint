@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "mirror-cuts",
+  "title": "Mirror Cuts",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "palindrome-dp",
+  "statement": "A ribbon printed with lowercase letters must be cut into pieces so that every piece reads the same forwards and backwards. Return the smallest number of cuts needed. A ribbon that is already a palindrome needs 0 cuts.",
+  "constraints": [
+    "1 <= text.length <= 2000",
+    "text contains only a-z"
+  ],
+  "estimatedMinutes": 50,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "strings"
+  ],
+  "tags": [
+    "state-transition",
+    "memoization"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "text": "aab"
+      },
+      "output": 1,
+      "explanation": "One cut: 'aa' | 'b'."
+    },
+    {
+      "position": 2,
+      "input": {
+        "text": "abc"
+      },
+      "output": 2,
+      "explanation": "Two cuts: every letter on its own."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Trying every way to cut is exponential."
+    },
+    {
+      "position": 2,
+      "content": "Let cuts[i] be the fewest cuts for the first i letters. If text[j..i) is a palindrome, cuts[i] can be cuts[j] + 1."
+    },
+    {
+      "position": 3,
+      "content": "Checking whether each substring is a palindrome from scratch adds another factor of n."
+    },
+    {
+      "position": 4,
+      "content": "Expand around every center (each letter, and each gap between letters). Every palindrome text[l..r] found this way gives cuts[r + 1] = min(cuts[r + 1], cuts[l] + 1)."
+    },
+    {
+      "position": 5,
+      "content": "Start with cuts[i] = i - 1 (cut after every letter, with cuts[0] = -1 so a whole-prefix palindrome costs 0). The answer is cuts[n]."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "mirrorCuts",
+      "code": "function mirrorCuts(text) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "aab"
+      },
+      "output": 1,
+      "explanation": "One cut: 'aa' | 'b'."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "text": "abc"
+      },
+      "output": 2,
+      "explanation": "Two cuts: every letter on its own."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "a"
+      },
+      "output": 0,
+      "explanation": "A single letter is a palindrome."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "level"
+      },
+      "output": 0,
+      "explanation": "Already a palindrome."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "ababbbabbababa"
+      },
+      "output": 3,
+      "explanation": "Three cuts: a | babbbab | b | ababa."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "abcdefghij"
+      },
+      "output": 9,
+      "explanation": "No repeated letters: nine cuts."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "racecarannakayak"
+      },
+      "output": 2,
+      "explanation": "Two cuts: racecar | anna | kayak."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "text": "abababababababababababababababcbabababababababababababababa"
+      },
+      "output": 2,
+      "explanation": "A long text that plain recursion cannot finish."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every first piece recursively",
+      "intuition": "The first piece must be some palindromic prefix; try each and recurse on the rest.",
+      "approach": "go(start) returns 0 if text[start..] is a palindrome; otherwise the minimum of 1 + go(end) over palindromic pieces text[start..end).",
+      "pseudocode": "go(s): if pal(t[s..]): return 0; return min over e in s+1..n-1 with pal(t[s..e)) of 1 + go(e)",
+      "code": "function mirrorCuts(text) {\n  const pal = (s) => s === [...s].reverse().join('');\n  const go = (start) => {\n    if (pal(text.slice(start))) return 0;\n    let best = Infinity;\n    for (let end = start + 1; end < text.length; end++)\n      if (pal(text.slice(start, end))) best = Math.min(best, 1 + go(end));\n    return best;\n  };\n  return go(0);\n}",
+      "timeComplexity": "Exponential",
+      "spaceComplexity": "O(n) recursion",
+      "commonMistakes": [
+        "Counting pieces instead of cuts (off by one)."
+      ],
+      "interviewExplanation": "This enumerates every partition. The same suffixes are re-solved many times, so it's exponential without memoization.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "'aab' is not a palindrome. Piece 'a' leaves 'ab' (1 cut + 1 more); piece 'aa' leaves 'b', a palindrome."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "The minimum is 1 + 0 = 1."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Center expansion with a cuts table",
+      "intuition": "Every palindrome is found once by expanding from its center, and each one offers a way to end a prefix with one more cut.",
+      "approach": "cuts[i] = i - 1 for i in 0..n. For each center, expand odd and even palindromes; for each text[l..r] found, update cuts[r + 1] = min(cuts[r + 1], cuts[l] + 1). Return cuts[n].",
+      "pseudocode": "cuts[i] = i - 1\nfor c in 0..n-1: for (l, r) in [(c, c), (c, c+1)]: while in range and t[l] == t[r]: cuts[r+1] = min(cuts[r+1], cuts[l] + 1); l--; r++\nreturn cuts[n]",
+      "code": "function mirrorCuts(text) {\n  const n = text.length;\n  const cuts = Array.from({ length: n + 1 }, (_, i) => i - 1);\n  for (let center = 0; center < n; center++) {\n    for (const [startL, startR] of [[center, center], [center, center + 1]]) {\n      let l = startL, r = startR;\n      while (l >= 0 && r < n && text[l] === text[r]) {\n        cuts[r + 1] = Math.min(cuts[r + 1], cuts[l] + 1);\n        l--;\n        r++;\n      }\n    }\n  }\n  return cuts[n];\n}",
+      "timeComplexity": "O(n²)",
+      "spaceComplexity": "O(n)",
+      "commonMistakes": [
+        "Forgetting even-length centers between letters.",
+        "Initializing cuts[0] to 0 instead of -1, which charges a cut for a prefix that is itself a palindrome."
+      ],
+      "interviewExplanation": "cuts[i] is the fewest cuts for the first i letters, with cuts[0] = -1 as a sentinel. Expanding around all 2n - 1 centers discovers every palindrome text[l..r] in O(n²) total, and each one relaxes cuts[r + 1] from cuts[l] + 1. That avoids the separate O(n²) palindrome table and runs in O(n²) time with O(n) memory.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "cuts = [-1, 0, 1, 2] for 'aab'."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Center 0 (even) finds 'aa' → cuts[2] = min(1, cuts[0] + 1) = 0."
+        },
+        {
+          "position": 3,
+          "title": "Step 3",
+          "content": "'b' alone → cuts[3] = cuts[2] + 1 = 1. The answer is 1."
+        }
+      ]
+    }
+  ]
+}

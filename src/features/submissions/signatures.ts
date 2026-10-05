@@ -79,4 +79,18 @@ export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> 
   "pattern-gate": { entryPoint: "patternGate", keys: ["text", "pattern"] },
   "fragile-links": { entryPoint: "fragileLinks", keys: ["hubs", "links"] },
   "glyph-order": { entryPoint: "glyphOrder", keys: ["words"] },
+  // Library expansion batch 4.
+  "vault-account": { entryPoint: "vaultAccount", keys: ["operations"] },
+  "tally-ranges": { entryPoint: "tallyRanges", keys: ["values", "queries"] },
+  "one-slip-mirror": { entryPoint: "oneSlipMirror", keys: ["text"] },
+  "rate-gate": { entryPoint: "rateGate", keys: ["limit", "window", "requests"] },
+  "snapshot-registry": { entryPoint: "snapshotRegistry", keys: ["operations"] },
+  "quiet-heist": { entryPoint: "quietHeist", keys: ["houses"] },
+  "lineup-orders": { entryPoint: "lineupOrders", keys: ["players"] },
+  "spiral-survey": { entryPoint: "spiralSurvey", keys: ["matrix"] },
+  "dual-median": { entryPoint: "dualMedian", keys: ["first", "second"] },
+  "mirror-cuts": { entryPoint: "mirrorCuts", keys: ["text"] },
+  "bracket-run": { entryPoint: "bracketRun", keys: ["text"] },
+  "later-lower": { entryPoint: "laterLower", keys: ["values"] },
+  "city-skyline": { entryPoint: "citySkyline", keys: ["buildings"] },
 };
