@@ -35,7 +35,7 @@ try {
     assert.equal(response.status, 307, `${path}: ${diagnostic}`);
     assert.ok(response.headers.get("location")?.startsWith("/login?next="), path);
   }
-  for (const path of ["/login", "/register"]) {
+  for (const path of ["/login", "/register", "/forgot-password", "/resend-confirmation", "/reset-password"]) {
     const response = await fetch(origin + path); assert.equal(response.status, 200, path);
     assert.ok((await response.text()).includes("Accounts are being prepared"), path);
   }
