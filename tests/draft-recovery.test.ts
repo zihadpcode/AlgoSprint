@@ -26,6 +26,27 @@ it("offers explicit recovery without silently applying or overwriting a saved lo
   await enable(); expect(readDeviceDraft(localStorage, scope).draft?.payload).toBe(older);
   await click("Restore device draft"); expect(restore).toHaveBeenCalledWith(older); expect(host.textContent).toContain("Review it before running code or saving an answer");
 });
+it("requires fresh consent after changing draft target or revision", async () => {
+  await render(); await enable();
+  const next = { ...scope, target: "another-problem" };
+  await render({ scope: next });
+  expect(host.querySelector<HTMLInputElement>("input")!.checked).toBe(false);
+  expect(localStorage.getItem(draftKey(next))).toBeNull();
+  await enable();
+  await render({ scope: { ...next, revision: "3" } });
+  expect(host.querySelector<HTMLInputElement>("input")!.checked).toBe(false);
+  expect(readDeviceDraft(localStorage, { ...next, revision: "3" }).draft?.revision).toBe("2");
+});
+it("never carries another scope's recovery prompt or consent to a new owner", async () => {
+  seed(); await render(); await enable();
+  expect(host.textContent).toContain("An unsaved device draft is available");
+  const next = { ...scope, owner: "another-user" };
+  await render({ scope: next });
+  expect(host.textContent).not.toContain("An unsaved device draft is available");
+  expect(host.querySelector<HTMLInputElement>("input")!.checked).toBe(false);
+  expect(localStorage.getItem(draftKey(next))).toBeNull();
+  expect(restore).not.toHaveBeenCalled();
+});
 it("revised drafts are copy-only and cannot replace current text", async () => {
   seed("1"); await render(); expect(host.textContent).toContain("older problem revision or saved answer");
   expect(host.querySelector("textarea")!.value).toContain("recovered work"); expect(host.querySelector("textarea")!.readOnly).toBe(true);
