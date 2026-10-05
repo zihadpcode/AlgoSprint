@@ -1,3 +1,17 @@
+# October 5 continuation
+
+Main advanced to `e3e7ed3`: PRs 32–39 merged account recovery, device drafts, browser/runner limits and three original content batches. PR37 removed tracked agent coordination notes and ignores future local copies. The repository has 74 reviewed fixtures; production `/problems` returned HTTP 200 and still showed 35 on October 5. No production seeding was performed by this Codex lead.
+
+The consent bug reported during review of PR35 was still present after its projection-test fix merged. Codex reproduced both new scope-switch regressions on `280c764` and revalidated the preserved keyed-remount fix (376 unit/component tests, lint, TypeScript and build). Interactive Claude ported that fix, the public revision value assertion and recovery-route smoke coverage as [PR39](https://github.com/zihadpcode/AlgoSprint/pull/39). Exact-head CI37286786463 passed 402 unit/component tests and 77 integration tests, plus the full build/trace/smoke pipeline. PR39 merged as `e3e7ed3`; deployment and live authenticated acceptance are separate checks.
+
+Independent review of batch-three head `ed6f93e` found no correctness blocker: 2,000 differential samples per reference and all 13 optimal solutions passed large-input QuickJS probes. Its [green CI](https://github.com/zihadpcode/AlgoSprint/actions/runs/36959141124) has 400 unit/component tests plus 77 PostgreSQL integration tests. The followup corrects educational complexity claims and replaces random-sort sampling with seeded Fisher–Yates; existing live content is not rewritten by these source changes.
+
+Current ownership: Codex consolidates review corrections and evidence in isolated `AlgoSprint-next`; interactive Claude owns remaining content toward 100, broader roadmaps and the interview bank. `AlgoSprint-release` retains the earlier uncommitted snapshot and must not be published wholesale over newer main. Keep local coordination files out of commits.
+
+Remaining acceptance: reviewed insert-only production seeding, two real test accounts for auth/ownership/interview/recovery checks, authenticated mobile/accessibility/screenshots and Vercel runtime-log access. Local and CI tests do not replace those live checks. See [RELIABILITY-GUIDE.md](RELIABILITY-GUIDE.md).
+
+---
+
 # October 1 reliability and completion work
 
 The user resumed from [the shared repository review](https://chatgpt.com/share/6abf131c-9010-83ea-b8ab-ed45774bfa58) and explicitly requested working with Claude in parallel. The local checkout starts from real `main` at `5efe69d` with clean tracked files; the old synthetic-checkout restrictions and unavailable-tool statements below belong to historical sessions.

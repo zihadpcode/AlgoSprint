@@ -4711,13 +4711,13 @@
       "approach": "Push [value, lane, index] for each non-empty lane. Repeatedly pop the minimum, output its value, and push the next element of that lane if any.",
       "pseudocode": "heap = fronts of non-empty lanes\nwhile heap: (v, k, i) = pop; out.push(v); if i + 1 < len(lane k): push(lane k[i+1], k, i+1)\nreturn out",
       "code": "function laneMerge(lanes) {\n  const heap = [];\n  const less = (a, b) => a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);\n  const push = (item) => {\n    heap.push(item);\n    for (let i = heap.length - 1; i > 0;) {\n      const p = (i - 1) >> 1;\n      if (!less(heap[i], heap[p])) break;\n      [heap[p], heap[i]] = [heap[i], heap[p]];\n      i = p;\n    }\n  };\n  const pop = () => {\n    const top = heap[0], last = heap.pop();\n    if (heap.length) {\n      heap[0] = last;\n      for (let i = 0; ;) {\n        const l = 2 * i + 1, r = l + 1;\n        let m = i;\n        if (l < heap.length && less(heap[l], heap[m])) m = l;\n        if (r < heap.length && less(heap[r], heap[m])) m = r;\n        if (m === i) break;\n        [heap[m], heap[i]] = [heap[i], heap[m]];\n        i = m;\n      }\n    }\n    return top;\n  };\n  lanes.forEach((lane, k) => { if (lane.length) push([lane[0], k, 0]); });\n  const merged = [];\n  while (heap.length) {\n    const [value, k, i] = pop();\n    merged.push(value);\n    if (i + 1 < lanes[k].length) push([lanes[k][i + 1], k, i + 1]);\n  }\n  return merged;\n}",
-      "timeComplexity": "O(N log k)",
+      "timeComplexity": "O(k + N log(k + 1))",
       "spaceComplexity": "O(k) for the heap, plus the output",
       "commonMistakes": [
         "Pushing every value into the heap at the start, which is O(N log N) and loses the benefit.",
         "Forgetting to skip empty lanes when seeding the heap."
       ],
-      "interviewExplanation": "The next output is always one of the k lane fronts, so I keep just those in a min-heap. Each pop outputs a value and pushes its lane's successor, so every value costs O(log k), for O(N log k) total with O(k) heap space. Merging lanes pairwise in rounds, like merge sort, gives the same bound without a heap.",
+      "interviewExplanation": "The next output is always one of the k lane fronts, so I keep just those in a min-heap. Each pop outputs a value and pushes its lane's successor, so scanning the k lanes and processing N values costs O(k + N log(k + 1)) total with O(k) heap space. The initial scan still costs O(k) when all lanes are empty. Merging lanes pairwise in rounds gives the same bound without a heap.",
       "steps": [
         {
           "position": 1,

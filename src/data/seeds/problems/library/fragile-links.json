@@ -355,9 +355,9 @@
       "language": "JAVASCRIPT",
       "title": "Remove each cable and recount clusters",
       "intuition": "A cable is fragile if removing it increases the number of connected clusters.",
-      "approach": "Count clusters with union-find using all cables. For each cable, recount without it and keep the cable if the count went up. Normalize and sort.",
+      "approach": "Count clusters with union-find using path halving and union by size across all cables. For each cable, recount without it and keep the cable if the count went up. Normalize and sort.",
       "pseudocode": "base = clusters(all); for e: if clusters(all except e) > base: keep e\nreturn sorted normalized kept",
-      "code": "function fragileLinks(hubs, links) {\n  const clusters = (skip) => {\n    const parent = Array.from({ length: hubs }, (_, i) => i);\n    const find = (x) => { while (parent[x] !== x) x = parent[x] = parent[parent[x]]; return x; };\n    let count = hubs;\n    links.forEach(([a, b], id) => {\n      if (id === skip) return;\n      const ra = find(a), rb = find(b);\n      if (ra !== rb) { parent[ra] = rb; count--; }\n    });\n    return count;\n  };\n  const base = clusters(-1);\n  return links\n    .filter((_, id) => clusters(id) > base)\n    .map(([a, b]) => (a < b ? [a, b] : [b, a]))\n    .sort((x, y) => x[0] - y[0] || x[1] - y[1]);\n}",
+      "code": "function fragileLinks(hubs, links) {\n  const clusters = (skip) => {\n    const parent = Array.from({ length: hubs }, (_, i) => i);\n    const size = new Array(hubs).fill(1);\n    const find = (x) => { while (parent[x] !== x) x = parent[x] = parent[parent[x]]; return x; };\n    let count = hubs;\n    links.forEach(([a, b], id) => {\n      if (id === skip) return;\n      let ra = find(a), rb = find(b);\n      if (ra !== rb) {\n        if (size[ra] < size[rb]) [ra, rb] = [rb, ra];\n        parent[rb] = ra; size[ra] += size[rb]; count--;\n      }\n    });\n    return count;\n  };\n  const base = clusters(-1);\n  return links\n    .filter((_, id) => clusters(id) > base)\n    .map(([a, b]) => (a < b ? [a, b] : [b, a]))\n    .sort((x, y) => x[0] - y[0] || x[1] - y[1]);\n}",
       "timeComplexity": "O(m · (n + m) α(n))",
       "spaceComplexity": "O(n)",
       "commonMistakes": [

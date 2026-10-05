@@ -297,7 +297,7 @@
       "pseudocode": "dq = []\nfor i: while dq and r[dq.back] <= r[i]: pop back\n  push i; if dq.front <= i - k: pop front\n  if i >= k - 1: out.push(r[dq.front])",
       "code": "function peakWatch(readings, k) {\n  const deque = [];\n  let head = 0;\n  const result = [];\n  for (let i = 0; i < readings.length; i++) {\n    while (deque.length > head && readings[deque[deque.length - 1]] <= readings[i]) deque.pop();\n    deque.push(i);\n    if (deque[head] <= i - k) head++;\n    if (i >= k - 1) result.push(readings[deque[head]]);\n  }\n  return result;\n}",
       "timeComplexity": "O(n)",
-      "spaceComplexity": "O(k)",
+      "spaceComplexity": "O(n) beyond the output; expired indices remain before the moving head",
       "commonMistakes": [
         "Storing values instead of indices, which makes expiry impossible to detect.",
         "Using shift() for the front on a large array, which can make the loop quadratic; a moving head index avoids that."
