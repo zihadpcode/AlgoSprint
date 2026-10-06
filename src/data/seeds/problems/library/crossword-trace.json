@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "slug": "crossword-trace",
+  "title": "Crossword Trace",
+  "difficulty": "MEDIUM",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "backtracking",
+  "statement": "A puzzle board is a small grid of lowercase letters. A word can be traced by starting on any cell and stepping to an edge-adjacent cell (up, down, left or right) for each next letter, never using the same cell twice in one trace. Return true if word can be traced on the board, otherwise false.",
+  "constraints": [
+    "1 <= rows, columns <= 6",
+    "All rows have equal length",
+    "1 <= word.length <= 12",
+    "Board and word contain only a-z"
+  ],
+  "estimatedMinutes": 30,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "backtracking",
+    "dfs",
+    "strings"
+  ],
+  "tags": [
+    "grid",
+    "recursion"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "grid": [
+          "abce",
+          "sfcs",
+          "adee"
+        ],
+        "word": "abcced"
+      },
+      "output": true,
+      "explanation": "a→b→c→c→e→d follows adjacent cells without reuse."
+    },
+    {
+      "position": 2,
+      "input": {
+        "grid": [
+          "abce",
+          "sfcs",
+          "adee"
+        ],
+        "word": "abcb"
+      },
+      "output": false,
+      "explanation": "The second b would require reusing the first b."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Try every cell as a starting point."
+    },
+    {
+      "position": 2,
+      "content": "From a cell matching the current letter, continue to neighbors that match the next letter."
+    },
+    {
+      "position": 3,
+      "content": "Mark a cell as used while it is part of the current trace."
+    },
+    {
+      "position": 4,
+      "content": "Unmark it when you backtrack, so other traces can use it."
+    },
+    {
+      "position": 5,
+      "content": "Stop exploring a path as soon as a letter does not match; that pruning is what keeps the search fast."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "crosswordTrace",
+      "code": "function crosswordTrace(grid, word) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "abce",
+          "sfcs",
+          "adee"
+        ],
+        "word": "abcced"
+      },
+      "output": true,
+      "explanation": "a→b→c→c→e→d follows adjacent cells without reuse."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "grid": [
+          "abce",
+          "sfcs",
+          "adee"
+        ],
+        "word": "abcb"
+      },
+      "output": false,
+      "explanation": "The second b would require reusing the first b."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "a"
+        ],
+        "word": "a"
+      },
+      "output": true,
+      "explanation": "A single cell."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "a"
+        ],
+        "word": "aa"
+      },
+      "output": false,
+      "explanation": "A cell cannot be used twice."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "ab",
+          "cd"
+        ],
+        "word": "acdb"
+      },
+      "output": true,
+      "explanation": "A loop around the square."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "ab",
+          "cd"
+        ],
+        "word": "abd"
+      },
+      "output": true,
+      "explanation": "b and d are vertically adjacent."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "ab",
+          "cd"
+        ],
+        "word": "ad"
+      },
+      "output": false,
+      "explanation": "Diagonal steps are not allowed."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "grid": [
+          "aaaaaa",
+          "aaaaaa",
+          "aaaaaa",
+          "aaaaaa",
+          "aaaaaa",
+          "aaaaab"
+        ],
+        "word": "aaaaaaaaaaac"
+      },
+      "output": false,
+      "explanation": "Many partial matches but no c: pruning by letter keeps the search manageable."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Enumerate paths, then compare",
+      "intuition": "Try every simple path of the word's length and check whether it spells the word.",
+      "approach": "From each start, extend paths to unused neighbors until they reach the word's length, then compare letters.",
+      "pseudocode": "for start: dfs(path): if len(path) == len(word): return spelled(path) == word; for unused neighbor: if dfs(path + n): return true",
+      "code": "function crosswordTrace(grid, word) {\n  const h = grid.length, w = grid[0].length;\n  const extend = (path) => {\n    if (path.length === word.length) return path.map(([r, c]) => grid[r][c]).join('') === word;\n    const [r, c] = path[path.length - 1];\n    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n      const nr = r + dr, nc = c + dc;\n      if (nr < 0 || nr >= h || nc < 0 || nc >= w || path.some(([pr, pc]) => pr === nr && pc === nc)) continue;\n      if (extend([...path, [nr, nc]])) return true;\n    }\n    return false;\n  };\n  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) if (extend([[r, c]])) return true;\n  return false;\n}",
+      "timeComplexity": "O(cells · 3^(L-1) · L)",
+      "spaceComplexity": "O(L)",
+      "commonMistakes": [
+        "Only checking the letters once the path is complete, which explores huge numbers of hopeless paths."
+      ],
+      "interviewExplanation": "Enumerating paths without checking letters along the way is correct but explores every shape of path.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Paths from (0,0) of length 6 are generated and spelled."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "One spells 'abcced', so return true."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Backtracking with letter pruning",
+      "intuition": "A path only needs extending while its letters keep matching the word's prefix.",
+      "approach": "walk(r, c, i) fails if the cell's letter differs from word[i] or the cell is in use; succeeds at the last letter; otherwise marks the cell, tries the four neighbors with i + 1, and unmarks.",
+      "pseudocode": "walk(r, c, i): if grid[r][c] != word[i] or used: false; if i == L-1: true\n  used = true; ok = any neighbor walk(n, i+1); used = false; return ok",
+      "code": "function crosswordTrace(grid, word) {\n  const h = grid.length, w = grid[0].length;\n  const used = grid.map((row) => [...row].map(() => false));\n  const walk = (r, c, i) => {\n    if (r < 0 || r >= h || c < 0 || c >= w || used[r][c] || grid[r][c] !== word[i]) return false;\n    if (i === word.length - 1) return true;\n    used[r][c] = true;\n    const found = walk(r + 1, c, i + 1) || walk(r - 1, c, i + 1) || walk(r, c + 1, i + 1) || walk(r, c - 1, i + 1);\n    used[r][c] = false;\n    return found;\n  };\n  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) if (walk(r, c, 0)) return true;\n  return false;\n}",
+      "timeComplexity": "O(cells · 3^(L-1)) worst case, much less with pruning",
+      "spaceComplexity": "O(L) recursion plus the used grid",
+      "commonMistakes": [
+        "Forgetting to unmark a cell after exploring it.",
+        "Marking the cell before checking its letter, then returning without unmarking."
+      ],
+      "interviewExplanation": "It's DFS with backtracking: match the current letter, mark the cell, try four neighbors, unmark. Mismatches prune immediately, so the worst case is exponential in the word length but small boards and early pruning keep it fast. Counting letters first, and searching the word reversed if its last letter is rarer, are cheap extra prunes.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Start at (0,0) 'a'; then b at (0,1), c at (0,2), c at (1,2), e at (2,2), d at (2,1)."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "All six letters matched: return true."
+        }
+      ]
+    }
+  ]
+}

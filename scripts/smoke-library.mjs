@@ -77,7 +77,24 @@ try {
   const roadmaps = await fetch(origin + "/roadmaps?userId=forged", { headers: { cookie: "role=ADMIN; sb-access-token=forged" } });
   assert.equal(roadmaps.status, 200);
   assert.match(roadmaps.headers.get("cache-control") ?? "", /no-store/);
-  const roadmapHtml = await roadmaps.text();
+  const firstRoadmapPage = await roadmaps.text();
+  // An out-of-range page clamps to the last page, so the app itself tells us how many pages exist.
+  const lastPageRedirect = await fetch(origin + "/roadmaps?page=999", { redirect: "manual" });
+  const redirectTarget = lastPageRedirect.headers.get("location") ?? "";
+  const lastPage = lastPageRedirect.status === 307 ? Number(new URL(redirectTarget, origin).searchParams.get("page") ?? 1) : 1;
+  assert.ok(Number.isInteger(lastPage) && lastPage >= 1, `Last roadmap page: ${redirectTarget}`);
+  assert.equal(redirectTarget, lastPage === 1 ? "/roadmaps" : `/roadmaps?page=${lastPage}`);
+  // Every page must render, so assertions about the list (present titles, absent private fixtures) cover all roadmaps.
+  const allRoadmapPages = async () => {
+    const bodies = [];
+    for (let page = 1; page <= lastPage; page++) {
+      const response = await fetch(origin + (page === 1 ? "/roadmaps" : `/roadmaps?page=${page}`));
+      assert.equal(response.status, 200, `roadmaps page ${page}`);
+      bodies.push(await response.text());
+    }
+    return bodies.join("\n");
+  };
+  const roadmapHtml = lastPage === 1 ? firstRoadmapPage : await allRoadmapPages();
   for (const title of ["Scan, Store, Reuse", "Boundaries to Decisions"]) assert.ok(roadmapHtml.includes(title), title);
   for (const slug of ["scan-store-reuse", "boundaries-to-decisions"]) {
     const detail = await fetch(origin + `/roadmaps/${slug}?userId=forged&role=ADMIN`);
@@ -87,7 +104,8 @@ try {
     for (const field of ["seedHash", "testCases", "starterCode", "verifiedRevision", "steps recorded solved ·"]) assert.ok(!body.includes(field), field);
   }
   const roadmapPage = await fetch(origin + "/roadmaps?page=999", { redirect: "manual" });
-  assert.equal(roadmapPage.status, 307); assert.equal(roadmapPage.headers.get("location"), "/roadmaps");
+  assert.equal(roadmapPage.status, 307);
+  assert.equal(roadmapPage.headers.get("location"), lastPage === 1 ? "/roadmaps" : `/roadmaps?page=${lastPage}`);
   for (const slug of ["does-not-exist", "INVALID"]) assert.equal((await fetch(origin + `/roadmaps/${slug}`)).status, 404);
   // Owned fixtures prove the production response also excludes private relations,
   // hidden test payloads and another user's notes (not just private field names).
@@ -117,7 +135,7 @@ try {
     await db.query('UPDATE app."Roadmap" SET status = $1 WHERE id = $2', [status, roadmapId]);
     const response = await fetch(origin + `/roadmaps/${roadmapSlug}?userId=${userId}`);
     assert.equal(response.status, 404, "Unavailable roadmap/step must be 404");
-    const listBody = await (await fetch(origin + "/roadmaps")).text();
+    const listBody = await allRoadmapPages();
     for (const secret of ["UNPUBLISHED-ROADMAP-SENTINEL", "PRIVATE-STEP-SENTINEL", "PRIVATE-NOTE-SENTINEL", "HIDDEN-PAYLOAD-SENTINEL"]) assert.ok(!listBody.includes(secret));
   }
   console.log("Library/detail/roadmaps HTTP smoke passed: seeded links, filters, detail sections, collapsed solutions, guest gates, privacy headers, hidden payload exclusion and unpublished 404s.");

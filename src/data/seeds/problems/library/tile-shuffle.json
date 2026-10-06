@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "slug": "tile-shuffle",
+  "title": "Tile Shuffle",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "state-space-bfs",
+  "statement": "A sliding puzzle has a 2 × 3 frame holding tiles 1 to 5 and one empty space shown as 0. A move slides a tile that is edge-adjacent to the empty space into it. Given the current board, return the fewest moves needed to reach [[1, 2, 3], [4, 5, 0]], or -1 if that arrangement cannot be reached.",
+  "constraints": [
+    "board is 2 × 3 and contains each of 0, 1, 2, 3, 4, 5 exactly once"
+  ],
+  "estimatedMinutes": 45,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "bfs",
+    "graphs"
+  ],
+  "tags": [
+    "simulation",
+    "hashing"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "board": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            4,
+            0,
+            5
+          ]
+        ]
+      },
+      "output": 1,
+      "explanation": "Slide 5 left into the space: one move."
+    },
+    {
+      "position": 2,
+      "input": {
+        "board": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            5,
+            4,
+            0
+          ]
+        ]
+      },
+      "output": -1,
+      "explanation": "Swapping two tiles is impossible with slides, so the answer is -1."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Each arrangement of the board is a state; each slide is an edge between states."
+    },
+    {
+      "position": 2,
+      "content": "There are only 6! = 720 arrangements, so you can afford to explore them all."
+    },
+    {
+      "position": 3,
+      "content": "Breadth-first search from the starting arrangement finds the fewest moves."
+    },
+    {
+      "position": 4,
+      "content": "Encode a board as a six-character string so it can go in a visited set; precompute which positions are adjacent to each position of the space."
+    },
+    {
+      "position": 5,
+      "content": "If BFS finishes without reaching the target, return -1. (Exactly half of the arrangements are reachable, a parity argument.)"
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "tileShuffle",
+      "code": "function tileShuffle(board) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "board": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            4,
+            0,
+            5
+          ]
+        ]
+      },
+      "output": 1,
+      "explanation": "Slide 5 left into the space: one move."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "board": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            5,
+            4,
+            0
+          ]
+        ]
+      },
+      "output": -1,
+      "explanation": "Swapping two tiles is impossible with slides, so the answer is -1."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "board": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            4,
+            5,
+            0
+          ]
+        ]
+      },
+      "output": 0,
+      "explanation": "Already solved."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "board": [
+          [
+            4,
+            1,
+            2
+          ],
+          [
+            5,
+            0,
+            3
+          ]
+        ]
+      },
+      "output": 5,
+      "explanation": "Five moves."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "board": [
+          [
+            3,
+            2,
+            4
+          ],
+          [
+            1,
+            5,
+            0
+          ]
+        ]
+      },
+      "output": 14,
+      "explanation": "A longer solution."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "board": [
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            3,
+            4,
+            5
+          ]
+        ]
+      },
+      "output": 15,
+      "explanation": "The space starts in the opposite corner."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "board": [
+          [
+            5,
+            4,
+            3
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ]
+      },
+      "output": 14,
+      "explanation": "A reversed board."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "board": [
+          [
+            2,
+            1,
+            3
+          ],
+          [
+            4,
+            5,
+            0
+          ]
+        ]
+      },
+      "output": -1,
+      "explanation": "One swapped pair is unreachable."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Iterative deepening search",
+      "intuition": "Try every move sequence of length 0, 1, 2, ... until one solves the board.",
+      "approach": "Depth-limited DFS that avoids immediately undoing the previous move, increasing the limit until the target appears, up to the maximum possible distance.",
+      "pseudocode": "for limit in 0..31: if dfs(state, limit, none): return limit\nreturn -1",
+      "code": "function tileShuffle(board) {\n  const moves = [[1, 3], [0, 2, 4], [1, 5], [0, 4], [1, 3, 5], [2, 4]];\n  const goal = '123450';\n  const dfs = (s, depth, from) => {\n    if (s === goal) return true;\n    if (depth === 0) return false;\n    const z = s.indexOf('0');\n    for (const m of moves[z]) {\n      if (m === from) continue;\n      const t = [...s];\n      [t[z], t[m]] = [t[m], t[z]];\n      if (dfs(t.join(''), depth - 1, z)) return true;\n    }\n    return false;\n  };\n  const start = [...board[0], ...board[1]].join('');\n  for (let limit = 0; limit <= 21; limit++) if (dfs(start, limit, -1)) return limit;\n  return -1;\n}",
+      "timeComplexity": "Exponential in the answer depth",
+      "spaceComplexity": "O(depth)",
+      "commonMistakes": [
+        "Running unbounded DFS, which wanders forever.",
+        "Not knowing the maximum distance (21 moves for this puzzle), so the unsolvable case never terminates."
+      ],
+      "interviewExplanation": "Iterative deepening finds the shortest solution with tiny memory, but it re-explores shallow levels repeatedly and the branching blows up near the maximum depth.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Limit 0: the start is not the goal."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "Limit 1: sliding 5 left reaches '123450'. Return 1."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Breadth-first search over board states",
+      "intuition": "With only 720 states, BFS over all of them finds the minimum moves directly.",
+      "approach": "Encode the board as a string. BFS from it: for each state, swap the space with each adjacent position (from a precomputed table), skip visited states, and return the layer number when the target appears.",
+      "pseudocode": "dist = {start: 0}; layer = [start]\nwhile layer: for s: if s == goal: return dist[s]; for each slide t: if new: dist[t] = dist[s] + 1; next.push(t)\nreturn -1",
+      "code": "function tileShuffle(board) {\n  const moves = [[1, 3], [0, 2, 4], [1, 5], [0, 4], [1, 3, 5], [2, 4]];\n  const goal = '123450';\n  const start = [...board[0], ...board[1]].join('');\n  const seen = new Set([start]);\n  let layer = [start];\n  for (let steps = 0; layer.length; steps++) {\n    const next = [];\n    for (const s of layer) {\n      if (s === goal) return steps;\n      const z = s.indexOf('0');\n      for (const m of moves[z]) {\n        const t = [...s];\n        [t[z], t[m]] = [t[m], t[z]];\n        const key = t.join('');\n        if (!seen.has(key)) { seen.add(key); next.push(key); }\n      }\n    }\n    layer = next;\n  }\n  return -1;\n}",
+      "timeComplexity": "O(6! · 6) — at most 720 states",
+      "spaceComplexity": "O(6!)",
+      "commonMistakes": [
+        "Encoding the board in a way that does not distinguish states (for example summing tiles).",
+        "Marking states visited when dequeued instead of enqueued, which duplicates work."
+      ],
+      "interviewExplanation": "Treating each arrangement as a node turns the puzzle into a shortest path in an unweighted graph, so BFS gives the minimum. The state space is 720, so this is effectively constant time. For larger puzzles like the 15-puzzle I'd use A* with a Manhattan-distance heuristic, and check solvability up front with the permutation parity.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Step 1",
+          "content": "Start '123405' is layer 0; its neighbors include '123450'."
+        },
+        {
+          "position": 2,
+          "title": "Step 2",
+          "content": "'123450' is found in layer 1: return 1."
+        }
+      ]
+    }
+  ]
+}

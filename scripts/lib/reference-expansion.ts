@@ -1532,6 +1532,417 @@ function citySkylineBrute(buildings: [number, number, number][]) {
   return points;
 }
 
+// ---------- Shared chain validation for batch 5 linked-list problems ----------
+
+const fullChain = (next: number[], head: number) => {
+  if (head < 0 || head >= next.length) return false;
+  const seen = new Set<number>();
+  for (let node = head; node !== -1; node = next[node]) { if (node < 0 || node >= next.length || seen.has(node)) return false; seen.add(node); }
+  return seen.size === next.length;
+};
+const chainOrder = (next: number[], head: number) => { const order: number[] = []; for (let n = head; n !== -1; n = next[n]) order.push(n); return order; };
+
+// ---------- Reverse Convoy: reverse a linked chain ----------
+
+export const reverseConvoyInput = z.strictObject({ next: z.array(z.int().min(-1)).min(1).max(10_000), head: z.int().min(0) })
+  .refine((i) => fullChain(i.next, i.head), "The chain from head must visit every car exactly once and end with -1");
+export function reverseConvoy(next: number[], head: number) {
+  const links = [...next];
+  let previous = -1, node = head;
+  while (node !== -1) { const after = links[node]; links[node] = previous; previous = node; node = after; }
+  return [previous, links];
+}
+function reverseConvoyBrute(next: number[], head: number) {
+  const order = chainOrder(next, head), links = new Array<number>(next.length).fill(-1);
+  for (let i = order.length - 1; i > 0; i--) links[order[i]] = order[i - 1];
+  return [order[order.length - 1], links];
+}
+
+// ---------- Badge Majority: Boyer–Moore voting ----------
+
+export const badgeMajorityInput = z.strictObject({ badges: z.array(z.int().min(-1_000_000_000).max(1_000_000_000)).min(1).max(10_000) })
+  .refine((i) => { const c = new Map<number, number>(); for (const b of i.badges) c.set(b, (c.get(b) ?? 0) + 1); return [...c.values()].some((v) => v * 2 > i.badges.length); }, "One badge must appear more than half the time");
+export function badgeMajority(badges: number[]) {
+  let candidate = badges[0], votes = 0;
+  for (const b of badges) { if (votes === 0) candidate = b; votes += b === candidate ? 1 : -1; }
+  return candidate;
+}
+function badgeMajorityBrute(badges: number[]) {
+  return badges.find((b) => badges.filter((x) => x === b).length * 2 > badges.length)!;
+}
+
+// ---------- Drop Nth Car: remove the k-th node from the end ----------
+
+export const dropNthCarInput = z.strictObject({ next: z.array(z.int().min(-1)).min(1).max(10_000), head: z.int().min(0), k: z.int().min(1) })
+  .refine((i) => fullChain(i.next, i.head) && i.k <= i.next.length, "The chain must visit every car once, and 1 <= k <= cars");
+export function dropNthCar(next: number[], head: number, k: number) {
+  const links = [...next];
+  let lead = head;
+  for (let i = 0; i < k; i++) lead = links[lead];
+  let newHead = head;
+  if (lead === -1) newHead = links[head];
+  else {
+    let trail = head;
+    while (links[lead] !== -1) { lead = links[lead]; trail = links[trail]; }
+    links[trail] = links[links[trail]];
+  }
+  return chainOrder(links, newHead);
+}
+function dropNthCarBrute(next: number[], head: number, k: number) {
+  const order = chainOrder(next, head);
+  order.splice(order.length - k, 1);
+  return order;
+}
+
+// ---------- Ledger Equalities: satisfiability with union-find ----------
+
+export const ledgerEqualitiesInput = z.strictObject({ equations: z.array(z.string().regex(/^[a-z](==|!=)[a-z]$/)).min(1).max(500) });
+export function ledgerEqualities(equations: string[]) {
+  const parent = Array.from({ length: 26 }, (_, i) => i);
+  const find = (x: number): number => { while (parent[x] !== x) x = parent[x] = parent[parent[x]]; return x; };
+  const code = (ch: string) => ch.charCodeAt(0) - 97;
+  for (const e of equations) if (e[1] === "=") parent[find(code(e[0]))] = find(code(e[3]));
+  return equations.every((e) => e[1] === "=" || find(code(e[0])) !== find(code(e[3])));
+}
+function ledgerEqualitiesBrute(equations: string[]) {
+  const same = Array.from({ length: 26 }, (_, i) => Array.from({ length: 26 }, (_, j) => i === j));
+  const code = (ch: string) => ch.charCodeAt(0) - 97;
+  for (const e of equations) if (e[1] === "=") { same[code(e[0])][code(e[3])] = true; same[code(e[3])][code(e[0])] = true; }
+  for (let k = 0; k < 26; k++) for (let i = 0; i < 26; i++) for (let j = 0; j < 26; j++) if (same[i][k] && same[k][j]) same[i][j] = true;
+  return equations.every((e) => e[1] === "=" || !same[code(e[0])][code(e[3])]);
+}
+
+// ---------- Quiet Hours: gaps in the union of busy intervals ----------
+
+const halfOpen = z.tuple([z.int().min(0).max(1_000_000), z.int().min(0).max(1_000_000)]).refine(([s, e]) => s < e, "A busy block must end after it starts");
+export const quietHoursInput = z.strictObject({ busy: z.array(halfOpen).min(1).max(10_000) });
+export function quietHours(busy: [number, number][]) {
+  const sorted = busy.map(([s, e]) => [s, e] as [number, number]).sort((a, b) => a[0] - b[0]);
+  const gaps: [number, number][] = [];
+  let end = sorted[0][1];
+  for (const [s, e] of sorted) { if (s > end) gaps.push([end, s]); end = Math.max(end, e); }
+  return gaps;
+}
+function quietHoursBrute(busy: [number, number][]) {
+  const points = [...new Set(busy.flatMap(([s, e]) => [s, e]))].sort((a, b) => a - b);
+  const gaps: [number, number][] = [];
+  for (let i = 0; i + 1 < points.length; i++) {
+    const x = points[i];
+    if (busy.some(([s, e]) => s <= x && x < e)) continue;
+    const last = gaps[gaps.length - 1];
+    if (last && last[1] === x) last[1] = points[i + 1]; else gaps.push([x, points[i + 1]]);
+  }
+  return gaps;
+}
+
+// ---------- Crossword Trace: word search in a grid ----------
+
+export const crosswordTraceInput = z.strictObject({
+  grid: z.array(z.string().min(1).max(6).regex(/^[a-z]+$/)).min(1).max(6).refine((g) => g.every((r) => r.length === g[0].length), "Rows must have equal length"),
+  word: z.string().min(1).max(12).regex(/^[a-z]+$/),
+});
+export function crosswordTrace(grid: string[], word: string) {
+  const h = grid.length, w = grid[0].length, used = grid.map((r) => [...r].map(() => false));
+  const walk = (r: number, c: number, i: number): boolean => {
+    if (grid[r][c] !== word[i] || used[r][c]) return false;
+    if (i === word.length - 1) return true;
+    used[r][c] = true;
+    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < h && nc >= 0 && nc < w && walk(nr, nc, i + 1)) { used[r][c] = false; return true; }
+    }
+    used[r][c] = false;
+    return false;
+  };
+  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) if (walk(r, c, 0)) return true;
+  return false;
+}
+function crosswordTraceBrute(grid: string[], word: string) {
+  // Enumerate every simple path of the word's length, then compare spelled letters.
+  const h = grid.length, w = grid[0].length;
+  const paths = (path: [number, number][]): boolean => {
+    if (path.length === word.length) return path.map(([r, c]) => grid[r][c]).join("") === word;
+    const [r, c] = path[path.length - 1];
+    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= h || nc < 0 || nc >= w || path.some(([pr, pc]) => pr === nr && pc === nc)) continue;
+      if (paths([...path, [nr, nc]])) return true;
+    }
+    return false;
+  };
+  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) if (paths([[r, c]])) return true;
+  return false;
+}
+
+// ---------- Shared Mentor: lowest common ancestor in a BST ----------
+
+export const sharedMentorInput = z.strictObject({ tree: levelTree, a: z.int(), b: z.int() }).superRefine((i, ctx) => {
+  const order = inorder(buildTree(i.tree));
+  if (order.length !== i.tree.filter((v) => v !== null).length || order.some((v, k) => k > 0 && order[k - 1] >= v)) ctx.addIssue({ code: "custom", message: "The tree must be a BST with distinct reachable values" });
+  if (!order.includes(i.a) || !order.includes(i.b)) ctx.addIssue({ code: "custom", message: "Both badges must be in the tree" });
+});
+export function sharedMentor(tree: (number | null)[], a: number, b: number) {
+  let node = buildTree(tree);
+  while (node) {
+    if (a < node.value && b < node.value) node = node.left;
+    else if (a > node.value && b > node.value) node = node.right;
+    else return node.value;
+  }
+  throw new Error("Values not found");
+}
+function sharedMentorBrute(tree: (number | null)[], a: number, b: number) {
+  const path = (target: number) => { const out: number[] = []; let n = buildTree(tree); while (n) { out.push(n.value); if (target === n.value) break; n = target < n.value ? n.left : n.right; } return out; };
+  const pa = path(a), pb = path(b);
+  let i = 0;
+  while (i < pa.length && i < pb.length && pa[i] === pb[i]) i++;
+  return pa[i - 1];
+}
+
+// ---------- Twin XOR: maximum XOR of two values ----------
+
+export const twinXorInput = z.strictObject({ values: z.array(z.int().min(0).max(2 ** 31 - 1)).min(2).max(10_000) });
+export function twinXor(values: number[]) {
+  // Binary trie over 31 bits; children stored in flat arrays.
+  const zero = [0], one = [0];
+  const insert = (v: number) => {
+    let node = 0;
+    for (let bit = 30; bit >= 0; bit--) {
+      const side = (v >> bit) & 1 ? one : zero;
+      if (!side[node]) { side[node] = zero.length; zero.push(0); one.push(0); }
+      node = side[node];
+    }
+  };
+  const best = (v: number) => {
+    let node = 0, result = 0;
+    for (let bit = 30; bit >= 0; bit--) {
+      const want = (v >> bit) & 1 ? zero : one, other = want === zero ? one : zero;
+      if (want[node]) { result |= 1 << bit; node = want[node]; } else node = other[node];
+    }
+    return result;
+  };
+  insert(values[0]);
+  let answer = 0;
+  for (let i = 1; i < values.length; i++) { answer = Math.max(answer, best(values[i])); insert(values[i]); }
+  return answer;
+}
+function twinXorBrute(values: number[]) {
+  let best = 0;
+  for (let i = 0; i < values.length; i++) for (let j = i + 1; j < values.length; j++) best = Math.max(best, values[i] ^ values[j]);
+  return best;
+}
+
+// ---------- Floodgate Path: minimise the highest cell on a route ----------
+
+export const floodgatePathInput = z.strictObject({
+  grid: z.array(z.array(z.int().min(0).max(1_000_000)).min(1).max(50)).min(1).max(50).refine((g) => g.every((r) => r.length === g[0].length), "Rows must have equal length"),
+});
+export function floodgatePath(grid: number[][]) {
+  const h = grid.length, w = grid[0].length;
+  const best = grid.map((row) => row.map(() => Infinity));
+  const heap: [number, number, number][] = [[grid[0][0], 0, 0]];
+  best[0][0] = grid[0][0];
+  const push = (item: [number, number, number]) => { heap.push(item); for (let i = heap.length - 1; i > 0;) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop()!; if (heap.length) { heap[0] = last; for (let i = 0; ;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+  while (heap.length) {
+    const [cost, r, c] = pop();
+    if (cost > best[r][c]) continue;
+    if (r === h - 1 && c === w - 1) return cost;
+    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= h || nc < 0 || nc >= w) continue;
+      const next = Math.max(cost, grid[nr][nc]);
+      if (next < best[nr][nc]) { best[nr][nc] = next; push([next, nr, nc]); }
+    }
+  }
+  return best[h - 1][w - 1];
+}
+function floodgatePathBrute(grid: number[][]) {
+  const h = grid.length, w = grid[0].length;
+  const levels = [...new Set(grid.flat())].sort((a, b) => a - b);
+  for (const level of levels) {
+    if (grid[0][0] > level) continue;
+    const seen = new Set([0]), queue = [[0, 0]];
+    while (queue.length) {
+      const [r, c] = queue.shift()!;
+      for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr >= h || nc < 0 || nc >= w || grid[nr][nc] > level || seen.has(nr * w + nc)) continue;
+        seen.add(nr * w + nc); queue.push([nr, nc]);
+      }
+    }
+    if (seen.has((h - 1) * w + w - 1)) return level;
+  }
+  return levels[levels.length - 1];
+}
+
+// ---------- Canopy Gain: maximum path sum in a binary tree ----------
+
+export const canopyGainInput = z.strictObject({ tree: z.array(z.union([z.int().min(-1000).max(1000), z.null()])).min(1).max(10_000) })
+  .refine((i) => i.tree[0] !== null && inorder(buildTree(i.tree)).length === i.tree.filter((v) => v !== null).length, "The tree must be non-empty with every value reachable");
+export function canopyGain(tree: (number | null)[]) {
+  let best = -Infinity;
+  const gain = (node: TreeNode | null): number => {
+    if (!node) return 0;
+    const left = Math.max(0, gain(node.left)), right = Math.max(0, gain(node.right));
+    best = Math.max(best, node.value + left + right);
+    return node.value + Math.max(left, right);
+  };
+  gain(buildTree(tree));
+  return best;
+}
+function canopyGainBrute(tree: (number | null)[]) {
+  // Undirected adjacency, then the sum of every simple path between every pair of nodes.
+  const nodes: TreeNode[] = [], adj = new Map<TreeNode, TreeNode[]>();
+  const collect = (n: TreeNode | null, parent: TreeNode | null) => {
+    if (!n) return;
+    nodes.push(n); adj.set(n, parent ? [parent] : []);
+    if (parent) adj.get(parent)!.push(n);
+    collect(n.left, n); collect(n.right, n);
+  };
+  collect(buildTree(tree), null);
+  let best = -Infinity;
+  for (const start of nodes) {
+    const stack: [TreeNode, TreeNode | null, number][] = [[start, null, start.value]];
+    while (stack.length) {
+      const [n, from, sum] = stack.pop()!;
+      best = Math.max(best, sum);
+      for (const m of adj.get(n)!) if (m !== from) stack.push([m, n, sum + m.value]);
+    }
+  }
+  return best;
+}
+
+// ---------- Popularity Cache: LFU with LRU tie-breaking ----------
+
+type CacheOp = ["put", number, number] | ["get", number];
+export const popularityCacheInput = z.strictObject({
+  capacity: z.int().min(1).max(10_000),
+  operations: z.array(z.union([z.tuple([z.literal("put"), int, int]), z.tuple([z.literal("get"), int])])).max(10_000),
+});
+export function popularityCache(capacity: number, operations: CacheOp[]) {
+  const values = new Map<number, number>(), freq = new Map<number, number>(), buckets = new Map<number, Set<number>>();
+  let minFreq = 0;
+  const touch = (key: number) => {
+    const f = freq.get(key)!;
+    buckets.get(f)!.delete(key);
+    if (!buckets.get(f)!.size) { buckets.delete(f); if (minFreq === f) minFreq = f + 1; }
+    freq.set(key, f + 1);
+    if (!buckets.has(f + 1)) buckets.set(f + 1, new Set());
+    buckets.get(f + 1)!.add(key);
+  };
+  const results: number[] = [];
+  for (const op of operations) {
+    if (op[0] === "get") {
+      if (!values.has(op[1])) { results.push(-1); continue; }
+      touch(op[1]); results.push(values.get(op[1])!);
+    } else {
+      const [, key, value] = op;
+      if (values.has(key)) { values.set(key, value); touch(key); continue; }
+      if (values.size === capacity) {
+        const bucket = buckets.get(minFreq)!, evict = bucket.values().next().value!;
+        bucket.delete(evict); if (!bucket.size) buckets.delete(minFreq);
+        values.delete(evict); freq.delete(evict);
+      }
+      values.set(key, value); freq.set(key, 1); minFreq = 1;
+      if (!buckets.has(1)) buckets.set(1, new Set());
+      buckets.get(1)!.add(key);
+    }
+  }
+  return results;
+}
+function popularityCacheBrute(capacity: number, operations: CacheOp[]) {
+  const entries = new Map<number, { value: number; uses: number; last: number }>();
+  const results: number[] = [];
+  let tick = 0;
+  for (const op of operations) {
+    tick++;
+    if (op[0] === "get") {
+      const e = entries.get(op[1]);
+      if (!e) { results.push(-1); continue; }
+      e.uses++; e.last = tick; results.push(e.value);
+    } else {
+      const e = entries.get(op[1]);
+      if (e) { e.value = op[2]; e.uses++; e.last = tick; continue; }
+      if (entries.size === capacity) {
+        let victim = -1, best: { uses: number; last: number } | null = null;
+        for (const [k, v] of entries) if (!best || v.uses < best.uses || (v.uses === best.uses && v.last < best.last)) { best = v; victim = k; }
+        entries.delete(victim);
+      }
+      entries.set(op[1], { value: op[2], uses: 1, last: tick });
+    }
+  }
+  return results;
+}
+
+// ---------- Tile Shuffle: 2 x 3 sliding puzzle ----------
+
+export const tileShuffleInput = z.strictObject({
+  board: z.tuple([z.tuple([z.int(), z.int(), z.int()]), z.tuple([z.int(), z.int(), z.int()])])
+    .refine((b) => [...b[0], ...b[1]].sort().join() === "0,1,2,3,4,5", "The board must contain 0 to 5 exactly once"),
+});
+const PUZZLE_MOVES = [[1, 3], [0, 2, 4], [1, 5], [0, 4], [1, 3, 5], [2, 4]];
+const bfsFrom = (start: string) => {
+  const dist = new Map([[start, 0]]);
+  let layer = [start];
+  while (layer.length) {
+    const next: string[] = [];
+    for (const s of layer) {
+      const z0 = s.indexOf("0");
+      for (const m of PUZZLE_MOVES[z0]) {
+        const chars = [...s]; [chars[z0], chars[m]] = [chars[m], chars[z0]];
+        const t = chars.join("");
+        if (!dist.has(t)) { dist.set(t, dist.get(s)! + 1); next.push(t); }
+      }
+    }
+    layer = next;
+  }
+  return dist;
+};
+export function tileShuffle(board: number[][]) {
+  const start = [...board[0], ...board[1]].join(""), goal = "123450";
+  const dist = new Map([[start, 0]]);
+  let layer = [start];
+  while (layer.length) {
+    const next: string[] = [];
+    for (const s of layer) {
+      if (s === goal) return dist.get(s)!;
+      const z0 = s.indexOf("0");
+      for (const m of PUZZLE_MOVES[z0]) {
+        const chars = [...s]; [chars[z0], chars[m]] = [chars[m], chars[z0]];
+        const t = chars.join("");
+        if (!dist.has(t)) { dist.set(t, dist.get(s)! + 1); next.push(t); }
+      }
+    }
+    layer = next;
+  }
+  return -1;
+}
+let fromGoal: Map<string, number> | null = null;
+function tileShuffleBrute(board: number[][]) {
+  fromGoal ??= bfsFrom("123450");
+  return fromGoal.get([...board[0], ...board[1]].join("")) ?? -1;
+}
+
+// ---------- Nested Crates: Russian-doll nesting ----------
+
+export const nestedCratesInput = z.strictObject({ crates: z.array(z.tuple([z.int().min(1).max(100_000), z.int().min(1).max(100_000)])).min(1).max(10_000) });
+export function nestedCrates(crates: [number, number][]) {
+  const sorted = crates.map(([w, h]) => [w, h] as [number, number]).sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+  const tails: number[] = [];
+  for (const [, h] of sorted) {
+    let lo = 0, hi = tails.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (tails[mid] < h) lo = mid + 1; else hi = mid; }
+    tails[lo] = h;
+  }
+  return tails.length;
+}
+function nestedCratesBrute(crates: [number, number][]) {
+  const sorted = crates.map(([w, h]) => [w, h] as [number, number]).sort((a, b) => a[0] - b[0]);
+  const chain = sorted.map(() => 1);
+  for (let i = 0; i < sorted.length; i++) for (let j = 0; j < i; j++) if (sorted[j][0] < sorted[i][0] && sorted[j][1] < sorted[i][1]) chain[i] = Math.max(chain[i], chain[j] + 1);
+  return Math.max(...chain);
+}
+
 // ---------- Registry ----------
 
 export const EXPANSION: Record<string, ExpansionEntry> = {
@@ -1656,4 +2067,38 @@ export const EXPANSION: Record<string, ExpansionEntry> = {
   "later-lower": entry(laterLowerInput, laterLower, laterLowerBrute, (rng) => ({ values: ints(rng, rng.int(0, 10), -5, 5) })),
   "city-skyline": entry(citySkylineInput, citySkyline, citySkylineBrute, (rng) => ({
     buildings: Array.from({ length: rng.int(0, 6) }, () => { const l = rng.int(0, 12); return [l, l + rng.int(1, 6), rng.int(1, 5)]; }) })),
+  "reverse-convoy": entry(reverseConvoyInput, reverseConvoy, reverseConvoyBrute, sampleChain),
+  "badge-majority": entry(badgeMajorityInput, badgeMajority, badgeMajorityBrute, (rng) => {
+    const n = rng.int(1, 9), major = rng.int(-5, 5), majority = Math.floor(n / 2) + 1;
+    const badges = [...Array.from({ length: majority }, () => major), ...ints(rng, n - majority, -5, 5)];
+    for (let i = badges.length - 1; i > 0; i--) { const j = rng.int(0, i); [badges[i], badges[j]] = [badges[j], badges[i]]; }
+    return { badges };
+  }),
+  "drop-nth-car": entry(dropNthCarInput, dropNthCar, dropNthCarBrute, (rng) => { const chain = sampleChain(rng); return { ...chain, k: rng.int(1, chain.next.length) }; }),
+  "ledger-equalities": entry(ledgerEqualitiesInput, ledgerEqualities, ledgerEqualitiesBrute, (rng) => ({
+    equations: Array.from({ length: rng.int(1, 6) }, () => `${rng.pick(["a", "b", "c", "d"])}${rng.pick(["==", "!="])}${rng.pick(["a", "b", "c", "d"])}`) })),
+  "quiet-hours": entry(quietHoursInput, quietHours, quietHoursBrute, (rng) => ({
+    busy: Array.from({ length: rng.int(1, 6) }, () => { const s = rng.int(0, 15); return [s, s + rng.int(1, 4)]; }) })),
+  "crossword-trace": entry(crosswordTraceInput, crosswordTrace, crosswordTraceBrute, (rng) => {
+    const h = rng.int(1, 3), w = rng.int(1, 3);
+    return { grid: Array.from({ length: h }, () => randomWord(rng, w, "ab")), word: randomWord(rng, rng.int(1, 4), "ab") };
+  }),
+  "shared-mentor": entry(sharedMentorInput, sharedMentor, sharedMentorBrute, (rng) => {
+    const values = distinct(rng, rng.int(1, 10), -30, 30);
+    let root: TreeNode | null = null;
+    for (const v of values) root = insertBst(root, v);
+    return { tree: toLevelOrder(root), a: rng.pick(values), b: rng.pick(values) };
+  }),
+  "twin-xor": entry(twinXorInput, twinXor, twinXorBrute, (rng) => ({ values: Array.from({ length: rng.int(2, 9) }, () => (rng.chance(0.3) ? rng.int(0, 2 ** 31 - 1) : rng.int(0, 63))) })),
+  "floodgate-path": entry(floodgatePathInput, floodgatePath, floodgatePathBrute, (rng) => { const h = rng.int(1, 4), w = rng.int(1, 4); return { grid: Array.from({ length: h }, () => ints(rng, w, 0, 9)) }; }),
+  "canopy-gain": entry(canopyGainInput, canopyGain, canopyGainBrute, (rng) => ({ tree: randomTree(rng, rng.int(1, 10), () => rng.int(-9, 9)) })),
+  "popularity-cache": entry(popularityCacheInput, popularityCache, popularityCacheBrute, (rng) => ({
+    capacity: rng.int(1, 3),
+    operations: Array.from({ length: rng.int(0, 14) }, () => (rng.chance(0.5) ? ["put", rng.int(1, 4), rng.int(0, 9)] : ["get", rng.int(1, 4)])) })),
+  "tile-shuffle": entry(tileShuffleInput, tileShuffle, tileShuffleBrute, (rng) => {
+    const cells = [0, 1, 2, 3, 4, 5];
+    for (let i = 5; i > 0; i--) { const j = rng.int(0, i); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+    return { board: [cells.slice(0, 3), cells.slice(3)] };
+  }),
+  "nested-crates": entry(nestedCratesInput, nestedCrates, nestedCratesBrute, (rng) => ({ crates: Array.from({ length: rng.int(1, 8) }, () => [rng.int(1, 6), rng.int(1, 6)]) })),
 };

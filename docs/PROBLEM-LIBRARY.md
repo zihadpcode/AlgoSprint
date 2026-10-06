@@ -1,6 +1,6 @@
 # Problem library guide
 
-The published library holds 87 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and eighty-two hand-authored problems in `src/data/seeds/problems/library/`. The library is growing toward the brief's 100-problem milestone in reviewed batches. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The published library holds 100 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and ninety-five hand-authored problems in `src/data/seeds/problems/library/`. This meets the brief's 100-problem milestone (25 easy, 50 medium, 25 hard); the next milestone is 1,000. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
@@ -88,6 +88,19 @@ The published library holds 87 original coding problems: the five foundation pro
 | `bracket-run` | Bracket Run | Hard | stack-matching | stack, strings, dynamic-programming |
 | `later-lower` | Later Lower | Hard | fenwick-tree | sorting, arrays, binary-search |
 | `city-skyline` | City Skyline | Hard | sweep-line | heaps, intervals, sorting |
+| `reverse-convoy` | Reverse Convoy | Easy | pointer-reversal | linked-list |
+| `badge-majority` | Badge Majority | Easy | boyer-moore | arrays, hash-maps |
+| `drop-nth-car` | Drop the Nth Car | Medium | fast-slow-pointers | linked-list, two-pointers |
+| `ledger-equalities` | Ledger Equalities | Medium | union-find | union-find, graphs, strings |
+| `quiet-hours` | Quiet Hours | Medium | interval-merge | intervals, sorting |
+| `crossword-trace` | Crossword Trace | Medium | backtracking | backtracking, dfs, strings |
+| `shared-mentor` | Shared Mentor | Medium | inorder-traversal | binary-search-trees, trees |
+| `twin-xor` | Twin XOR | Hard | binary-trie | bit-manipulation, tries |
+| `floodgate-path` | Floodgate Path | Hard | minimax-path | graphs, heaps, binary-search |
+| `canopy-gain` | Canopy Gain | Hard | tree-recursion | trees, recursion, dfs |
+| `popularity-cache` | Popularity Cache | Hard | design | design, object-oriented, hash-maps |
+| `tile-shuffle` | Tile Shuffle | Hard | state-space-bfs | bfs, graphs |
+| `nested-crates` | Nested Crates | Hard | increasing-subsequence | dynamic-programming, binary-search, sorting |
 
 Trees are passed as level-order arrays with `null` for missing children. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
 

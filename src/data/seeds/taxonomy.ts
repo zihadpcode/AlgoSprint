@@ -36,4 +36,5 @@ export const PATTERNS = [
   "unbounded-knapsack", "multi-source-bfs", "top-k", "monotonic-deque", "two-heaps",
   "matrix-transform", "k-way-merge", "memoized-dfs", "bridges", "wildcard-dp",
   "sliding-log", "timestamp-binary-search", "partition-binary-search", "palindrome-dp", "fenwick-tree",
+  "pointer-reversal", "boyer-moore", "binary-trie", "minimax-path", "state-space-bfs",
 ] as const;
