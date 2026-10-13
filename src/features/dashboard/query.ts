@@ -1,9 +1,9 @@
 import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { readProgress } from "@/features/progress/query";
-import { practiceSuggestions } from "./policy";
+import { interviewHistory, practiceStreak, practiceSuggestions, strongestTopics } from "./policy";
 
-export async function queryDashboard(db: PrismaClient, userId: string) {
+export async function queryDashboard(db: PrismaClient, userId: string, now = new Date()) {
   if (!userId) throw new Error("Verified viewer required");
   return db.$transaction(async (tx) => {
     const { overall, difficulty, categories } = await readProgress(tx, userId);
@@ -23,7 +23,20 @@ export async function queryDashboard(db: PrismaClient, userId: string) {
       select: { status: true, problemRevision: true, passedCount: true, totalCount: true, createdAt: true, completedAt: true,
         problem: { select: { slug: true, title: true, revision: true } } },
     });
+    // Distinct UTC days with saved practice: first attempts, solves, and every server run or submission. Only dates leave
+    // the database, so no problem, code or result data can reach this part of the dashboard.
+    const dayRows = await tx.$queryRaw<{ day: string }[]>`
+      SELECT to_char(d.day, 'YYYY-MM-DD') AS day FROM (
+        SELECT (s."createdAt" AT TIME ZONE 'UTC')::date AS day FROM app."UserSubmission" s WHERE s."userId" = ${userId}::uuid
+        UNION SELECT (p."attemptedAt" AT TIME ZONE 'UTC')::date FROM app."UserProgress" p WHERE p."userId" = ${userId}::uuid AND p."attemptedAt" IS NOT NULL
+        UNION SELECT (p."solvedAt" AT TIME ZONE 'UTC')::date FROM app."UserProgress" p WHERE p."userId" = ${userId}::uuid AND p."solvedAt" IS NOT NULL
+      ) d ORDER BY d.day DESC`;
+    const interviews = await tx.mockInterview.findMany({ where: { userId, status: "COMPLETED", score: { not: null }, completedAt: { not: null } },
+      orderBy: [{ completedAt: "desc" }, { id: "desc" }], take: 5, select: { id: true, score: true, durationMinutes: true, completedAt: true } });
     return { analytics: { overall, difficulty, categories }, insights: { ...suggestions,
+      streak: practiceStreak(dayRows.map((row) => row.day), now),
+      strongest: strongestTopics(categories),
+      interviews: interviewHistory(interviews.map(({ id, score, durationMinutes, completedAt }) => ({ id, score: score!, durationMinutes, completedAt: completedAt!.toISOString() }))),
       recentSubmissions: recent.map(({ problem, createdAt, completedAt, ...submission }) => ({ ...submission,
         slug: problem.slug, title: problem.title, currentRevision: problem.revision,
         createdAt: createdAt.toISOString(), completedAt: completedAt?.toISOString() ?? null,

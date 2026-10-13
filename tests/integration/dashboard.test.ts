@@ -16,6 +16,7 @@ beforeAll(async () => {
   ids = (await db.problem.findMany({ orderBy: { slug: "asc" }, select: { id: true } })).map((p) => p.id);
 }, 30000);
 beforeEach(async () => {
+  await db.mockInterview.deleteMany({ where: { userId: { in: users } } });
   await db.userSubmission.deleteMany({ where: { userId: { in: users } } });
   await db.userProgress.deleteMany({ where: { userId: { in: users } } });
   await db.problem.updateMany({ where: { id: { in: ids } }, data: { status: "PUBLISHED", revision: 1 } });
@@ -70,4 +71,61 @@ it("requires distinct unresolved full-submission problems for inferred topic sig
   await db.userSubmission.createMany({ data: Array.from({ length: 4 }, () => submission(arrayProblems[0].id)) });
   await db.userSubmission.create({ data: { ...submission(arrayProblems[1].id), createdAt: new Date("2026-09-02T00:00:00Z"), status: "ACCEPTED", passedCount: 2 } });
   expect((await queryDashboard(db, users[0])).insights.topics).toEqual([]);
+});
+
+const NOW = new Date("2026-10-12T10:00:00Z");
+it("derives the practice streak from saved activity in UTC days and keeps it owner-only", async () => {
+  // 23:59:59Z and 00:00:01Z fall on different UTC days even though they are two seconds apart.
+  await db.userSubmission.create({ data: { ...submission(ids[0]), createdAt: new Date("2026-10-10T23:59:59Z") } });
+  await db.userSubmission.create({ data: { ...submission(ids[0]), createdAt: new Date("2026-10-11T00:00:01Z") } });
+  await db.userProgress.create({ data: { userId: users[0], problemId: ids[1], status: "SOLVED", attemptedAt: new Date("2026-10-08T12:00:00Z"), solvedAt: new Date("2026-10-09T12:00:00Z") } });
+  await db.userSubmission.create({ data: { ...submission(ids[2], users[1]), createdAt: new Date("2026-10-12T01:00:00Z") } });
+  const morning = (await queryDashboard(db, users[0], NOW)).insights.streak;
+  // Days 8, 9, 10 and 11; nothing yet today, but yesterday keeps the streak alive.
+  expect(morning).toEqual({ current: 4, longest: 4, activeToday: false, lastActiveDay: "2026-10-11", activeDays: 4 });
+  // Another learner's activity today does not count for this owner, and vice versa.
+  expect((await queryDashboard(db, users[1], NOW)).insights.streak).toEqual({ current: 1, longest: 1, activeToday: true, lastActiveDay: "2026-10-12", activeDays: 1 });
+  // A server run today (visible tests) is saved activity and extends the streak.
+  await db.userSubmission.create({ data: { ...submission(ids[0]), mode: "RUN" as const, createdAt: new Date("2026-10-12T08:00:00Z") } });
+  expect((await queryDashboard(db, users[0], NOW)).insights.streak).toMatchObject({ current: 5, activeToday: true });
+  // Two silent days end the current streak but the longest run is kept.
+  expect((await queryDashboard(db, users[0], new Date("2026-10-15T10:00:00Z"))).insights.streak).toMatchObject({ current: 0, longest: 5, activeToday: false });
+});
+it("does not count repeated attempt marks or an undone attempt as new practice days", async () => {
+  await db.userProgress.create({ data: { userId: users[0], problemId: ids[0], status: "ATTEMPTED", attemptedAt: new Date("2026-10-11T12:00:00Z") } });
+  // updatedAt moves when flags change, but only attemptedAt and solvedAt are activity events.
+  await db.userProgress.update({ where: { userId_problemId: { userId: users[0], problemId: ids[0] } }, data: { bookmarked: true, updatedAt: new Date("2026-10-12T09:00:00Z") } });
+  expect((await queryDashboard(db, users[0], NOW)).insights.streak).toMatchObject({ current: 1, activeToday: false, activeDays: 1 });
+  await db.userProgress.update({ where: { userId_problemId: { userId: users[0], problemId: ids[0] } }, data: { status: "NOT_STARTED", attemptedAt: null } });
+  expect((await queryDashboard(db, users[0], NOW)).insights.streak).toMatchObject({ current: 0, activeDays: 0 });
+});
+it("lists only the owner's five latest completed, scored mock interviews", async () => {
+  const interview = (score: number | null, day: number, extra: Record<string, unknown> = {}) => ({ userId: users[0], status: "COMPLETED" as const, durationMinutes: 15, score, completedAt: new Date(Date.UTC(2026, 8, day, 12)), ...extra });
+  await db.mockInterview.createMany({ data: [
+    ...[1, 2, 3, 4, 5, 6, 7].map((day) => interview(day * 10, day)),
+    interview(null, 20), interview(99, 21, { status: "ABANDONED" }), interview(88, 22, { status: "IN_PROGRESS", completedAt: null }),
+    { ...interview(77, 23), userId: users[1] },
+  ] });
+  const mine = (await queryDashboard(db, users[0], NOW)).insights.interviews;
+  expect(mine.recent.map((row) => row.score)).toEqual([70, 60, 50, 40, 30]);
+  expect(mine.average).toBe(50);
+  expect(mine.recent[0]).toMatchObject({ durationMinutes: 15, completedAt: "2026-09-07T12:00:00.000Z" });
+  expect(Object.keys(mine.recent[0]).sort()).toEqual(["completedAt", "durationMinutes", "id", "score"]);
+  const theirs = (await queryDashboard(db, users[1], NOW)).insights.interviews;
+  expect(theirs.recent.map((row) => row.score)).toEqual([77]);
+  expect(JSON.stringify(mine)).not.toContain(users[0]);
+});
+it("names strongest topics from the owner's own solves in the current catalogue only", async () => {
+  const arrays = await db.problem.findMany({ where: { categories: { some: { category: { slug: "arrays" } } } }, take: 3, orderBy: { slug: "asc" }, select: { id: true } });
+  expect(arrays).toHaveLength(3);
+  await db.userProgress.createMany({ data: arrays.slice(0, 2).map((p) => ({ userId: users[0], problemId: p.id, status: "SOLVED" as const, solvedAt: new Date("2026-10-01T00:00:00Z"), verifiedRevision: 1, verifiedAt: new Date("2026-10-01T00:00:00Z") })) });
+  await db.userProgress.create({ data: { userId: users[1], problemId: arrays[2].id, status: "SOLVED", solvedAt: new Date("2026-10-01T00:00:00Z"), verifiedRevision: 1, verifiedAt: new Date("2026-10-01T00:00:00Z") } });
+  const mine = (await queryDashboard(db, users[0], NOW)).insights.strongest;
+  expect(mine.find((topic) => topic.slug === "arrays")).toMatchObject({ solved: 2, verifiedCurrent: 2 });
+  expect(await db.problem.count({ where: { id: { in: arrays.map((p) => p.id) } } })).toBe(3);
+  // One solve in a category is not enough to be a strongest topic.
+  expect((await queryDashboard(db, users[1], NOW)).insights.strongest).toEqual([]);
+  // A revision bump makes the verified solve earlier: still solved, no longer verified on the current revision.
+  await db.problem.updateMany({ where: { id: { in: arrays.map((p) => p.id) } }, data: { revision: 2 } });
+  expect((await queryDashboard(db, users[0], NOW)).insights.strongest.find((topic) => topic.slug === "arrays")).toMatchObject({ solved: 2, verifiedCurrent: 0 });
 });

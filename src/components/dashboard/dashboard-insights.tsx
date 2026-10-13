@@ -27,8 +27,29 @@ export function DashboardInsights({ insights }: { insights: Insights }) {
         <time dateTime={item.createdAt} className="mt-2 block text-xs text-muted">{new Date(item.createdAt).toLocaleString("en-US", { timeZone: "UTC", dateStyle: "medium", timeStyle: "short" })} UTC</time>
       </li>)}</ol> : <p className="mt-5 text-sm text-muted">No full submissions yet. Manual solve marks and visible runs do not create full submissions.</p>}
     </Card>
-    <Card><CardTitle>Practice streak</CardTitle><p className="mt-3 font-medium">Not tracked yet</p>
-      <p className="mt-3 text-sm leading-7 text-muted">Your attempts and solves are saved, but this dashboard does not calculate consecutive practice days. Keep building a routine at your own pace.</p>
+    <Card><CardTitle>Practice streak</CardTitle>
+      {insights.streak.activeDays === 0 ? <p className="mt-3 font-medium">No saved practice yet</p>
+        : <p className="mt-3 text-3xl font-semibold tabular-nums text-accent">{insights.streak.current === 0 ? "No current streak" : `${insights.streak.current} ${insights.streak.current === 1 ? "day" : "days"}`}</p>}
+      <p className="mt-3 text-sm leading-7 text-muted">Consecutive UTC days with saved practice. A streak stays alive until the end of the day after your last practice day.
+        {insights.streak.activeDays > 0 && <> {insights.streak.activeToday ? "You have practised today. " : "You have not practised yet today. "}Longest streak: {insights.streak.longest} {insights.streak.longest === 1 ? "day" : "days"} across {insights.streak.activeDays} {insights.streak.activeDays === 1 ? "practice day" : "practice days"}.</>}
+      </p>
+      <p className="mt-3 text-xs leading-6 text-muted">A day counts when you save a first attempt, a solve, or run or submit code on the server. Marking the same problem attempted again does not add a day, and visible-test runs in your browser are not saved.</p>
+    </Card>
+    <Card><CardTitle>Strongest topics</CardTitle>
+      <p className="mt-3 text-sm leading-7 text-muted">Categories where you have the most current verified solves, then the most solves overall. A category needs at least two solves to appear. This is a practice signal, not a skill score, and categories overlap.</p>
+      {insights.strongest.length ? <ul className="mt-5 space-y-4">{insights.strongest.map((topic) => <li key={topic.slug} className="border-t border-line pt-4">
+        <p className="font-semibold">{topic.name}</p><p className="mt-2 text-sm text-muted">{topic.solved} of {topic.total} solved · {topic.verifiedCurrent} verified on the current revision</p>
+      </li>)}</ul> : <p className="mt-5 text-sm text-muted">No strongest topic yet. Solve at least two problems in a category and it will appear here.</p>}
+    </Card>
+    <Card><CardTitle>Mock interview scores</CardTitle>
+      <p className="mt-3 text-sm leading-7 text-muted">Your five latest completed mock interviews. Scores are your own ratings of your reasoning, tradeoffs and checks. They are not correctness grades and do not mark any problem solved.</p>
+      {insights.interviews.recent.length ? <>
+        <p className="mt-4 text-sm font-medium">Average of these {insights.interviews.recent.length}: <span className="tabular-nums">{insights.interviews.average}%</span></p>
+        <ol className="mt-3 space-y-4">{insights.interviews.recent.map((item) => <li key={item.id} className="border-t border-line pt-4 text-sm">
+          <Link href={`/interview-results/${item.id}`} className="font-semibold text-accent underline underline-offset-4">Self-assessed score {item.score}%</Link>
+          <p className="mt-1 text-muted">{item.durationMinutes}-minute session</p>
+          <time dateTime={item.completedAt} className="mt-2 block text-xs text-muted">{new Date(item.completedAt).toLocaleString("en-US", { timeZone: "UTC", dateStyle: "medium", timeStyle: "short" })} UTC</time>
+        </li>)}</ol></> : <p className="mt-5 text-sm text-muted">No completed mock interviews yet. <Link href="/mock-interview" className="text-accent underline underline-offset-4">Start a timed session</Link> to build a score history.</p>}
     </Card>
   </div>;
 }
