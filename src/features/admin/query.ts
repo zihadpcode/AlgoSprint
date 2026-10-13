@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
+import { literalSearch } from "@/lib/search";
 import { lockAdmin } from "./access";
 
 export const adminProblemSelect = {
@@ -46,7 +47,7 @@ export type AdminFilters = { q: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVE
 export async function queryAdminIndex(db: PrismaClient, userId: string, filters: AdminFilters) {
   return db.$transaction(async (tx) => {
     await lockAdmin(tx, userId);
-    const where = { ...(filters.status ? { status: filters.status } : {}), ...(filters.q ? { title: { contains: filters.q, mode: "insensitive" as const } } : {}) };
+    const where = { ...(filters.status ? { status: filters.status } : {}), ...(filters.q ? { title: { contains: literalSearch(filters.q), mode: "insensitive" as const } } : {}) };
     const total = await tx.problem.count({ where }); const pages = Math.max(1, Math.ceil(total / 20)); const page = Math.min(Math.max(filters.page, 1), pages);
     const problems = await tx.problem.findMany({ where, orderBy: [{ title: "asc" }, { slug: "asc" }], skip: (page - 1) * 20, take: 20,
       select: { slug: true, title: true, status: true, difficulty: true, revision: true } });

@@ -138,3 +138,17 @@ it("lists twenty safe summaries per page with stable title search and status fil
   expect(new Set([...first.problems, ...last.problems].map((p) => p.slug)).size).toBe(21);
   expect(JSON.stringify(first)).not.toMatch(/testCases|statement|code|seedHash/);
 });
+
+it("searches admin titles literally: percent, underscore and backslash are not wildcards", async () => {
+  const [tricky, other] = seeds;
+  await db.problem.update({ where: { slug: tricky.slug }, data: { title: "ZZ 100%_\\ literal" } });
+  await db.problem.update({ where: { slug: other.slug }, data: { title: "ZZ plain title" } });
+  // A wildcard "%" or "_" would list every problem, and "ZZ%" or "ZZ_" would also list the plain one.
+  for (const q of ["%", "_", "\\", "100%", "ZZ 100%", "0%_", "ZZ 100%_\\ literal", "zz 100%_\\ LITERAL"]) {
+    const result = await queryAdminIndex(db, admin, { ...filter, q });
+    expect(result.problems.map((p) => p.slug), JSON.stringify(q)).toEqual([tricky.slug]);
+  }
+  expect((await queryAdminIndex(db, admin, { ...filter, q: "ZZ" })).problems.map((p) => p.slug).sort()).toEqual([tricky.slug, other.slug].sort());
+  expect((await queryAdminIndex(db, admin, { ...filter, q: "ZZ_plain" })).problems).toHaveLength(0);
+  expect((await queryAdminIndex(db, admin, { ...filter, q: "ZZ%title" })).problems).toHaveLength(0);
+});

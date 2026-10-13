@@ -32,5 +32,8 @@ it("validates read parameters and ignores user-supplied roles and owners", async
   await loadAdminIndex({ q: "  title\u0000  ", status: "PUBLISHED", page: "3", userId: "forged", role: "ADMIN" });
   expect(m.index).toHaveBeenCalledWith("db", "verified-admin", { q: "title", status: "PUBLISHED", page: 3 });
   expect(adminFilters({ page: ["3"], status: "FORGED" })).toEqual({ q: "", page: 1, status: "" });
+  // Control characters are stripped like the library and saved searches, not just NUL.
+  expect(adminFilters({ q: "  a\u0000b\nc\td\u007fe  " }).q).toBe("abcde");
+  expect(adminFilters({ q: "50%_\\" }).q).toBe("50%_\\");
   expect(adminHref({ q: "A&B", page: 2, status: "DRAFT" })).toBe("/admin?q=A%26B&status=DRAFT&page=2");
 });
