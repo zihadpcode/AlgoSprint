@@ -41,7 +41,7 @@ These are observations, not exploited issues; none is fixed by this document.
 
 - **Browser test runner is not a security boundary.** Visible tests run in a same-origin Web Worker that shadows `fetch` and similar globals. In headless Chrome on October 13, deleting that shadowing property restored `fetch` inside such a worker. Learner code a person chooses to paste and run could therefore reach same-origin and external endpoints. Moving the worker to an opaque origin (for example a `data:` URL worker) would reduce this, but needs a real-browser check first.
 - **No Content-Security-Policy header.** `next.config.ts` sends `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` and a `Permissions-Policy` that disables camera, microphone and geolocation. A CSP would need to account for Monaco's workers and styles; none has been attempted.
-- **Password reset does not end other sessions.** `updatePassword` calls `updateUser` and nothing else. Whether the provider revokes other sessions on a password change was not verified.
+- **No explicit app-side other-session revocation after a password reset.** `updatePassword` calls `updateUser` and nothing else. Whether the provider revokes other sessions on a password change was not verified, so this records the absence of an app-side step, not a confirmed live-session risk.
 - **No retention limit on `UserSubmission`.** Each execution stores up to 20,000 characters of code. Per-user limits (5 per minute, 30 per hour) bound the rate but not the total; on a free-plan database that is a slow storage risk, not an immediate one.
 - **GitHub Actions are pinned to major-version tags**, not commit SHAs, so a moved tag would change what CI runs.
 
