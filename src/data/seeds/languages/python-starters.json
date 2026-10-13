@@ -1,0 +1,602 @@
+[
+  {
+    "slug": "relay-window",
+    "language": "PYTHON",
+    "entryPoint": "relay_window",
+    "code": "def relay_window(loads, width):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "quiet-badge",
+    "language": "PYTHON",
+    "entryPoint": "quiet_badge",
+    "code": "def quiet_badge(badges):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "parcel-checkpoints",
+    "language": "PYTHON",
+    "entryPoint": "parcel_checkpoints",
+    "code": "def parcel_checkpoints(parcels, ranges):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "dock-threshold",
+    "language": "PYTHON",
+    "entryPoint": "dock_threshold",
+    "code": "def dock_threshold(capacities, load):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "lantern-steps",
+    "language": "PYTHON",
+    "entryPoint": "lantern_steps",
+    "code": "def lantern_steps(costs):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "ridge-count",
+    "language": "PYTHON",
+    "entryPoint": "ridge_count",
+    "code": "def ridge_count(heights):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "ticket-pair",
+    "language": "PYTHON",
+    "entryPoint": "ticket_pair",
+    "code": "def ticket_pair(prices, budget):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "mirror-callsign",
+    "language": "PYTHON",
+    "entryPoint": "mirror_callsign",
+    "code": "def mirror_callsign(text):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "longest-clean-streak",
+    "language": "PYTHON",
+    "entryPoint": "longest_clean_streak",
+    "code": "def longest_clean_streak(log):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "balanced-blueprint",
+    "language": "PYTHON",
+    "entryPoint": "balanced_blueprint",
+    "code": "def balanced_blueprint(plan):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "warmer-wait",
+    "language": "PYTHON",
+    "entryPoint": "warmer_wait",
+    "code": "def warmer_wait(temps):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "ticket-turns",
+    "language": "PYTHON",
+    "entryPoint": "ticket_turns",
+    "code": "def ticket_turns(tickets, position):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "chain-loop-start",
+    "language": "PYTHON",
+    "entryPoint": "chain_loop_start",
+    "code": "def chain_loop_start(next, head):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "balanced-canopy",
+    "language": "PYTHON",
+    "entryPoint": "balanced_canopy",
+    "code": "def balanced_canopy(tree):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "ledger-tree-check",
+    "language": "PYTHON",
+    "entryPoint": "ledger_tree_check",
+    "code": "def ledger_tree_check(tree):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "splice-cables",
+    "language": "PYTHON",
+    "entryPoint": "splice_cables",
+    "code": "def splice_cables(lengths):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "grid-rescue-hops",
+    "language": "PYTHON",
+    "entryPoint": "grid_rescue_hops",
+    "code": "def grid_rescue_hops(grid):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "orchard-plots",
+    "language": "PYTHON",
+    "entryPoint": "orchard_plots",
+    "code": "def orchard_plots(grid):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "cheapest-route",
+    "language": "PYTHON",
+    "entryPoint": "cheapest_route",
+    "code": "def cheapest_route(stops, roads, start, target):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "crate-combinations",
+    "language": "PYTHON",
+    "entryPoint": "crate_combinations",
+    "code": "def crate_combinations(weights, target):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "watchtower-placements",
+    "language": "PYTHON",
+    "entryPoint": "watchtower_placements",
+    "code": "def watchtower_placements(size):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "fewest-tokens",
+    "language": "PYTHON",
+    "entryPoint": "fewest_tokens",
+    "code": "def fewest_tokens(tokens, amount):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "shared-melody",
+    "language": "PYTHON",
+    "entryPoint": "shared_melody",
+    "code": "def shared_melody(first, second):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "rising-marks",
+    "language": "PYTHON",
+    "entryPoint": "rising_marks",
+    "code": "def rising_marks(marks):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "charging-hops",
+    "language": "PYTHON",
+    "entryPoint": "charging_hops",
+    "code": "def charging_hops(ranges):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "bake-batches",
+    "language": "PYTHON",
+    "entryPoint": "bake_batches",
+    "code": "def bake_batches(trays, days):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "merge-shifts",
+    "language": "PYTHON",
+    "entryPoint": "merge_shifts",
+    "code": "def merge_shifts(shifts):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "rank-tags",
+    "language": "PYTHON",
+    "entryPoint": "rank_tags",
+    "code": "def rank_tags(tags):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "first-redundant-link",
+    "language": "PYTHON",
+    "entryPoint": "first_redundant_link",
+    "code": "def first_redundant_link(stations, links):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "task-order",
+    "language": "PYTHON",
+    "entryPoint": "task_order",
+    "code": "def task_order(tasks, prerequisites):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "prefix-counts",
+    "language": "PYTHON",
+    "entryPoint": "prefix_counts",
+    "code": "def prefix_counts(words, queries):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "lone-sensor",
+    "language": "PYTHON",
+    "entryPoint": "lone_sensor",
+    "code": "def lone_sensor(readings):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "prime-tally",
+    "language": "PYTHON",
+    "entryPoint": "prime_tally",
+    "code": "def prime_tally(limit):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "lru-results",
+    "language": "PYTHON",
+    "entryPoint": "lru_results",
+    "code": "def lru_results(capacity, operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "gutter-capacity",
+    "language": "PYTHON",
+    "entryPoint": "gutter_capacity",
+    "code": "def gutter_capacity(heights):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "studio-bookings",
+    "language": "PYTHON",
+    "entryPoint": "studio_bookings",
+    "code": "def studio_bookings(bookings):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "slot-insert",
+    "language": "PYTHON",
+    "entryPoint": "slot_insert",
+    "code": "def slot_insert(slots, new_slot):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "prefix-suggestions",
+    "language": "PYTHON",
+    "entryPoint": "prefix_suggestions",
+    "code": "def prefix_suggestions(words, typed):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "radio-clusters",
+    "language": "PYTHON",
+    "entryPoint": "radio_clusters",
+    "code": "def radio_clusters(towers, links):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "module-plan",
+    "language": "PYTHON",
+    "entryPoint": "module_plan",
+    "code": "def module_plan(modules, prerequisites):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "lit-panels",
+    "language": "PYTHON",
+    "entryPoint": "lit_panels",
+    "code": "def lit_panels(count):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "tile-side",
+    "language": "PYTHON",
+    "entryPoint": "tile_side",
+    "code": "def tile_side(planks):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "kth-badge",
+    "language": "PYTHON",
+    "entryPoint": "kth_badge",
+    "code": "def kth_badge(tree, k):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "canopy-layers",
+    "language": "PYTHON",
+    "entryPoint": "canopy_layers",
+    "code": "def canopy_layers(tree):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "dial-lookup",
+    "language": "PYTHON",
+    "entryPoint": "dial_lookup",
+    "code": "def dial_lookup(dial, target):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "fuel-stretch",
+    "language": "PYTHON",
+    "entryPoint": "fuel_stretch",
+    "code": "def fuel_stretch(fuel, target):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "postfix-ledger",
+    "language": "PYTHON",
+    "entryPoint": "postfix_ledger",
+    "code": "def postfix_ledger(tokens):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "floor-tracker",
+    "language": "PYTHON",
+    "entryPoint": "floor_tracker",
+    "code": "def floor_tracker(operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "shuffled-signs",
+    "language": "PYTHON",
+    "entryPoint": "shuffled_signs",
+    "code": "def shuffled_signs(first, second):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "trail-gain",
+    "language": "PYTHON",
+    "entryPoint": "trail_gain",
+    "code": "def trail_gain(heights):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "middle-car",
+    "language": "PYTHON",
+    "entryPoint": "middle_car",
+    "code": "def middle_car(next, head):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "fare-combinations",
+    "language": "PYTHON",
+    "entryPoint": "fare_combinations",
+    "code": "def fare_combinations(coins, amount):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "warehouse-routes",
+    "language": "PYTHON",
+    "entryPoint": "warehouse_routes",
+    "code": "def warehouse_routes(grid):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "mold-spread",
+    "language": "PYTHON",
+    "entryPoint": "mold_spread",
+    "code": "def mold_spread(grid):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "nearest-beacons",
+    "language": "PYTHON",
+    "entryPoint": "nearest_beacons",
+    "code": "def nearest_beacons(beacons, k):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "balance-runs",
+    "language": "PYTHON",
+    "entryPoint": "balance_runs",
+    "code": "def balance_runs(changes, target):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "typo-distance",
+    "language": "PYTHON",
+    "entryPoint": "typo_distance",
+    "code": "def typo_distance(typed, intended):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "peak-watch",
+    "language": "PYTHON",
+    "entryPoint": "peak_watch",
+    "code": "def peak_watch(readings, k):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "signal-codes",
+    "language": "PYTHON",
+    "entryPoint": "signal_codes",
+    "code": "def signal_codes(start, goal, codes):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "billboard-space",
+    "language": "PYTHON",
+    "entryPoint": "billboard_space",
+    "code": "def billboard_space(heights):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "pace-median",
+    "language": "PYTHON",
+    "entryPoint": "pace_median",
+    "code": "def pace_median(paces):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "signal-flips",
+    "language": "PYTHON",
+    "entryPoint": "signal_flips",
+    "code": "def signal_flips(a, b):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "roster-merge",
+    "language": "PYTHON",
+    "entryPoint": "roster_merge",
+    "code": "def roster_merge(first, second):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "tower-tiles",
+    "language": "PYTHON",
+    "entryPoint": "tower_tiles",
+    "code": "def tower_tiles(length):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "badge-subsets",
+    "language": "PYTHON",
+    "entryPoint": "badge_subsets",
+    "code": "def badge_subsets(badges):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "grid-turn",
+    "language": "PYTHON",
+    "entryPoint": "grid_turn",
+    "code": "def grid_turn(matrix):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "charging-loop",
+    "language": "PYTHON",
+    "entryPoint": "charging_loop",
+    "code": "def charging_loop(gain, cost):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "word-groups",
+    "language": "PYTHON",
+    "entryPoint": "word_groups",
+    "code": "def word_groups(words):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "lane-merge",
+    "language": "PYTHON",
+    "entryPoint": "lane_merge",
+    "code": "def lane_merge(lanes):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "ridge-trails",
+    "language": "PYTHON",
+    "entryPoint": "ridge_trails",
+    "code": "def ridge_trails(grid):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "cipher-window",
+    "language": "PYTHON",
+    "entryPoint": "cipher_window",
+    "code": "def cipher_window(text, pattern):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "pattern-gate",
+    "language": "PYTHON",
+    "entryPoint": "pattern_gate",
+    "code": "def pattern_gate(text, pattern):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "fragile-links",
+    "language": "PYTHON",
+    "entryPoint": "fragile_links",
+    "code": "def fragile_links(hubs, links):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "glyph-order",
+    "language": "PYTHON",
+    "entryPoint": "glyph_order",
+    "code": "def glyph_order(words):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "vault-account",
+    "language": "PYTHON",
+    "entryPoint": "vault_account",
+    "code": "def vault_account(operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "tally-ranges",
+    "language": "PYTHON",
+    "entryPoint": "tally_ranges",
+    "code": "def tally_ranges(values, queries):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "one-slip-mirror",
+    "language": "PYTHON",
+    "entryPoint": "one_slip_mirror",
+    "code": "def one_slip_mirror(text):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "rate-gate",
+    "language": "PYTHON",
+    "entryPoint": "rate_gate",
+    "code": "def rate_gate(limit, window, requests):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "snapshot-registry",
+    "language": "PYTHON",
+    "entryPoint": "snapshot_registry",
+    "code": "def snapshot_registry(operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "quiet-heist",
+    "language": "PYTHON",
+    "entryPoint": "quiet_heist",
+    "code": "def quiet_heist(houses):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "lineup-orders",
+    "language": "PYTHON",
+    "entryPoint": "lineup_orders",
+    "code": "def lineup_orders(players):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "spiral-survey",
+    "language": "PYTHON",
+    "entryPoint": "spiral_survey",
+    "code": "def spiral_survey(matrix):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "dual-median",
+    "language": "PYTHON",
+    "entryPoint": "dual_median",
+    "code": "def dual_median(first, second):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "mirror-cuts",
+    "language": "PYTHON",
+    "entryPoint": "mirror_cuts",
+    "code": "def mirror_cuts(text):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "bracket-run",
+    "language": "PYTHON",
+    "entryPoint": "bracket_run",
+    "code": "def bracket_run(text):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "later-lower",
+    "language": "PYTHON",
+    "entryPoint": "later_lower",
+    "code": "def later_lower(values):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "city-skyline",
+    "language": "PYTHON",
+    "entryPoint": "city_skyline",
+    "code": "def city_skyline(buildings):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "reverse-convoy",
+    "language": "PYTHON",
+    "entryPoint": "reverse_convoy",
+    "code": "def reverse_convoy(next, head):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "badge-majority",
+    "language": "PYTHON",
+    "entryPoint": "badge_majority",
+    "code": "def badge_majority(badges):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "drop-nth-car",
+    "language": "PYTHON",
+    "entryPoint": "drop_nth_car",
+    "code": "def drop_nth_car(next, head, k):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "ledger-equalities",
+    "language": "PYTHON",
+    "entryPoint": "ledger_equalities",
+    "code": "def ledger_equalities(equations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "quiet-hours",
+    "language": "PYTHON",
+    "entryPoint": "quiet_hours",
+    "code": "def quiet_hours(busy):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "crossword-trace",
+    "language": "PYTHON",
+    "entryPoint": "crossword_trace",
+    "code": "def crossword_trace(grid, word):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "shared-mentor",
+    "language": "PYTHON",
+    "entryPoint": "shared_mentor",
+    "code": "def shared_mentor(tree, a, b):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "twin-xor",
+    "language": "PYTHON",
+    "entryPoint": "twin_xor",
+    "code": "def twin_xor(values):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "floodgate-path",
+    "language": "PYTHON",
+    "entryPoint": "floodgate_path",
+    "code": "def floodgate_path(grid):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "canopy-gain",
+    "language": "PYTHON",
+    "entryPoint": "canopy_gain",
+    "code": "def canopy_gain(tree):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "popularity-cache",
+    "language": "PYTHON",
+    "entryPoint": "popularity_cache",
+    "code": "def popularity_cache(capacity, operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "tile-shuffle",
+    "language": "PYTHON",
+    "entryPoint": "tile_shuffle",
+    "code": "def tile_shuffle(board):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "nested-crates",
+    "language": "PYTHON",
+    "entryPoint": "nested_crates",
+    "code": "def nested_crates(crates):\n    # Write your solution here.\n    pass"
+  }
+]
