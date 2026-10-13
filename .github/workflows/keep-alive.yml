@@ -1,8 +1,12 @@
 name: Production health check
 
 # Supabase pauses a free-plan project after about a week without activity, which turns every database-backed page into
-# HTTP 500 until someone restores it. This job reads the public pages every other day, so activity never lapses for a
-# week and an outage turns the workflow red (GitHub emails the repository owner). It only issues GET requests.
+# HTTP 500 until someone restores it. This job reads the public pages on odd days of the month (never more than two days
+# apart on schedule), as a best-effort way to keep activity from lapsing, and turns the workflow red if a page fails.
+# It cannot promise either outcome: GitHub can delay or skip scheduled runs, and Supabase does not document exactly
+# which requests reset its inactivity timer. Failure notices go to the person who last edited the schedule, only if
+# their GitHub notification settings allow it, so check the Actions tab rather than relying on email.
+# It only issues GET requests.
 on:
   schedule:
     - cron: "17 14 */2 * *"
