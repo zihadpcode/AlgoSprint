@@ -40,3 +40,21 @@ describe("library expansion input boundaries", () => {
   });
 });
 
+describe("tile-shuffle reference", () => {
+  const permutations = (items: number[]): number[][] => (items.length === 0 ? [[]] : items.flatMap((x, i) => permutations([...items.slice(0, i), ...items.slice(i + 1)]).map((p) => [x, ...p])));
+  it("agrees with the independent coordinate-based baseline on all 720 boards", () => {
+    const item = EXPANSION["tile-shuffle"];
+    const boards = permutations([0, 1, 2, 3, 4, 5]);
+    expect(boards).toHaveLength(720);
+    let reachable = 0, longest = 0;
+    for (const cells of boards) {
+      const board = [cells.slice(0, 3), cells.slice(3)];
+      const solved = item.solve(board as never) as number, baseline = item.brute(board as never) as number;
+      expect(solved, JSON.stringify(board)).toBe(baseline);
+      if (solved >= 0) { reachable++; longest = Math.max(longest, solved); }
+    }
+    // Exactly half of all arrangements are reachable (permutation parity), and the farthest takes 21 moves.
+    expect(reachable).toBe(360);
+    expect(longest).toBe(21);
+  });
+});

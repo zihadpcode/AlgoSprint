@@ -1881,17 +1881,30 @@ export const tileShuffleInput = z.strictObject({
     .refine((b) => [...b[0], ...b[1]].sort().join() === "0,1,2,3,4,5", "The board must contain 0 to 5 exactly once"),
 });
 const PUZZLE_MOVES = [[1, 3], [0, 2, 4], [1, 5], [0, 4], [1, 3, 5], [2, 4]];
-const bfsFrom = (start: string) => {
-  const dist = new Map([[start, 0]]);
-  let layer = [start];
+// Independent baseline: legal blank moves are derived from 2 x 3 row/column coordinates (not from the solver's
+// PUZZLE_MOVES table), and the search runs backwards from the goal, so it also yields the distance of every board.
+const blankNeighbours = (position: number) => {
+  const row = Math.floor(position / 3), col = position % 3;
+  const out: number[] = [];
+  for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const r = row + dr, c = col + dc;
+    if (r >= 0 && r < 2 && c >= 0 && c < 3) out.push(r * 3 + c);
+  }
+  return out;
+};
+const distancesToGoal = () => {
+  const goal = "123450";
+  const dist = new Map([[goal, 0]]);
+  let layer = [goal];
   while (layer.length) {
     const next: string[] = [];
-    for (const s of layer) {
-      const z0 = s.indexOf("0");
-      for (const m of PUZZLE_MOVES[z0]) {
-        const chars = [...s]; [chars[z0], chars[m]] = [chars[m], chars[z0]];
+    for (const state of layer) {
+      const blank = state.indexOf("0");
+      for (const to of blankNeighbours(blank)) {
+        const chars = [...state];
+        [chars[blank], chars[to]] = [chars[to], chars[blank]];
         const t = chars.join("");
-        if (!dist.has(t)) { dist.set(t, dist.get(s)! + 1); next.push(t); }
+        if (!dist.has(t)) { dist.set(t, dist.get(state)! + 1); next.push(t); }
       }
     }
     layer = next;
@@ -1919,7 +1932,7 @@ export function tileShuffle(board: number[][]) {
 }
 let fromGoal: Map<string, number> | null = null;
 function tileShuffleBrute(board: number[][]) {
-  fromGoal ??= bfsFrom("123450");
+  fromGoal ??= distancesToGoal();
   return fromGoal.get([...board[0], ...board[1]].join("")) ?? -1;
 }
 

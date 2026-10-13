@@ -8,7 +8,7 @@
   "pattern": "bfs",
   "statement": "A forest survey records how many birds nest at each branch point of a tree, as a binary tree given in level order (tree), with null for a missing branch. The trunk is depth 0, its children depth 1, and so on. Return an array whose i-th entry is the total number of birds at depth i, from the trunk downward. Return an empty array for an empty tree. Counts may be negative when the survey records departures.",
   "constraints": [
-    "0 <= number of nodes <= 10000",
+    "0 <= tree.length <= 10000 (level-order entries, counting null placeholders)",
     "-100000 <= value <= 100000"
   ],
   "estimatedMinutes": 20,
