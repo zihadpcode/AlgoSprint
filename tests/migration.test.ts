@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 
 let db: PGlite;
@@ -9,10 +9,11 @@ const lockMigration = "prisma/migrations/202609240001_lock_migration_history/mig
 
 beforeAll(async () => {
   db = new PGlite();
-  await db.exec(await readFile("prisma/migrations/202609130001_foundation/migration.sql", "utf8"));
-  await db.exec(await readFile("prisma/migrations/202609160001_progress_verification/migration.sql", "utf8"));
+  // Apply every migration in order, so a later migration that adds a table without RLS fails the RLS test below.
   // Plain PostgreSQL has no migration table or Supabase roles yet; the lock migration must be a no-op there.
-  await db.exec(await readFile(lockMigration, "utf8"));
+  const names = (await readdir("prisma/migrations", { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+  expect(names).toContain("202609130001_foundation");
+  for (const name of names) await db.exec(await readFile(`prisma/migrations/${name}/migration.sql`, "utf8"));
   await db.query(`INSERT INTO app."Problem" (id,slug,title,difficulty,pattern,statement,constraints,"estimatedMinutes","updatedAt") VALUES ($1,'migration-fixture','Fixture','EASY','fixed-window','Fixture',ARRAY['Fixture'],15,now())`, [problemId]);
 }, 30_000);
 afterAll(async () => { await db?.close(); });

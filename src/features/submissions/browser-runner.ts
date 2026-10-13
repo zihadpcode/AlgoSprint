@@ -53,7 +53,9 @@ self.onmessage = function (event) {
     }
   };
   console.log = record; console.info = record; console.warn = record; console.error = record; console.debug = record;
-  // This scope keeps no network or code-loading capabilities.
+  // Best effort only. These are removed from the worker's global, but the worker shares the page's origin, so code a
+  // learner chooses to paste and run could restore them (delete the shadowing property) or start a nested worker.
+  // This is a convenience runner, not a security boundary; treat unfamiliar snippets with the care of any pasted code.
   self.fetch = undefined; self.XMLHttpRequest = undefined; self.WebSocket = undefined; self.importScripts = undefined; self.EventSource = undefined;
   var started = performance.now();
   var finished = false;

@@ -9,10 +9,11 @@ import { adminCommand, parseAdminProblems, parseAdminRoadmap, type AdminResult }
 import { adminRoadmapSelect, roadmapToken } from "./query";
 
 const json = (value: unknown) => value === null ? Prisma.JsonNull : value as Prisma.InputJsonValue;
-function contentData(p: ProblemSeed) {
+// An edit keeps the original publication date so a typo fix does not move the problem to the top of "newest".
+function contentData(p: ProblemSeed, previousPublishedAt: Date | null = null) {
   return { title: p.title, difficulty: p.difficulty, kind: p.kind, status: p.status, pattern: p.pattern,
     statement: p.statement, constraints: p.constraints, estimatedMinutes: p.estimatedMinutes, timeLimitMs: p.timeLimitMs, memoryLimitKb: p.memoryLimitKb,
-    seedHash: null, publishedAt: p.status === "PUBLISHED" ? new Date() : null };
+    seedHash: null, publishedAt: p.status === "PUBLISHED" ? previousPublishedAt ?? new Date() : null };
 }
 function relations(p: ProblemSeed) {
   return {
@@ -79,9 +80,9 @@ export async function writeAdmin(db: PrismaClient, userId: string, raw: unknown)
     const editing = command.operation === "save" && command.slug !== null;
     if (command.operation === "save" && ((command.slug === null) !== (command.revision === null))) throw new AdminError("Invalid create/edit version.");
     if (editing && problems[0].slug !== command.slug) throw new AdminError("Problem slugs cannot change after creation.");
-    let existing: { id: string; revision: number } | undefined;
+    let existing: { id: string; revision: number; publishedAt: Date | null } | undefined;
     if (editing) {
-      [existing] = await tx.$queryRaw<{ id: string; revision: number }[]>`SELECT id, revision FROM app."Problem" WHERE slug = ${command.slug} FOR UPDATE`;
+      [existing] = await tx.$queryRaw<{ id: string; revision: number; publishedAt: Date | null }[]>`SELECT id, revision, "publishedAt" FROM app."Problem" WHERE slug = ${command.slug} FOR UPDATE`;
       if (!existing || existing.revision !== command.revision) throw new AdminError("This problem changed in another tab. Copy your draft and reload before saving.");
     } else if (await tx.problem.count({ where: { slug: { in: problems.map((p) => p.slug) } } })) throw new AdminError("A problem slug already exists. Imports create new problems only; no existing content was changed.");
     const relatedSlugs = [...new Set(problems.flatMap((p) => p.relatedSlugs))];
@@ -91,7 +92,7 @@ export async function writeAdmin(db: PrismaClient, userId: string, raw: unknown)
     const ids = new Map(related.map((p) => [p.slug, p.id]));
     for (const p of problems) {
       const r = relations(p);
-      const created = existing ? await tx.problem.update({ where: { id: existing.id }, data: { ...contentData(p), revision: existing.revision + 1,
+      const created = existing ? await tx.problem.update({ where: { id: existing.id }, data: { ...contentData(p, existing.publishedAt), revision: existing.revision + 1,
         examples: { deleteMany: {}, create: r.examples }, hints: { deleteMany: {}, create: r.hints }, starterCode: { deleteMany: {}, create: r.starterCode },
         testCases: { deleteMany: {}, create: r.testCases }, solutions: { deleteMany: {}, create: r.solutions }, categories: { deleteMany: {}, create: r.categories },
         tags: { deleteMany: {}, create: r.tags }, interviewStyles: { deleteMany: {}, create: r.interviewStyles },
