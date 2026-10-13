@@ -1,10 +1,21 @@
 import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
 import type { RunnerConfig } from "./config";
-import type { ExecutionInput, ExecutionResult, ExecutionState } from "./contracts";
+import type { ExecutionInput, ExecutionLanguage, ExecutionResult, ExecutionState } from "./contracts";
 import { executeJudge0 } from "./judge0";
+import { executePython, getPythonExecutor, pythonUnavailableOutcome } from "./python-runner";
 import { executeSandbox } from "./sandbox";
 import { reserveSubmission, finishSubmission } from "./store";
+
+type Cases = { stdin: string; expected: unknown }[];
+type Limits = { timeMs: number; memoryKb: number };
+// Python runs only on the in-process provider with an installed executor; Judge0 has no reviewed Python language id.
+async function execute(config: RunnerConfig, language: ExecutionLanguage, source: string, cases: Cases, limits: Limits) {
+  if (language === "PYTHON") {
+    return config.provider === "sandbox" ? executePython(getPythonExecutor(), source, cases, limits) : cases.map(() => pythonUnavailableOutcome());
+  }
+  return config.provider === "sandbox" ? executeSandbox(source, cases, limits) : executeJudge0(config, source, cases, limits);
+}
 
 export async function runSubmission(db: PrismaClient, userId: string, input: ExecutionInput, config: RunnerConfig): Promise<ExecutionState> {
   const reservation = await reserveSubmission(db, userId, input);
@@ -13,7 +24,7 @@ export async function runSubmission(db: PrismaClient, userId: string, input: Exe
     totalCount: reservation.cases.length, runtimeMs: null, memoryKb: null, cases: [] };
   try {
     const cases = reservation.cases.map((t) => ({ stdin: t.stdin, expected: t.output }));
-    const outcomes = config.provider === "sandbox" ? await executeSandbox(reservation.source, cases, reservation.limits) : await executeJudge0(config, reservation.source, cases, reservation.limits);
+    const outcomes = await execute(config, input.language, reservation.source, cases, reservation.limits);
     const failure = outcomes.find((o) => o.status !== "ACCEPTED");
     const times = outcomes.map((o) => o.runtimeMs); const memories = outcomes.map((o) => o.memoryKb);
     result = { ...result, status: outcomes.some((o) => o.status === "INTERNAL_ERROR") ? "INTERNAL_ERROR" : failure?.status ?? "ACCEPTED",

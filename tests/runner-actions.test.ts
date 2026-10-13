@@ -7,10 +7,11 @@ vi.mock("@/lib/prisma", () => ({ getDatabase: f.db }));
 vi.mock("@/features/submissions/config", () => ({ getRunnerConfig: f.config }));
 vi.mock("@/features/submissions/service", () => ({ runSubmission: f.run }));
 import { executeCode } from "@/features/submissions/actions";
+import { registerPythonExecutor } from "@/features/submissions/python-runner";
 const input = { slug: "relay-window", language: "JAVASCRIPT", mode: "RUN", code: "function relayWindow() { return 13; }" };
 beforeEach(() => { vi.clearAllMocks(); f.viewer.mockResolvedValue({ id: "verified-owner" }); f.db.mockReturnValue("db"); f.config.mockReturnValue("server-config"); f.run.mockResolvedValue({ success: true, result: { id: "saved" } }); });
 it("rejects tampered fields, unsupported languages, invalid modes and oversized code", async () => {
-  for (const change of [{ userId: "forged" }, { role: "ADMIN" }, { tests: [] }, { url: "https://evil.example" }, { language: "PYTHON" }, { mode: "ACCEPTED" }, { code: " " }, { code: "x".repeat(20001) }, { slug: "../admin" }])
+  for (const change of [{ userId: "forged" }, { role: "ADMIN" }, { tests: [] }, { url: "https://evil.example" }, { language: "JAVA" }, { language: "python" }, { mode: "ACCEPTED" }, { code: " " }, { code: "x".repeat(20001) }, { slug: "../admin" }])
     expect((await executeCode({ ...input, ...change })).success).toBe(false);
   expect(f.viewer).not.toHaveBeenCalled(); expect(f.run).not.toHaveBeenCalled();
 });
@@ -26,4 +27,17 @@ it("uses the verified owner and never reports a failed save as successful", asyn
   expect(f.revalidate.mock.calls).toEqual([["/problems/relay-window"], ["/problems"], ["/progress"], ["/dashboard"], ["/notes"], ["/bookmarks"], ["/review"], ["/roadmaps"], ["/roadmaps/[slug]", "page"]]);
   f.run.mockRejectedValue(new Error("database password")); expect(await executeCode(input)).toMatchObject({ success: false });
   expect(JSON.stringify(await executeCode(input))).not.toContain("password");
+});
+it("accepts the Python contract but does not reserve an attempt while the server cannot run Python", async () => {
+  f.config.mockReturnValue({ provider: "sandbox" });
+  expect(await executeCode({ ...input, language: "PYTHON" })).toEqual({ success: false, message: "Python is not available on this server yet. Your draft is unchanged." });
+  expect(f.run).not.toHaveBeenCalled();
+  registerPythonExecutor({ available: true, async runCase() { return { kind: "unavailable", diagnostic: "" }; } });
+  try {
+    expect((await executeCode({ ...input, language: "PYTHON" })).success).toBe(true);
+    expect(f.run).toHaveBeenCalledWith("db", "verified-owner", { ...input, language: "PYTHON" }, { provider: "sandbox" });
+    // Judge0 never runs Python, even with an executor installed.
+    f.run.mockClear(); f.config.mockReturnValue({ provider: "judge0" });
+    expect((await executeCode({ ...input, language: "PYTHON" })).success).toBe(false); expect(f.run).not.toHaveBeenCalled();
+  } finally { registerPythonExecutor(null); }
 });

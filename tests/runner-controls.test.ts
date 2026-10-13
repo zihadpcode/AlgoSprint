@@ -61,3 +61,31 @@ it("shows full-suite summaries and keeps errors distinct from saved results", as
   expect(host.querySelector('[role="alert"]')?.textContent).toContain("may have been saved");
   expect(host.textContent).not.toContain("Execution result saved"); expect(button("Submit solution").disabled).toBe(false);
 });
+
+it("lists Python as a server language: Run executes on the server in RUN mode and needs an account", async () => {
+  f.execute.mockResolvedValue({ ...response, result: { ...response.result, mode: "RUN" } });
+  const python = { language: "PYTHON", code: "def relay_window(loads, width):\n    pass", serverLanguages: ["JAVASCRIPT", "PYTHON"] };
+  await render({ ...python, signedIn: false });
+  expect(button("Run visible tests").disabled).toBe(true); expect(button("Submit solution").disabled).toBe(true);
+  expect(host.textContent).toContain("Sign in to run Python code");
+  await render(python); expect(button("Run visible tests").disabled).toBe(false); expect(button("Submit solution").disabled).toBe(false);
+  expect(host.textContent).toContain("Run executes the visible examples on the server");
+  await act(async () => { button("Run visible tests").click(); });
+  expect(f.browser).not.toHaveBeenCalled();
+  expect(f.execute).toHaveBeenCalledOnce(); expect(f.execute).toHaveBeenCalledWith({ slug: props.slug, code: python.code, language: "PYTHON", mode: "RUN" });
+  expect(host.textContent).toContain("Execution result saved");
+  await act(async () => { button("Submit solution").click(); });
+  expect(f.execute).toHaveBeenLastCalledWith({ slug: props.slug, code: python.code, language: "PYTHON", mode: "SUBMIT" });
+});
+it("disables Python honestly when the server cannot run it, without touching the JavaScript runner", async () => {
+  for (const extra of [{}, { serverLanguages: ["JAVASCRIPT"] }, { enabled: false, serverLanguages: ["JAVASCRIPT", "PYTHON"] }]) {
+    await render({ language: "PYTHON", ...extra });
+    expect(button("Run visible tests").disabled).toBe(true); expect(button("Submit solution").disabled).toBe(true);
+    expect(host.textContent).toContain("Python code cannot be run on this server yet, so Run and Submit are disabled.");
+    expect(host.textContent).not.toContain("in your browser"); expect(host.textContent).not.toContain("Sign in to");
+  }
+  await render({ serverLanguages: ["JAVASCRIPT"] });
+  expect(button("Run visible tests").disabled).toBe(false); expect(button("Submit solution").disabled).toBe(false);
+  expect(host.textContent).toContain("Run executes the visible examples in your browser");
+  expect(f.execute).not.toHaveBeenCalled(); expect(f.browser).not.toHaveBeenCalled();
+});

@@ -7,6 +7,8 @@ import { runSubmission } from "@/features/submissions/service";
 import { loadProblems } from "../../scripts/lib/load-problems";
 import { seedProblems } from "../../prisma/seed-data";
 import type { ExecutionResult } from "@/features/submissions/contracts";
+import { registerPythonExecutor } from "@/features/submissions/python-runner";
+import { loadPythonStarters, seedLanguageStarters } from "../../prisma/seed-language-starters";
 
 let db: ReturnType<typeof createDatabaseClient>;
 let ownsFixtures = false;
@@ -24,6 +26,7 @@ beforeAll(async () => {
   problemId = (await db.problem.findUniqueOrThrow({ where: { slug: input.slug } })).id;
 }, 30_000);
 beforeEach(async () => {
+  await db.starterCode.deleteMany({ where: { language: "PYTHON" } });
   await db.userSubmission.deleteMany({ where: { userId: { in: owners } } });
   await db.userProgress.deleteMany({ where: { userId: { in: owners } } });
   await db.problem.update({ where: { id: problemId }, data: { status: "PUBLISHED" } });
@@ -110,3 +113,62 @@ it("verifies a full submission end to end through the in-process sandbox and rec
   expect(wrong.result.passedCount).toBeLessThan(wrong.result.totalCount);
   expect(JSON.stringify(wrong)).not.toContain("HIDDEN");
 }, 60_000);
+
+const pythonInput = { slug: "relay-window", language: "PYTHON" as const, mode: "RUN" as const, code: "def relay_window(loads, width):\n    return 13" };
+it("rejects a language that has no starter row, without recording an attempt", async () => {
+  expect(await db.starterCode.count({ where: { problemId, language: "PYTHON" } })).toBe(0);
+  expect(await reserveSubmission(db, owners[0], pythonInput)).toEqual({ error: "This problem is not available to run in Python yet." });
+  expect(await db.userSubmission.count()).toBe(0);
+  expect(await db.userProgress.count({ where: { userId: owners[0] } })).toBe(0);
+});
+it("snapshots the starter row and entry point of the requested language", async () => {
+  await seedLanguageStarters(db, await loadPythonStarters());
+  const js = await reserve();
+  expect(js.source).toContain("const __asSolve") ; expect(js.source).toContain(";return relayWindow;");
+  const py = await reserveSubmission(db, owners[1], pythonInput);
+  if ("error" in py) throw new Error(py.error);
+  expect(py.source).toContain('__as_entry = "relay_window"'); expect(py.source).not.toContain("relayWindow");
+  expect(py.source).toContain(JSON.stringify(pythonInput.code));
+  expect(py.cases.map((c) => c.stdin)).toEqual(js.cases.map((c) => c.stdin));
+  expect(py.cases.every((c) => c.visibility === "VISIBLE")).toBe(true);
+  expect(await db.userSubmission.findUniqueOrThrow({ where: { id: py.id } })).toMatchObject({ userId: owners[1], language: "PYTHON", code: pythonInput.code, status: "RUNNING", totalCount: 2 });
+});
+it("shares one rate limit across languages", async () => {
+  await seedLanguageStarters(db, await loadPythonStarters());
+  await db.userSubmission.createMany({ data: Array.from({ length: 5 }, () => ({ userId: owners[0], problemId, problemRevision: 1, language: "JAVASCRIPT" as const,
+    mode: "RUN" as const, code: "fixture", status: "INTERNAL_ERROR" as const, createdAt: new Date(Date.now() - 10000), completedAt: new Date() })) });
+  expect(await reserveSubmission(db, owners[0], pythonInput)).toHaveProperty("error");
+});
+it("rejects Python for a slug without a reviewed signature even when a starter row exists", async () => {
+  await db.starterCode.upsert({ where: { problemId_language: { problemId, language: "PYTHON" } }, create: { problemId, language: "PYTHON", entryPoint: "solve", code: "def solve(): pass" }, update: {} });
+  await db.problem.update({ where: { id: problemId }, data: { slug: "custom-unsigned" } });
+  try {
+    expect(await reserveSubmission(db, owners[0], { ...pythonInput, slug: "custom-unsigned" })).toEqual({ error: "This problem is not available to run in Python yet." });
+    expect(await db.userSubmission.count()).toBe(0);
+  } finally { await db.problem.update({ where: { id: problemId }, data: { slug: input.slug } }); }
+});
+it("refuses a Python starter whose entry point disagrees with the reviewed signature and records nothing", async () => {
+  await seedLanguageStarters(db, await loadPythonStarters());
+  await db.starterCode.update({ where: { problemId_language: { problemId, language: "PYTHON" } }, data: { entryPoint: "relayWindow" } });
+  await expect(reserveSubmission(db, owners[0], pythonInput)).rejects.toThrow("Unsupported runner signature");
+  expect(await db.userSubmission.count()).toBe(0);
+  await db.starterCode.update({ where: { problemId_language: { problemId, language: "PYTHON" } }, data: { entryPoint: "relay_window" } });
+});
+it("runs Python end to end through an injected executor and stores the verdict", async () => {
+  await seedLanguageStarters(db, await loadPythonStarters());
+  const seen: string[] = [];
+  registerPythonExecutor({ available: true, async runCase(request) {
+    seen.push(request.source);
+    const [loads, width] = JSON.parse(request.stdin) as [number[], number];
+    let best = -Infinity; for (let i = 0; i + width <= loads.length; i++) best = Math.max(best, loads.slice(i, i + width).reduce((a, b) => a + b, 0));
+    return { kind: "exited", exitCode: 0, stdout: JSON.stringify(best), stderr: "", runtimeMs: 3, memoryKb: 500 };
+  } });
+  try {
+    const accepted = await runSubmission(db, owners[0], { ...pythonInput, mode: "SUBMIT" }, { provider: "sandbox" });
+    expect(accepted).toMatchObject({ success: true, result: { mode: "SUBMIT", status: "ACCEPTED", cases: [] } });
+    if (!accepted.success) throw new Error("unreachable");
+    expect(accepted.result.passedCount).toBe(accepted.result.totalCount); expect(seen).toHaveLength(accepted.result.totalCount);
+    expect(await db.userSubmission.findUniqueOrThrow({ where: { id: accepted.result.id } })).toMatchObject({ language: "PYTHON", status: "ACCEPTED", mode: "SUBMIT" });
+    expect((await db.userProgress.findUnique({ where: { userId_problemId: { userId: owners[0], problemId } } }))?.status).toBe("SOLVED");
+  } finally { registerPythonExecutor(null); }
+}, 30_000);

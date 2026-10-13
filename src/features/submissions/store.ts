@@ -2,8 +2,10 @@ import "server-only";
 import type { PrismaClient, Prisma } from "@/generated/prisma/client";
 import type { ExecutionInput, ExecutionResult } from "./contracts";
 import { writeProgress } from "@/features/progress/write";
-import { makeProgram, makeStdin } from "./harness";
+import { makeProgram, makeStdin, runnerSupports } from "./harness";
 import { RUNNER_LIMITS } from "./limits";
+
+const languageNames = { JAVASCRIPT: "JavaScript", PYTHON: "Python" } as const;
 
 // Caller authenticates first. A short database lock shares quotas across server instances.
 export async function reserveSubmission(db: PrismaClient, userId: string, input: ExecutionInput) {
@@ -26,15 +28,19 @@ export async function reserveSubmission(db: PrismaClient, userId: string, input:
     if (!locked) return { error: "This problem is no longer available for execution." } as const;
     const problem = await tx.problem.findUniqueOrThrow({ where: { id: locked.id }, select: {
       id: true, revision: true, timeLimitMs: true, memoryLimitKb: true,
-      starterCode: { where: { language: "JAVASCRIPT" }, select: { entryPoint: true } },
+      starterCode: { where: { language: input.language }, select: { entryPoint: true } },
       testCases: { where: input.mode === "RUN" ? { visibility: "VISIBLE" } : {}, orderBy: { position: "asc" }, take: RUNNER_LIMITS.maxCases + 1,
         select: { position: true, visibility: true, input: true, output: true } },
     } });
-    if (!problem.starterCode[0] || !problem.testCases.length || problem.testCases.length > RUNNER_LIMITS.maxCases ||
+    // Runnable in a language only with a reviewed signature AND a starter row (its entry point) for that language.
+    if (!runnerSupports(input.slug) || !problem.starterCode[0]) {
+      return { error: `This problem is not available to run in ${languageNames[input.language]} yet.` } as const;
+    }
+    if (!problem.testCases.length || problem.testCases.length > RUNNER_LIMITS.maxCases ||
         (input.mode === "SUBMIT" && !problem.testCases.some((t) => t.visibility === "HIDDEN"))) {
       return { error: "This problem does not have a supported test suite yet." } as const;
     }
-    const source = makeProgram(input.slug, problem.starterCode[0].entryPoint, input.code);
+    const source = makeProgram(input.slug, problem.starterCode[0].entryPoint, input.code, input.language);
     const cases = problem.testCases.map((test) => ({ ...test, stdin: makeStdin(input.slug, test.input) }));
     const submission = await tx.userSubmission.create({ data: { userId, problemId: problem.id, problemRevision: problem.revision,
       language: input.language, mode: input.mode, code: input.code, status: "RUNNING", totalCount: cases.length }, select: { id: true, createdAt: true } });
