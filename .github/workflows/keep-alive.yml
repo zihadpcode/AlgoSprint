@@ -1,0 +1,67 @@
+name: Production health check
+
+# Supabase pauses a free-plan project after about a week without activity, which turns every database-backed page into
+# HTTP 500 until someone restores it. This job reads the public pages on odd days of the month (never more than two days
+# apart on schedule), as a best-effort way to keep activity from lapsing, and turns the workflow red if a page fails.
+# It cannot promise either outcome: GitHub can delay or skip scheduled runs, and Supabase does not document exactly
+# which requests reset its inactivity timer. Failure notices go to the person who last edited the schedule, only if
+# their GitHub notification settings allow it, so check the Actions tab rather than relying on email.
+# It only issues GET requests.
+on:
+  schedule:
+    - cron: "17 14 */2 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-health
+  cancel-in-progress: false
+
+jobs:
+  health:
+    # Forks have no production site to check.
+    if: github.repository == 'zihadpcode/AlgoSprint'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Override with a repository variable if the production domain changes.
+      SITE_URL: ${{ vars.SITE_URL || 'https://algosprint-brown.vercel.app' }}
+      # Optional. Both are public values (the project URL and its publishable key). When set, the job also makes one
+      # request straight to Supabase's API as an additional health check; it does not guarantee that the inactivity
+      # timer resets.
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - name: Public pages respond
+        shell: bash
+        run: |
+          failed=0
+          # /problems and /roadmaps read the database, so they fail when the project is paused or unreachable.
+          for path in / /login /problems /roadmaps; do
+            status=$(curl --silent --show-error --location --max-time 30 --retry 3 --retry-delay 10 --retry-all-errors \
+              --output /dev/null --write-out '%{http_code}' "${SITE_URL}${path}" || true)
+            echo "${path} -> ${status}"
+            if [ "${status}" != "200" ]; then
+              echo "::error title=Production check failed::${SITE_URL}${path} returned ${status:-no response}"
+              failed=1
+            fi
+          done
+          if [ "${failed}" -ne 0 ]; then
+            echo "::error::If /problems and /roadmaps fail while / and /login succeed, the Supabase project is probably paused. Restore it in the Supabase dashboard (docs/DEPLOYMENT.md, 'Keeping the free project awake')."
+            exit 1
+          fi
+
+      - name: Supabase API responds
+        if: ${{ env.SUPABASE_URL != '' && env.SUPABASE_PUBLISHABLE_KEY != '' }}
+        shell: bash
+        run: |
+          status=$(curl --silent --show-error --max-time 30 --retry 3 --retry-delay 10 --retry-all-errors \
+            --header "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+            --output /dev/null --write-out '%{http_code}' "${SUPABASE_URL}/auth/v1/settings" || true)
+          echo "auth settings -> ${status}"
+          if [ "${status}" != "200" ]; then
+            echo "::error title=Supabase check failed::${SUPABASE_URL}/auth/v1/settings returned ${status:-no response}"
+            exit 1
+          fi
