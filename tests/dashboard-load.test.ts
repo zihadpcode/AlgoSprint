@@ -11,11 +11,11 @@ beforeEach(() => {
   vi.resetAllMocks();
   f.viewer.mockResolvedValue({ id: "verified-owner", role: "USER", displayName: "Learner", email: "private@example.test" });
   f.db.mockReturnValue("db");
-  f.query.mockResolvedValue({ analytics: { overall: { solved: 2 }, difficulty: {}, categories: [] }, insights: { topics: [], recommendations: [], recentSubmissions: [] } });
+  f.query.mockResolvedValue({ analytics: { overall: { solved: 2 }, difficulty: {}, categories: [] }, insights: { topics: [], recommendations: [], recentSubmissions: [], streak: { current: 0, longest: 0, activeToday: false, lastActiveDay: null, activeDays: 0 }, strongest: [], interviews: { recent: [], average: null } } });
 });
 
 it("uses the verified owner and returns only the dashboard projection", async () => {
-  expect(await loadDashboard()).toEqual({ displayName: "Learner", admin: false, analytics: { overall: { solved: 2 }, difficulty: {}, categories: [] }, insights: { topics: [], recommendations: [], recentSubmissions: [] } });
+  expect(await loadDashboard()).toEqual({ displayName: "Learner", admin: false, analytics: { overall: { solved: 2 }, difficulty: {}, categories: [] }, insights: { topics: [], recommendations: [], recentSubmissions: [], streak: { current: 0, longest: 0, activeToday: false, lastActiveDay: null, activeDays: 0 }, strongest: [], interviews: { recent: [], average: null } } });
   expect(f.viewer).toHaveBeenCalledWith("/dashboard");
   expect(f.query).toHaveBeenCalledWith("db", "verified-owner");
 });
