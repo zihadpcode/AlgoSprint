@@ -63,6 +63,17 @@ it("updates content atomically, advances revisions and retains all user history 
   expect((await db.problem.findUniqueOrThrow({ where: { slug: p.slug } })).id).toBe(problem.id);
   await expect(seedProblems(db, seeds)).rejects.toThrow(/Seed conflict/);
 });
+it("keeps the original publication date across edits and dates a draft only when it is first published", async () => {
+  const p = custom("dated", { status: "PUBLISHED" }); await save(p, null, true);
+  const original = new Date("2026-01-01T00:00:00Z");
+  await db.problem.update({ where: { slug: p.slug }, data: { publishedAt: original } });
+  expect((await save({ ...p, title: "Typo fixed" }, 1, true)).revision).toBe(2);
+  expect((await db.problem.findUniqueOrThrow({ where: { slug: p.slug } })).publishedAt).toEqual(original);
+  const draft = custom("draft-then-publish"); await save(draft);
+  expect((await db.problem.findUniqueOrThrow({ where: { slug: draft.slug } })).publishedAt).toBeNull();
+  await save({ ...draft, status: "PUBLISHED" }, 1, true);
+  expect((await db.problem.findUniqueOrThrow({ where: { slug: draft.slug } })).publishedAt).toEqual(expect.any(Date));
+});
 it("serializes stale editors so exactly one concurrent save succeeds", async () => {
   const p = custom("concurrent"); await save(p);
   const result = await Promise.allSettled([save({ ...p, title: "First editor" }, 1), save({ ...p, title: "Second editor" }, 1)]);
