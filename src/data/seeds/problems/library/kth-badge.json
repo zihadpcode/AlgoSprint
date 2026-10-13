@@ -8,7 +8,7 @@
   "pattern": "inorder-traversal",
   "statement": "A museum stores visitor badge numbers in a binary search tree: every value in a node's left subtree is smaller than the node and every value in its right subtree is larger, and all values are distinct. The tree is given in level order as tree, with null for a missing child. Return the k-th smallest badge number (k = 1 is the smallest).",
   "constraints": [
-    "1 <= number of nodes <= 10000",
+    "1 <= tree.length <= 10000 (level-order entries, counting null placeholders)",
     "-100000 <= value <= 100000",
     "1 <= k <= number of nodes",
     "tree is a valid binary search tree with distinct values"

@@ -8,7 +8,7 @@
   "pattern": "tree-recursion",
   "statement": "A forest ranger scores each branch point of a tree by wildlife sightings, which may be negative when an area is damaged. The tree is given in level order (tree) with null for a missing child. A trail is any path that moves along branches without visiting a node twice; it may start and end anywhere and need not pass through the root. Return the largest total score of any trail with at least one node.",
   "constraints": [
-    "1 <= number of nodes <= 10000",
+    "1 <= tree.length <= 10000 (level-order entries, counting null placeholders)",
     "-1000 <= value <= 1000"
   ],
   "estimatedMinutes": 45,
@@ -2240,12 +2240,12 @@
       "pseudocode": "gain(n): if null: 0; l = max(0, gain(n.left)); r = max(0, gain(n.right)); best = max(best, n.v + l + r); return n.v + max(l, r)",
       "code": "function canopyGain(tree) {\n  const nodes = [];\n  const root = { value: tree[0], left: null, right: null };\n  nodes.push(root);\n  for (let i = 1, head = 0; i < tree.length; head++) {\n    const node = nodes[head];\n    if (tree[i] !== null) nodes.push(node.left = { value: tree[i], left: null, right: null });\n    i++;\n    if (i < tree.length && tree[i] !== null) nodes.push(node.right = { value: tree[i], left: null, right: null });\n    i++;\n  }\n  let best = -Infinity;\n  const gain = (node) => {\n    if (!node) return 0;\n    const left = Math.max(0, gain(node.left));\n    const right = Math.max(0, gain(node.right));\n    best = Math.max(best, node.value + left + right);\n    return node.value + Math.max(left, right);\n  };\n  gain(root);\n  return best;\n}",
       "timeComplexity": "O(n)",
-      "spaceComplexity": "O(h) recursion",
+      "spaceComplexity": "O(n) for the rebuilt nodes, plus an O(h) recursion stack",
       "commonMistakes": [
         "Returning value + left + right upward; a chain passed to the parent can only use one side.",
         "Initializing best to 0, which is wrong when every value is negative."
       ],
-      "interviewExplanation": "Each trail has a top node, and the best trail with a given top is the node plus the best non-negative chain into each child. A post-order DFS returns each node's best one-sided chain to its parent and updates a global answer with the two-sided total. It's linear. For degenerate trees deeper than the stack limit I'd convert it to an iterative post-order traversal.",
+      "interviewExplanation": "Each trail has a top node, and the best trail with a given top is the node plus the best non-negative chain into each child. A post-order DFS returns each node's best one-sided chain to its parent and updates a global answer with the two-sided total. It's linear in time. The O(n) space comes from rebuilding the tree from its level-order array; with pointer-based nodes only the O(h) stack remains. For degenerate trees deeper than the stack limit I'd convert it to an iterative post-order traversal.",
       "steps": [
         {
           "position": 1,

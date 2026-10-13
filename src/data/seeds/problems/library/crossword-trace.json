@@ -206,11 +206,11 @@
       "pseudocode": "for start: dfs(path): if len(path) == len(word): return spelled(path) == word; for unused neighbor: if dfs(path + n): return true",
       "code": "function crosswordTrace(grid, word) {\n  const h = grid.length, w = grid[0].length;\n  const extend = (path) => {\n    if (path.length === word.length) return path.map(([r, c]) => grid[r][c]).join('') === word;\n    const [r, c] = path[path.length - 1];\n    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n      const nr = r + dr, nc = c + dc;\n      if (nr < 0 || nr >= h || nc < 0 || nc >= w || path.some(([pr, pc]) => pr === nr && pc === nc)) continue;\n      if (extend([...path, [nr, nc]])) return true;\n    }\n    return false;\n  };\n  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) if (extend([[r, c]])) return true;\n  return false;\n}",
       "timeComplexity": "O(cells · 3^(L-1) · L)",
-      "spaceComplexity": "O(L)",
+      "spaceComplexity": "O(L²): each recursive frame holds its own copy of the path",
       "commonMistakes": [
         "Only checking the letters once the path is complete, which explores huge numbers of hopeless paths."
       ],
-      "interviewExplanation": "Enumerating paths without checking letters along the way is correct but explores every shape of path.",
+      "interviewExplanation": "Enumerating paths without checking letters along the way is correct but explores every shape of path. It also copies the path at every step, so memory is O(L²) rather than O(L); mutating one shared path and undoing the change on the way back would reduce it to O(L).",
       "steps": [
         {
           "position": 1,

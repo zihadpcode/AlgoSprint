@@ -8,7 +8,7 @@
   "pattern": "inorder-traversal",
   "statement": "A mentorship program arranges members by badge number in a binary search tree: smaller numbers are in a member's left subtree and larger ones in the right, all distinct. The tree is given in level order with null for a missing child. Given two badge numbers a and b that are both in the tree, return the badge of their closest shared mentor: the deepest member that has both a and b in its subtree (a member counts as its own mentor).",
   "constraints": [
-    "1 <= number of members <= 10000",
+    "1 <= tree.length <= 10000 (level-order entries, counting null placeholders)",
     "Values are distinct and form a valid binary search tree",
     "a and b are both in the tree (they may be equal)"
   ],
@@ -256,11 +256,11 @@
       "pseudocode": "pa = search path to a; pb = search path to b; i = longest common prefix; return pa[i-1]",
       "code": "function sharedMentor(tree, a, b) {\n  const nodes = [];\n  const root = { value: tree[0], left: null, right: null };\n  nodes.push(root);\n  for (let i = 1, head = 0; i < tree.length; head++) {\n    const node = nodes[head];\n    if (tree[i] !== null) nodes.push(node.left = { value: tree[i], left: null, right: null });\n    i++;\n    if (i < tree.length && tree[i] !== null) nodes.push(node.right = { value: tree[i], left: null, right: null });\n    i++;\n  }\n  const path = (target) => {\n    const out = [];\n    let node = root;\n    while (node) {\n      out.push(node.value);\n      if (node.value === target) break;\n      node = target < node.value ? node.left : node.right;\n    }\n    return out;\n  };\n  const pa = path(a), pb = path(b);\n  let i = 0;\n  while (i < pa.length && i < pb.length && pa[i] === pb[i]) i++;\n  return pa[i - 1];\n}",
       "timeComplexity": "O(n) to build plus O(h)",
-      "spaceComplexity": "O(h) for the paths",
+      "spaceComplexity": "O(n) for the rebuilt tree, plus O(h) for the two paths",
       "commonMistakes": [
         "Returning the first difference instead of the last common value."
       ],
-      "interviewExplanation": "Storing both search paths and comparing them works and is easy to explain; it just keeps two path arrays.",
+      "interviewExplanation": "Storing both search paths and comparing them works and is easy to explain; it keeps two path arrays and, like every solution here, rebuilds the tree from its level-order array, so memory is O(n).",
       "steps": [
         {
           "position": 1,
@@ -283,11 +283,11 @@
       "pseudocode": "node = root\nloop: if a < v and b < v: left elif a > v and b > v: right else return v",
       "code": "function sharedMentor(tree, a, b) {\n  const nodes = [];\n  const root = { value: tree[0], left: null, right: null };\n  nodes.push(root);\n  for (let i = 1, head = 0; i < tree.length; head++) {\n    const node = nodes[head];\n    if (tree[i] !== null) nodes.push(node.left = { value: tree[i], left: null, right: null });\n    i++;\n    if (i < tree.length && tree[i] !== null) nodes.push(node.right = { value: tree[i], left: null, right: null });\n    i++;\n  }\n  let node = root;\n  while (node) {\n    if (a < node.value && b < node.value) node = node.left;\n    else if (a > node.value && b > node.value) node = node.right;\n    else return node.value;\n  }\n  return -1;\n}",
       "timeComplexity": "O(n) to build plus O(h) to answer",
-      "spaceComplexity": "O(1) beyond the tree",
+      "spaceComplexity": "O(n) for the rebuilt tree; O(1) beyond it",
       "commonMistakes": [
         "Using <= in the comparisons, which walks past a when a is the mentor itself."
       ],
-      "interviewExplanation": "The BST ordering means a and b stay on the same side until their shared mentor, so I walk down from the root and stop at the split point. That's O(h) per query and O(1) extra memory. In a plain binary tree I'd use a recursive search that returns which targets were found in each subtree.",
+      "interviewExplanation": "The BST ordering means a and b stay on the same side until their shared mentor, so I walk down from the root and stop at the split point. That's O(h) per query and O(1) extra memory beyond the rebuilt tree (the O(n) rebuild is an artifact of the array input; a pointer-based tree needs none). In a plain binary tree I'd use a recursive search that returns which targets were found in each subtree.",
       "steps": [
         {
           "position": 1,

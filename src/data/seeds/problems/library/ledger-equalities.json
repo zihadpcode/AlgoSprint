@@ -220,12 +220,12 @@
       "approach": "Union the two letters of every '==' equation. Then return false if any '!=' equation has both letters with the same root.",
       "pseudocode": "for e in ==: union(x, y)\nfor e in !=: if find(x) == find(y): return false\nreturn true",
       "code": "function ledgerEqualities(equations) {\n  const parent = Array.from({ length: 26 }, (_, i) => i);\n  const find = (x) => { while (parent[x] !== x) x = parent[x] = parent[parent[x]]; return x; };\n  const id = (ch) => ch.charCodeAt(0) - 97;\n  for (const e of equations) if (e[1] === '=') parent[find(id(e[0]))] = find(id(e[3]));\n  for (const e of equations) if (e[1] === '!' && find(id(e[0])) === find(id(e[3]))) return false;\n  return true;\n}",
-      "timeComplexity": "O(n · α(26)), effectively O(n)",
+      "timeComplexity": "O(n): the alphabet is fixed at 26, so every find follows at most 26 links",
       "spaceComplexity": "O(26)",
       "commonMistakes": [
         "Interleaving unions and checks in input order, which misses equalities that appear later."
       ],
-      "interviewExplanation": "Equalities define equivalence classes, so I union all '==' pairs first and then check every '!=' pair for a shared root. Order matters only in that two-phase sense. It runs in near-linear time, and the same idea extends to arbitrary variable names with a map from names to indices.",
+      "interviewExplanation": "Equalities define equivalence classes, so I union all '==' pairs first and then check every '!=' pair for a shared root. Order matters only in that two-phase sense. With a fixed 26-letter alphabet every find is bounded by 26 steps, so the whole check is O(n). The same idea extends to arbitrary variable names with a map from names to indices; there I would add union by size alongside path compression to get near-linear O(n · α(n)).",
       "steps": [
         {
           "position": 1,
