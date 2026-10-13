@@ -81,3 +81,31 @@ it("omits archived content and blank legacy notes without deleting stored privat
   expect((await querySaved(db, users[0], "notes", filters)).total).toBe(0);
   await expect(querySaved(db, "", "notes", filters)).rejects.toThrow();
 });
+
+it("searches saved titles literally: percent, underscore and backslash are not wildcards", async () => {
+  const original = (await db.problem.findUniqueOrThrow({ where: { id: problemId } })).title;
+  const tricky = "ZZ 100%_\\ literal";
+  await db.problem.update({ where: { id: problemId }, data: { title: tricky } });
+  try {
+    for (const flag of ["set-bookmark", "set-review"] as const) await writeProblemChange(db, users[0], flag === "set-bookmark" ? { slug, operation: flag, bookmarked: "true" } : { slug, operation: flag, review: "true" });
+    await save("note text");
+    // Other saved problems that a wildcard would also match.
+    const decoy = await db.problem.findUniqueOrThrow({ where: { slug: extras[0] } });
+    await db.userProgress.create({ data: { userId: users[0], problemId: decoy.id, bookmarked: true, reviewLater: true } });
+    await db.userNote.create({ data: { userId: users[0], problemId: decoy.id, content: "decoy note" } });
+    for (const kind of ["notes", "bookmarks", "review"] as const) {
+      expect((await querySaved(db, users[0], kind, { q: "", page: 1 })).total, `${kind} baseline`).toBe(2);
+      // Each of these literally occurs only in the tricky title; a wildcard "%" or "_" would also match the decoy.
+      for (const q of ["%", "_", "\\", "100%", "ZZ 100%", "0%_", "ZZ 100%_\\ literal", "zz 100%_\\ LITERAL"]) {
+        const result = await querySaved(db, users[0], kind, { q, page: 1 });
+        expect(result.items.map((item) => item.slug), `${kind} ${JSON.stringify(q)}`).toEqual([slug]);
+      }
+      expect((await querySaved(db, users[0], kind, { q: "ZZ 1000", page: 1 })).total).toBe(0);
+      // As a wildcard, "ZZ%" would match both rows; as literal text it occurs in neither title.
+      for (const q of ["ZZ%", "ZZ%literal%", "ZZ_100"]) expect((await querySaved(db, users[0], kind, { q, page: 1 })).total, `${kind} ${q}`).toBe(0);
+    }
+  } finally {
+    await db.problem.update({ where: { id: problemId }, data: { title: original } });
+    await db.userNote.deleteMany({ where: { userId: users[0] } });
+  }
+});

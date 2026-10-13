@@ -1,13 +1,14 @@
 import "server-only";
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { progressView } from "@/features/progress/presentation";
+import { literalSearch } from "@/lib/search";
 import type { SavedFilters, SavedKind } from "./filters";
 
 export async function querySaved(db: PrismaClient, userId: string, kind: SavedKind, filters: SavedFilters) {
   if (!userId) throw new Error("Verified viewer required");
   return db.$transaction(async (tx) => {
     const where: Prisma.ProblemWhereInput = { status: "PUBLISHED",
-      ...(filters.q ? { title: { contains: filters.q, mode: "insensitive" } } : {}),
+      ...(filters.q ? { title: { contains: literalSearch(filters.q), mode: "insensitive" } } : {}),
       ...(kind === "notes" ? { notes: { some: { userId, content: { not: "" } } } }
         : { progress: { some: { userId, ...(kind === "bookmarks" ? { bookmarked: true } : { reviewLater: true }) } } }),
     };

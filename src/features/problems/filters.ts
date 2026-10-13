@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { stripSearchControls } from "@/lib/search";
+
+export { literalSearch } from "@/lib/search";
 
 export const PAGE_SIZE = 12;
 export const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"] as const;
@@ -13,7 +16,7 @@ const positive = (max: number, fallback: number) =>
 
 export function parseLibraryFilters(params: SearchParams) {
   return {
-    q: z.string().trim().max(100).catch("").parse(scalar(params.q)),
+    q: z.string().transform(stripSearchControls).pipe(z.string().trim().max(100)).catch("").parse(scalar(params.q)),
     difficulty: z.enum(["", ...DIFFICULTIES]).catch("").parse(scalar(params.difficulty)),
     category: slug.parse(scalar(params.category)),
     tag: slug.parse(scalar(params.tag)),
@@ -45,7 +48,3 @@ export function libraryHref(filters: LibraryFilters) {
   return "/problems" + (params.size ? "?" + params.toString() : "");
 }
 
-// Prisma's PostgreSQL contains filter uses LIKE syntax; search punctuation literally.
-export function literalSearch(value: string) {
-  return value.replace(/[\\%_]/g, "\\$&");
-}
