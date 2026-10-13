@@ -1,3 +1,13 @@
+# October 13 recovery resolution and next release tasks
+
+The owner confirmed that password reset now works and login succeeds with the new password. Supabase's Site URL had pointed to the older team alias, and its redirect allowlist lacked the canonical `/auth/callback`; root corrected both and confirmed the saved configuration. The owner performed password entry and testing. [ACCOUNT-RECOVERY.md](ACCOUNT-RECOVERY.md) records this result and the separate login-alert/SDK regression fix merged in PR54.
+
+The next completed task is the Monaco 0.57 upgrade, merged in [PR58](https://github.com/zihadpcode/AlgoSprint/pull/58) as `218e998`. Its exact head passed full CI and actual local Chrome editor/worker checks; [the reliability guide](RELIABILITY-GUIDE.md) and [screenshot evidence](SCREENSHOTS.md) record the checks and residual dependency findings. The canonical production deployment is Ready and matches GitHub's merge deployment status.
+
+Claude's publication-date fix merged as `d344776` in [PR57](https://github.com/zihadpcode/AlgoSprint/pull/57), after review corrections and both exact-head CI checks passed at `ff7d158` (480 unit/component/migration tests and 84 integration tests). Admin edits retain the original publication date; the migration test applies every migration. The seed-phase and provider-session notes accurately scope their limits. The three paths in merged PR56 are now seeded: production has 100 problems / 18 paths / 307 steps, covering all 100 problems. A reviewed connector SQL fallback followed local PostgreSQL 17 insertion, idempotency and third-path conflict rollback tests; local pooler preflight had failed before any seed write. Existing 100 problem IDs/statuses/hashes and all 15 prior paths match the October 12 snapshot, new definitions match exact `b680f58`, and repeat execution changed nothing. Live guest listing/detail/pagination checks passed. No schema, auth or TLS configuration change was needed for this seed. Two-account ownership, interview conflicts/expiry, authenticated device draft recovery and full mobile/accessibility acceptance remain open.
+
+---
+
 # October 13 auth continuation
 
 Resumed from the latest published VS Code work: [PR53](https://github.com/zihadpcode/AlgoSprint/pull/53), `algosprint/canonical-auth-host` at `34261207147f0242e4e2b5ae2bcad06d0f2435c5`. Reviewed the five-file change and merged the exact green head as `c54d6c6b9fa02b198ff3759280865854b9c78efa`. The merge tree matches the tested head.
