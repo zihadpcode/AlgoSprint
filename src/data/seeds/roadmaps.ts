@@ -408,7 +408,7 @@ export const ROADMAPS = [
     ],
   },
   {
-    slug: "heaps-and-streams", title: "Heaps and Streams", difficulty: "MEDIUM", estimatedMinutes: 195,
+    slug: "heaps-and-streams", title: "Heaps and Streams", difficulty: "HARD", estimatedMinutes: 195,
     description: "Keep only the part of the data that can still change the answer. A heap holds the best candidates, two heaps hold a median, and a monotonic deque holds window maxima without a log factor.",
     steps: [
       { problemSlug: "nearest-beacons", title: "Keep the best k", description: "Compare squared distances and keep only k candidates, using the stated tie rules. A bounded heap avoids sorting everything." },
