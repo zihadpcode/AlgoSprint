@@ -13,3 +13,15 @@ Supabase provides the shared enforcement for `/recover` and `/resend`: provider-
 Local verification covers generic responses including 429/network errors, password validation, signature/session failures, missing/future/stale recovery claims, identity mismatches, ordinary-session rejection, callback safety, and a mocked transport against the installed SDK. The transport test verifies email PKCE cookie persistence, preservation of an existing session cookie, and returned provider throttling without contacting Supabase or sending mail. TypeScript, focused lint, and all 252 unit tests pass on Node 24.
 
 Live verification remains pending with an authorized disposable account: receive a recovery link, open it in the requesting browser, update the password, verify login with the new password, verify the old password is rejected, and receive/use a resent signup confirmation. Also check expired/reused links and actual provider rate-limit behavior. No production configuration or live email was used during implementation.
+
+## October 13 live redirect correction
+
+Production dashboard inspection found Site URL set to the older `algosprint-zihadpcode-7061.vercel.app` alias and four redirect patterns for that alias/preview hosts, with no match for the application's requested `https://algosprint-brown.vercel.app/auth/callback`. Supabase falls back to Site URL when the requested redirect is not allowed. This explains why an email could open the old homepage rather than the callback that exchanges the PKCE code and routes recovery to the reset form.
+
+The Site URL was corrected to `https://algosprint-brown.vercel.app` and the exact `https://algosprint-brown.vercel.app/auth/callback` was added. Existing redirect entries were preserved. A dashboard reload confirmed both saved values. No password, account role, SMTP setting or email template was changed.
+
+Separately, a failed callback's fixed error now remains visible on `/login?confirmation=failed` even when that browser already has a signed-in session. Normal signed-in visits to `/login` still redirect to the safe destination. Neither that query flag nor the displayed alert grants recovery access; the reset page and action retain provider-verified recovery claims.
+
+An installed-SDK round-trip test now exercises the real request action, cookie storage, PKCE challenge, callback and reset-page rendering against a fully intercepted synthetic provider with signed ES256 claims. It covers successful recovery, signup-session denial, reused links, wrong-browser links and normal signed-in routing. The reused-link case failed before the fix because the existing session hid the alert.
+
+The next live check must start from the canonical [forgot-password page](https://algosprint-brown.vercel.app/forgot-password), request a fresh email and open its newest link in the same browser. Previously issued links are not verification of the corrected configuration. Actual password entry and submission belong to the account owner; end-to-end password-change success remains unverified until that check is completed.
