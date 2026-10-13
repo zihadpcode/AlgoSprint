@@ -1,10 +1,18 @@
 import "server-only";
 
+import type { ExecutionLanguage } from "./contracts";
+import { makePythonProgram } from "./harness-python";
+import { pythonEntryPoint } from "./python-names";
 import { SIGNATURES as signatures } from "./signatures";
 
 export function runnerSupports(slug: string) { return Object.hasOwn(signatures, slug); }
-export function makeProgram(slug: string, entryPoint: string, code: string) {
+// The reviewed signature table is written in JavaScript naming; Python entry points are its snake_case form.
+export function makeProgram(slug: string, entryPoint: string, code: string, language: ExecutionLanguage = "JAVASCRIPT") {
   const signature = Object.hasOwn(signatures, slug) ? signatures[slug] : undefined;
+  if (language === "PYTHON") {
+    if (!signature || pythonEntryPoint(signature.entryPoint) !== entryPoint) throw new Error("Unsupported runner signature");
+    return makePythonProgram(entryPoint, code);
+  }
   if (!signature || signature.entryPoint !== entryPoint) throw new Error("Unsupported runner signature");
   // This is text sent to Judge0. Never evaluate it inside Next.js, Node vm, or a local child process.
   return `const __asArgs = JSON.parse(require("fs").readFileSync(0, "utf8"));

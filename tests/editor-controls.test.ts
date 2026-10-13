@@ -133,3 +133,13 @@ it("keeps both panels honest when public examples and starters are missing", asy
   expect(host.querySelector('[aria-label="Test results"]')?.textContent).toContain("No public examples are available");
   expect(host.querySelector("summary")).toBeNull();
 });
+it("lists every starter language while enabling Python controls only when the runner reports it", async () => {
+  const buttons = () => Object.fromEntries([...host.querySelectorAll("button")].filter((b) => /Run visible|Submit/.test(b.textContent ?? "")).map((b) => [b.textContent, b.disabled]));
+  const examples = [{ position: 1, input: {}, output: 1, explanation: "e" }];
+  for (const [runnerLanguages, disabled] of [[["JAVASCRIPT"], true], [["JAVASCRIPT", "PYTHON"], false]] as const) {
+    await act(() => root.render(createElement(CodeEditor, { key: runnerLanguages.join(), starters, examples, slug: "relay-window", runnerEnabled: true, signedIn: true, runnerLanguages })));
+    expect([...host.querySelectorAll("option")].map((option) => option.textContent)).toEqual(["JavaScript", "Python"]);
+    await choose("PYTHON");
+    expect(buttons()).toEqual({ "Run visible tests": disabled, "Submit solution": disabled });
+  }
+});

@@ -1,9 +1,13 @@
 import { z } from "zod";
 import { problemSlug } from "@/features/problems/detail-validation";
 
+// Languages the execution pipeline can be asked to run. Whether a given server can actually run one is a separate,
+// runtime question answered by supportedRunnerLanguages().
+export const executionLanguages = ["JAVASCRIPT", "PYTHON"] as const;
+export type ExecutionLanguage = (typeof executionLanguages)[number];
 export const executionInput = z.object({
   slug: problemSlug,
-  language: z.literal("JAVASCRIPT"),
+  language: z.enum(executionLanguages),
   mode: z.enum(["RUN", "SUBMIT"]),
   code: z.string().min(1).max(20_000).refine((s) => s.trim().length > 0 && !s.includes("\0")),
 }).strict();
