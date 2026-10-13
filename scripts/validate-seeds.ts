@@ -4,6 +4,8 @@ import { validateRoadmapReferences } from "../src/lib/validators/roadmap";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PYTHON_STARTERS_PATH, validatePythonStarters } from "./lib/python-starters";
+import { VIDEOS } from "../src/data/seeds/videos";
+import { validateVideoReferences } from "../src/lib/validators/video";
 
 async function main() {
   const problems = await loadProblems();
@@ -14,6 +16,8 @@ async function main() {
   const starters = validatePythonStarters(JSON.parse(await readFile(join(process.cwd(), PYTHON_STARTERS_PATH), "utf8")), new Set(problems.map((p) => p.slug)));
   console.log(`Validated ${starters.length} Python starter stubs against the runner signatures and existing problems.`);
   console.log(`Validated ${roadmaps.length} original roadmaps and their ordered problem references.`);
+  const videos = validateVideoReferences(VIDEOS, new Set(problems.filter((p) => p.status === "PUBLISHED").map((p) => p.slug)));
+  console.log(`Validated ${videos.length} video lessons: published problems, YouTube ids, and sorted non-overlapping segments.`);
 }
 
 main().catch((error: unknown) => {

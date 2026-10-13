@@ -21,7 +21,7 @@ afterAll(async () => { await db?.close(); });
 describe("PostgreSQL migration invariants", () => {
   it("creates every application table with RLS enabled", async () => {
     const result = await db.query<{ count: number }>(`SELECT count(*)::int AS count FROM pg_tables WHERE schemaname='app'`);
-    expect(result.rows[0].count).toBe(22);
+    expect(result.rows[0].count).toBe(23);
     const unprotected = await db.query(`SELECT tablename FROM pg_tables WHERE schemaname='app' AND NOT rowsecurity`);
     expect(unprotected.rows).toEqual([]);
   });
@@ -30,6 +30,22 @@ describe("PostgreSQL migration invariants", () => {
     await expect(db.query(`UPDATE app."Problem" SET "estimatedMinutes"=-1 WHERE id=$1`, [problemId])).rejects.toMatchObject({ code: "23514" });
     await expect(db.query(`INSERT INTO app."ProblemHint" (id,"problemId",position,content) VALUES (gen_random_uuid(),$1,6,'bad position')`, [problemId])).rejects.toMatchObject({ code: "23514" });
     await expect(db.query(`INSERT INTO app."ProblemHint" (id,"problemId",position,content) VALUES (gen_random_uuid(),gen_random_uuid(),1,'orphan')`)).rejects.toMatchObject({ code: "23503" });
+  });
+  it("constrains video lessons: id shape, position, segment array, uniqueness and cascade on problem deletion", async () => {
+    const video = `INSERT INTO app."ProblemVideo" (id,"problemId","youtubeId",title,channel,concept,"referenceProblem",bridge,segments,position) VALUES (gen_random_uuid(),$1,$2,'T','C','Concept','Ref','Bridge',$3::jsonb,$4)`;
+    const fixture = "20000000-0000-4000-8000-0000000000aa";
+    await db.query(`INSERT INTO app."Problem" (id,slug,title,difficulty,pattern,statement,constraints,"estimatedMinutes","updatedAt") VALUES ($1,'video-fixture','Fixture','EASY','fixed-window','Fixture',ARRAY['Fixture'],15,now())`, [fixture]);
+    await db.query(video, [fixture, "abcdefghijk", "[]", 1]);
+    await expect(db.query(video, [fixture, "abcdefghijk", "[]", 2])).rejects.toMatchObject({ code: "23505" });
+    await expect(db.query(video, [fixture, "lmnopqrstuv", "[]", 1])).rejects.toMatchObject({ code: "23505" });
+    for (const badId of ["short", "has space!!", "abc<script>"]) await expect(db.query(video, [fixture, badId, "[]", 3])).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(video, [fixture, "abcdefghijkl", "[]", 3])).rejects.toMatchObject({ code: "22001" });
+    await expect(db.query(video, [fixture, "lmnopqrstuv", "[]", 6])).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(video, [fixture, "lmnopqrstuv", '{"startSeconds":1}', 2])).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(video, [fixture, "lmnopqrstuv", "[]", 2])).resolves.toBeDefined();
+    await expect(db.query(`INSERT INTO app."ProblemVideo" (id,"problemId","youtubeId",title,channel,concept,"referenceProblem",bridge,position) VALUES (gen_random_uuid(),gen_random_uuid(),'abcdefghijk','T','C','C','R','B',1)`)).rejects.toMatchObject({ code: "23503" });
+    await db.query(`DELETE FROM app."Problem" WHERE id=$1`, [fixture]);
+    expect((await db.query(`SELECT 1 FROM app."ProblemVideo" WHERE "problemId"=$1`, [fixture])).rows).toEqual([]);
   });
   it("requires solved timestamps and protects problems with user history", async () => {
     await db.query(`INSERT INTO app."User" (id,"updatedAt") VALUES ($1,now())`, [userId]);
