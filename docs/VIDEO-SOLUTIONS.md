@@ -1,0 +1,93 @@
+# Video lessons
+
+A problem can carry short YouTube lessons on the concept it needs. This page covers the data model, how to add a video
+without inventing anything, the framing rule the UI enforces, and the privacy trade-offs.
+
+## The framing rule
+
+A video here is **a lesson on a concept, not a solution to this problem**. Usually the video solves a different
+*reference problem* (for example "Daily Temperatures" for a histogram-area problem). The page therefore:
+
+- says in fixed text, always visible, that the video uses a different example problem and is not a walkthrough of
+  this problem (`VIDEO_FRAMING` in `src/components/problems/video-lesson.tsx`; a test pins the wording);
+- names the **concept**, the video's **reference problem**, and a **bridge** of two to three sentences that connects the
+  concept to this problem's own statement;
+- shows **timestamp chips** only when chapter ranges exist, to skip intros and go to where the idea is explained.
+
+Write the bridge for the problem, not the video. It must be specific to the target statement (what is the same, what is
+different, which rule in the statement the video does not cover). If the reference problem is essentially the same task
+as the target, do not attach the video: it would be a walkthrough in disguise.
+
+Placement: the card sits **after the layered hints and before the guided solutions**, collapsed inside a
+`<details>` "Reveal video lesson" control, the same interaction the solutions use. The concept name and the bridge can
+hint at the approach, so they are not shown until the learner opens it; only the framing sentence is visible. The
+pattern name is already shown in the page header, so the card does not reveal it.
+
+## Data model
+
+Table `app."ProblemVideo"` (Prisma model `ProblemVideo`, migration `202610130001_problem_videos`):
+
+| column | notes |
+| --- | --- |
+| `id` | uuid primary key; never sent to the browser |
+| `problemId` | foreign key to `Problem`, `ON DELETE CASCADE` |
+| `youtubeId` | `VARCHAR(11)`, database check `^[A-Za-z0-9_-]{11}$` |
+| `title`, `channel` | as returned by YouTube oEmbed |
+| `concept`, `referenceProblem`, `bridge` | the lesson framing described above |
+| `segments` | JSON array of `{startSeconds, endSeconds, label}`, possibly empty; database check that it is an array of at most 12 |
+| `position` | 1 to 5, display order within a problem |
+| `createdAt` | |
+
+Constraints: unique `(problemId, youtubeId)` and `(problemId, position)`, index on `problemId`, non-blank text checks.
+Row level security is enabled with no policies (like every `app` table), so only the owning database role can read or
+write it. The page reads it through the trusted Prisma connection with an explicit `select`; `queryProblem` returns
+only `youtubeId, title, channel, concept, referenceProblem, bridge, segments`, ordered by `position`, for published
+problems, guests included. Stored segments are re-validated on read; malformed ones are dropped, never rendered.
+
+Seed data lives in `src/data/seeds/videos.ts` (not in the problem JSON, which is insert-only and hash-protected).
+`prisma/seed-videos.ts` is insert-only: it creates missing rows, skips identical rows, and throws
+`Video seed conflict ...` before writing anything if an existing row for the same problem and video differs from the seed
+or if a different video already occupies the position. It never updates a row. The order of entries per problem in the
+seed list defines `position`. Validation (`src/lib/validators/video.ts`, run by `npm run seed:validate`) requires every
+problem slug to exist and be PUBLISHED, an 11-character id, bounded text, `endSeconds > startSeconds`, segments sorted and
+non-overlapping, no duplicate video per problem and at most 5 per problem.
+
+Production seeding is a separate, deliberate step: run `npm run db:seed` against production only after the migration
+has been deployed.
+
+## Adding a video safely
+
+Never write a video id, title, channel or timestamp from memory or from a guess.
+
+1. Find candidates on YouTube itself (search results or the channel). Prefer well-known educational channels.
+2. Verify that the video exists and is embeddable. This must return HTTP 200 with a `title` and `author_name`:
+
+   ```sh
+   curl -s -w '\nHTTP %{http_code}\n' 'https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DVIDEO_ID&format=json'
+   ```
+
+   Copy `title` and `author_name` into `title` and `channel`. Check that the title plausibly matches the concept.
+3. Segments: only use chapters the creator published in the video description (open the video and read the chapter
+   list), copying their start times; a segment ends where the next chapter starts and the last one ends at the video
+   length. Skip a chapter that only reads the problem statement. If you cannot verify chapters, leave `segments: []`.
+   Do not estimate times by watching and guessing.
+4. Write `concept`, `referenceProblem` and a `bridge` after reading the target problem's statement and examples.
+5. Add the entry to `src/data/seeds/videos.ts`, then run `npm run seed:validate`, `node --import tsx scripts/verify-videos.mjs`
+   (re-checks every id, title and channel against oEmbed; needs network), and the tests.
+6. Chapters can be edited by the creator later. Re-run the verify script from time to time; a changed or removed video
+   needs a new migration/seed decision, because existing seeded rows are never overwritten.
+
+## Privacy and embedding
+
+- The player uses the privacy-enhanced domain `https://www.youtube-nocookie.com/embed/<id>` with `rel=0`.
+- Nothing is requested from YouTube when the page loads: the card shows text and a "Load video player" button, with no
+  thumbnail. The iframe is only created after a click on that button or on a timestamp chip, and only then is
+  `autoplay=1` added (the click is the learner's consent to play).
+- The URL is built by `embedUrl` in `src/lib/youtube.ts` from the validated 11-character id and an integer number of
+  seconds only; any other id throws. Tests assert the origin, path and query for hostile inputs.
+- The site sends `Referrer-Policy: no-referrer` globally, and YouTube embeds can refuse to play without a referrer. The
+  iframe element alone sets `referrerpolicy="strict-origin-when-cross-origin"`; the global header is unchanged.
+- The iframe has a descriptive `title`, `allowfullscreen`, and an explicit `allow` list. Chips are real buttons.
+  A plain "Watch on YouTube" link (new tab, `noopener noreferrer`) is always shown.
+- There is no Content-Security-Policy, so the iframe is governed by its attributes only (see `SECURITY-REVIEW.md`).
+  Embedded YouTube may still set its own cookies and collect data once the player is loaded, even on the nocookie domain.

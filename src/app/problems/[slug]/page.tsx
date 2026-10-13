@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { CodeBlock } from "@/components/problems/code-block";
 import { HintReveal } from "@/components/problems/hint-reveal";
 import { SolutionTabs } from "@/components/problems/solution-tabs";
+import { VideoLesson } from "@/components/problems/video-lesson";
 import { StarterCode } from "@/components/problems/starter-code";
 import { CodeEditor } from "@/components/editor/code-editor";
 import { ProblemNotes, ProgressControls } from "@/components/problems/personal-controls";
@@ -41,7 +42,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
       {problem.categories.map((category) => <Badge key={category.slug}>{category.name}</Badge>)}
     </div>
     <nav aria-label="Problem sections" className="mb-8 flex flex-wrap gap-x-5 gap-y-3 text-sm text-accent">
-      {[["statement", "Statement"], ["examples", "Examples"], ["constraints", "Constraints"], ["editor", "Code editor"], ["hints", "Hints"], ["solutions", "Solutions"], ["starter", "Starter code"], ["notes", "Notes"]].map(([id, label]) => <a key={id} href={`#${id}`} className="underline underline-offset-4">{label}</a>)}
+      {[["statement", "Statement"], ["examples", "Examples"], ["constraints", "Constraints"], ["editor", "Code editor"], ["hints", "Hints"], ...(problem.videos.length ? [["video", "Video lesson"]] : []), ["solutions", "Solutions"], ["starter", "Starter code"], ["notes", "Notes"]].map(([id, label]) => <a key={id} href={`#${id}`} className="underline underline-offset-4">{label}</a>)}
     </nav>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(18rem,1fr)]">
       <div className="min-w-0 space-y-6">
@@ -61,6 +62,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
         </ul></Card>
         <Card id="editor"><CardTitle>Code editor</CardTitle><CodeEditor key={`${view.draftOwner ?? "guest"}:${problem.slug}:${problem.revision}`} draftOwner={view.draftOwner} revision={problem.revision} starters={problem.starterCode} examples={problem.examples} slug={problem.slug} signedIn={view.signedIn} runnerEnabled={Boolean(runnerConfig) && runnerSupports(problem.slug)} runnerLanguages={supportedRunnerLanguages(runnerConfig)} signature={runnerSupports(problem.slug) ? SIGNATURES[problem.slug] : undefined} /></Card>
         <Card id="hints"><CardTitle>Layered hints</CardTitle><HintReveal key={problem.slug} hints={problem.hints} /></Card>
+        {problem.videos.length > 0 && <Card id="video"><CardTitle>Learn the concept</CardTitle><VideoLesson key={problem.slug} videos={problem.videos} /></Card>}
         <Card id="solutions"><CardTitle>Guided solutions</CardTitle><SolutionTabs key={problem.slug} solutions={problem.solutions} /></Card>
       </div>
       <aside aria-label="Practice tools" className="min-w-0 space-y-6">
