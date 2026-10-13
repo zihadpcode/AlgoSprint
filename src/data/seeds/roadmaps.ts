@@ -386,4 +386,35 @@ export const ROADMAPS = [
       { problemSlug: "popularity-cache", title: "Day 90: Design for O(1) eviction", description: "Frequency buckets in recency order plus a minimum-frequency pointer make LFU eviction constant time." },
     ],
   },
+  {
+    slug: "intervals-and-sweeps", title: "Intervals and Sweeps", difficulty: "MEDIUM", estimatedMinutes: 215,
+    description: "Sort ranges by their start, then either sweep once or insert into an already ordered list. Decide before coding whether touching endpoints overlap, since that single rule changes every answer in this path.",
+    steps: [
+      { problemSlug: "merge-shifts", title: "Merge sorted ranges", description: "Sort by start and extend the current block while the next shift begins at or before its end. Closed ends mean touching shifts merge." },
+      { problemSlug: "slot-insert", title: "Insert into an ordered list", description: "The slots are already sorted and disjoint, so copy those before the new slot, absorb the overlapping ones, then copy the rest." },
+      { problemSlug: "quiet-hours", title: "Read the gaps between blocks", description: "Merge the busy blocks, then report the space between neighbours. Here the end is excluded, so blocks that touch leave no gap." },
+      { problemSlug: "studio-bookings", title: "Count what is open at once", description: "Sweep start and end events in time order, processing an end before a start at the same minute. The peak count is the answer." },
+      { problemSlug: "city-skyline", title: "Track the tallest open building", description: "Sweep the edges while a max-heap holds the buildings currently open. Emit a point only when the maximum height changes." },
+    ],
+  },
+  {
+    slug: "greedy-choices", title: "Greedy Choices", difficulty: "MEDIUM", estimatedMinutes: 160,
+    description: "Use a local rule only when you can say why it never loses. Each step names its rule, then you test it against a brute-force check on small inputs before trusting it.",
+    steps: [
+      { problemSlug: "charging-hops", title: "Track the farthest reach", description: "Walk forward while keeping the farthest reachable station. If the walk passes that limit, the end cannot be reached." },
+      { problemSlug: "charging-loop", title: "Reset the start after a shortfall", description: "Keep a running balance, and when it drops below zero no start before this station can work, so restart just after it. Check the total separately." },
+      { problemSlug: "bake-batches", title: "Binary search a greedy check", description: "For one candidate capacity, pack trays greedily and count the days. Feasibility only improves as capacity grows, so binary search the smallest that works." },
+      { problemSlug: "splice-cables", title: "Always join the two smallest", description: "A min-heap gives the two cheapest pieces each round. Joining small pieces first keeps repeated costs low." },
+    ],
+  },
+  {
+    slug: "heaps-and-streams", title: "Heaps and Streams", difficulty: "HARD", estimatedMinutes: 195,
+    description: "Keep only the part of the data that can still change the answer. A heap holds the best candidates, two heaps hold a median, and a monotonic deque holds window maxima without a log factor.",
+    steps: [
+      { problemSlug: "nearest-beacons", title: "Keep the best k", description: "Compare squared distances and keep only k candidates, using the stated tie rules. A bounded heap avoids sorting everything." },
+      { problemSlug: "lane-merge", title: "Merge sorted lanes", description: "Put each lane's front value in a min-heap and pop the smallest, pushing that lane's next value. Handle empty lanes first." },
+      { problemSlug: "pace-median", title: "Split the stream across two heaps", description: "A max-heap holds the lower half and a min-heap the upper half. Rebalance after each arrival so the median sits at the tops." },
+      { problemSlug: "peak-watch", title: "Drop what can never be the maximum", description: "A deque of indices keeps values in decreasing order. Pop smaller values from the back, expire the front, and read the maximum at the front." },
+    ],
+  },
 ] satisfies RoadmapSeed[];
