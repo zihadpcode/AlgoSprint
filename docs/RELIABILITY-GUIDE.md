@@ -1,5 +1,15 @@
 # Reliability and release verification
 
+## October 13 recovery and editor checkpoint
+
+The owner verified a fresh password reset and subsequent login with the new password after Supabase's Site URL and exact canonical callback allowlist entry were corrected. This is owner-verified live recovery; Codex did not read or enter the password. [ACCOUNT-RECOVERY.md](ACCOUNT-RECOVERY.md) records the configuration correction, installed-SDK regression checks and remaining expired/reused-link, resend and old-password checks. [PR54](https://github.com/zihadpcode/AlgoSprint/pull/54) also preserves the failed-callback alert when a browser already has a signed-in session.
+
+[PR58](https://github.com/zihadpcode/AlgoSprint/pull/58), reviewed at `a0b51a6` and merged as `218e998`, upgrades Monaco from 0.56.0 to 0.57.0. Exact-head [CI38441101959](https://github.com/zihadpcode/AlgoSprint/actions/runs/38441101959) passed the full validation pipeline, including 83 PostgreSQL integration tests, production build, sandbox trace and both HTTP smoke suites. Independent local checks passed 33 focused editor/runner tests, lint, build/type checking and the 210-file sandbox trace. Actual Chrome checks passed editing, undo/redo, language switching with draft retention, public examples, reset cancel/confirm and keyboard exit; the observed worker asset, absence of captured warnings/errors and temporary local fixture cleanup are recorded in [SCREENSHOTS.md](SCREENSHOTS.md).
+
+A live production check on `218e998` also passed 2/2 Canopy Layers public examples in Chrome with no captured browser warnings/errors. The browser already had a signed-in session, device recovery remained off and no account data was saved; this does not complete authenticated ownership or draft-recovery acceptance. [Production capture](screenshots/2026-10-13-monaco057-production-run.jpg).
+
+The Vercel CLI confirmed production deployment `dpl_2FhL8tboPcAh57qtrAz8JVkUArBC` Ready at the canonical domain; GitHub's success status on merge `218e998` identifies the same deployment. The dependency change reduces Monaco/DOMPurify audit severity, but leaves two low package findings and four high Prisma-tooling package findings. [SECURITY-REVIEW.md](SECURITY-REVIEW.md) records the residual advisories and limits; the upgrade does not establish a clean audit or a trusted browser sandbox.
+
 ## October 12 checkpoint
 
 The October 1 starting point was `5efe69d`, with [green CI](https://github.com/zihadpcode/AlgoSprint/actions/runs/36171027927), 231 unit/component/migration tests and 76 PostgreSQL integration tests. Main has since merged account recovery, draft recovery, worker/runner hardening, the consent correction, reviewed library expansion and broader learning paths through `1c0d07a`. The repository now has 100 original problem fixtures, 18 learning paths and 46 noncoding interview prompts; the [production library](https://algosprint-brown.vercel.app/problems) has all 100 published problems and 15 paths as verified on October 12 after explicit insert-only seeding. Code deployment does not seed content.
@@ -70,7 +80,7 @@ A later bounded ten-minute production log query returned three pg concurrent-que
 | --- | --- |
 | Authenticated production acceptance | Two real disposable accounts verify owner isolation, ordinary-user admin denial, refreshed/expired sessions, invalid callbacks and progress undo on the deployed commit. |
 | Interview acceptance | Save/reload/finish, server expiry, stale second tab, interrupted save and local recovery all behave correctly on the deployed application. |
-| Account recovery | Generic recovery/resend responses, provider throttling, verified recovery flow and same-browser email links pass tests and an actual mail-delivery check. |
+| Account recovery | Fresh reset and new-password login are owner-verified on October 13. Old-password rejection, signup-confirmation resend and live expired/reused-link/provider-limit cases remain open. |
 | Draft protection | Opt-in, owner/revision-scoped recovery never overwrites server saves; logout/account changes and expiration remove stored private drafts. |
 | Content expansion | The reviewed 100-problem / 15-path checkpoint is seeded and verified. Require the same trusted references, QuickJS checks and conflict-aware seed process for later expansion. |
 | Operations | CLI runtime logs and restoration are recorded above. Advisors were refreshed; measure submission/database/query behavior before claiming scale; scheduled health checks provide best-effort monitoring. |
