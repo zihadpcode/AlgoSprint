@@ -4,6 +4,7 @@ import type { ExecutionInput, ExecutionResult } from "./contracts";
 import { writeProgress } from "@/features/progress/write";
 import { makeProgram, makeStdin, runnerSupports } from "./harness";
 import { RUNNER_LIMITS } from "./limits";
+import { pruneSubmissionPayloads } from "./retention";
 
 const languageNames = { JAVASCRIPT: "JavaScript", PYTHON: "Python" } as const;
 
@@ -51,7 +52,7 @@ export async function reserveSubmission(db: PrismaClient, userId: string, input:
 }
 
 export async function finishSubmission(db: PrismaClient, userId: string, result: ExecutionResult) {
-  return db.$transaction(async (tx) => {
+  const savedAt = await db.$transaction(async (tx) => {
     const submission = await tx.userSubmission.findFirst({ where: { id: result.id, userId, status: "RUNNING" },
       select: { problemId: true, problemRevision: true, mode: true, totalCount: true, createdAt: true } });
     if (!submission || result.mode !== submission.mode || result.totalCount !== submission.totalCount) throw new Error("Submission does not match its reservation");
@@ -68,5 +69,11 @@ export async function finishSubmission(db: PrismaClient, userId: string, result:
         problem?.status === "PUBLISHED" && problem.revision === submission.problemRevision) {
       await writeProgress(tx, userId, submission.problemId, { kind: "verified-solve", revision: submission.problemRevision, at: completedAt });
     }
+    return completedAt;
   });
+  // Admission and completion have already committed. Retention never holds the
+  // deployment-wide admission lock, and a failed cleanup cannot undo a verdict
+  // or turn its successful save into an error that encourages a duplicate retry.
+  try { await pruneSubmissionPayloads(db, userId, savedAt); }
+  catch { /* Best effort: a later saved server attempt can retry a small batch. */ }
 }

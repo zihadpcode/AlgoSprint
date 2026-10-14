@@ -89,3 +89,16 @@ it("disables Python honestly when the server cannot run it, without touching the
   expect(host.textContent).toContain("Run executes the visible examples in your browser");
   expect(f.execute).not.toHaveBeenCalled(); expect(f.browser).not.toHaveBeenCalled();
 });
+it("explains proposed server payload retention while keeping browser Run separate", async () => {
+  await render();
+  expect(host.textContent).toContain("Run executes the visible examples in your browser and saves nothing.");
+  expect(host.textContent).toContain("After a server Run or Submit is saved");
+  expect(host.textContent).toContain("attempts older than 30 days may be removed");
+  expect(host.textContent).toContain("Your attempt history stays.");
+  expect(host.textContent).toContain("Older data may remain if you stop using the server runner.");
+  await render({ language: "PYTHON", serverLanguages: ["JAVASCRIPT", "PYTHON"] });
+  expect(host.textContent).toContain("After a server Run or Submit is saved");
+  expect(host.textContent).not.toContain("in your browser");
+  await render({ enabled: false });
+  expect(host.textContent).not.toContain("attempts older than 30 days");
+});

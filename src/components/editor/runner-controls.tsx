@@ -63,6 +63,7 @@ export function RunnerControls({ slug, code, language, enabled, signedIn, exampl
           : <>{languageName} code cannot be run on this server yet, so Run and Submit are disabled. You can keep editing. </>}
       {canSubmit ? `Submit checks the full suite on the server, including hidden tests, and saves an attempt. Limit: 5 per minute and 30 per hour${browserRun ? "." : ", shared with Run."}` : browserRun ? "Submitting for a verified result is not available yet for this workspace. You can continue editing." : ""}
     </p>
+    {serverReady && <p className="text-xs leading-6 text-muted">After a server Run or Submit is saved, code and detailed results from attempts older than 30 days may be removed. Your attempt history stays. Older data may remain if you stop using the server runner.</p>}
     {code.length > 20_000 && <p className="text-sm text-warm">Code must be at most 20,000 characters.</p>}
     <p role="status" aria-live="polite" className="text-sm text-accent">{pending ? "Executing the captured draft… You can keep editing." : lastBrowser ? "Ran in your browser. Nothing was saved." : last?.response.success ? "Execution result saved." : ""}</p>
     {last && !last.response.success && <p role="alert" className="text-sm text-warm">{last.response.message}</p>}
