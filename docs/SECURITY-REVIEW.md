@@ -46,3 +46,7 @@ These are observations, not exploited issues; none is fixed by this document.
 - **No retention limit on `UserSubmission`.** Each execution stores up to 20,000 characters of code. Per-user limits (5 per minute, 30 per hour) bound the rate but not the total; on a free-plan database that is a slow storage risk, not an immediate one.
 - **Fixed after the review: GitHub Actions in `ci.yml` are pinned to commit SHAs** (`actions/checkout` v7.0.1 and `actions/setup-node` v7.1.0, resolved through the GitHub API on October 13), so a moved tag cannot change what CI runs. The cost is that updates are manual: nothing here watches for new releases or advisories for these actions.
 
+
+## Video schema follow-up
+
+The October 13 video migration adds one private table, taking `app` to 23 tables. `ProblemVideo` has RLS enabled and revoked PUBLIC/anon/authenticated table privileges; production readback confirmed browser SELECT denial. Fresh security advisors reported no ERRORs, with 24 expected RLS/no-policy INFO findings (23 app tables and Prisma history) and the existing leaked-password WARN. Default-deny RLS is intentional for trusted server-only Prisma access; see [the deployment record](DEPLOYMENT.md).

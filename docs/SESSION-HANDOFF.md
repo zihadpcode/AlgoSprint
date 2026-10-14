@@ -1,3 +1,11 @@
+# October 13 queue review and video release
+
+Codex resumed and merged reviewed green PR59 (release record), PR60 (official CI action SHA pins), PR62 (Python plumbing only) and PR63 (concept video lessons). Runtime merge `2028fbd` passed final-head CI at `54c436b`: 540 unit/component/migration and 104 integration tests, full build/trace/smoke pipeline. The video migration preceded deployment, its Prisma checksum is verified, and the guarded video-only seed published 18 mappings from 14 videos. All previous 100 problems / 18 paths / 307 steps remain unchanged; repeat seed changed nothing. Actual production video playback, chapter activation and a JavaScript 2/2 public-example run passed. [VIDEO-SOLUTIONS.md](VIDEO-SOLUTIONS.md) records deployment, transaction hashes, local/production checks and the actual capture.
+
+PR61 remains held: unbounded cleanup under the global admission lock and rejected requests that commit irreversible old-payload erasure. No retention cleanup was deployed. Python execution remains disabled: the earlier runtime integration was denied as untrusted code integration, and the old WASI artifact is now documented as prototype provenance rather than a selected production runtime. A runtime choice/maintenance and isolation review is still required. Claude's session limit was observed during coordination; Codex sent no further runtime/paid-usage requests. Remaining two-account, interview, device-draft, mobile and accessibility acceptance stays open.
+
+---
+
 # October 13 recovery resolution and next release tasks
 
 The owner confirmed that password reset now works and login succeeds with the new password. Supabase's Site URL had pointed to the older team alias, and its redirect allowlist lacked the canonical `/auth/callback`; root corrected both and confirmed the saved configuration. The owner performed password entry and testing. [ACCOUNT-RECOVERY.md](ACCOUNT-RECOVERY.md) records this result and the separate login-alert/SDK regression fix merged in PR54.
