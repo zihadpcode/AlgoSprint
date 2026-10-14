@@ -3,6 +3,7 @@ import { createDatabaseClient } from "../src/lib/db/client";
 import { loadProblems } from "../scripts/lib/load-problems";
 import { seedProblems } from "./seed-data";
 import { seedRoadmaps } from "./seed-roadmaps";
+import { seedVideos } from "./seed-videos";
 import { ROADMAPS } from "../src/data/seeds/roadmaps";
 import { validateRoadmapReferences } from "../src/lib/validators/roadmap";
 
@@ -17,6 +18,7 @@ async function main() {
   try {
     console.log("Problems:", await seedProblems(db, problems));
     console.log("Roadmaps:", await seedRoadmaps(db, ROADMAPS));
+    console.log("Videos:", await seedVideos(db));
   }
   finally { await db.$disconnect(); }
 }

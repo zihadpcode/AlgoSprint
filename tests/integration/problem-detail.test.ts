@@ -34,6 +34,12 @@ beforeAll(async () => {
   }
   const related = await db.problem.findUniqueOrThrow({ where: { slug: "parcel-checkpoints" } });
   await db.problemRelation.create({ data: { problemId, relatedId: related.id } });
+  // Inserted out of display order on purpose: the query must order by position.
+  await db.problemVideo.createMany({ data: [
+    { problemId, youtubeId: "bbbbbbbbbb2", title: "Second video", channel: "Chan", concept: "Concept two", referenceProblem: "Ref two", bridge: "Bridge two", position: 2, segments: [] },
+    { problemId, youtubeId: "aaaaaaaaaa1", title: "First video", channel: "Chan", concept: "Concept one", referenceProblem: "Ref one", bridge: "Bridge one", position: 1,
+      segments: [{ startSeconds: 5, endSeconds: 60, label: "Idea" }] },
+  ] });
   await db.testCase.updateMany({ where: { problemId, visibility: "HIDDEN" }, data: { explanation: hiddenSentinel } });
 }, 30_000);
 beforeEach(async () => {
@@ -64,10 +70,32 @@ describe("problem details and personal writes against PostgreSQL", () => {
     expect(fallback?.related.length).toBeLessThanOrEqual(3);
     for (const item of fallback!.related) expect(seeds.find((seed) => seed.slug === item.slug)!.categories.some((c) => sharedCategories.includes(c))).toBe(true);
     expect(fallback?.related.every((item) => !privateSlugs.includes(item.slug) && item.slug !== "parcel-checkpoints")).toBe(true);
-    expect(Object.keys(result!).sort()).toEqual(["slug", "revision", "title", "difficulty", "kind", "pattern", "statement", "constraints", "estimatedMinutes", "categories", "tags", "examples", "hints", "solutions", "starterCode", "related", "personal"].sort());
+    expect(Object.keys(result!).sort()).toEqual(["slug", "revision", "title", "difficulty", "kind", "pattern", "statement", "constraints", "estimatedMinutes", "categories", "tags", "examples", "hints", "solutions", "starterCode", "related", "personal", "videos"].sort());
     expect(result?.revision).toBe((await db.problem.findUniqueOrThrow({ where: { slug }, select: { revision: true } })).revision);
     const json = JSON.stringify(result);
     for (const forbidden of [hiddenSentinel, "Private detail", "testCases", "seedHash", '"id":', '"userId":', '"problemId":']) expect(json).not.toContain(forbidden);
+  });
+  it("returns video lessons for guests in position order with an exact projection and no internal ids", async () => {
+    const guest = await queryProblem(db, slug, null);
+    expect(guest?.videos.map((video) => video.youtubeId)).toEqual(["aaaaaaaaaa1", "bbbbbbbbbb2"]);
+    expect(guest?.videos[0]).toEqual({ youtubeId: "aaaaaaaaaa1", title: "First video", channel: "Chan", concept: "Concept one", referenceProblem: "Ref one", bridge: "Bridge one", segments: [{ startSeconds: 5, endSeconds: 60, label: "Idea" }] });
+    for (const video of guest!.videos) expect(Object.keys(video).sort()).toEqual(["bridge", "channel", "concept", "referenceProblem", "segments", "title", "youtubeId"]);
+    expect(JSON.stringify(guest!.videos)).not.toMatch(/"(id|problemId|position|createdAt)":/);
+    expect((await queryProblem(db, slug, users[0]))?.videos).toEqual(guest?.videos);
+    expect((await queryProblem(db, "parcel-checkpoints", null))?.videos).toEqual([]);
+  });
+  it("drops malformed stored segments instead of sending them to the page", async () => {
+    await db.problemVideo.updateMany({ where: { youtubeId: "bbbbbbbbbb2" }, data: { segments: [{ startSeconds: 9, endSeconds: 3, label: "backwards" }] } });
+    try { expect((await queryProblem(db, slug, null))?.videos[1].segments).toEqual([]); }
+    finally { await db.problemVideo.updateMany({ where: { youtubeId: "bbbbbbbbbb2" }, data: { segments: [] } }); }
+  });
+  it("does not expose videos of draft or archived problems", async () => {
+    for (const hidden of privateSlugs) {
+      const row = await db.problem.findUniqueOrThrow({ where: { slug: hidden } });
+      await db.problemVideo.create({ data: { problemId: row.id, youtubeId: "cccccccccc3", title: "Hidden video", channel: "Chan", concept: "c", referenceProblem: "r", bridge: "b", position: 1 } });
+      expect(await queryProblem(db, hidden, null)).toBeNull();
+    }
+    expect(JSON.stringify(await queryProblem(db, slug, null))).not.toContain("Hidden video");
   });
   it("denies draft, archived and missing detail reads and writes", async () => {
     for (const unavailable of [...privateSlugs, "not-a-problem"]) {

@@ -153,6 +153,7 @@ model Problem {
   updatedAt          DateTime                @updatedAt @db.Timestamptz(6)
   examples           ProblemExample[]
   hints              ProblemHint[]
+  videos             ProblemVideo[]
   solutions          ProblemSolution[]
   starterCode        StarterCode[]
   testCases          TestCase[]
@@ -194,6 +195,28 @@ model ProblemHint {
   problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@unique([problemId, position])
+  @@schema("app")
+}
+
+// A YouTube lesson on the concept a problem needs. The video usually solves a different reference problem;
+// "bridge" explains how the concept applies to this problem. See docs/VIDEO-SOLUTIONS.md.
+model ProblemVideo {
+  id               String   @id @default(uuid()) @db.Uuid
+  problemId        String   @db.Uuid
+  youtubeId        String   @db.VarChar(11)
+  title            String   @db.VarChar(200)
+  channel          String   @db.VarChar(120)
+  concept          String   @db.VarChar(160)
+  referenceProblem String   @db.VarChar(200)
+  bridge           String   @db.Text
+  segments         Json     @default("[]")
+  position         Int
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  problem          Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, youtubeId])
+  @@unique([problemId, position])
+  @@index([problemId])
   @@schema("app")
 }
 
