@@ -285,8 +285,15 @@ model Category {
   id       String            @id @default(uuid()) @db.Uuid
   slug     String            @unique @db.VarChar(100)
   name     String            @unique @db.VarChar(100)
+  // One level of grouping: a group has no parent; a leaf points at its group. NULL parent = top level.
+  // The one-level rule and "not its own parent" are enforced by the database (see the category_hierarchy migration).
+  parentId String?           @db.Uuid
+  parent   Category?         @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children Category[]        @relation("CategoryHierarchy")
+  position Int               @default(0)
   problems ProblemCategory[]
 
+  @@index([parentId])
   @@schema("app")
 }
 

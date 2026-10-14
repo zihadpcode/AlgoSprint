@@ -26,4 +26,28 @@ describe("library URL boundaries", () => {
   it("escapes PostgreSQL LIKE wildcard characters for literal searches", () => {
     expect(literalSearch("50%_done\\")).toBe("50\\%\\_done\\\\");
   });
+  it("parses the group filter like a slug and drops anything unsafe", () => {
+    expect(parseLibraryFilters({ group: "algorithms" })).toMatchObject({ group: "algorithms", category: "" });
+    for (const bad of ["../x", "Algorithms", "a b", "x".repeat(101), ["algorithms", "databases"], "group:algorithms"]) {
+      expect(parseLibraryFilters({ group: bad }).group).toBe("");
+    }
+  });
+  it("accepts a group chosen in the category select as group:<slug>, without a script", () => {
+    expect(parseLibraryFilters({ category: "group:data-structures" })).toMatchObject({ group: "data-structures", category: "" });
+    for (const bad of ["group:", "group:../x", "group:Bad", "group:a:b", "GROUP:algorithms", "group:" + "x".repeat(101)]) {
+      expect(parseLibraryFilters({ category: bad })).toMatchObject({ group: "", category: "" });
+    }
+  });
+  it("lets a specific category win over a group named in the same URL", () => {
+    expect(parseLibraryFilters({ category: "arrays", group: "algorithms" })).toMatchObject({ category: "arrays", group: "" });
+  });
+  it("round trips group and category separately and keeps existing category URLs unchanged", () => {
+    const group = parseLibraryFilters({ category: "group:algorithms", sort: "time", page: "2" });
+    const url = new URL(libraryHref(group), "https://example.test");
+    expect(url.searchParams.get("group")).toBe("algorithms");
+    expect(url.searchParams.has("category")).toBe(false);
+    expect(parseLibraryFilters(Object.fromEntries(url.searchParams))).toEqual(group);
+    expect(libraryHref(parseLibraryFilters({ category: "arrays" }))).toBe("/problems?category=arrays");
+    expect(libraryHref(parseLibraryFilters({}))).toBe("/problems");
+  });
 });

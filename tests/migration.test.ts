@@ -47,6 +47,33 @@ describe("PostgreSQL migration invariants", () => {
     await db.query(`DELETE FROM app."Problem" WHERE id=$1`, [fixture]);
     expect((await db.query(`SELECT 1 FROM app."ProblemVideo" WHERE "problemId"=$1`, [fixture])).rows).toEqual([]);
   });
+  it("keeps existing categories valid and limits category nesting to one level", async () => {
+    const cat = (id: string, slug: string, parent: string | null = null) =>
+      db.query(`INSERT INTO app."Category" (id,slug,name,"parentId") VALUES ($1,$2,$2,$3)`, [id, slug, parent]);
+    const [group, leaf, other, child] = ["30000000-0000-4000-8000-00000000000a", "30000000-0000-4000-8000-00000000000b", "30000000-0000-4000-8000-00000000000c", "30000000-0000-4000-8000-00000000000d"];
+    // A row written the pre-migration way (no new columns) is a valid top-level category at position 0.
+    await db.query(`INSERT INTO app."Category" (id,slug,name) VALUES ($1,'group-fixture','group-fixture')`, [group]);
+    expect((await db.query(`SELECT "parentId",position FROM app."Category" WHERE id=$1`, [group])).rows).toEqual([{ parentId: null, position: 0 }]);
+    await cat(leaf, "leaf-fixture", group);
+    await cat(other, "other-fixture");
+    // Self-parent is rejected by the CHECK, on insert and on update.
+    await expect(cat("30000000-0000-4000-8000-00000000000e", "self-fixture", "30000000-0000-4000-8000-00000000000e")).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(`UPDATE app."Category" SET "parentId"=id WHERE id=$1`, [other])).rejects.toMatchObject({ code: "23514" });
+    // A second level is rejected: under a child, by moving a child under a child, and by turning a group with children into a child.
+    await expect(cat(child, "grandchild-fixture", leaf)).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(`UPDATE app."Category" SET "parentId"=$1 WHERE id=$2`, [leaf, other])).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(`UPDATE app."Category" SET "parentId"=$1 WHERE id=$2`, [other, group])).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(`UPDATE app."Category" SET position=-1 WHERE id=$1`, [leaf])).rejects.toMatchObject({ code: "23514" });
+    // Unknown parents and deleting a group that still has children are refused; unlinking then deleting works.
+    await expect(cat(child, "orphan-fixture", "30000000-0000-4000-8000-0000000000ff")).rejects.toMatchObject({ code: "23503" });
+    await expect(db.query(`DELETE FROM app."Category" WHERE id=$1`, [group])).rejects.toMatchObject({ code: "23503" });
+    // None of the rejected statements changed anything.
+    expect((await db.query(`SELECT slug,"parentId" FROM app."Category" WHERE slug LIKE '%-fixture' ORDER BY slug`)).rows).toEqual([
+      { slug: "group-fixture", parentId: null }, { slug: "leaf-fixture", parentId: group }, { slug: "other-fixture", parentId: null },
+    ]);
+    await db.query(`UPDATE app."Category" SET "parentId"=NULL WHERE id=$1`, [leaf]);
+    await db.query(`DELETE FROM app."Category" WHERE slug LIKE '%-fixture'`);
+  });
   it("requires solved timestamps and protects problems with user history", async () => {
     await db.query(`INSERT INTO app."User" (id,"updatedAt") VALUES ($1,now())`, [userId]);
     await expect(db.query(`INSERT INTO app."UserProgress" ("userId","problemId",status,"updatedAt") VALUES ($1,$2,'SOLVED',now())`, [userId, problemId])).rejects.toMatchObject({ code: "23514" });

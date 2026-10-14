@@ -5,12 +5,12 @@ import { useEffect, useRef } from "react";
 import { Input, Select } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { ButtonLink } from "@/components/ui/button";
-import { DIFFICULTIES, libraryHref, parseLibraryFilters, type LibraryFilters } from "@/features/problems/filters";
+import { DIFFICULTIES, GROUP_PREFIX, libraryHref, parseLibraryFilters, type LibraryFilters } from "@/features/problems/filters";
 import type { LibraryResult } from "@/features/problems/query";
 
 function values(filters: LibraryFilters) {
   return {
-    q: filters.q, difficulty: filters.difficulty, category: filters.category,
+    q: filters.q, difficulty: filters.difficulty, category: filters.group ? GROUP_PREFIX + filters.group : filters.category,
     tag: filters.tag, pattern: filters.pattern, sort: filters.sort,
     maxMinutes: filters.maxMinutes ? String(filters.maxMinutes) : "",
     completion: filters.completion, review: filters.review ? "1" : "",
@@ -24,6 +24,43 @@ function syncForm(form: HTMLFormElement, filters: LibraryFilters) {
 }
 function fingerprint(form: HTMLFormElement) {
   return JSON.stringify(Array.from(new FormData(form).entries()));
+}
+
+type Option = { slug: string; name: string };
+
+export function FacetOptions({ options, selected }: { options: Option[]; selected: string }) {
+  return (
+    <>
+      <option value="">All</option>
+      {selected && !options.some((option) => option.slug === selected) && <option value={selected}>{selected.replace(GROUP_PREFIX, "")} (no published matches)</option>}
+      {options.map((option) => <option key={option.slug} value={option.slug}>{option.name}</option>)}
+    </>
+  );
+}
+
+// Grouped select when the hierarchy exists; otherwise exactly the old flat list. A group's "All ..." option submits
+// `category=group:<slug>`, so the plain GET form works without JavaScript.
+export function CategoryOptions({ facets, selected }: { facets: LibraryResult["facets"]; selected: string }) {
+  const tree = facets.categoryTree;
+  if (!tree) return <FacetOptions options={facets.categories} selected={selected} />;
+  const known = new Set([...tree.ungrouped.map((c) => c.slug), ...tree.groups.flatMap((g) => [GROUP_PREFIX + g.slug, ...g.children.map((c) => c.slug)])]);
+  return (
+    <>
+      <option value="">All</option>
+      {selected && !known.has(selected) && <option value={selected}>{selected.replace(GROUP_PREFIX, "")} (no published matches)</option>}
+      {tree.groups.map((group) => (
+        <optgroup key={group.slug} label={group.name}>
+          <option value={GROUP_PREFIX + group.slug}>All {group.name}</option>
+          {group.children.map((child) => <option key={child.slug} value={child.slug}>{child.name}</option>)}
+        </optgroup>
+      ))}
+      {tree.ungrouped.length > 0 && (
+        <optgroup label="Other">
+          {tree.ungrouped.map((child) => <option key={child.slug} value={child.slug}>{child.name}</option>)}
+        </optgroup>
+      )}
+    </>
+  );
 }
 
 export function LibraryFiltersForm({ filters, facets, signedIn }: {
@@ -82,13 +119,6 @@ export function LibraryFiltersForm({ filters, facets, signedIn }: {
   }
 
   const current = values(filters);
-  const facetOptions = (options: { slug: string; name: string }[], selected: string) => (
-    <>
-      <option value="">All</option>
-      {selected && !options.some((option) => option.slug === selected) && <option value={selected}>{selected} (no published matches)</option>}
-      {options.map((option) => <option key={option.slug} value={option.slug}>{option.name}</option>)}
-    </>
-  );
   return (
     <Form ref={form} action="/problems" replace scroll={false} prefetch={false}
       className="mb-8 space-y-5 rounded-2xl border border-line bg-surface p-5 sm:p-7"
@@ -105,9 +135,9 @@ export function LibraryFiltersForm({ filters, facets, signedIn }: {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <label className="space-y-2 text-sm"><span className="block">Difficulty</span><Select name="difficulty" defaultValue={current.difficulty}><option value="">All levels</option>{DIFFICULTIES.map((value) => <option key={value} value={value}>{value[0] + value.slice(1).toLowerCase()}</option>)}</Select></label>
-        <label className="space-y-2 text-sm"><span className="block">Category</span><Select name="category" defaultValue={current.category}>{facetOptions(facets.categories, current.category)}</Select></label>
-        <label className="space-y-2 text-sm"><span className="block">Tag</span><Select name="tag" defaultValue={current.tag}>{facetOptions(facets.tags, current.tag)}</Select></label>
-        <label className="space-y-2 text-sm"><span className="block">Pattern</span><Select name="pattern" defaultValue={current.pattern}>{facetOptions(facets.patterns.map((pattern) => ({ slug: pattern, name: pattern.replaceAll("-", " ") })), current.pattern)}</Select></label>
+        <label className="space-y-2 text-sm"><span className="block">Category</span><Select name="category" defaultValue={current.category}><CategoryOptions facets={facets} selected={current.category} /></Select></label>
+        <label className="space-y-2 text-sm"><span className="block">Tag</span><Select name="tag" defaultValue={current.tag}><FacetOptions options={facets.tags} selected={current.tag} /></Select></label>
+        <label className="space-y-2 text-sm"><span className="block">Pattern</span><Select name="pattern" defaultValue={current.pattern}><FacetOptions options={facets.patterns.map((pattern) => ({ slug: pattern, name: pattern.replaceAll("-", " ") }))} selected={current.pattern} /></Select></label>
         <label className="space-y-2 text-sm"><span className="block">Maximum time</span><Select name="maxMinutes" defaultValue={current.maxMinutes}><option value="">Any duration</option>{[...new Set([15, 30, 45, 60, 120, 240, ...(filters.maxMinutes ? [filters.maxMinutes] : [])])].sort((a, b) => a - b).map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}</Select></label>
         <label className="space-y-2 text-sm"><span className="block">Completion</span><Select name="completion" defaultValue={current.completion} disabled={!signedIn}><option value="ALL">All problems</option><option value="NOT_STARTED">Not started</option><option value="ATTEMPTED">Attempted</option><option value="SOLVED">Solved</option></Select></label>
         <label className="space-y-2 text-sm"><span className="block">Review status</span><Select name="review" defaultValue={current.review} disabled={!signedIn}><option value="">Any review status</option><option value="1">Review later</option></Select></label>

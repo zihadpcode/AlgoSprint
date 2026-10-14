@@ -6,6 +6,8 @@ import { queryLibrary } from "@/features/problems/query";
 import { parseLibraryFilters } from "@/features/problems/filters";
 import { loadProblems } from "../../scripts/lib/load-problems";
 import { seedProblems } from "../../prisma/seed-data";
+import { seedCategoryGroups } from "../../prisma/seed-categories";
+import { CATEGORY_GROUPS } from "@/data/seeds/taxonomy";
 import type { ProblemSeed } from "@/lib/validators/problem";
 
 let db: ReturnType<typeof createDatabaseClient>;
@@ -104,5 +106,90 @@ describe("published library against PostgreSQL", () => {
       expect(last.items).toHaveLength(2);
       expect(new Set([...first.items, ...last.items].map((item) => item.slug)).size).toBe(14);
     }
+  });
+});
+
+async function everySlug(f: ReturnType<typeof parseLibraryFilters>) {
+  const slugs: string[] = [];
+  for (let page = 1; ; page++) {
+    const result = await queryLibrary(db, { ...f, page }, null);
+    slugs.push(...result.items.map((item) => item.slug));
+    if (page >= result.pages) return slugs;
+  }
+}
+
+describe("flat library before any category has a parent", () => {
+  it("returns no tree and the same flat category facet as before", async () => {
+    const result = await queryLibrary(db, filters({}), null);
+    expect(result.facets.categoryTree).toBeNull();
+    const used = new Set(seeds.filter((seed) => seed.status === "PUBLISHED").flatMap((seed) => seed.categories));
+    expect(result.facets.categories.map((entry) => entry.slug).sort()).toEqual([...used].sort());
+    // No group rows exist yet, so a group URL matches nothing rather than erroring or ignoring the filter.
+    expect((await queryLibrary(db, filters({ group: "algorithms" }), null)).total).toBe(0);
+  });
+});
+
+describe("category hierarchy against PostgreSQL", () => {
+  const qaGroup = "qa-empty-group";
+  beforeAll(async () => {
+    await seedCategoryGroups(db);
+    // A group whose only child has nothing published (the private fixture has only draft and archived problems).
+    await db.category.create({ data: { slug: qaGroup, name: qaGroup } });
+    await db.category.update({ where: { slug: privateSlug }, data: { parent: { connect: { slug: qaGroup } } } });
+  });
+  afterAll(async () => {
+    await db.category.update({ where: { slug: privateSlug }, data: { parentId: null } });
+    await db.category.deleteMany({ where: { slug: qaGroup } });
+    await db.category.updateMany({ where: { slug: { in: CATEGORY_GROUPS.flatMap((group) => [...group.children]) } }, data: { parentId: null, position: 0 } });
+    await db.category.deleteMany({ where: { slug: { in: CATEGORY_GROUPS.map((group) => group.slug) } } });
+  });
+  const published = () => seeds.filter((seed) => seed.status === "PUBLISHED");
+
+  it("returns groups with only children that have a published problem, in configured order, hiding empty groups", async () => {
+    const tree = (await queryLibrary(db, filters({}), null)).facets.categoryTree;
+    const used = new Set(published().flatMap((seed) => seed.categories));
+    const expected = CATEGORY_GROUPS.map((group) => ({ slug: group.slug, name: group.name, children: group.children.filter((child) => used.has(child)) })).filter((group) => group.children.length);
+    expect(tree?.groups.map((group) => ({ slug: group.slug, name: group.name, children: group.children.map((child) => child.slug) }))).toEqual(expected);
+    expect(tree?.groups.some((group) => group.slug === qaGroup)).toBe(false);
+    expect(tree?.ungrouped).toEqual([]);
+    expect(JSON.stringify(tree)).not.toContain(privateSlug);
+  });
+  it("keeps the flat category facet identical so existing consumers are unaffected", async () => {
+    const result = await queryLibrary(db, filters({}), null);
+    const used = new Set(published().flatMap((seed) => seed.categories));
+    expect(result.facets.categories.map((entry) => entry.slug).sort()).toEqual([...used].sort());
+  });
+  it("filters by group as the union of its children, and excludes unpublished problems", async () => {
+    let sawUnionLargerThanChild = false;
+    for (const group of CATEGORY_GROUPS) {
+      const expected = published().filter((seed) => seed.categories.some((slug) => (group.children as readonly string[]).includes(slug))).map((seed) => seed.slug).sort();
+      const actual = await everySlug(filters({ group: group.slug }));
+      expect([...actual].sort()).toEqual(expected);
+      expect(new Set(actual).size).toBe(actual.length);
+      expect((await queryLibrary(db, filters({ group: group.slug }), null)).total).toBe(expected.length);
+      for (const child of group.children) {
+        const own = published().filter((seed) => seed.categories.includes(child)).length;
+        if (own && own < expected.length) sawUnionLargerThanChild = true;
+      }
+    }
+    expect(sawUnionLargerThanChild).toBe(true);
+    expect((await queryLibrary(db, filters({ group: qaGroup }), null)).total).toBe(0);
+    expect((await queryLibrary(db, filters({ group: "no-such-group" }), null)).total).toBe(0);
+  });
+  it("leaves the existing leaf category filter unchanged, and a specific category wins over a group", async () => {
+    const leaf = published()[0].categories[0];
+    const expected = published().filter((seed) => seed.categories.includes(leaf)).map((seed) => seed.slug).sort();
+    expect([...(await everySlug(filters({ category: leaf })))].sort()).toEqual(expected);
+    const parent = CATEGORY_GROUPS.find((group) => (group.children as readonly string[]).includes(leaf))!;
+    expect([...(await everySlug(filters({ category: leaf, group: parent.slug })))].sort()).toEqual(expected);
+    // The select encodes a group as category=group:<slug>; both routes return the same union.
+    expect(await everySlug(filters({ category: "group:" + parent.slug }))).toEqual(await everySlug(filters({ group: parent.slug })));
+  });
+  it("combines a group with other filters and keeps counts, sorting and pagination consistent", async () => {
+    const group = CATEGORY_GROUPS[1];
+    const all = await queryLibrary(db, filters({ group: group.slug, sort: "difficulty" }), null);
+    const easy = await queryLibrary(db, filters({ group: group.slug, difficulty: "EASY" }), null);
+    expect(easy.total).toBe(published().filter((seed) => seed.difficulty === "EASY" && seed.categories.some((slug) => (group.children as readonly string[]).includes(slug))).length);
+    expect(all.pages).toBe(Math.max(1, Math.ceil(all.total / 12)));
   });
 });
