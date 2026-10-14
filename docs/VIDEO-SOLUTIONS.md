@@ -16,7 +16,7 @@ A video here is **a lesson on a concept, not a solution to this problem**. Usual
 
 Write the bridge for the problem, not the video. It must be specific to the target statement (what is the same, what is
 different, which rule in the statement the video does not cover). If the reference problem is essentially the same task
-as the target, do not attach the video: it would be a walkthrough in disguise.
+as the target, do not attach the video: it would be a walkthrough in disguise. A close variant may be included only when the bridge explicitly identifies the similarity and a meaningful rule the learner must adapt; the Ticket Pair pilot names its tie-break and no-match rules.
 
 Placement: the card sits **after the layered hints and before the guided solutions**, collapsed inside a
 `<details>` "Reveal video lesson" control, the same interaction the solutions use. The concept name and the bridge can
@@ -91,3 +91,9 @@ Never write a video id, title, channel or timestamp from memory or from a guess.
   A plain "Watch on YouTube" link (new tab, `noopener noreferrer`) is always shown.
 - There is no Content-Security-Policy, so the iframe is governed by its attributes only (see `SECURITY-REVIEW.md`).
   Embedded YouTube may still set its own cookies and collect data once the player is loaded, even on the nocookie domain.
+
+## October 13 browser verification
+
+The rebased candidate `a4efd51` was built with Next.js 16.3.8 and Node 24 against a dedicated local PostgreSQL test database (100 problems, 18 paths, 18 video mappings). In Chrome, Dock Threshold initially had no iframe. Enter opened the lesson, Enter loaded the player, and actual video playback was observed with `paused: false`, ready state 4 and advancing time. Enter on the coding chapter replaced the iframe URL with `start=310`; playback continued in that chapter. The iframe used youtube-nocookie.com and its explicit strict-origin-when-cross-origin referrer policy. Captured warnings/errors were empty. The test player tab was closed; no account data was saved.
+
+[Actual local playback capture](screenshots/2026-10-13-video-local-playback.jpg), captured at 1710×929. This is a local production-build playback check for one representative lesson, not a production rollout or a check of every video on every browser.
