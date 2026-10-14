@@ -31,6 +31,13 @@ describe("PostgreSQL migration invariants", () => {
     await expect(db.query(`INSERT INTO app."ProblemHint" (id,"problemId",position,content) VALUES (gen_random_uuid(),$1,6,'bad position')`, [problemId])).rejects.toMatchObject({ code: "23514" });
     await expect(db.query(`INSERT INTO app."ProblemHint" (id,"problemId",position,content) VALUES (gen_random_uuid(),gen_random_uuid(),1,'orphan')`)).rejects.toMatchObject({ code: "23503" });
   });
+  it("indexes only completed terminal submission payloads for owner-scoped cleanup", async () => {
+    const result = await db.query<{ indexdef: string }>(`SELECT indexdef FROM pg_indexes WHERE schemaname='app' AND indexname='UserSubmission_retention_payload_idx'`);
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].indexdef).toContain('("userId", "createdAt", id)');
+    for (const term of ['QUEUED', 'RUNNING', '"completedAt" IS NOT NULL', "code <> ''", 'result IS NOT NULL']) expect(result.rows[0].indexdef).toContain(term);
+    expect(result.rows[0].indexdef).not.toMatch(/now\(\)|CURRENT_TIMESTAMP/);
+  });
   it("constrains video lessons: id shape, position, segment array, uniqueness and cascade on problem deletion", async () => {
     const video = `INSERT INTO app."ProblemVideo" (id,"problemId","youtubeId",title,channel,concept,"referenceProblem",bridge,segments,position) VALUES (gen_random_uuid(),$1,$2,'T','C','Concept','Ref','Bridge',$3::jsonb,$4)`;
     const fixture = "20000000-0000-4000-8000-0000000000aa";
