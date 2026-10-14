@@ -56,9 +56,23 @@ Measured in a prototype on 2026-10-13:
 - An infinite loop was killed by terminating the worker.
 - About 7-10x slower than native CPython: a 10^7-iteration loop took 5 s, so the current 2 s per-case budget suits small inputs only.
 
-Rejected alternatives:
+### October 14 maintenance and isolation review
 
-- **Pyodide**: its JavaScript bridge lets Python code reach host globals and `process.env`.
-- **MicroPython (WASM)**: same class of problem; the JS bridge exposes the host.
+Read-only source review found no ready-to-ship replacement for the historical binary. The recommendation is to keep Python disabled and first scope an isolated managed judge pilot with the owner. A reproducible upstream WASI build is an alternative with a larger maintenance burden; neither direction has been approved or installed.
 
-If approved, the work is: vendor the pinned binary with its checksum verified at build time, add the WASI host as a reviewed dependency, implement `PythonExecutor` on top of them (worker per case, memory maximum patched in, worker termination on timeout), register it at startup, wire the starter seed, and re-run the sandbox escape checks used for QuickJS (`npm run test:trace`).
+| Direction | Evidence checked October 14, 2026 | Work still required |
+| --- | --- | --- |
+| Historical WLR / community successor | The [successor release page](https://github.com/webassemblylabs/webassembly-language-runtimes/releases) has no releases. Its advertised Python remains 3.12.0; the historical binary is from December 2023. | Current interpreter security-patch provenance is not established. Do not select the old binary merely because its checksum is known. |
+| Build upstream CPython for WASI | WASIp1 is a [Tier 2 CPython platform](https://peps.python.org/pep-0011/). [Python 3.14.8](https://www.python.org/downloads/release/python-3148/) includes security fixes and was released September 30, 2026. | Reproducible build, licenses for all bundled libraries, pinned source/toolchain, security updates, compatible host and Vercel packaging review. |
+| Componentize-py | [0.25.1](https://github.com/bytecodealliance/componentize-py/releases/tag/v0.25.1) is recent, but its [tagged build source](https://github.com/bytecodealliance/componentize-py/blob/v0.25.1/build.rs) selects a `3.14.0-wasi-sdk-30` CPython fork. | Audit interpreter patches/backports and component-host compatibility. A recent wrapper release alone does not establish a patched interpreter. |
+| Vercel Sandbox | [Firecracker microVM isolation](https://vercel.com/docs/sandbox) and managed Python images provide an external host boundary. | Provider/budget decision, image provenance, a disabled adapter, then actual enforcement and failure tests before enabling execution. |
+
+Do not substitute built-in `node:wasi`: the [Node 24 security documentation](https://nodejs.org/docs/latest-v24.x/api/wasi.html#security) explicitly does not guarantee secure confinement for untrusted code. For a WASI implementation, the host must deny unnecessary capabilities and prove hard interruption, bounded output and memory; an interpreter checksum and worker alone are insufficient.
+
+The earlier alternative descriptions were too broad. [Pyodide's `jsglobals`](https://pyodide.org/en/stable/usage/api/js-api.html#pyodideconfig-jsglobals) defaults to `globalThis` but is configurable. Giving learner code a privileged JavaScript host is unsuitable; changing this setting alone does not establish safe isolation. MicroPython's [WebAssembly bridge has build-time switches](https://github.com/micropython/micropython/blob/v1.29.0/ports/webassembly/mpconfigport.h), and it also has language/library compatibility differences from CPython. Neither is selected; neither is inherently impossible to isolate.
+
+A managed judge pilot should explicitly use `networkPolicy: "deny-all"`, no exposed ports, credentials or account-data mounts, and `persistent: false`; [network access is allowed by default](https://vercel.com/docs/sandbox/concepts/firewall). Avoid reusing an execution environment across accounts or hidden cases. The [SDK](https://vercel.com/docs/sandbox/sdk-reference) allocates 2,048 MB per vCPU, which does not enforce this app's 256 MiB per-case limit. A VM timeout also does not prove the 2-second case deadline or 20-second whole-run budget. Enforce and verify those limits, bounded stdout/stderr while streaming, cancellation and teardown of descendants, and hidden-case confidentiality. Do not send a whole hidden suite into an environment after learner code has run there.
+
+[Hobby quotas](https://vercel.com/docs/sandbox/pricing) currently include 5 active-CPU hours, 420 GB-hours and 5,000 creations per month; exhaustion pauses creation rather than charging overages. Pro usage is metered. AlgoSprint currently admits up to 20 active server executions while Hobby allows 10 concurrent sandboxes, so provider-specific admission/capacity handling is needed. Confirm the actual team plan, remaining quota and budget before a live pilot; no service was activated during this review.
+
+The next approved implementation must preserve the executor contract, reject unsupported execution before reservation, and pass escape/resource/cancellation/cleanup checks in the intended environment. Wire and verify the insert-only starter seed only after that runtime is ready. The existing `test:trace` checks packaging and selected QuickJS behavior; it does not prove Python or a remote judge secure.

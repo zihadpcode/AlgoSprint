@@ -61,3 +61,9 @@ After the October 13 path seed from `b680f58`, Chrome at 1521×881 rendered [Hea
 ### October 13 video production check
 
 [Dock Threshold video playback](screenshots/2026-10-13-video-production-playback.jpg), Chrome at 1710×929 on production merge `2028fbd`: the initially unloaded lesson was revealed with Enter, and a chapter button loaded the player at 58 seconds. The observed video was playing beyond that timestamp, with no captured warnings/errors. An existing signed-in session was present; no account data was changed. A separate JavaScript public-example run on the same release passed 2/2, saving nothing. This verifies representative playback and keyboard activation, not every video/browser or full accessibility.
+
+### October 14 narrow video and editor check
+
+At production `b7bf9a4`, desktop Chrome with temporary 390×844 and 320×844 viewport overrides rendered Dock Threshold without whole-page horizontal overflow: document scroll width equaled each viewport width. The expanded concept/bridge text wrapped, and the player stayed inside the card (264px and 194px wide respectively). Enter revealed the lesson and activated the 0:58 chapter; Tab moved to the next chapter button with a visible focus ring. [390px capture](screenshots/2026-10-14-video-narrow-390.jpg). Before activation no iframe was present; activation used the expected `youtube-nocookie.com` URL and `start=58`.
+
+At 320px the Monaco editor was bounded at 228px wide and both execution buttons remained inside the viewport. Code regions retain their own horizontal scrolling. Device recovery stayed off; no code, note, progress, bookmark or submission was saved. The created tab was closed and the viewport override reset. These are desktop responsive-layout and representative keyboard checks, not actual mobile input, 200% zoom, screen-reader or complete authenticated acceptance.
