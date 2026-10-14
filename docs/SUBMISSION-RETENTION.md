@@ -1,6 +1,6 @@
-# Proposed submission payload retention
+# Submission payload retention
 
-**Review candidate only. The owner has not approved the proposed 30-day policy. Do not merge, deploy, or run the cleanup against production until that decision is explicit.** There is no activation environment flag. This branch contains the proposed integration so its behavior can be reviewed together with the notice shown beside server execution controls.
+**The owner approved the 30-day policy and rollout on October 14, 2026, after reviewing the tested candidate and notice.** There is no activation environment flag. Deploy the reviewed index migration before the application integration. Approval covers the bounded post-save behavior below, with no bulk cleanup or backfill.
 
 After an authorized server Run or Submit verdict is successfully saved, a separate best-effort transaction may clear `code` and `result` from at most 50 of that owner's completed, terminal attempts. Eligibility uses `createdAt` strictly before the saved attempt's server completion time minus 720 hours. Exactly-at-cutoff rows, active/incomplete attempts, and another owner's rows remain untouched. All terminal verdicts qualify; “saved” does not mean “accepted solution.” JavaScript's browser Run saves nothing and does not trigger cleanup.
 
@@ -8,7 +8,7 @@ Rows and every summary field remain: IDs, owner/problem/revision/language/mode, 
 
 Admission and its deployment-wide advisory lock are unchanged. Cleanup begins only after the completion transaction commits, selects oldest eligible rows through a matching partial index, and uses `FOR UPDATE SKIP LOCKED`. Its connection-acquisition wait is capped at 250 ms, interactive transaction at 750 ms, database statement at 250 ms, and lock wait at 50 ms. Failure rolls back that cleanup batch and is ignored by completion; the already-saved result stays successful. New requests rejected by validation, identity, capability, quotas, availability, or completion checks do not perform retention cleanup.
 
-The index migration adds no data mutation or permission change. It excludes active/incomplete rows and rows whose payloads are already SQL-null/empty; a JSON `null` result is still a stored payload and can be cleared. Future schema changes must retain the index and its predicate. Deploying the migration alone does not clear payloads, but deployment of this candidate is held pending policy approval.
+The index migration adds no data mutation or permission change. It excludes active/incomplete rows and rows whose payloads are already SQL-null/empty; a JSON `null` result is still a stored payload and can be cleared. Future schema changes must retain the index and its predicate. Deploying the migration alone does not clear payloads. The initial policy hold was lifted by the owner's October 14 approval; application deployment and verification remain separate release steps.
 
 ## Review evidence — October 14
 
