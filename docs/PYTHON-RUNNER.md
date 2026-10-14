@@ -25,7 +25,7 @@ Exit codes are part of the executor contract: `0` success, `3` compile error (`S
 
 ### Writing an executor
 
-An executor runs one program against one stdin and reports what happened: `exited` (exit code, stdout, stderr, runtime, memory), `time-limit`, `memory-limit` or `unavailable`. It must give the program no host filesystem, network, environment variables or other processes, and enforce the time and memory budget it is given (already clamped to `RUNNER_LIMITS`). Install it with `registerPythonExecutor(executor)` and set `available: true`; the UI and the action then expose Python automatically. Tests use a fake executor; nothing else in the repository executes Python.
+An executor runs one program against one stdin and reports what happened: `exited` (exit code, stdout, stderr, runtime, memory), `time-limit`, `memory-limit` or `unavailable`. It must give the program no host filesystem, network, environment variables or other processes, and enforce the time and memory budget it is given (already clamped to `RUNNER_LIMITS`). Install it with `registerPythonExecutor(executor)` and set `available: true`; the UI and the action then expose Python automatically. Application execution remains disabled and runner tests use a fake executor. The optional harness test may invoke an already-installed local `python3`; that test is separate from the application runtime.
 
 ## Add-on Python starters
 
@@ -43,7 +43,9 @@ console.log("Language starters:", await seedLanguageStarters(db, await loadPytho
 
 **Nothing is installed until the owner approves vendoring an interpreter and a WASI host dependency.** A previous attempt to add both was denied by the permission system as untrusted code integration, and that decision belongs to the owner.
 
-Recommended runtime: **CPython 3.12 compiled to WASI**, release `python/3.12.0+20231211-040d5a6` of `vmware-labs/webassembly-language-runtimes`, file `python-3.12.0.wasm` with sha256 `e5dc5a398b07b54ea8fdb503bf68fb583d533f10ec3f930963e02b9505f7a763`, run through a **pure-JavaScript WASI host with an in-memory, read-only filesystem**, inside a worker that can be terminated.
+The earlier prototype used **CPython 3.12 compiled to WASI**, release `python/3.12.0+20231211-040d5a6` of `vmware-labs/webassembly-language-runtimes`, file `python-3.12.0.wasm` with sha256 `e5dc5a398b07b54ea8fdb503bf68fb583d533f10ec3f930963e02b9505f7a763`, run through a **pure-JavaScript WASI host with an in-memory, read-only filesystem**, inside a worker that can be terminated.
+
+This historical artifact is not a selected production runtime. The [vendor repository](https://github.com/vmware-labs/webassembly-language-runtimes) announces a handoff to a community fork, and its listed Python binary is the older 3.12.0 release. Before choosing a build, review its maintenance, security patch provenance, license, host capabilities, resource enforcement and Vercel compatibility. [WASI isolation](https://wasi.dev/security) depends on the capabilities granted by the host; a prototype alone does not establish a production security boundary.
 
 Measured in a prototype on 2026-10-13:
 
