@@ -6,6 +6,8 @@ import { join } from "node:path";
 import { PYTHON_STARTERS_PATH, validatePythonStarters } from "./lib/python-starters";
 import { VIDEOS } from "../src/data/seeds/videos";
 import { validateVideoReferences } from "../src/lib/validators/video";
+import { CATEGORIES, CATEGORY_GROUPS } from "../src/data/seeds/taxonomy";
+import { validateCategoryGroups } from "../src/lib/validators/category-groups";
 
 async function main() {
   const problems = await loadProblems();
@@ -17,6 +19,8 @@ async function main() {
   console.log(`Validated ${starters.length} Python starter stubs against the runner signatures and existing problems.`);
   console.log(`Validated ${roadmaps.length} original roadmaps and their ordered problem references.`);
   const videos = validateVideoReferences(VIDEOS, new Set(problems.filter((p) => p.status === "PUBLISHED").map((p) => p.slug)));
+  const groups = validateCategoryGroups(CATEGORY_GROUPS, CATEGORIES);
+  console.log(`Validated ${groups.length} category groups: every child is an existing leaf, no leaf is in two groups, and no group collides with a leaf.`);
   console.log(`Validated ${videos.length} video lessons: published problems, YouTube ids, and sorted non-overlapping segments.`);
 }
 

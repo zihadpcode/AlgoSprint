@@ -1,6 +1,7 @@
 import "server-only";
 import { progressView } from "@/features/progress/presentation";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
+import { buildCategoryTree, type PublishedCategoryRow } from "./category-tree";
 import { PAGE_SIZE, literalSearch, needsPersonalProgress, type LibraryFilters } from "./filters";
 
 const publicSelect = {
@@ -24,12 +25,19 @@ function orderBy(sort: LibraryFilters["sort"]): Prisma.ProblemOrderByWithRelatio
   }
 }
 
-export function libraryWhere(filters: LibraryFilters, viewerId: string | null): Prisma.ProblemWhereInput {
+export function libraryWhere(filters: LibraryFilters, viewerId: string | null, hierarchy = true): Prisma.ProblemWhereInput {
   if (!viewerId && needsPersonalProgress(filters)) throw new Error("Verified viewer required for personal filters.");
   const and: Prisma.ProblemWhereInput[] = [];
   if (filters.q) and.push({ title: { contains: literalSearch(filters.q), mode: "insensitive" } });
   if (filters.difficulty) and.push({ difficulty: filters.difficulty });
   if (filters.category) and.push({ categories: { some: { category: { slug: filters.category } } } });
+  if (filters.group) {
+    // A group matches its children (and any problem attached to the group row itself). Without the hierarchy columns
+    // (migration not applied yet) no group exists, so the filter matches nothing instead of failing.
+    and.push({ categories: { some: { category: hierarchy
+      ? { OR: [{ slug: filters.group }, { parent: { slug: filters.group } }] }
+      : { slug: "" } } } });
+  }
   if (filters.tag) and.push({ tags: { some: { tag: { slug: filters.tag } } } });
   if (filters.pattern) and.push({ pattern: filters.pattern });
   if (filters.maxMinutes) and.push({ estimatedMinutes: { lte: filters.maxMinutes } });
@@ -47,7 +55,27 @@ export function libraryWhere(filters: LibraryFilters, viewerId: string | null): 
 // Trusted server helper. Only the load.ts boundary supplies the verified viewer ID.
 // Keep count, rows, facets, and progress in one consistent database snapshot.
 export async function queryLibrary(db: PrismaClient, filters: LibraryFilters, viewerId: string | null) {
-  const where = libraryWhere(filters, viewerId);
+  try {
+    return await queryLibrarySnapshot(db, filters, viewerId, true);
+  } catch (error) {
+    // Deploy-order safety: if this code runs before the category_hierarchy migration, the hierarchy columns are
+    // missing (Prisma P2022 on Category). Serve the flat library instead of failing the page.
+    if (!isMissingCategoryColumn(error)) throw error;
+    return queryLibrarySnapshot(db, filters, viewerId, false);
+  }
+}
+
+// Prisma reports a missing column as P2022. The hierarchy columns can surface on the Category model itself or, for the
+// group filter's relation join, on a Problem query whose column is `<alias>.parentId` (parentId exists only on Category).
+export function isMissingCategoryColumn(error: unknown) {
+  const failure = error as { code?: unknown; meta?: { modelName?: unknown; driverAdapterError?: { cause?: { column?: unknown } } } } | null;
+  if (failure?.code !== "P2022") return false;
+  const column = failure.meta?.driverAdapterError?.cause?.column;
+  return failure.meta?.modelName === "Category" || (typeof column === "string" && /(^|\.)parentId$/.test(column));
+}
+
+async function queryLibrarySnapshot(db: PrismaClient, filters: LibraryFilters, viewerId: string | null, hierarchy: boolean) {
+  const where = libraryWhere(filters, viewerId, hierarchy);
   return db.$transaction(async (tx) => {
     const total = await tx.problem.count({ where });
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -61,10 +89,13 @@ export async function queryLibrary(db: PrismaClient, filters: LibraryFilters, vi
       select: { problemId: true, status: true, reviewLater: true, selfMarked: true, verifiedRevision: true },
     }) : [];
     const byProblem = new Map(progress.map((entry) => [entry.problemId, entry]));
-    const [categories, tags, patterns] = await Promise.all([
+    const [categoryRows, tags, patterns] = await Promise.all([
       tx.category.findMany({
         where: { problems: { some: { problem: { status: "PUBLISHED" } } } },
-        select: { slug: true, name: true }, orderBy: { name: "asc" },
+        select: hierarchy
+          ? { slug: true, name: true, position: true, parent: { select: { slug: true, name: true, position: true } } }
+          : { slug: true, name: true },
+        orderBy: { name: "asc" },
       }),
       tx.tag.findMany({
         where: { problems: { some: { problem: { status: "PUBLISHED" } } } },
@@ -77,7 +108,12 @@ export async function queryLibrary(db: PrismaClient, filters: LibraryFilters, vi
     ]);
     return {
       total, page, pages, pageSize: PAGE_SIZE,
-      facets: { categories, tags, patterns: patterns.map((row) => row.pattern) },
+      facets: {
+        categories: categoryRows.map(({ slug, name }) => ({ slug, name })),
+        // null = nothing is grouped (or the migration is not applied yet): the UI shows the flat list.
+        categoryTree: hierarchy ? buildCategoryTree(categoryRows as PublishedCategoryRow[]) : null,
+        tags, patterns: patterns.map((row) => row.pattern),
+      },
       items: rows.map((row) => {
         const entry = byProblem.get(row.id);
         return {
