@@ -15,7 +15,8 @@ const response: ExecutionState = { success: true, result: { id: "saved-id", mode
 beforeEach(() => { Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }); f.execute.mockReset(); f.browser.mockReset(); host = document.createElement("div"); document.body.append(host); root = createRoot(host); });
 afterEach(async () => { await act(() => root.unmount()); host.remove(); });
 async function render(extra = {}) { await act(() => root.render(createElement(RunnerControls, { ...props, ...extra }))); }
-function button(text: string) { return [...host.querySelectorAll("button")].find((b) => b.textContent === text)!; }
+// Run and Submit carry their long names as aria-labels; their visible text is a short label plus a shortcut hint.
+function button(text: string) { return [...host.querySelectorAll("button")].find((b) => (b.getAttribute("aria-label") ?? b.textContent) === text)!; }
 it("gates submissions for guests and disabled providers, and everything for unsupported languages and oversized code", async () => {
   for (const extra of [{ signedIn: false }, { enabled: false }]) {
     await render(extra); expect(button("Run visible tests").disabled).toBe(false); expect(button("Submit solution").disabled).toBe(true);

@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DRAFT_CLEAR_EVENT, DRAFT_CLEAR_KEY, DRAFT_OWNER_KEY, readDeviceDraft, removeDeviceDraft, writeDeviceDraft, type DeviceDraft, type DraftScope } from "@/features/drafts/storage";
 
-type Props = { scope: DraftScope | null; value: string; dirty: boolean; baseline?: string; onRestore: (value: string) => void; onClear: () => void; disabled?: boolean; copyOnly?: boolean };
+type Props = { scope: DraftScope | null; value: string; dirty: boolean; baseline?: string; onRestore: (value: string) => void; onClear: () => void; disabled?: boolean; copyOnly?: boolean; onRecoveryChange?: (available: boolean) => void };
 export function DeviceDraftRecovery(props: Props) {
   const { scope } = props;
   const key = JSON.stringify(scope ? [scope.owner, scope.kind, scope.target, scope.revision] : ["guest"]);
   return <ScopedDraftRecovery key={key} {...props} />;
 }
 
-function ScopedDraftRecovery({ scope, value, dirty, baseline = "", onRestore, onClear, disabled = false, copyOnly = false }: Props) {
+function ScopedDraftRecovery({ scope, value, dirty, baseline = "", onRestore, onClear, disabled = false, copyOnly = false, onRecoveryChange }: Props) {
   const [ready, setReady] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [recovery, setRecovery] = useState<DeviceDraft | null>(null);
@@ -31,6 +31,8 @@ function ScopedDraftRecovery({ scope, value, dirty, baseline = "", onRestore, on
     }
     void load(); return () => { mounted = false; };
   }, [owner, kind, target, revision]);
+  const hasRecovery = Boolean(recovery);
+  useEffect(() => { onRecoveryChange?.(hasRecovery); }, [hasRecovery, onRecoveryChange]);
   useEffect(() => {
     const cleared = () => { setEnabled(false); setRecovery(null); setMessage("Device drafts cleared. Recovery is off."); onClear(); };
     const storageChanged = (event: StorageEvent) => { if (event.key === DRAFT_CLEAR_KEY || event.key === null || (event.key === DRAFT_OWNER_KEY && event.newValue !== owner)) cleared(); };

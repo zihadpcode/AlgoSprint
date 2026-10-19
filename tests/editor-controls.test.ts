@@ -118,23 +118,25 @@ it("separates public expectations from unrun output and escapes example content"
   await act(() => root.render(createElement(ExecutionPanels, { examples: [{ position: 1, input: { text: payload }, output: 7, explanation: "Public explanation" }] })));
   expect(host.querySelector('[aria-label="Output"]')?.textContent).toContain("No output yet");
   expect(host.querySelector('[aria-label="Output"]')?.textContent).toContain("Not measured");
-  expect(host.querySelector("summary")?.textContent).toBe("Example 1 · Not run");
-  expect(host.querySelector("details")?.open).toBe(false);
-  expect(host.textContent).toContain("Actual output: Not run");
+  // Public examples live in the Test cases tab as plain expectations, never as results.
+  expect(host.querySelector('[aria-label="Test cases"]')?.textContent).toContain("Case 1");
+  expect(host.querySelector("details")).toBeNull();
+  expect(host.querySelector('[aria-label="Test results"]')?.textContent).toContain("Not run");
+  expect(host.textContent).toContain("Public explanation");
+  expect(host.querySelectorAll("pre code")[0].textContent).toContain("<img");
   expect(host.querySelectorAll("pre code")[1].textContent).toBe("7");
   expect(host.querySelector("img")).toBeNull();
-  expect(host.querySelector("pre code")?.textContent).toContain("<img");
   expect(host.textContent).not.toMatch(/Accepted|Passed|0 ms/);
 });
 
 it("keeps both panels honest when public examples and starters are missing", async () => {
   await render("empty", []);
   expect(host.querySelector('[aria-label="Output"]')).not.toBeNull();
-  expect(host.querySelector('[aria-label="Test results"]')?.textContent).toContain("No public examples are available");
+  expect(host.querySelector('[aria-label="Test cases"]')?.textContent).toContain("No public examples are available");
   expect(host.querySelector("summary")).toBeNull();
 });
 it("lists every starter language while enabling Python controls only when the runner reports it", async () => {
-  const buttons = () => Object.fromEntries([...host.querySelectorAll("button")].filter((b) => /Run visible|Submit/.test(b.textContent ?? "")).map((b) => [b.textContent, b.disabled]));
+  const buttons = () => Object.fromEntries([...host.querySelectorAll("button")].filter((b) => /Run visible|Submit/.test(b.getAttribute("aria-label") ?? "")).map((b) => [b.getAttribute("aria-label"), b.disabled]));
   const examples = [{ position: 1, input: {}, output: 1, explanation: "e" }];
   for (const [runnerLanguages, disabled] of [[["JAVASCRIPT"], true], [["JAVASCRIPT", "PYTHON"], false]] as const) {
     await act(() => root.render(createElement(CodeEditor, { key: runnerLanguages.join(), starters, examples, slug: "relay-window", runnerEnabled: true, signedIn: true, runnerLanguages })));
