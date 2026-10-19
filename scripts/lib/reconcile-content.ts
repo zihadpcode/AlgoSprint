@@ -34,6 +34,20 @@ export function loadContentPlan(): Pair[] {
   });
 }
 const planHash = (plan: Pair[]) => createHash("sha256").update(canonicalJson(plan)).digest("hex");
+async function assertJobTimestamp(db: Client, stamp: string, targets: Row[]) {
+  // PostgreSQL retains all six fractional digits; JavaScript Date comparisons
+  // would silently discard the final three. Recheck untrusted baseline metadata
+  // at execution as well as capture, before any content changes.
+  const check = await db.query<{ valid: boolean }>(`SELECT isfinite($1::timestamptz)
+    AND $1::timestamptz <= clock_timestamp()
+    AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements($2::jsonb) target
+      WHERE (target->>'updatedAt')::timestamptz > $1::timestamptz
+         OR (target->>'createdAt')::timestamptz > $1::timestamptz) AS valid`, [stamp, JSON.stringify(targets)]);
+  if (!check.rows[0].valid) fail("job timestamp must not precede target creation/update or exceed the database clock");
+}
+function targetRows(snapshot: Content, plan: Pair[]) {
+  return plan.map((pair) => one(snapshot.Problem, (row) => row.slug === pair.old.slug));
+}
 async function localOnly(db: Client) {
   const row = (await db.query<{ name: string }>("SELECT current_database() AS name")).rows[0];
   if (!row.name.endsWith("_test")) fail("this rehearsal helper requires a disposable database ending in _test");
@@ -100,7 +114,7 @@ export async function captureContentBaseline(db: Client, allowedExtraStarters: R
       if (p.seedHash !== pair.oldHash || !Number.isInteger(p.revision) || Number(p.revision) < 1 || !same(normalized(projection(snapshot, pair.old, allowedExtraStarters)), normalized(pair.old))) fail(`old source/hash/shape mismatch for ${pair.old.slug}`);
     }
     const appliedAt = (await db.query<{ stamp: string }>("SELECT to_jsonb(clock_timestamp()) AS stamp")).rows[0].stamp;
-    if (plan.some((pair) => Date.parse(String(one(snapshot.Problem, (row) => row.slug === pair.old.slug).updatedAt)) > Date.parse(appliedAt))) fail("job timestamp precedes existing update");
+    await assertJobTimestamp(db, appliedAt, targetRows(snapshot, plan));
     const baseline = { oldRef: CONTENT_OLD_REF, newRef: CONTENT_NEW_REF, planHash: planHash(plan), appliedAt, allowedExtraStarters, content: snapshot };
     await db.query("COMMIT"); return baseline;
   } catch (error) { await db.query("ROLLBACK"); throw error; }
@@ -136,10 +150,14 @@ export async function reconcileContent(db: Client, baseline: ContentBaseline) {
   const plan = loadContentPlan();
   if (baseline.oldRef !== CONTENT_OLD_REF || baseline.newRef !== CONTENT_NEW_REF || baseline.planHash !== planHash(plan) || !Number.isFinite(Date.parse(baseline.appliedAt))) fail("baseline source identity mismatch");
   // Revalidate the recorded old data too: a caller cannot weaken its source guards.
-  for (const pair of plan) if (one(baseline.content.Problem, (row) => row.slug === pair.old.slug).seedHash !== pair.oldHash || !same(normalized(projection(baseline.content, pair.old, baseline.allowedExtraStarters)), normalized(pair.old))) fail("baseline no longer matches pinned old content");
+  for (const pair of plan) {
+    const row = one(baseline.content.Problem, (value) => value.slug === pair.old.slug);
+    if (!Number.isInteger(row.revision) || Number(row.revision) < 1 || Number(row.revision) >= 2_147_483_647 || row.seedHash !== pair.oldHash || !same(normalized(projection(baseline.content, pair.old, baseline.allowedExtraStarters)), normalized(pair.old))) fail("baseline no longer matches pinned old content/revision");
+  }
   const batches = plan.map((pair) => ({ pair, patches: patchesFor(baseline, pair) })).sort((a, b) => String(a.patches.at(-1)!.old.id).localeCompare(String(b.patches.at(-1)!.old.id)));
   await begin(db);
   try {
+    await assertJobTimestamp(db, baseline.appliedAt, targetRows(baseline.content, plan));
     await db.query("SELECT pg_advisory_xact_lock(713013::bigint)"); await db.query("SELECT pg_advisory_xact_lock(712012::bigint)");
     const ids = batches.map((batch) => String(batch.patches.at(-1)!.old.id));
     const locked = await db.query('SELECT id FROM app."Problem" WHERE id=ANY($1::uuid[]) ORDER BY id FOR UPDATE', [ids]);

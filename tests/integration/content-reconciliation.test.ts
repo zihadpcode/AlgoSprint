@@ -7,8 +7,7 @@ import { problemBatchSchema, type ProblemSeed } from "@/lib/validators/problem";
 import { canonicalJson, seedProblems } from "../../prisma/seed-data";
 import { seedRoadmaps } from "../../prisma/seed-roadmaps";
 import { seedVideos } from "../../prisma/seed-videos";
-import { ROADMAPS } from "@/data/seeds/roadmaps";
-import { VIDEOS } from "@/data/seeds/videos";
+import { reconciliationRelations } from "../fixtures/content-reconciliation-relations";
 import { captureContentBaseline, reconcileContent, loadContentPlan, CONTENT_OLD_REF, CONTENT_NEW_REF, type ContentBaseline } from "../../scripts/lib/reconcile-content";
 
 let db: ReturnType<typeof createDatabaseClient>; let client: Client; let baseline: ContentBaseline;
@@ -24,7 +23,8 @@ beforeAll(async () => {
   db = createDatabaseClient(url); client = new Client({ connectionString: url }); await client.connect();
   if (await db.problem.count() || await db.user.count()) throw new Error("Content reconciliation tests require an empty collection.");
   owns = true; old = source(CONTENT_OLD_REF); corrected = source(CONTENT_NEW_REF);
-  await seedProblems(db, old); await seedRoadmaps(db, ROADMAPS); await seedVideos(db, VIDEOS);
+  const relations = reconciliationRelations(new Set(old.filter((problem) => problem.status === "PUBLISHED").map((problem) => problem.slug)));
+  await seedProblems(db, old); await seedRoadmaps(db, relations.roadmaps); await seedVideos(db, relations.videos);
   const problem = await db.problem.findUniqueOrThrow({ where: { slug: "dock-threshold" } }); const at = new Date("2026-01-01T00:00:00Z");
   await db.starterCode.create({ data: { problemId: problem.id, language: "PYTHON", entryPoint: "dock_threshold", code: "def dock_threshold(capacities, load):\n    pass" } });
   await db.user.create({ data: { id: userId, progress: { create: { problemId: problem.id, status: "SOLVED", verifiedRevision: problem.revision, verifiedAt: at, solvedAt: at, bookmarked: true, reviewLater: true } },
@@ -104,6 +104,19 @@ it("rejects old hash, content, status, revision, timestamp and child-ID-shape dr
     await restore(); await client.query(sql as string, [id]); const before = await appState();
     await expect(reconcileContent(client, baseline)).rejects.toThrow(/metadata state|content or child-ID shape drift/); expect(await appState()).toEqual(before);
   }
+}, 30_000);
+it("rejects mutated past, microsecond-earlier and future job timestamps or invalid recorded revisions", async () => {
+  const before = await appState();
+  const ids = loadContentPlan().map((pair) => baseline.content.Problem.find((row) => row.slug === pair.old.slug)!.id);
+  const earlier = (await client.query<{ stamp: string }>('SELECT to_jsonb(max(GREATEST("createdAt", "updatedAt"))-interval \'1 microsecond\') AS stamp FROM app."Problem" WHERE id=ANY($1::uuid[])', [ids])).rows[0].stamp;
+  for (const appliedAt of ["2000-01-01T00:00:00Z", earlier, "2999-01-01T00:00:00Z"]) {
+    await expect(reconcileContent(client, { ...baseline, appliedAt })).rejects.toThrow("job timestamp");
+    expect(await appState()).toEqual(before);
+  }
+  const invalid = structuredClone(baseline);
+  invalid.content.Problem.find((row) => row.id === ids[0])!.revision = 0;
+  await expect(reconcileContent(client, invalid)).rejects.toThrow("old content/revision");
+  expect(await appState()).toEqual(before);
 }, 30_000);
 it("rolls back real earlier updates when a later keyed old-value conflict is injected", async () => {
   const before = await appState(); const original = client.query.bind(client); let updates = 0; let injected = false;
