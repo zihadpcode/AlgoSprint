@@ -2,7 +2,7 @@
 import { act, createElement, StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ create: vi.fn(), createModel: vi.fn() }));
+const mocks = vi.hoisted(() => ({ create: vi.fn(), createModel: vi.fn(), defineTheme: vi.fn(), remeasureFonts: vi.fn() }));
 vi.mock("monaco-editor/editor", () => ({ editor: mocks }));
 vi.mock("monaco-editor/features/register.all", () => ({}));
 vi.mock("monaco-editor/languages/definitions/javascript/register", () => ({}));
@@ -20,7 +20,7 @@ function fakeEditor() {
     getValue: () => value,
     setValue: vi.fn((next: string) => { value = next; listener(); }),
     edit(next: string) { value = next; listener(); },
-    subscription: { dispose: vi.fn() }, dispose: vi.fn(),
+    subscription: { dispose: vi.fn() }, dispose: vi.fn(), updateOptions: vi.fn(),
     onDidChangeModelContent(fn: () => void) { listener = fn; return this.subscription; },
   };
 }
@@ -39,7 +39,8 @@ it("loads code without reporting a user edit and forwards actual edits to the cu
   const first = vi.fn(), latest = vi.fn();
   await act(() => root.render(createElement(MonacoSurface, { language: "javascript", value: "starter", onChange: first })));
   expect(instances[0].getValue()).toBe("starter"); expect(first).not.toHaveBeenCalled();
-  expect(mocks.create.mock.calls[0][1]).toMatchObject({ tabFocusMode: true, automaticLayout: true });
+  expect(mocks.create.mock.calls[0][1]).toMatchObject({ tabFocusMode: true, automaticLayout: true, theme: "algosprint-dark", fontSize: 14, wordWrap: "on", minimap: { enabled: false } });
+  expect(mocks.defineTheme).toHaveBeenCalledWith("algosprint-dark", expect.objectContaining({ base: "vs-dark", colors: expect.objectContaining({ "editor.background": "#09090b" }) }));
   await act(() => root.render(createElement(MonacoSurface, { language: "javascript", value: "starter", onChange: latest })));
   instances[0].edit("user draft"); expect(latest).toHaveBeenCalledWith("user draft"); expect(first).not.toHaveBeenCalled();
   await act(() => root.render(createElement(MonacoSurface, { language: "javascript", value: "user draft", onChange: latest })));
@@ -59,4 +60,11 @@ it("cleans up every Strict Mode mount without leaving an extra active model", as
   await act(() => root.render(null));
   for (const instance of instances) { expect(instance.dispose).toHaveBeenCalledTimes(1); expect(instance.subscription.dispose).toHaveBeenCalledTimes(1); }
   for (const result of mocks.createModel.mock.results) expect(result.value.dispose).toHaveBeenCalledTimes(1);
+});
+it("applies changed editor settings to the live editor without recreating it", async () => {
+  const base = { language: "javascript", value: "x", onChange: vi.fn() };
+  await act(() => root.render(createElement(MonacoSurface, base)));
+  await act(() => root.render(createElement(MonacoSurface, { ...base, settings: { fontSize: 18, wordWrap: false, minimap: true } })));
+  expect(instances).toHaveLength(1);
+  expect(instances[0].updateOptions).toHaveBeenLastCalledWith({ fontSize: 18, lineHeight: 30, wordWrap: "off", minimap: { enabled: true } });
 });
