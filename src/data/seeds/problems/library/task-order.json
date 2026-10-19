@@ -308,13 +308,13 @@
       "approach": "Repeat until all tasks are done: scan tasks in increasing order and pick the first one that is not done and has every prerequisite done. If none qualifies, report a cycle.",
       "pseudocode": "while not all done: for task in order: if not done and all prerequisites done: run it, break; if none found return [].",
       "code": "function taskOrder(tasks, prerequisites) {\n    const done = new Array(tasks).fill(false);\n    const order = [];\n    while (order.length < tasks) {\n        let chosen = -1;\n        for (let task = 0; task < tasks && chosen === -1; task++) {\n            if (done[task])\n                continue;\n            let ready = true;\n            for (const [before, after] of prerequisites)\n                if (after === task && !done[before])\n                    ready = false;\n            if (ready)\n                chosen = task;\n        }\n        if (chosen === -1)\n            return [];\n        done[chosen] = true;\n        order.push(chosen);\n    }\n    return order;\n}",
-      "timeComplexity": "O(tasks × (tasks + prerequisites))",
+      "timeComplexity": "O(tasks² × prerequisites)",
       "spaceComplexity": "O(tasks)",
       "commonMistakes": [
         "Picking any ready task instead of the smallest, which breaks the tie-break rule.",
         "Not detecting the stuck state and looping forever on a cycle."
       ],
-      "interviewExplanation": "Rescanning every task and prerequisite per step is correct but quadratic. Counting pending prerequisites and keeping ready tasks in a min-heap is Kahn's algorithm with a priority queue, which produces the lexicographically smallest order in (tasks + prerequisites) log tasks time.",
+      "interviewExplanation": "Rescanning every task against every prerequisite on each step is correct but slow: O(tasks² × prerequisites) in the worst case. Counting pending prerequisites and keeping ready tasks in a min-heap is Kahn's algorithm with a priority queue, which produces the lexicographically smallest order in (tasks + prerequisites) log tasks time.",
       "steps": [
         {
           "position": 1,

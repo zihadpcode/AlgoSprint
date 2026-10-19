@@ -60,11 +60,11 @@
     },
     {
       "position": 2,
-      "content": "The fewest tokens for an amount is one more than the fewest tokens for amount minus some token value."
+      "content": "Look at one token in an optimal payout. If you take it away, what is left, and what do you know about the payout of that smaller amount?"
     },
     {
       "position": 3,
-      "content": "That recurrence revisits the same amounts many times, so store the answer for each amount."
+      "content": "Trying each token as the last one revisits the same smaller amounts many times, so store the answer for each amount."
     },
     {
       "position": 4,

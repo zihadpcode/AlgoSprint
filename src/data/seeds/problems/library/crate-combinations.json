@@ -264,7 +264,7 @@
       "approach": "Sort the weights. For each bitmask, collect the weights whose bits are set and check the sum. Sort the matching sets lexicographically before returning.",
       "pseudocode": "sort weights; for mask in 0..2^n-1: chosen = weights with set bits; if sum == target keep; sort kept sets; return.",
       "code": "function crateCombinations(weights, target) {\n    const sorted = [...weights].sort((a, b) => a - b);\n    const results = [];\n    for (let mask = 0; mask < (1 << sorted.length); mask++) {\n        const chosen = [];\n        let sum = 0;\n        for (let i = 0; i < sorted.length; i++) {\n            if (mask & (1 << i)) {\n                chosen.push(sorted[i]);\n                sum += sorted[i];\n            }\n        }\n        if (sum === target)\n            results.push(chosen);\n    }\n    return results.sort((a, b) => {\n        for (let i = 0; i < Math.min(a.length, b.length); i++)\n            if (a[i] !== b[i])\n                return a[i] - b[i];\n        return a.length - b.length;\n    });\n}",
-      "timeComplexity": "O(2^n × n)",
+      "timeComplexity": "O(2^n × n) to enumerate and sum the subsets, plus the final sort of the matching sets (up to O(n² × 2^n) in the worst case)",
       "spaceComplexity": "O(n) beyond the output",
       "commonMistakes": [
         "Building sets from the unsorted weights, which produces unordered sets.",
@@ -292,7 +292,7 @@
       "approach": "Sort the weights. Recursively choose the next crate from a start index onward while it fits in the remaining target. Record a set when the remaining target hits zero. Because choices are made in increasing order, the results appear in lexicographic order without a final sort.",
       "pseudocode": "sort; extend(from, remaining): if remaining == 0 record; for i from `from` while weight[i] <= remaining: choose, extend(i + 1, remaining - weight[i]), unchoose.",
       "code": "function crateCombinations(weights, target) {\n    const sorted = [...weights].sort((a, b) => a - b);\n    const results = [];\n    const chosen = [];\n    function extend(from, remaining) {\n        if (remaining === 0) {\n            results.push([...chosen]);\n            return;\n        }\n        for (let i = from; i < sorted.length && sorted[i] <= remaining; i++) {\n            chosen.push(sorted[i]);\n            extend(i + 1, remaining - sorted[i]);\n            chosen.pop();\n        }\n    }\n    extend(0, target);\n    return results;\n}",
-      "timeComplexity": "O(2^n) in the worst case, typically far less due to pruning",
+      "timeComplexity": "O(n * 2^n) counting the copy of each recorded set, typically far less due to pruning",
       "spaceComplexity": "O(n) recursion depth beyond the output",
       "commonMistakes": [
         "Restarting the loop from index 0, which reuses crates and duplicates sets.",

@@ -251,10 +251,10 @@
       "timeComplexity": "O(n × q) in the worst case, for n checkpoints and q ranges",
       "spaceComplexity": "O(q) for the returned answers; O(1) additional working space",
       "commonMistakes": [
-        "Treating end as inclusive introduces an off-by-one error.",
-        "Forgetting the leading zero makes ranges beginning at index zero harder to handle correctly."
+        "Treating end as inclusive adds parcels[end] and, when end equals parcels.length, reads past the end of the array.",
+        "Not returning 0 for a range with start equal to end; the loop must run while i < end so an empty range adds nothing."
       ],
-      "interviewExplanation": "With many overlapping queries, repeated summation wastes work. I preprocess the checkpoint changes into prefix totals and answer each query in constant time. The end-exclusive convention also makes empty ranges work without a special branch.",
+      "interviewExplanation": "For each range I add up the entries from start up to but not including end. That is simple and handles empty ranges naturally, but with q ranges of up to n entries it costs O(n × q) time (plus O(q) for the answers, with O(1) working space), and overlapping ranges re-add the same entries. The optimal solution builds prefix totals once in O(n) and answers each range with one subtraction, for O(n + q) time.",
       "steps": [
         {
           "position": 1,
@@ -269,7 +269,7 @@
         {
           "position": 3,
           "title": "Step 3",
-          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+          "content": "For [4,-2,7,3], range [0,2) adds 4 and -2 to get 2, range [1,4) adds -2, 7 and 3 to get 8, and range [2,2) adds nothing and returns 0."
         }
       ]
     },

@@ -369,7 +369,7 @@
       "approach": "Sort the words once. For each prefix, binary search the first index whose word is >= prefix, starting no earlier than the previous answer. Read up to three words from there while they start with the prefix.",
       "pseudocode": "sort words; low = 0\nfor each prefix p: lo = lower_bound(words, p, from low); low = lo\n  take up to 3 words from lo while they start with p",
       "code": "function prefixSuggestions(words, typed) {\n  const sorted = [...words].sort();\n  const result = [];\n  let low = 0;\n  for (let length = 1; length <= typed.length; length++) {\n    const prefix = typed.slice(0, length);\n    let lo = low, hi = sorted.length;\n    while (lo < hi) {\n      const mid = (lo + hi) >> 1;\n      if (sorted[mid] < prefix) lo = mid + 1; else hi = mid;\n    }\n    low = lo;\n    const picks = [];\n    for (let i = lo; i < sorted.length && picks.length < 3 && sorted[i].startsWith(prefix); i++) picks.push(sorted[i]);\n    result.push(picks);\n  }\n  return result;\n}",
-      "timeComplexity": "O(n log n · L + m · (log n + L))",
+      "timeComplexity": "O(n log n * L + m * L * log n)",
       "spaceComplexity": "O(n)",
       "commonMistakes": [
         "Sorting the caller's array in place.",

@@ -95,7 +95,7 @@
     },
     {
       "position": 5,
-      "content": "Path compression keeps representative lookups nearly constant as groups grow."
+      "content": "Path compression, together with attaching the smaller group under the larger one, keeps representative lookups nearly constant as groups grow."
     }
   ],
   "starterCode": [
@@ -335,26 +335,26 @@
       "language": "JAVASCRIPT",
       "title": "Disjoint-set union with path compression",
       "intuition": "Connectivity only ever grows, so each station can point toward a representative of its group, and two stations are connected exactly when they share a representative.",
-      "approach": "Start with every station as its own representative. For each link, find both representatives; if they match the link is redundant, otherwise merge by pointing one representative at the other. Path halving during find keeps the trees flat.",
-      "pseudocode": "parent[i] = i; for each (a, b): ra = find(a), rb = find(b); if ra == rb return [a, b]; parent[ra] = rb; return [].",
-      "code": "function firstRedundantLink(stations, links) {\n    const parent = Array.from({ length: stations }, (_, i) => i);\n    const find = (station) => {\n        while (parent[station] !== station) {\n            parent[station] = parent[parent[station]];\n            station = parent[station];\n        }\n        return station;\n    };\n    for (const [a, b] of links) {\n        const rootA = find(a);\n        const rootB = find(b);\n        if (rootA === rootB)\n            return [a, b];\n        parent[rootA] = rootB;\n    }\n    return [];\n}",
-      "timeComplexity": "O((stations + links) × α(stations)), effectively linear",
+      "approach": "Start with every station as its own representative and with a group size of 1. For each link, find both representatives; if they match the link is redundant, otherwise attach the root of the smaller group under the root of the larger one (union by size) and add the sizes. Path halving during find keeps the trees flat.",
+      "pseudocode": "parent[i] = i; size[i] = 1; for each (a, b): ra = find(a), rb = find(b); if ra == rb return [a, b]; attach the smaller root under the larger (union by size) and add the sizes; return [].",
+      "code": "function firstRedundantLink(stations, links) {\n    const parent = Array.from({ length: stations }, (_, i) => i);\n    const size = new Array(stations).fill(1);\n    const find = (station) => {\n        while (parent[station] !== station) {\n            parent[station] = parent[parent[station]];\n            station = parent[station];\n        }\n        return station;\n    };\n    for (const [a, b] of links) {\n        let rootA = find(a);\n        let rootB = find(b);\n        if (rootA === rootB)\n            return [a, b];\n        if (size[rootA] < size[rootB])\n            [rootA, rootB] = [rootB, rootA];\n        parent[rootB] = rootA;\n        size[rootA] += size[rootB];\n    }\n    return [];\n}",
+      "timeComplexity": "O((stations + links) × α(stations)) with path halving and union by size, effectively linear",
       "spaceComplexity": "O(stations)",
       "commonMistakes": [
         "Comparing parent[a] with parent[b] directly instead of their roots.",
         "Returning the normalized pair [min, max] instead of the link as written."
       ],
-      "interviewExplanation": "I use union-find: each station points toward a group representative, find follows those pointers while halving the path, and union links one root under the other. A link whose endpoints already share a root closes a cycle, which is the redundancy we are asked for. With path compression the amortized cost per operation is inverse-Ackermann, so the scan is effectively linear.",
+      "interviewExplanation": "I use union-find: each station points toward a group representative, find follows those pointers while halving the path, and union attaches the root of the smaller group under the root of the larger one. A link whose endpoints already share a root closes a cycle, which is the redundancy we are asked for. With path halving and union by size the amortized cost per operation is inverse-Ackermann, so the scan is effectively linear.",
       "steps": [
         {
           "position": 1,
           "title": "Step 1",
-          "content": "For links [[0,1],[1,2],[2,0],[2,3]], link 0–1 merges 0 into 1's group and link 1–2 merges into 2's group."
+          "content": "For links [[0,1],[1,2],[2,0],[2,3]], link 0–1 puts 1 under 0 (equal sizes) and link 1–2 puts the smaller group {2} under root 0."
         },
         {
           "position": 2,
           "title": "Step 2",
-          "content": "For link 2–0, find(2) and find(0) both return 2, so [2, 0] is returned before 2–3 is considered."
+          "content": "For link 2–0, find(2) and find(0) both return 0, so [2, 0] is returned before 2–3 is considered."
         }
       ]
     }

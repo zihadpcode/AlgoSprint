@@ -274,7 +274,7 @@
         "Producing n windows instead of n - k + 1.",
         "Starting best at 0, which fails for all-negative windows."
       ],
-      "interviewExplanation": "Each window is scanned on its own, so the cost is O(n·k), up to 10^8 when k is around n/2.",
+      "interviewExplanation": "Each window is scanned on its own, so the cost is O(n·k), at most about 2.5 × 10^7 element reads for n = 10^4 (the product (n - k + 1)·k peaks when k is around n/2).",
       "steps": [
         {
           "position": 1,

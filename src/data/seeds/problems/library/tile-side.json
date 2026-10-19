@@ -196,7 +196,7 @@
       "timeComplexity": "O(min · n)",
       "spaceComplexity": "O(1)",
       "commonMistakes": [
-        "Starting from the longest plank, which wastes work and can return a length that does not divide the shortest plank.",
+        "Starting from the longest plank, which wastes work.",
         "Spreading a very large array into Math.min, which can exceed the call-argument limit in some engines."
       ],
       "interviewExplanation": "Counting down from the shortest plank finds the answer, but it can test up to a million candidates against every plank.",

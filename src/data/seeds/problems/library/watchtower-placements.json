@@ -46,7 +46,7 @@
   "hints": [
     {
       "position": 1,
-      "content": "Because size towers must avoid sharing rows, every row holds exactly one tower; decide rows one at a time."
+      "content": "No two towers may share a row, and there are exactly size towers. What does that tell you about how many towers each row holds?"
     },
     {
       "position": 2,
@@ -156,7 +156,7 @@
       "pseudocode": "for each permutation p of columns: if no pair (a, b) has |p[a] - p[b]| == b - a then count++; return count.",
       "code": "function watchtowerPlacements(size) {\n    const columns = Array.from({ length: size }, (_, i) => i);\n    let count = 0;\n    function safe(assignment) {\n        for (let a = 0; a < assignment.length; a++)\n            for (let b = a + 1; b < assignment.length; b++)\n                if (Math.abs(assignment[a] - assignment[b]) === b - a)\n                    return false;\n        return true;\n    }\n    function permute(prefix, remaining) {\n        if (remaining.length === 0) {\n            if (safe(prefix))\n                count++;\n            return;\n        }\n        for (let i = 0; i < remaining.length; i++)\n            permute([...prefix, remaining[i]], [...remaining.slice(0, i), ...remaining.slice(i + 1)]);\n    }\n    permute([], columns);\n    return count;\n}",
       "timeComplexity": "O(n! × n²)",
-      "spaceComplexity": "O(n) recursion depth",
+      "spaceComplexity": "O(n²): each recursive frame holds its own copies of prefix and remaining",
       "commonMistakes": [
         "Checking only adjacent rows for diagonal conflicts.",
         "Generating all n^n column choices instead of permutations, which repeats column conflicts unnecessarily."

@@ -177,10 +177,10 @@
       "timeComplexity": "O(2^n) upper bound",
       "spaceComplexity": "O(n) recursion depth",
       "commonMistakes": [
-        "The state is the cost to arrive before paying to leave; mixing the two meanings double-counts fees.",
-        "The exit is at index n and must not read a nonexistent costs[n]."
+        "Reading costs[n] at the exit; visit must return 0 for any position at or beyond costs.length.",
+        "Starting only from platform 0 and forgetting that platform 1 is also a free starting choice."
       ],
-      "interviewExplanation": "I define the state as the minimum cost to arrive at a position. The last move comes from one of two earlier platforms, including that platform’s departure fee. Computing each state once removes repeated recursion, and keeping only two states reduces extra space to constant.",
+      "interviewExplanation": "I recursively try the one-step and two-step move from each platform, add that platform’s departure fee, and take the cheaper of the two starting platforms. Many routes pass through the same platform, so the same subproblem is recomputed and the number of calls grows exponentially, O(2^n) in the worst case, with O(n) recursion depth. The optimal solution computes the minimum arrival cost of each position once and reuses it, which gives O(n) time, and keeping only the last two values needs O(1) space.",
       "steps": [
         {
           "position": 1,
@@ -195,7 +195,7 @@
         {
           "position": 3,
           "title": "Step 3",
-          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+          "content": "For [4,9,2,7], visit(2) = 2 and visit(1) = 9 + min(2, 7) = 11, so visit(0) = 4 + min(11, 2) = 6. The cheaper starting platform is 0, so the answer is 6."
         }
       ]
     },
