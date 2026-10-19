@@ -1,0 +1,411 @@
+{
+  "schemaVersion": 1,
+  "slug": "crew-cover",
+  "title": "Crew Cover",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "bitmask-dp",
+  "statement": "A rescue mission needs skills numbered 0 to skills - 1. Each volunteer is described by a bitmask: bit i is set when that volunteer has skill i. Choose some volunteers so that every skill is held by at least one chosen volunteer. Return the smallest number of volunteers that covers all skills, or -1 if no group of volunteers can. Each volunteer may be chosen at most once.",
+  "constraints": [
+    "1 <= skills <= 16",
+    "1 <= volunteers.length <= 60",
+    "0 <= volunteers[i] < 2^skills (a volunteer may have no skills)"
+  ],
+  "estimatedMinutes": 50,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "dynamic-programming",
+    "bit-manipulation"
+  ],
+  "tags": [
+    "bitwise",
+    "state-transition"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [
+    "badge-subsets",
+    "fewest-tokens",
+    "lit-panels"
+  ],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "skills": 4,
+        "volunteers": [
+          3,
+          12,
+          6,
+          9
+        ]
+      },
+      "output": 2,
+      "explanation": "Volunteer 3 has skills 0 and 1, and volunteer 12 has skills 2 and 3, so those two together cover all four skills. No single volunteer does."
+    },
+    {
+      "position": 2,
+      "input": {
+        "skills": 3,
+        "volunteers": [
+          1,
+          2
+        ]
+      },
+      "output": -1,
+      "explanation": "Nobody has skill 2, so the mission cannot be covered."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "A group's combined skills are the bitwise OR of its masks. You want that OR to equal (1 << skills) - 1 using as few masks as possible."
+    },
+    {
+      "position": 2,
+      "content": "Trying every subset of up to 60 volunteers is hopeless, but the state you care about is only which skills are already covered: at most 2^16 = 65,536 values."
+    },
+    {
+      "position": 3,
+      "content": "Let fewest[covered] be the fewest volunteers whose OR is exactly the set covered. Start with fewest[0] = 0 and everything else unreachable."
+    },
+    {
+      "position": 4,
+      "content": "For each volunteer mask and each covered set, relax fewest[covered | mask] = min(fewest[covered | mask], fewest[covered] + 1)."
+    },
+    {
+      "position": 5,
+      "content": "The answer is fewest[full], or -1 if it is unreachable. Using one volunteer twice never helps (OR is idempotent and the count only grows), so one in-place pass per volunteer is exact. Time is volunteers * 2^skills."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "crewCover",
+      "code": "function crewCover(skills, volunteers) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "skills": 4,
+        "volunteers": [
+          3,
+          12,
+          6,
+          9
+        ]
+      },
+      "output": 2,
+      "explanation": "Two complementary volunteers."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "skills": 3,
+        "volunteers": [
+          1,
+          2
+        ]
+      },
+      "output": -1,
+      "explanation": "A skill nobody has."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 1,
+        "volunteers": [
+          1
+        ]
+      },
+      "output": 1,
+      "explanation": "The smallest mission."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 2,
+        "volunteers": [
+          0,
+          0
+        ]
+      },
+      "output": -1,
+      "explanation": "Volunteers without skills never help."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 5,
+        "volunteers": [
+          3,
+          12,
+          16,
+          24,
+          7
+        ]
+      },
+      "output": 2,
+      "explanation": "Masks 7 (skills 0-2) and 24 (skills 3-4) cover everything."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 4,
+        "volunteers": [
+          5,
+          5,
+          5,
+          10
+        ]
+      },
+      "output": 2,
+      "explanation": "Duplicate volunteers do not combine with themselves; 5 and 10 are needed."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 6,
+        "volunteers": [
+          30,
+          7,
+          56,
+          1
+        ]
+      },
+      "output": 2,
+      "explanation": "Taking the broadest volunteer first (mask 30) would need three people; masks 7 and 56 cover everything with two."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 16,
+        "volunteers": [
+          43690,
+          21845
+        ]
+      },
+      "output": 2,
+      "explanation": "The widest mission with two interleaved volunteers."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 16,
+        "volunteers": [
+          20992,
+          134,
+          9224,
+          4114,
+          2592,
+          288,
+          49154,
+          16641,
+          1029,
+          13312,
+          16396,
+          16401,
+          32776,
+          3074,
+          2624,
+          32834,
+          9472,
+          33280,
+          289,
+          516,
+          52,
+          21,
+          290,
+          4616,
+          3080,
+          522,
+          134,
+          515,
+          2084,
+          33026,
+          2624,
+          16641,
+          1042,
+          34944,
+          10242,
+          16900,
+          16408,
+          8464,
+          8194,
+          33792,
+          8449,
+          16644,
+          262,
+          1344,
+          1042,
+          22528,
+          49152,
+          3328,
+          770,
+          4102,
+          6148,
+          8224,
+          8194,
+          18432,
+          546,
+          8512,
+          4356,
+          17536,
+          16388,
+          8212
+        ]
+      },
+      "output": 6,
+      "explanation": "A full-size random roster where several volunteers are required."
+    },
+    {
+      "position": 10,
+      "visibility": "HIDDEN",
+      "input": {
+        "skills": 16,
+        "volunteers": [
+          17152,
+          24768,
+          1036,
+          20544,
+          23,
+          41,
+          81,
+          98,
+          674,
+          30720,
+          4194,
+          41,
+          17668,
+          24579,
+          17441,
+          2272,
+          3588,
+          1680,
+          17040,
+          26656,
+          8456,
+          69,
+          10272,
+          1576,
+          2051,
+          8208,
+          12800,
+          29696,
+          608,
+          114,
+          2576,
+          4121,
+          4656,
+          2690,
+          4105,
+          3072,
+          20552,
+          705,
+          17418,
+          396,
+          13316,
+          6416,
+          16578,
+          8776,
+          3,
+          52,
+          7424,
+          4676,
+          8480,
+          1025,
+          16393,
+          529,
+          1537,
+          1824,
+          4625,
+          25088,
+          9600,
+          25089,
+          4369,
+          69
+        ]
+      },
+      "output": -1,
+      "explanation": "A full-size roster in which skill 15 is missing, so the answer is -1."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Include or exclude each volunteer",
+      "intuition": "Try both choices for every volunteer and keep the smallest group that covers all skills.",
+      "approach": "Recurse over volunteers with the covered set and the group size. Stop a branch when it already has as many volunteers as the best known answer or when everything is covered.",
+      "pseudocode": "choose(i, covered, count): if count >= best: return\n  if covered == full: best = count; return\n  if i == n: return\n  choose(i+1, covered | v[i], count + 1); choose(i+1, covered, count)",
+      "code": "function crewCover(skills, volunteers) {\n  const full = (1 << skills) - 1;\n  let best = Infinity;\n  const choose = (index, covered, count) => {\n    if (count >= best) return;\n    if (covered === full) {\n      best = count;\n      return;\n    }\n    if (index === volunteers.length) return;\n    choose(index + 1, covered | volunteers[index], count + 1);\n    choose(index + 1, covered, count);\n  };\n  choose(0, 0, 0);\n  return best === Infinity ? -1 : best;\n}",
+      "timeComplexity": "O(2^volunteers) in the worst case, even with pruning",
+      "spaceComplexity": "O(volunteers) recursion depth",
+      "commonMistakes": [
+        "Not stopping when a branch cannot beat the best answer.",
+        "Treating a volunteer with an empty mask as useful."
+      ],
+      "interviewExplanation": "Include/exclude search is the direct definition: pick a subset and check the OR. The pruning helps on small rosters, but there are 2^60 subsets in the worst case, so it cannot handle full-size input. The coverage set has only 65,536 possible values, which is what the DP exploits.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Branch on volunteer 3",
+          "content": "Including mask 3 covers skills 0 and 1 with count 1."
+        },
+        {
+          "position": 2,
+          "title": "Complete the cover",
+          "content": "Including mask 12 next covers everything with count 2; the search prunes any branch that reaches 2 volunteers without finishing."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "DP over the set of covered skills",
+      "intuition": "Only the covered set matters, not which volunteers produced it, so track the fewest volunteers for each of the 2^skills covered sets.",
+      "approach": "fewest[0] = 0, all others unreachable. For each volunteer with a non-empty mask, sweep every covered set and relax fewest[covered | mask] with fewest[covered] + 1. Return fewest[full] or -1.",
+      "pseudocode": "fewest = [inf]*(1<<skills); fewest[0] = 0\nfor mask in volunteers: for c in 0..full: fewest[c | mask] = min(fewest[c | mask], fewest[c] + 1)\nreturn fewest[full] or -1",
+      "code": "function crewCover(skills, volunteers) {\n  const full = (1 << skills) - 1;\n  const fewest = new Int32Array(full + 1).fill(1000);\n  fewest[0] = 0;\n  for (const mask of volunteers) {\n    if (mask === 0) continue;\n    for (let covered = 0; covered <= full; covered++) {\n      const merged = covered | mask;\n      if (fewest[covered] + 1 < fewest[merged]) fewest[merged] = fewest[covered] + 1;\n    }\n  }\n  return fewest[full] >= 1000 ? -1 : fewest[full];\n}",
+      "timeComplexity": "O(volunteers * 2^skills), at most 60 * 65,536 = about 3.9 million steps",
+      "spaceComplexity": "O(2^skills)",
+      "commonMistakes": [
+        "Forgetting that fewest[0] = 0 is the only starting state.",
+        "Worrying that the in-place update lets a volunteer count twice; a second use of the same mask only adds to the count without covering anything new, so the minimum is unaffected.",
+        "Allocating a Number array of size 2^16 without a sentinel for unreachable states."
+      ],
+      "interviewExplanation": "The state is the set of skills covered so far, encoded as a bitmask, and the transition ORs in one more volunteer for a cost of one. That collapses 2^60 subsets into 2^16 states: 65,536 values times 60 volunteers is about 3.9 million operations. Reusing a volunteer inside the same pass is harmless because it never lowers a count. This is the standard smallest-sufficient-team formulation of set cover with a small universe.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Initial state",
+          "content": "fewest[0000] = 0; every other covered set is unreachable."
+        },
+        {
+          "position": 2,
+          "title": "Add volunteers 3 and 12",
+          "content": "Mask 3 sets fewest[0011] = 1; mask 12 then sets fewest[1100] = 1 and fewest[1111] = 2 from fewest[0011]."
+        },
+        {
+          "position": 3,
+          "title": "Read the answer",
+          "content": "Masks 6 and 9 cannot beat 2, so fewest[1111] = 2."
+        }
+      ]
+    }
+  ]
+}

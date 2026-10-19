@@ -103,8 +103,8 @@ it("rejects a direct seed batch before any database query or transaction", async
   expect(query).not.toHaveBeenCalled(); expect(transaction).not.toHaveBeenCalled();
 });
 
-it("keeps all 100 current fixtures and their content hashes unchanged", () => {
-  expect(problems).toHaveLength(100);
+it("keeps all 113 current fixtures and their content hashes unchanged", () => {
+  expect(problems).toHaveLength(113);
   const before = problems.map(problemHash);
   const parsed = problemBatchSchema.parse(problems);
   expect(parsed).toEqual(problems);
