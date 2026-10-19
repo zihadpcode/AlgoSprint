@@ -145,3 +145,13 @@ it("lists every starter language while enabling Python controls only when the ru
     expect(buttons()).toEqual({ "Run visible tests": disabled, "Submit solution": disabled });
   }
 });
+
+it("uses a constant Maximize editor label with aria-pressed inside a split pane", async () => {
+  const { SplitPane } = await import("@/components/workspace/split-pane");
+  await act(() => root.render(createElement(SplitPane, { left: createElement("p", null, "left"), right: createElement(CodeEditor, { starters }) })));
+  const toggle = host.querySelector<HTMLButtonElement>('button[aria-pressed]')!;
+  expect(toggle.getAttribute("aria-label")).toBe("Maximize editor"); expect(toggle.getAttribute("aria-pressed")).toBe("false");
+  await act(() => toggle.click());
+  expect(host.querySelector<HTMLButtonElement>('button[aria-pressed]')!.getAttribute("aria-label")).toBe("Maximize editor");
+  expect(host.querySelector('button[aria-pressed="true"]')).not.toBeNull();
+});

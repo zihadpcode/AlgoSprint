@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageHeading } from "@/components/ui/page-heading";
 import { ButtonLink } from "@/components/ui/button";
 import { CodeEditor } from "@/components/editor/code-editor";
+import type { SubmissionsState } from "@/components/workspace/submissions-list";
 import { ProblemPanel } from "@/components/workspace/problem-panel";
 import { SplitPane } from "@/components/workspace/split-pane";
 import { getRunnerConfig } from "@/features/submissions/config";
@@ -29,7 +30,12 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
   const runnerConfig = getRunnerConfig();
   const loginHref = `/login?next=${encodeURIComponent(`/problems/${problem.slug}`)}`;
   // Owner-scoped: draftOwner is the verified session's user id; guests get no history at all.
-  const submissions = view.draftOwner ? await queryProblemSubmissions(getDatabase(), view.draftOwner, problem.slug) : null;
+  // A history lookup failure must not take down the problem: show "unavailable" in that tab only.
+  let submissions: SubmissionsState = null;
+  if (view.draftOwner) {
+    try { submissions = await queryProblemSubmissions(getDatabase(), view.draftOwner, problem.slug); }
+    catch { submissions = "unavailable"; }
+  }
   return <AppShell signedIn={view.signedIn} admin={view.admin} layout="workspace">
     <SplitPane
       left={<ProblemPanel problem={problem} submissions={submissions} loginHref={loginHref} />}

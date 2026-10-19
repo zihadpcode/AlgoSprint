@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { verdictLabels, type Verdict } from "@/features/submissions/contracts";
 import type { SubmissionHistoryItem } from "@/features/submissions/history-query";
 import { editorLanguages, type EditorLanguage } from "@/components/editor/editor-state";
+import { SUBMISSION_HISTORY_LIMIT } from "@/features/submissions/history-limit";
+import { ButtonLink } from "@/components/ui/button";
 import { relativeTime } from "./relative-time";
 
 const tones = { ACCEPTED: "text-success", WRONG_ANSWER: "text-warm", TIME_LIMIT: "text-warm", MEMORY_LIMIT: "text-warm" } as Record<string, string>;
@@ -10,7 +12,9 @@ const tones = { ACCEPTED: "text-success", WRONG_ANSWER: "text-warm", TIME_LIMIT:
 /** Read-only list of the signed-in viewer's own attempts: status, passed/total, runtime, language, when. */
 export function SubmissionsList({ items, now = new Date() }: { items: SubmissionHistoryItem[]; now?: Date }) {
   if (!items.length) return <p className="rounded-lg border border-dashed border-line px-4 py-8 text-center text-sm text-muted">No attempts yet. Run or submit your code to see your history here.</p>;
-  return <ul className="divide-y divide-line rounded-lg border border-line" aria-label="Your attempts on this problem">
+  return <div className="space-y-2">
+    {items.length >= SUBMISSION_HISTORY_LIMIT && <p className="text-xs text-subtle">Latest {SUBMISSION_HISTORY_LIMIT} attempts</p>}
+    <ul className="divide-y divide-line rounded-lg border border-line" aria-label="Your attempts on this problem">
     {items.map((item) => {
       const label = item.status === "QUEUED" || item.status === "RUNNING" ? "In progress" : verdictLabels[item.status as Verdict] ?? item.status;
       const Icon = item.status === "ACCEPTED" ? CheckCircle2 : item.status === "QUEUED" || item.status === "RUNNING" ? CircleDashed : XCircle;
@@ -24,5 +28,15 @@ export function SubmissionsList({ items, now = new Date() }: { items: Submission
         <time dateTime={item.createdAt.toISOString()} title={item.createdAt.toISOString()} className="ml-auto text-xs text-subtle">{relativeTime(item.createdAt, now)}</time>
       </li>;
     })}
-  </ul>;
+  </ul>
+  </div>;
+}
+
+export type SubmissionsState = SubmissionHistoryItem[] | "unavailable" | null;
+
+/** Submissions tab body: null is a guest, "unavailable" is a failed history lookup, an array is the viewer's list. */
+export function SubmissionsTab({ submissions, loginHref }: { submissions: SubmissionsState; loginHref: string }) {
+  if (submissions === "unavailable") return <p role="status" className="rounded-lg border border-dashed border-line px-4 py-8 text-center text-sm text-muted">History is temporarily unavailable. Your attempts are safe; reload in a moment to see them.</p>;
+  if (submissions === null) return <div className="space-y-3 rounded-lg border border-dashed border-line px-4 py-8 text-center"><p className="text-sm text-muted">Sign in to keep a history of your attempts on this problem.</p><ButtonLink href={loginHref} size="sm">Sign in</ButtonLink></div>;
+  return <SubmissionsList items={submissions} />;
 }

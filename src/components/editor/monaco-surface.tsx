@@ -20,7 +20,7 @@ const themeColors = {
   "editor.selectionHighlightBackground": "#6366f122", "editor.wordHighlightBackground": "#6366f122",
   "editor.findMatchBackground": "#fbbf2455", "editor.findMatchHighlightBackground": "#fbbf2426",
   "editorCursor.foreground": "#818cf8", "editorWhitespace.foreground": "#27272a",
-  "editorLineNumber.foreground": "#52525b", "editorLineNumber.activeForeground": "#a1a1aa",
+  "editorLineNumber.foreground": "#6b6b75", "editorLineNumber.activeForeground": "#d4d4d8",
   "editorIndentGuide.background1": "#1f1f23", "editorIndentGuide.activeBackground1": "#3f3f46",
   "editorBracketMatch.background": "#6366f133", "editorBracketMatch.border": "#818cf866",
   "editorGutter.background": "#09090b", "editorWidget.background": "#18181b", "editorWidget.border": "#27272a",
@@ -30,7 +30,7 @@ const themeColors = {
   "minimap.background": "#09090b", "input.background": "#111113", "input.border": "#27272a", "focusBorder": "#818cf8",
 };
 const themeRules = [
-  { token: "comment", foreground: "71717a", fontStyle: "italic" }, { token: "keyword", foreground: "a5b4fc" },
+  { token: "comment", foreground: "8b8b95", fontStyle: "italic" }, { token: "keyword", foreground: "a5b4fc" },
   { token: "string", foreground: "6ee7b7" }, { token: "number", foreground: "fcd34d" }, { token: "type", foreground: "67e8f9" },
   { token: "identifier", foreground: "e4e4e7" }, { token: "delimiter", foreground: "a1a1aa" }, { token: "regexp", foreground: "fda4af" },
 ];
