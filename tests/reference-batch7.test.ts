@@ -114,7 +114,7 @@ describe("exhaustive and edge checks", () => {
 });
 
 // A correct solution must neither be rejected for a stored input above the runner's 64,000-byte stdin limit nor fail with
-// "Output exceeds the sandbox limit" (90,000 bytes). Every worst case below is at the schema cap; outputs are held to 70%.
+// "Output exceeds the sandbox limit" if output crosses the current runner cap. Every worst case below is at the schema cap; outputs are held to 70%.
 describe("batch 7 worst-case input and output sizes", () => {
   const cap = SANDBOX_LIMITS.outputBytes;
   const INPUT_CAP = 64_000;
