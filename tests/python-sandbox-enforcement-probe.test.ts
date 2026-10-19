@@ -37,6 +37,8 @@ it("runs only the pinned trusted fixture in one bounded, deny-all, nonpersistent
   expect(command).toMatchObject({ cmd: "python3", sudo: true, timeoutMs: 10_000 });
   expect(command.args.slice(0, 2)).toEqual(["-I", "-c"]);
   expect(command.args[2]).toContain("check_descendants");
+  expect(command.args[2]).toContain('"networkEnforcementVerified": False');
+  expect(command.args[2]).toContain('"directConnectionSucceeded": False');
   expect(JSON.stringify(command.args)).not.toContain(credentials.token);
   expect(command).not.toHaveProperty("env");
   expect(f.stop).toHaveBeenCalledTimes(1);

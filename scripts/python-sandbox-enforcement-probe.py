@@ -161,12 +161,13 @@ time.sleep(10)
 
 def check_network():
     # No credentials, no payload, and a fixed 300 ms timeout. A successful
-    # connection is a failed isolation check, not an invitation to proceed.
+    # connection is a failed isolation check. A failed connection alone does
+    # not prove firewall enforcement (routing or the destination may fail).
     try:
         with socket.create_connection(("1.1.1.1", 443), timeout=0.3):
-            results["network"] = {"directEgressDenied": False}
+            results["network"] = {"directConnectionSucceeded": True}
     except OSError:
-        results["network"] = {"directEgressDenied": True}
+        results["network"] = {"directConnectionSucceeded": False}
 
 
 for name, check in [
@@ -184,5 +185,5 @@ for name, check in [
 
 print(json.dumps({"trustedProbeOnly": True, "results": results,
                   "learnerIsolationVerified": False,
-                  "networkEnforcementVerified": results.get("network", {}).get("directEgressDenied", False),
+                  "networkEnforcementVerified": False,
                   "outputStreamEnforcementVerified": False}, separators=(",", ":")))
