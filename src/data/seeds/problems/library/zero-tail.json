@@ -15429,7 +15429,7 @@
       "approach": "Multiply all numbers as BigInt, then while product % base is zero, divide and count.",
       "pseudocode": "product = 1n\nfor v in numbers: product *= v\nzeros = 0\nwhile product % base == 0: product //= base; zeros += 1",
       "code": "function zeroTail(numbers, base) {\n  let product = BigInt(1);\n  for (const value of numbers) product *= BigInt(value);\n  const divisor = BigInt(base);\n  let zeros = 0;\n  while (product % divisor === BigInt(0)) {\n    product /= divisor;\n    zeros++;\n  }\n  return zeros;\n}",
-      "timeComplexity": "Each division is O(size of the product); with up to 145,000 divisions of a 145,000-bit number this is billions of word operations",
+      "timeComplexity": "Each division is O(size of the product); with up to 145,000 divisions of a 145,000-bit number this is hundreds of millions of word operations",
       "spaceComplexity": "O(n log max) bits for the product",
       "commonMistakes": [
         "Using ordinary numbers, which lose precision after 2^53.",

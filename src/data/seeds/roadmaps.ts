@@ -438,7 +438,7 @@ export const ROADMAPS = [
   },
   {
     slug: "capstone-mix-3", title: "Capstone Mix 3", difficulty: "HARD", estimatedMinutes: 470,
-    description: "A third mixed set built only from the newest twelve problems: difference arrays, sorted two-pointer counting, reflected-code decoding, prime-factor accounting, layered grid DP, Fenwick trees, sorted booking lists, time-dependent BFS, monotonic deques, interval DP, border arrays and meet in the middle. Problems are not grouped by pattern: name the technique you expect before each one, then check your guess against the hints.",
+    description: "A third mixed set built only from the newest twelve problems: difference arrays, sorted two-pointer counting, reflected-code decoding, prime-factor accounting, layered grid DP, Fenwick trees, sorted booking lists, time-dependent BFS, monotonic deques, interval DP, border arrays and meet in the middle. Problems are not grouped by pattern. Each step title names its key idea, so before opening the hints try to sketch the whole solution from the title alone, then compare your sketch with the hints.",
     steps: [
       { problemSlug: "worn-tiles", title: "Mark the edges, then sweep once", description: "Add one where a pass starts and subtract one just after it ends, then keep a running sum. Size the array one slot larger than the hallway." },
       { problemSlug: "close-calls", title: "Sort so partners form one stretch", description: "After sorting, the partners within tolerance sit in an unbroken block below each reading. Slide a left pointer that never moves back." },

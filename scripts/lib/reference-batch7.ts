@@ -193,7 +193,7 @@ const tollSlideSample = (rng: Rng) => {
 const bayOp = z.union([
   z.tuple([z.literal("set"), z.int().min(1).max(100_000), z.int().min(0).max(1_000)]),
   z.tuple([z.literal("total"), z.int().min(1).max(100_000)]),
-  z.tuple([z.literal("locate"), z.int().min(1).max(1_000_000_000)]),
+  z.tuple([z.literal("locate"), z.int().min(1).max(100_000_000)]),
 ]);
 type BayOp = z.infer<typeof bayOp>;
 export const bayLedgerInput = z.strictObject({

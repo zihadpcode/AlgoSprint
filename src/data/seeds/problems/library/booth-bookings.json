@@ -153,11 +153,11 @@
     },
     {
       "position": 2,
-      "content": "Keep the active bookings sorted by start. They never overlap, so their ends are in the same order, and only the closest booking before and the closest after can be too near."
+      "content": "Active bookings never overlap, so they have a natural order in time. Is every active booking equally able to block a new one, or only some of them?"
     },
     {
       "position": 3,
-      "content": "Find the insertion position with a binary search on the starts, then check previous.end + gap <= start and end + gap <= next.start."
+      "content": "Keep them sorted by start (their ends are then sorted too), so only the closest booking before and the closest after can be too near. Find the insertion position with a binary search on the starts, then check previous.end + gap <= start and end + gap <= next.start."
     },
     {
       "position": 4,

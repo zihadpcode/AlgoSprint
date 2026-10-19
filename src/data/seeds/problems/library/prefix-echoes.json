@@ -18357,7 +18357,7 @@
       "approach": "For a query length L, try every start from 0 to n - L and compare up to L letters, counting the starts where all L match.",
       "pseudocode": "for L in lengths: count = 0\n  for start in 0..n-L: if text[start..start+L) == text[0..L): count += 1",
       "code": "function prefixEchoes(text, lengths) {\n  return lengths.map((length) => {\n    let count = 0;\n    for (let start = 0; start + length <= text.length; start++) {\n      let offset = 0;\n      while (offset < length && text[start + offset] === text[offset]) offset++;\n      if (offset === length) count++;\n    }\n    return count;\n  });\n}",
-      "timeComplexity": "O(queries * n * L) in the worst case, about 3000 * 40000 * 20000 for one repeated letter",
+      "timeComplexity": "O(n * L) per query, at most about (n - L) * L = n^2 / 4 = 400 million letter comparisons for one repeated letter and L = n / 2",
       "spaceComplexity": "O(1) beyond the output",
       "commonMistakes": [
         "Counting only non-overlapping occurrences.",

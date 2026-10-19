@@ -40537,7 +40537,7 @@
         "maxLen": 13000
       },
       "output": -2342,
-      "explanation": "The largest record with lengths between 7,000 and 13,000, about 120 million block checks for brute force."
+      "explanation": "The largest record with lengths between 7,000 and 13,000: about 60 million valid blocks, and a start-by-start brute force performs about 175 million additions."
     },
     {
       "position": 10,

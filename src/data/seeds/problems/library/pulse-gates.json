@@ -65,11 +65,11 @@
     },
     {
       "position": 2,
-      "content": "Gates repeat every period ticks, so only the time modulo period matters. A state is a cell together with the time modulo period."
+      "content": "The gates repeat on a cycle. How many different gate situations can there be, and what does that suggest you must remember about the drone besides its cell?"
     },
     {
       "position": 3,
-      "content": "Every move, including staying put, costs exactly one tick, so a breadth-first search over those states finds the earliest time."
+      "content": "Only the time modulo period matters, so treat (cell, time mod period) as the state. Every move, including staying put, costs exactly one tick, so a breadth-first search over those states finds the earliest time."
     },
     {
       "position": 4,
@@ -434,7 +434,7 @@
         "period": 6
       },
       "output": 38758,
-      "explanation": "The largest map: a one-cell-wide corridor of almost 60,000 cells with a gate every seventh cell. Simulating every reachable cell tick by tick repeats work on tens of thousands of ticks."
+      "explanation": "The largest map: a one-cell-wide corridor of about 30,000 open cells winding through a 59,750-cell grid, with a gate every seventh cell of each corridor row. Simulating every reachable cell tick by tick repeats work on tens of thousands of ticks."
     },
     {
       "position": 9,

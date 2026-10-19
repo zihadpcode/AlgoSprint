@@ -60304,7 +60304,7 @@
         "Adding right - left + 1, which counts a reading paired with itself.",
         "Moving left back after it has advanced."
       ],
-      "interviewExplanation": "Sorting turns the pair condition into a range condition: for a fixed reading, partners within tolerance are an unbroken stretch just below it. Because readings only increase along the sweep, the left boundary moves only forward, so the sweep is linear after the O(n log n) sort. A typed array sort compares numerically.",
+      "interviewExplanation": "Sorting turns the pair condition into a range condition: for a fixed reading, partners within tolerance are an unbroken stretch just below it. Because readings only increase along the sweep, the left boundary moves only forward, so the sweep is linear after the O(n log n) sort. A typed array sort compares numerically. Because every reading is at most 999, a counting array plus prefix sums over the 1,000 possible values would also work in O(n + 1000); the sorted two-pointer sweep is the version that does not rely on that small range.",
       "steps": [
         {
           "position": 1,

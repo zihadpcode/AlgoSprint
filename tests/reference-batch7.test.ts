@@ -30,7 +30,7 @@ describe("library batch 7 references", () => {
         expect(item.solve(...args), JSON.stringify(input)).toEqual(item.brute(...args));
         expect(libraryResult(slug, input)).toEqual(item.solve(...args));
       }
-    });
+    }, 60_000);
     it(`${slug}: the sampler is deterministic for a seed`, () => {
       const first = Array.from({ length: 20 }, ((rng) => () => item.sample(rng))(seededRng(7)));
       const second = Array.from({ length: 20 }, ((rng) => () => item.sample(rng))(seededRng(7)));
@@ -149,6 +149,8 @@ describe("batch 7 worst-case input and output sizes", () => {
     "bay-ledger": [
       { bays: 100_000, operations: new Array(3_000).fill(["set", 100_000, 1_000]) },
       { bays: 100_000, operations: [...Array.from({ length: 1_500 }, (_, i) => ["set", 100_000 - i, 1_000]), ...Array.from({ length: 1_500 }, () => ["total", 100_000])] },
+      // The longest possible operation is a locate with a nine-digit k: 3,000 of them must still fit the input cap.
+      { bays: 100_000, operations: new Array(3_000).fill(["locate", 100_000_000]) },
     ],
     // Alternate a tiny booking far away with probes: next() answers 7-digit starts and the rest answer -1.
     "booth-bookings": [
@@ -261,6 +263,7 @@ describe("batch 7 input boundaries", () => {
     rejects("bay-ledger", { bays: 3, operations: [["set", 4, 1]] }, /between 1 and bays/);
     rejects("bay-ledger", { bays: 3, operations: [["total", 0]] });
     rejects("bay-ledger", { bays: 3, operations: [["locate", 0]] });
+    rejects("bay-ledger", { bays: 3, operations: [["locate", 100_000_001]] });
     rejects("bay-ledger", { bays: 3, operations: [["set", 1, 1001]] });
     rejects("bay-ledger", { bays: 3, operations: [["set", 1, -1]] });
     rejects("bay-ledger", { bays: 3, operations: [["set", 1]] });

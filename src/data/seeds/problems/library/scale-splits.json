@@ -67,11 +67,11 @@
   "hints": [
     {
       "position": 1,
-      "content": "There are 2^n placements, so n = 36 rules out trying them all. What if you could solve two independent halves of the crates and combine them?"
+      "content": "There are 2^n placements, so n = 36 rules out trying them all. What is the difference between the pans actually made of, and could any part of it be worked out independently of the rest?"
     },
     {
       "position": 2,
-      "content": "Describe a placement by a signed sum: +w for a crate on the left pan and -w for one on the right. The final difference is the signed sum of the first half plus the signed sum of the second half."
+      "content": "Describe a placement by a signed sum: +w for a crate on the left pan and -w for one on the right. If you cut the crates into a first half and a second half, the final difference is the signed sum of the first half plus the signed sum of the second half, and the halves can be handled separately."
     },
     {
       "position": 3,
@@ -225,12 +225,12 @@
           25,
           5,
           20,
-          1
+          2
         ],
         "tolerance": 0
       },
-      "output": 0,
-      "explanation": "26 small random crates and exact balance, a count in the millions."
+      "output": 629682,
+      "explanation": "26 small random crates (with an even total) and exact balance, a count in the hundreds of thousands."
     },
     {
       "position": 8,

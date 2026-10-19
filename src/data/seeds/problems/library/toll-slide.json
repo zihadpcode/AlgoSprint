@@ -234,7 +234,7 @@
       "input": {
         "grid": [
           [
-            2,
+            5,
             9,
             9,
             9
@@ -243,7 +243,7 @@
             1,
             9,
             9,
-            0
+            9
           ],
           [
             9,
@@ -253,8 +253,8 @@
           ]
         ]
       },
-      "output": 2,
-      "explanation": "The cheapest trip goes down first and slides along a lower row, not the first row."
+      "output": 6,
+      "explanation": "The cheapest trip steps down to the second row first and slides along it; sliding along the top row would cost more because the last column is expensive in the second row."
     },
     {
       "position": 7,

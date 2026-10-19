@@ -94,7 +94,7 @@
     },
     {
       "position": 5,
-      "content": "With both click numbers, one direction takes |clickA - clickB| clicks and the other takes 2^bits minus that. Return the smaller. Use 2 ** bits for the dial size so that 30 bits stays exact."
+      "content": "With both click numbers, one direction takes |clickA - clickB| clicks and the other takes 2^bits minus that. Return the smaller. Use 2 ** bits for the dial size."
     }
   ],
   "starterCode": [
@@ -26509,7 +26509,7 @@
       "spaceComplexity": "O(1) extra",
       "commonMistakes": [
         "Forgetting that the dial wraps, so the distance is the smaller of the two directions.",
-        "Using 1 << bits, which is fine up to 30 bits but overflows at 31."
+        "Treating the setting itself as the click number, which is only true for the first two clicks."
       ],
       "interviewExplanation": "Simulating the lock is the safest way to understand the sequence and is exact, but each query walks up to 2^bits clicks. With 30 bits that is more than a billion steps, so the click number must be computed from the setting instead.",
       "steps": [
