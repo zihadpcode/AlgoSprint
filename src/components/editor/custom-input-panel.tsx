@@ -45,8 +45,8 @@ export function CustomInputPanel({ code, signature, firstExample, validCode }: {
         : outcome ? <>
           {outcome.code !== code && <p className="text-xs text-warm">This output belongs to an earlier draft. Run again to use your current code.</p>}
           {outcome.value.kind === "returned"
-            ? <><Snippet label="Returned value" code={outcome.value.value || "(no value)"} />
-              {outcome.value.console && <Snippet label="Console output" code={outcome.value.console} />}
+            ? <><Snippet label="Returned value (preview; large results may be shortened)" code={outcome.value.value || "(no value)"} />
+              {outcome.value.console && <Snippet label="Console output (up to 4,000 characters)" code={outcome.value.console} />}
               {outcome.value.runtimeMs != null && <p className="text-xs text-subtle tabular-nums">{outcome.value.runtimeMs} ms</p>}</>
             : <Snippet label="Error" code={outcome.value.message} tone="danger" />}
         </> : <p className="text-xs leading-5 text-subtle">Edit the arguments and run your function to see its returned value and console output.</p>}
