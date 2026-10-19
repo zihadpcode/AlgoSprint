@@ -30,7 +30,7 @@ export function Toaster() {
     return () => window.removeEventListener(EVENT, add);
   }, []);
   // Polite live region: screen readers announce the toast without moving focus.
-  return <div aria-live="polite" aria-relevant="additions" className="pointer-events-none fixed right-4 bottom-4 z-[60] flex w-[min(22rem,calc(100vw-2rem))] flex-col gap-2">
+  return <div aria-live="polite" aria-relevant="additions" className="pointer-events-none fixed top-16 right-4 z-[60] flex w-[min(22rem,calc(100vw-2rem))] flex-col gap-2">
     {items.map((item) => {
       const Icon = icons[item.tone];
       return <div key={item.id} role={item.tone === "error" ? "alert" : "status"} className="pointer-events-auto flex animate-slide-up items-start gap-3 rounded-lg border border-line bg-surface-raised p-3 shadow-pop">
