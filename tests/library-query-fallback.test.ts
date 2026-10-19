@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-import { isMissingCategoryColumn, libraryWhere, queryLibrary } from "@/features/problems/query";
+import { isMissingCategoryColumn, libraryWhere, orderBy, queryLibrary } from "@/features/problems/query";
 import { parseLibraryFilters } from "@/features/problems/filters";
 
 // Shape recorded from Prisma 7 when Category.parentId does not exist (migration not applied).
@@ -52,5 +52,19 @@ it("never swallows other database failures", async () => {
 it("matches no problems for a group filter when the hierarchy is unavailable", () => {
   const filters = parseLibraryFilters({ group: "algorithms" });
   expect(JSON.stringify(libraryWhere(filters, null, false))).toContain('"slug":""');
-  expect(JSON.stringify(libraryWhere(filters, null, true))).toContain('"parent":{"slug":"algorithms"}');
+  expect(JSON.stringify(libraryWhere(filters, null, true))).toContain('"parent":{"slug":{"in":["algorithms"]}}');
+});
+it("builds an IN filter for several difficulties and categories, and ORs several statuses for the verified viewer", () => {
+  const where = JSON.stringify(libraryWhere(parseLibraryFilters({ difficulty: ["EASY", "HARD"], category: ["arrays", "trees"], completion: ["NOT_STARTED", "SOLVED"] }), "viewer-1"));
+  expect(where).toContain('"difficulty":{"in":["EASY","HARD"]}');
+  expect(where).toContain('"slug":{"in":["arrays","trees"]}');
+  expect(where).toContain('"OR":[{"progress":{"none":{"userId":"viewer-1","status":{"in":["ATTEMPTED","SOLVED"]}}}},{"progress":{"some":{"userId":"viewer-1","status":{"in":["SOLVED"]}}}}]');
+  expect(() => libraryWhere(parseLibraryFilters({ completion: ["SOLVED"] }), null)).toThrow("Verified viewer");
+});
+it("orders by the validated sort and direction with a stable ascending slug tie-breaker", () => {
+  expect(orderBy("title", "asc")).toEqual([{ title: "asc" }, { slug: "asc" }]);
+  expect(orderBy("title", "desc")).toEqual([{ title: "desc" }, { slug: "asc" }]);
+  expect(orderBy("difficulty", "desc")).toEqual([{ difficulty: "desc" }, { slug: "asc" }]);
+  expect(orderBy("time", "asc")).toEqual([{ estimatedMinutes: "asc" }, { slug: "asc" }]);
+  expect(orderBy("newest", "desc")).toEqual([{ publishedAt: { sort: "desc", nulls: "last" } }, { slug: "asc" }]);
 });

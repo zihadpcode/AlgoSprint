@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function ProgressPage() {
   const { summary, admin } = await loadProgress();
   return <AccountFrame admin={admin}>
-    <PageHeading eyebrow="Your practice record" title="Your progress" description="See what you have tried, what you have solved, and what you want to revisit." action={<ButtonLink href="/problems">Choose a problem</ButtonLink>} />
+    <PageHeading title="Your progress" description="See what you have tried, what you have solved, and what you want to revisit." action={<ButtonLink href="/problems">Choose a problem</ButtonLink>} />
     <ProgressSummary summary={summary} />
   </AccountFrame>;
 }

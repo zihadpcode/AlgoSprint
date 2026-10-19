@@ -29,23 +29,23 @@ const grouped = { categories: published.map(({ slug, name }) => ({ slug, name })
 let host: HTMLDivElement; let root: Root;
 beforeEach(() => { Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }); host = document.createElement("div"); document.body.append(host); root = createRoot(host); });
 afterEach(async () => { await act(() => root.unmount()); host.remove(); });
-const render = (facets: typeof flat | typeof grouped, params: Record<string, string> = {}) =>
+const render = (facets: typeof flat | typeof grouped, params: Record<string, string | string[]> = {}) =>
   act(() => root.render(createElement(LibraryFiltersForm, { filters: parseLibraryFilters(params), facets, signedIn: false })));
-const category = () => host.querySelector<HTMLSelectElement>('select[name="category"]')!;
+const topics = () => [...host.querySelectorAll<HTMLInputElement>('input[name="category"]')];
+const checked = (name: string) => [...host.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)].map((input) => input.value);
+const labelOf = (input: HTMLInputElement) => input.closest("label")?.textContent;
 
-it("renders exactly the old flat list when nothing is grouped", async () => {
+it("renders exactly the old flat list of topics when nothing is grouped", async () => {
   await render(flat);
-  expect(category().querySelectorAll("optgroup")).toHaveLength(0);
-  expect([...category().options].map((o) => [o.value, o.textContent])).toEqual([["", "All"], ["arrays", "Arrays"], ["sql", "SQL Problems"]]);
+  expect(host.querySelectorAll('[role="group"]')).toHaveLength(0);
+  expect(topics().map((input) => [input.value, labelOf(input)])).toEqual([["arrays", "Arrays"], ["sql", "SQL Problems"]]);
 });
-it("renders one optgroup per group with an All option, then the leaves in order", async () => {
+it("renders one labelled group per category group with its leaves in order", async () => {
   await render(grouped);
-  const groups = [...category().querySelectorAll("optgroup")];
-  expect(groups.map((g) => g.label)).toEqual(["Data Structures", "Algorithms"]);
-  expect([...groups[0].querySelectorAll("option")].map((o) => [o.value, o.textContent])).toEqual([
-    ["group:data-structures", "All Data Structures"], ["arrays", "Arrays"], ["trees", "Trees"],
-  ]);
-  expect([...groups[1].querySelectorAll("option")].map((o) => o.value)).toEqual(["group:algorithms", "bfs"]);
+  const groups = [...host.querySelectorAll('[role="group"]')];
+  expect(groups.map((g) => g.getAttribute("aria-label"))).toEqual(["Data Structures", "Algorithms"]);
+  expect([...groups[0].querySelectorAll("input")].map((o) => [o.value, labelOf(o)])).toEqual([["arrays", "Arrays"], ["trees", "Trees"]]);
+  expect([...groups[1].querySelectorAll("input")].map((o) => o.value)).toEqual(["bfs"]);
 });
 it("keeps an accessible label and submits through a plain GET form to /problems", async () => {
   await render(grouped);
@@ -53,19 +53,38 @@ it("keeps an accessible label and submits through a plain GET form to /problems"
   expect(form.getAttribute("action")).toBe("/problems");
   expect(form.getAttribute("method")).toBe("get");
   expect(form.getAttribute("aria-label")).toBe("Filter problems");
-  expect(category().closest("label")?.textContent).toContain("Category");
+  expect(host.querySelector("#library-q")?.getAttribute("name")).toBe("q");
+  expect(host.querySelector('label[for="library-q"]')?.textContent).toBe("Search problems by title");
+  expect(host.querySelector("button[type=submit]")?.textContent).toBe("Apply");
   expect(host.querySelectorAll('select[name="group"]')).toHaveLength(0);
 });
-it("preselects a leaf or a whole group from the current URL", async () => {
-  await render(grouped, { category: "trees" });
-  expect(category().value).toBe("trees");
-  await render(grouped, { group: "algorithms" });
-  expect(category().value).toBe("group:algorithms");
+it("preselects several difficulties and topics from the current URL", async () => {
+  await render(grouped, { difficulty: ["EASY", "HARD"], category: ["trees", "bfs"] });
+  expect(checked("difficulty")).toEqual(["EASY", "HARD"]);
+  expect(checked("category")).toEqual(["trees", "bfs"]);
+  expect([...host.querySelectorAll("summary")].map((summary) => summary.textContent)).toEqual(["Difficulty2", "Topics2", "More"]);
 });
-it("keeps a selected group or leaf that has no published matches visible instead of silently resetting", async () => {
-  await render(grouped, { group: "databases" });
-  expect(category().value).toBe("group:databases");
-  expect(category().selectedOptions[0].textContent).toBe("databases (no published matches)");
-  await render(flat, { group: "databases" });
-  expect(category().selectedOptions[0].textContent).toBe("databases (no published matches)");
+it("keeps a whole group selected from the URL as a hidden category value that still submits", async () => {
+  await render(grouped, { group: "algorithms" });
+  const hidden = host.querySelector<HTMLInputElement>('input[type="hidden"][name="category"]');
+  expect(hidden?.value).toBe("group:algorithms");
+  expect(checked("category")).toEqual([]);
+});
+it("keeps a selected topic that has no published matches visible instead of silently resetting", async () => {
+  await render(grouped, { category: "databases" });
+  expect(checked("category")).toEqual(["databases"]);
+  expect(topics().find((input) => input.value === "databases")?.closest("label")?.textContent).toBe("databases (no published matches)");
+  await render(flat, { category: "databases" });
+  expect(checked("category")).toEqual(["databases"]);
+});
+it("asks guests to sign in for status filters instead of offering a disabled menu", async () => {
+  await render(flat, { category: "arrays" });
+  expect(host.querySelectorAll('input[name="completion"], input[name="review"]')).toHaveLength(0);
+  const link = [...host.querySelectorAll("a")].find((anchor) => anchor.textContent?.startsWith("Status"));
+  expect(link?.getAttribute("href")).toBe("/login?next=" + encodeURIComponent("/problems?category=arrays"));
+});
+it("offers status filters to signed in viewers, preselected from the URL", async () => {
+  await act(() => root.render(createElement(LibraryFiltersForm, { filters: parseLibraryFilters({ completion: ["SOLVED", "ATTEMPTED"], review: "1" }), facets: flat, signedIn: true })));
+  expect(checked("completion")).toEqual(["ATTEMPTED", "SOLVED"]);
+  expect(checked("review")).toEqual(["1"]);
 });
