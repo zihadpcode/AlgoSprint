@@ -4,6 +4,7 @@ import type { ExecutionLanguage } from "./contracts";
 import { makePythonProgram } from "./harness-python";
 import { pythonEntryPoint } from "./python-names";
 import { SIGNATURES as signatures } from "./signatures";
+export { makeStdin } from "./serialization";
 
 export function runnerSupports(slug: string) { return Object.hasOwn(signatures, slug); }
 // The reviewed signature table is written in JavaScript naming; Python entry points are its snake_case form.
@@ -29,13 +30,4 @@ Promise.resolve(__asSolve(...__asArgs)).then(value => {
   __asWrite(json);
 }).catch(error => { console.error(error); process.exitCode = 1; });
 `;
-}
-export function makeStdin(slug: string, input: unknown) {
-  const signature = Object.hasOwn(signatures, slug) ? signatures[slug] : undefined;
-  if (!signature || !input || typeof input !== "object" || Array.isArray(input)) throw new Error("Unsupported test input");
-  const record = input as Record<string, unknown>;
-  if (signature.keys.some((key) => !Object.hasOwn(record, key))) throw new Error("Missing test argument");
-  const result = JSON.stringify(signature.keys.map((key) => record[key]));
-  if (Buffer.byteLength(result) > 64_000) throw new Error("Test input exceeds MVP limit");
-  return result;
 }
