@@ -12,10 +12,9 @@ import type { ProblemDetail } from "@/features/problems/detail-query";
 import type { SubmissionHistoryItem } from "@/features/submissions/history-query";
 import { progressLabel } from "@/features/progress/presentation";
 import { Popover } from "./popover";
-import { Snippet } from "./snippet";
+import { Snippet, formatValue } from "./snippet";
 import { SubmissionsList } from "./submissions-list";
 
-const json = (value: unknown) => JSON.stringify(value, null, 2) ?? "null";
 const heading = "text-xs font-semibold tracking-wide text-subtle uppercase";
 
 /** Left panel of the coding workspace: header, then Description / Hints & Editorial / Submissions / Notes. */
@@ -31,8 +30,8 @@ export function ProblemPanel({ problem, submissions, loginHref }: { problem: Pro
       <ol className="space-y-4">
         {problem.examples.map((example, index) => <li key={example.position} className="space-y-2.5 rounded-lg border border-line bg-surface-raised/40 p-3">
           <h3 className="text-sm font-semibold">Example {index + 1}</h3>
-          <Snippet label={`Example ${index + 1} input`} code={json(example.input)} />
-          <Snippet label={`Example ${index + 1} expected output`} code={json(example.output)} />
+          <Snippet label="Input" ariaLabel={`Example ${index + 1} input`} code={formatValue(example.input)} />
+          <Snippet label="Output" ariaLabel={`Example ${index + 1} expected output`} code={formatValue(example.output)} />
           {example.explanation && <p className="text-xs leading-6 text-muted"><span className="font-semibold text-ink/80">Explanation: </span>{example.explanation}</p>}
         </li>)}
       </ol>

@@ -57,7 +57,7 @@ export function SplitPane({ left, right, leftLabel = "Problem", rightLabel = "Co
   const editorOnly = layout === "editor";
   return <LayoutContext.Provider value={value}>
     <div ref={container} style={{ "--split": `${ratio}%` } as CSSProperties}
-      className={cn("flex min-h-0 flex-1 flex-col lg:h-[calc(100dvh-3.5rem)] lg:flex-row lg:overflow-hidden", dragging && "select-none")}>
+      className={cn("flex min-h-0 flex-1 flex-col lg:h-[calc(100dvh-3.5rem)] lg:flex-none lg:flex-row lg:overflow-hidden", dragging && "select-none")}>
       <section id={leftId} aria-label={leftLabel} hidden={editorOnly}
         className="flex min-w-0 flex-col border-b border-line bg-surface lg:min-h-0 lg:w-(--split) lg:shrink-0 lg:border-b-0">
         {left}

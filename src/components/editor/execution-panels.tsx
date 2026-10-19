@@ -3,7 +3,7 @@
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { CheckCircle2, ChevronDown, ChevronUp, Maximize2, Minimize2, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/loading-state";
-import { Snippet } from "@/components/workspace/snippet";
+import { Snippet, formatValue } from "@/components/workspace/snippet";
 import { cn } from "@/lib/utils";
 import { verdictLabels, type ExecutionResult, type Verdict } from "@/features/submissions/contracts";
 
@@ -23,7 +23,7 @@ export function verdictTone(status: Verdict): "success" | "warm" | "danger" {
 }
 const toneText = { success: "text-success", warm: "text-warm", danger: "text-danger" } as const;
 
-const json = (value: unknown) => JSON.stringify(value, null, 2) ?? "null";
+
 
 /** Bottom drawer of the editor panel: visible test cases, optional custom input, and the latest result. */
 export function ExecutionPanels({ examples, available = false, result, pending = false, custom, drawer }: {
@@ -81,8 +81,8 @@ function TestCases({ examples }: { examples: EditorExample[] }) {
           className={cn("h-7 rounded-md border px-2.5 text-xs font-medium transition-colors", position === index ? "border-accent/40 bg-accent/10 text-accent" : "border-line text-muted hover:border-line-strong hover:text-ink")}>Case {position + 1}</button>)}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Snippet label={`Test example ${index + 1} input`} code={json(example.input)} />
-        <Snippet label={`Test example ${index + 1} expected output`} code={json(example.output)} />
+        <Snippet label="Input" ariaLabel={`Test example ${index + 1} input`} code={formatValue(example.input)} />
+        <Snippet label="Expected output" ariaLabel={`Test example ${index + 1} expected output`} code={formatValue(example.output)} />
       </div>
       {example.explanation && <p className="text-xs leading-5 text-muted">{example.explanation}</p>}
       <p className="text-xs text-subtle">These are the public examples. Hidden tests are only used when you submit.</p>
@@ -122,8 +122,8 @@ function ResultView({ examples, available, result, pending }: { examples: Editor
               <span className="ml-auto text-xs text-subtle tabular-nums">{test.runtimeMs == null ? "" : `${test.runtimeMs} ms`}</span>
             </summary>
             <div className="grid gap-3 border-t border-line p-3 sm:grid-cols-2">
-              <Snippet label="Input" code={json(test.input)} />
-              <Snippet label="Expected output" code={json(test.expected)} />
+              <Snippet label="Input" code={formatValue(test.input)} />
+              <Snippet label="Expected output" code={formatValue(test.expected)} />
               <Snippet label="Actual output (up to 4,000 characters)" code={test.stdout || "(no output)"} />
               {test.diagnostic && <Snippet label="Errors / console logs (up to 4,000 characters)" code={test.diagnostic} tone="danger" />}
               {test.status === "WRONG_ANSWER" && <p className="text-xs leading-5 text-muted sm:col-span-2">The returned JSON did not match the expected value. Check types and array order; return the result from the named function.</p>}
