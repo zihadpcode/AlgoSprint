@@ -9,16 +9,15 @@ import { StarterCode } from "@/components/problems/starter-code";
 import { VideoLesson } from "@/components/problems/video-lesson";
 import { ProblemNotes, ProgressControls } from "@/components/problems/personal-controls";
 import type { ProblemDetail } from "@/features/problems/detail-query";
-import type { SubmissionHistoryItem } from "@/features/submissions/history-query";
 import { progressLabel } from "@/features/progress/presentation";
 import { Popover } from "./popover";
 import { Snippet, formatValue } from "./snippet";
-import { SubmissionsList } from "./submissions-list";
+import { SubmissionsTab, type SubmissionsState } from "./submissions-list";
 
 const heading = "text-xs font-semibold tracking-wide text-subtle uppercase";
 
 /** Left panel of the coding workspace: header, then Description / Hints & Editorial / Submissions / Notes. */
-export function ProblemPanel({ problem, submissions, loginHref }: { problem: ProblemDetail; submissions: SubmissionHistoryItem[] | null; loginHref: string }) {
+export function ProblemPanel({ problem, submissions, loginHref }: { problem: ProblemDetail; submissions: SubmissionsState; loginHref: string }) {
   const personal = problem.personal;
   const description = <div className="space-y-6">
     <section aria-labelledby="statement-heading">
@@ -63,9 +62,7 @@ export function ProblemPanel({ problem, submissions, loginHref }: { problem: Pro
       <div className="px-3 pb-3"><StarterCode key={problem.slug} entries={problem.starterCode} /></div>
     </details>
   </div>;
-  const attempts = submissions === null
-    ? <div className="space-y-3 rounded-lg border border-dashed border-line px-4 py-8 text-center"><p className="text-sm text-muted">Sign in to keep a history of your attempts on this problem.</p><ButtonLink href={loginHref} size="sm">Sign in</ButtonLink></div>
-    : <SubmissionsList items={submissions} />;
+  const attempts = <SubmissionsTab submissions={submissions} loginHref={loginHref} />;
   const notes = personal ? <ProblemNotes key={problem.slug} slug={problem.slug} note={personal.note} />
     : <div className="space-y-3 rounded-lg border border-dashed border-line px-4 py-8 text-center"><p className="text-sm text-muted">Keep your own explanation and questions in a private note.</p><ButtonLink href={loginHref} variant="secondary" size="sm">Sign in to write notes</ButtonLink></div>;
   return <>
@@ -89,7 +86,7 @@ export function ProblemPanel({ problem, submissions, loginHref }: { problem: Pro
       items={[
         { id: "description", label: "Description", content: description },
         { id: "hints", label: "Hints & Editorial", content: hints },
-        { id: "submissions", label: "Submissions", badge: submissions?.length ? <span className="rounded bg-surface-hover px-1.5 text-[0.6875rem] text-muted tabular-nums">{submissions.length}</span> : undefined, content: attempts },
+        { id: "submissions", label: "Submissions", badge: Array.isArray(submissions) && submissions.length ? <span className="rounded bg-surface-hover px-1.5 text-[0.6875rem] text-muted tabular-nums">{submissions.length}</span> : undefined, content: attempts },
         { id: "notes", label: "Notes", content: notes },
       ]} />
   </>;

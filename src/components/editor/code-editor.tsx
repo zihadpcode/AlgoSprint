@@ -32,6 +32,10 @@ export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled =
   const [notice, setNotice] = useState("");
   const [settings, setSettings] = useState<EditorSettings>(defaultEditorSettings);
   const [recoverable, setRecoverable] = useState(false);
+  const onRecoveryChange = useCallback((available: boolean) => {
+    setRecoverable(available);
+    if (available) setNotice("An unsaved draft from this device is available. Open Device drafts to restore it.");
+  }, []);
   const languageSelect = useRef<HTMLSelectElement>(null);
   const layout = useWorkspaceLayout();
   const id = useId();
@@ -67,12 +71,13 @@ export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled =
         {starters.map((entry) => <option key={entry.language} value={entry.language}>{editorLanguages[entry.language].label}</option>)}
       </Select>
       <p className="hidden text-xs text-subtle sm:block">Entry point: <code className="text-muted">{starter.entryPoint}</code>.</p>
-      <p role="status" aria-atomic="true" className="min-w-0 truncate text-xs text-accent empty:hidden">{notice}</p>
+      <p role="status" aria-atomic="true" className="min-w-0 text-xs text-accent empty:hidden">{notice}</p>
       <div className="ml-auto flex items-center gap-1">
         <Button size="sm" variant="quiet" disabled={value === starter.code || confirmReset} onClick={() => setConfirmReset(true)}><RotateCcw aria-hidden="true" size={13} />Reset to starter</Button>
-        <Popover label={recoverable ? "Device drafts: a saved draft is available" : "Device drafts"} icon={<Save aria-hidden="true" size={15} />} panelClassName="w-[min(24rem,calc(100vw-2rem))]"
+        {recoverable && <span className="text-xs font-medium text-accent">Draft found</span>}
+        <Popover openOnce={recoverable} label={recoverable ? "Device drafts: a saved draft is available" : "Device drafts"} icon={<Save aria-hidden="true" size={15} />} panelClassName="w-[min(24rem,calc(100vw-2rem))]"
           badge={recoverable ? <span aria-hidden="true" className="absolute top-1 right-1 size-1.5 rounded-full bg-accent" /> : undefined}>
-          <DeviceDraftRecovery onRecoveryChange={setRecoverable} scope={draftOwner && slug && revision !== undefined ? { owner: draftOwner, kind: "code", target: slug, revision: String(revision) } : null} value={JSON.stringify(drafts)} dirty={dirty} onClear={clearDrafts} onRestore={(payload) => {
+          <DeviceDraftRecovery onRecoveryChange={onRecoveryChange} scope={draftOwner && slug && revision !== undefined ? { owner: draftOwner, kind: "code", target: slug, revision: String(revision) } : null} value={JSON.stringify(drafts)} dirty={dirty} onClear={clearDrafts} onRestore={(payload) => {
             const restored = codeDraftSchema.safeParse(JSON.parse(payload));
             if (restored.success) {
               setDrafts(Object.fromEntries(Object.entries(restored.data).filter(([language]) => starters.some((entry) => entry.language === language))));
@@ -83,7 +88,7 @@ export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled =
         <Popover label="Editor settings" icon={<SlidersHorizontal aria-hidden="true" size={15} />} panelClassName="w-64">
           <SettingsForm settings={settings} onChange={updateSettings} />
         </Popover>
-        {layout && <Button size="icon" variant="quiet" className="size-8" aria-pressed={layout.layout === "editor"} aria-label={layout.layout === "editor" ? "Restore split view" : "Maximize editor"} title={layout.layout === "editor" ? "Restore split view" : "Maximize editor"} onClick={layout.toggleLayout}>
+        {layout && <Button size="icon" variant="quiet" className="size-8" aria-pressed={layout.layout === "editor"} aria-label="Maximize editor" title="Maximize editor" onClick={layout.toggleLayout}>
           {layout.layout === "editor" ? <PanelLeftOpen aria-hidden="true" size={15} /> : <PanelLeftClose aria-hidden="true" size={15} />}</Button>}
       </div>
     </div>

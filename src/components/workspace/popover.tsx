@@ -8,10 +8,13 @@ import { buttonStyles } from "@/components/ui/button";
  * A small disclosure popover. The panel stays mounted while closed (hidden) so state and effects inside it, such as
  * device-draft persistence, keep running. Escape and outside clicks close it and return focus to the trigger.
  */
-export function Popover({ label, icon, text, children, align = "end", direction = "down", className, panelClassName, badge }: {
+export function Popover({ label, icon, text, children, align = "end", direction = "down", className, panelClassName, badge, openOnce = false }: {
   label: string; icon: ReactNode; text?: string; children: ReactNode; align?: "start" | "end"; direction?: "up" | "down"; className?: string; panelClassName?: string; badge?: ReactNode;
+  /** Opens the panel the first time this becomes true (without moving focus). */ openOnce?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [autoOpened, setAutoOpened] = useState(false);
+  if (openOnce && !autoOpened) { setAutoOpened(true); setOpen(true); }
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();

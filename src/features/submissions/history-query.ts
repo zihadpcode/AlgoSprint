@@ -1,7 +1,8 @@
 import "server-only";
 import type { PrismaClient } from "@/generated/prisma/client";
 
-export const SUBMISSION_HISTORY_LIMIT = 20;
+import { SUBMISSION_HISTORY_LIMIT } from "./history-limit";
+export { SUBMISSION_HISTORY_LIMIT };
 
 // Owner-scoped, read-only attempt history for one published problem. The viewer id comes from the verified session
 // (never from a request), and the projection is an allowlist: no source code, stdout, stored result JSON or ids of other users.

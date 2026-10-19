@@ -68,3 +68,17 @@ it("applies changed editor settings to the live editor without recreating it", a
   expect(instances).toHaveLength(1);
   expect(instances[0].updateOptions).toHaveBeenLastCalledWith({ fontSize: 18, lineHeight: 30, wordWrap: "off", minimap: { enabled: true } });
 });
+
+function luminance(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+const contrast = (a: string, b: string) => { const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+it("keeps comments readable (4.5:1) and line numbers visibly above the background in the custom theme", async () => {
+  await act(() => root.render(createElement(MonacoSurface, { language: "javascript", value: "x", onChange: vi.fn() })));
+  const theme = mocks.defineTheme.mock.calls[0][1] as { rules: { token: string; foreground: string }[]; colors: Record<string, string> };
+  const bg = theme.colors["editor.background"];
+  expect(contrast(`#${theme.rules.find((r) => r.token === "comment")!.foreground}`, bg)).toBeGreaterThanOrEqual(4.5);
+  expect(contrast(theme.colors["editorLineNumber.foreground"], bg)).toBeGreaterThanOrEqual(3.5);
+  expect(contrast(theme.colors["editorLineNumber.activeForeground"], bg)).toBeGreaterThan(contrast(theme.colors["editorLineNumber.foreground"], bg));
+});
