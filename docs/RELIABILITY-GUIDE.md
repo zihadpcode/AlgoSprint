@@ -103,3 +103,7 @@ Use DEPLOYMENT.md for the release checklist and production evidence. Passing loc
 ## 2026-10-18 interview bank update
 
 The noncoding mock interview bank now has 76 prompts, with at least five for every style and difficulty. The first 46 prompts are pinned by a SHA-256 test and must not change, because sessions snapshot prompts and saved reports depend on them.
+
+## 2026-10-19 interview bank update
+
+The noncoding mock interview bank now has 105 prompts, with at least seven for every style and difficulty (the setup form's minimum is asserted by the policy test; combinations with a topic filter are not guaranteed to return a prompt). The first 76 prompts are pinned by an additional SHA-256 check alongside the earlier pins and must not change. The new prompts add testing strategy, API design, authentication and authorization, injection, password storage, concurrency, observability, data modeling, multi-tenancy, backups and complexity analysis. Every new SQL answer was executed on PostgreSQL 17 in a scratch database (including two-session checks for locking and row-level security), and the new JavaScript behavior claims (outputs, timings and counts quoted in answers) were run in Node before they were written; the reference answers say where a stand-in was used.
