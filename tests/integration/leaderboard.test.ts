@@ -4,6 +4,7 @@ vi.mock("server-only", () => ({}));
 import { createDatabaseClient } from "@/lib/db/client";
 import { queryLeaderboard } from "@/features/leaderboard/query";
 import { writeLeaderboardSettings } from "@/features/leaderboard/store";
+import { nameSkeleton } from "@/features/leaderboard/validation";
 
 let db: ReturnType<typeof createDatabaseClient>;
 const tag = `lb-${randomUUID().slice(0, 8)}`;
@@ -29,7 +30,7 @@ beforeAll(async () => {
 }, 30000);
 beforeEach(async () => {
   await db.userProgress.deleteMany({ where: { userId: { in: Object.values(ids) } } });
-  await db.user.updateMany({ where: { id: { in: Object.values(ids) } }, data: { leaderboardOptIn: false } });
+  await db.user.updateMany({ where: { id: { in: Object.values(ids) } }, data: { leaderboardOptIn: false, leaderboardNameKey: null } });
 });
 afterAll(async () => {
   if (db) {
@@ -38,7 +39,12 @@ afterAll(async () => {
   }
   await db?.$disconnect();
 });
-const optIn = (...users: string[]) => db.user.updateMany({ where: { id: { in: users } }, data: { leaderboardOptIn: true } });
+const optIn = async (...users: string[]) => {
+  for (const id of users) {
+    const { displayName } = await db.user.findUniqueOrThrow({ where: { id } });
+    await db.user.update({ where: { id }, data: { leaderboardOptIn: true, leaderboardNameKey: nameSkeleton(displayName!) } });
+  }
+};
 
 it("never lists users who did not opt in, even with the most solves", async () => {
   for (const [i, p] of problems.entries()) await solve(ids.hidden, p.id, day(2 + i));
@@ -96,14 +102,29 @@ it("round-trips opt-in and opt-out, owner-scoped", async () => {
   expect(await writeLeaderboardSettings(db, randomUUID(), { optIn: false })).toEqual({ ok: false, reason: "missing-user" });
 });
 
-it("rejects invalid names and case-insensitive duplicates among opted-in users", async () => {
-  for (const displayName of ["a", "x".repeat(41), "me@example.com", "https://spam.example", "visit example.com", "bad\u0007name", " "]) {
-    await expect(writeLeaderboardSettings(db, ids.ada, { optIn: true, displayName })).rejects.toThrow();
-  }
+it("rejects invalid and obfuscated names", async () => {
+  const bad = ["a", "x".repeat(41), "me@example.com", "https://spam.example", "visit example.com", "bad\u0007name", " ", "bob\uff20gmail\uff0ecom", "example\u3002com", "bob(at)gmail", "\u3164", "\u2800", "\u00ad\u00ad", "Admin", "\u0410dmin", "r00t"];
+  for (const displayName of bad) await expect(writeLeaderboardSettings(db, ids.ada, { optIn: true, displayName }), JSON.stringify(displayName)).rejects.toThrow();
+  expect((await db.user.findUniqueOrThrow({ where: { id: ids.ada } })).leaderboardOptIn).toBe(false);
+});
+
+it("stores the NFKC name with its confusable key, refuses look-alikes, and frees the name on opt-out", async () => {
   expect(await writeLeaderboardSettings(db, ids.ada, { optIn: true, displayName: `${tag} Twin` })).toMatchObject({ ok: true });
-  expect(await writeLeaderboardSettings(db, ids.bo, { optIn: true, displayName: `${tag.toUpperCase()} TWIN` })).toEqual({ ok: false, reason: "taken" });
-  expect((await db.user.findUniqueOrThrow({ where: { id: ids.bo } })).leaderboardOptIn).toBe(false);
-  // A name held by someone who is not opted in does not block it.
+  const stored = await db.user.findUniqueOrThrow({ where: { id: ids.ada } });
+  expect(stored).toMatchObject({ displayName: `${tag} Twin`, leaderboardNameKey: nameSkeleton(`${tag} Twin`) });
+  // Case-insensitive duplicate, and look-alikes (Cyrillic letters are folded onto Latin; fullwidth letters are NFKC-normalized).
+  const lookalikes = [`${tag.toUpperCase()} TWIN`, `${tag} \uff34win`, `${tag}  Twin`, `${tag} T\u0301win`];
+  for (const displayName of lookalikes) {
+    expect(await writeLeaderboardSettings(db, ids.bo, { optIn: true, displayName }), JSON.stringify(displayName)).toEqual({ ok: false, reason: "taken" });
+  }
+  expect(await db.user.findUniqueOrThrow({ where: { id: ids.bo } })).toMatchObject({ leaderboardOptIn: false, leaderboardNameKey: null });
+  // A fully Cyrillic name that looks like a Latin one collides on the skeleton ("Cape" vs "\u0441\u0430\u0440\u0435").
   await writeLeaderboardSettings(db, ids.ada, { optIn: false });
+  expect(await writeLeaderboardSettings(db, ids.ada, { optIn: true, displayName: "\u0441\u0430\u0440\u0435" })).toMatchObject({ ok: true });
+  expect(await writeLeaderboardSettings(db, ids.bo, { optIn: true, displayName: "Cape" })).toEqual({ ok: false, reason: "taken" });
+  await writeLeaderboardSettings(db, ids.ada, { optIn: true, displayName: `${tag} Twin` });
+  // A name held by someone who is not opted in does not block it; opting out clears the key.
+  await writeLeaderboardSettings(db, ids.ada, { optIn: false });
+  expect((await db.user.findUniqueOrThrow({ where: { id: ids.ada } })).leaderboardNameKey).toBeNull();
   expect(await writeLeaderboardSettings(db, ids.bo, { optIn: true, displayName: `${tag} Twin` })).toMatchObject({ ok: true });
 });

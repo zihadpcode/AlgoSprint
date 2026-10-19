@@ -6,16 +6,14 @@ import { LEADERBOARD_LIMIT } from "./validation";
 export type LeaderboardEntry = { rank: number; name: string; solved: number; easy: number; medium: number; hard: number; week: number; isViewer: boolean };
 export type Leaderboard = { entries: LeaderboardEntry[]; viewerEntry: LeaderboardEntry | null };
 
-type Row = { rank: number; name: string; solved: number; easy: number; medium: number; hard: number; week: number; mine: boolean };
+type Row = { rank: number; name: string; solved: number; easy: number; medium: number; hard: number; week: number };
 
 /**
  * Opted-in users ranked by verified solves of PUBLISHED problems (judge-verified, not self-marked).
- * Tie-break: the earlier latest solve ranks higher, then name. The payload never carries emails or user ids;
- * rank is the client key. The viewer's own row is flagged and, if ranked below the limit, returned separately.
+ * Tie-break: the earlier latest solve ranks higher, then name. Rows never carry emails or user ids; rank is the key.
  */
-export async function queryLeaderboard(db: PrismaClient, viewerId: string | null): Promise<Leaderboard> {
-  const viewer = viewerId ? z.uuid().parse(viewerId) : null;
-  const rows = await db.$queryRaw<Row[]>(Prisma.sql`
+function rankedRows(db: PrismaClient, filter: Prisma.Sql) {
+  return db.$queryRaw<Row[]>(Prisma.sql`
     WITH ranked AS (
       SELECT u.id, u."displayName" AS name,
         count(*)::int AS solved,
@@ -30,10 +28,29 @@ export async function queryLeaderboard(db: PrismaClient, viewerId: string | null
       WHERE u."leaderboardOptIn" AND u."displayName" IS NOT NULL
       GROUP BY u.id
     )
-    SELECT rank, name, solved, easy, medium, hard, week, (id = ${viewer}::uuid) AS mine
-    FROM ranked
-    WHERE rank <= ${LEADERBOARD_LIMIT} OR id = ${viewer}::uuid
-    ORDER BY rank ASC`);
-  const all = rows.map((row): LeaderboardEntry => ({ rank: row.rank, name: row.name, solved: row.solved, easy: row.easy, medium: row.medium, hard: row.hard, week: row.week, isViewer: Boolean(row.mine) }));
-  return { entries: all.filter((entry) => entry.rank <= LEADERBOARD_LIMIT), viewerEntry: all.find((entry) => entry.isViewer) ?? null };
+    SELECT rank, name, solved, easy, medium, hard, week FROM ranked WHERE ${filter} ORDER BY rank ASC`);
+}
+const entry = (row: Row, isViewer: boolean): LeaderboardEntry => ({ rank: row.rank, name: row.name, solved: row.solved, easy: row.easy, medium: row.medium, hard: row.hard, week: row.week, isViewer });
+
+/** The global board: top rows only, no viewer data, so it is safe to cache and share between requests. */
+export async function queryTopLeaderboard(db: PrismaClient): Promise<LeaderboardEntry[]> {
+  return (await rankedRows(db, Prisma.sql`rank <= ${LEADERBOARD_LIMIT}`)).map((row) => entry(row, false));
+}
+
+/** The viewer's own ranked row (any rank), or null when they are not opted in or have no verified solves. */
+export async function queryViewerEntry(db: PrismaClient, viewerId: string): Promise<LeaderboardEntry | null> {
+  const id = z.uuid().parse(viewerId);
+  const [row] = await rankedRows(db, Prisma.sql`id = ${id}::uuid`);
+  return row ? entry(row, true) : null;
+}
+
+/** Joins the shared board with the viewer's own row, highlighting it when it is in the list. */
+export function composeLeaderboard(top: LeaderboardEntry[], viewerEntry: LeaderboardEntry | null): Leaderboard {
+  const entries = top.map((item) => ({ ...item, isViewer: Boolean(viewerEntry) && item.rank === viewerEntry!.rank && item.name === viewerEntry!.name }));
+  return { entries, viewerEntry };
+}
+
+export async function queryLeaderboard(db: PrismaClient, viewerId: string | null): Promise<Leaderboard> {
+  const [top, mine] = await Promise.all([queryTopLeaderboard(db), viewerId ? queryViewerEntry(db, viewerId) : null]);
+  return composeLeaderboard(top, mine);
 }

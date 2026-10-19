@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { getViewer } from "@/features/auth/session";
 import { getDatabase } from "@/lib/prisma";
+import { invalidateLeaderboard } from "./cache";
 import { writeLeaderboardSettings } from "./store";
 import { leaderboardSettingsSchema, type LeaderboardFormState } from "./validation";
 
@@ -16,6 +17,7 @@ export async function saveLeaderboardSettings(_previous: LeaderboardFormState, f
     if (!result.ok) return result.reason === "taken"
       ? { errors: { displayName: ["That name is already on the leaderboard. Choose another."] }, message: "Choose a different display name." }
       : { message: "Could not find your profile. Reload and try again." };
+    invalidateLeaderboard();
     revalidatePath("/leaderboard");
     revalidatePath("/profile");
     return { success: true, message: result.optIn ? "You are on the leaderboard." : "You are hidden from the leaderboard." };
