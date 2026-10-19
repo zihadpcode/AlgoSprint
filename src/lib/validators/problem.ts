@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { CATEGORIES, TAGS, INTERVIEW_STYLES, PATTERNS } from "@/data/seeds/taxonomy";
+import { RUNNER_LIMITS, runnerSupportsSlug } from "@/features/submissions/limits";
+import { makeStdin, utf8ByteLength } from "@/features/submissions/serialization";
 
 const text = z.string().trim().min(1).max(30_000);
 const slug = z.string().min(1).max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
@@ -59,6 +61,20 @@ export const problemSchema = z.strictObject({
     if (!p.starterCode.some((s) => s.language === solution.language)) issue(["solutions", i, "language"], "Solution language needs starter code");
   });
   if (new Set(p.relatedSlugs).size !== p.relatedSlugs.length || p.relatedSlugs.includes(p.slug)) issue(["relatedSlugs"], "Related problems must be unique and cannot reference self");
+  if (runnerSupportsSlug(p.slug)) {
+    // Use the runner's positional serialization, not the size of the stored
+    // object: JSONB key order and unused fields are not function arguments.
+    for (const key of ["examples", "testCases"] as const) {
+      p[key].forEach((test, index) => {
+        try { makeStdin(p.slug, test.input); }
+        catch { issue([key, index, "input"], `Runner input must match its signature and fit within ${RUNNER_LIMITS.maxInputBytes} UTF-8 bytes after positional JSON serialization.`); }
+        const expected = JSON.stringify(test.output);
+        if (expected === undefined || utf8ByteLength(expected) > RUNNER_LIMITS.maxOutputBytes) {
+          issue([key, index, "output"], `Expected JSON output must fit within ${RUNNER_LIMITS.maxOutputBytes} UTF-8 bytes.`);
+        }
+      });
+    }
+  }
 });
 
 export const problemBatchSchema = z.array(problemSchema).min(1).max(1000).superRefine((problems, ctx) => {
