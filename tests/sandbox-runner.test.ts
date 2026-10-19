@@ -87,10 +87,11 @@ describe("QuickJS sandbox executor", () => {
 });
 it("fails closed when the worker dies, keeping verdicts already produced", async () => {
   vi.useFakeTimers();
-  const pending = executeSandbox(program("function relayWindow() { return 1; }"), [{ stdin: stdin([1], 1), expected: 1 }], limits);
-  // Nothing has resolved under fake timers; the guard timeout terminates the worker and marks the case unavailable.
-  await vi.advanceTimersByTimeAsync(SANDBOX_LIMITS.totalMs + SANDBOX_LIMITS.workerGraceMs + 1);
-  const result = await pending;
-  vi.useRealTimers();
-  expect(result[0].status).toBe("INTERNAL_ERROR");
+  try {
+    const pending = executeSandbox(program("function relayWindow() { return 1; }"), [{ stdin: stdin([1], 1), expected: 1 }], limits);
+    // Nothing has resolved under fake timers; the guard timeout terminates the worker and marks the case unavailable.
+    await vi.advanceTimersByTimeAsync(SANDBOX_LIMITS.totalMs + SANDBOX_LIMITS.workerGraceMs + 1);
+    const result = await pending;
+    expect(result[0].status).toBe("INTERNAL_ERROR");
+  } finally { vi.useRealTimers(); }
 }, 20_000);

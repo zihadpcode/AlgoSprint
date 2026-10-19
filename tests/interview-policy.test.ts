@@ -11,7 +11,10 @@ const ORIGINAL_FIVE_SHA256 = "337b4b43f0ec369404a439c4bb3efa3593f4342f40603e918e
 // corrected notification-service reference). Prompts may be appended after these 46, but these must never change: sessions snapshot
 // them, and editing one in place would silently diverge from what saved reports show.
 const FIRST_46_SHA256 = "4b3ea0c4316f11b30fb8e007dfb314ad7cd72b99c19731a2a2b8cc343e225f18";
-const MIN_PER_STYLE_AND_DIFFICULTY = 5;
+// SHA-256 of JSON.stringify of the first 76 prompt objects (the 46 above plus the 30 added in the second expansion, including the
+// review corrections). Prompts may be appended after these 76, but these must never change, for the same reason as above.
+const FIRST_76_SHA256 = "4f2a55f2da2a53cdba787d1d32aaefed8084f3a4e570f712766c0c4ddbdb9fda";
+const MIN_PER_STYLE_AND_DIFFICULTY = 7;
 describe("interview boundaries and self-assessment", () => {
   it("bounds setup, rejects forged fields and unknown selection values", () => {
     const valid = { duration: 30, count: 2, difficulty: "ANY", kind: "ANY", topic: "" };
@@ -41,13 +44,14 @@ describe("interview boundaries and self-assessment", () => {
     expect(new Set(INTERVIEW_QUESTIONS.map((q) => q.kind)).size).toBe(5);
     for (const q of INTERVIEW_QUESTIONS) { expect(snapshotSchema.safeParse(q.snapshot).success).toBe(true); expect(q.snapshot.reference.length).toBeGreaterThan(100); }
   });
-  it("keeps the first 46 prompts unchanged and offers at least five prompts for every style and difficulty", () => {
+  it("keeps the first 76 prompts unchanged and offers at least seven prompts for every style and difficulty", () => {
     const ids = INTERVIEW_QUESTIONS.map((q) => q.id);
     expect(new Set(ids).size).toBe(ids.length);
     // The original five prompts must stay byte-for-byte identical (IDs, kinds, difficulty, topic and full snapshot).
     expect(createHash("sha256").update(JSON.stringify(INTERVIEW_QUESTIONS.slice(0, 5))).digest("hex")).toBe(ORIGINAL_FIVE_SHA256);
-    expect(INTERVIEW_QUESTIONS.length).toBeGreaterThanOrEqual(46);
+    expect(INTERVIEW_QUESTIONS.length).toBeGreaterThanOrEqual(76);
     expect(createHash("sha256").update(JSON.stringify(INTERVIEW_QUESTIONS.slice(0, 46))).digest("hex")).toBe(FIRST_46_SHA256);
+    expect(createHash("sha256").update(JSON.stringify(INTERVIEW_QUESTIONS.slice(0, 76))).digest("hex")).toBe(FIRST_76_SHA256);
     expect(INTERVIEW_QUESTIONS.slice(0, 5).map((q) => [q.id, q.kind, q.difficulty, q.snapshot.title])).toEqual([
       ["collection-membership", "CONCEPTUAL", "EASY", "Workshop Check-In Index"], ["last-crate", "DEBUGGING", "EASY", "The Missing Final Crate"],
       ["repeated-ledger", "OPTIMIZATION", "EASY", "Repeated Depot Totals"], ["handoff-decision", "BEHAVIORAL", "EASY", "A Handoff Under Pressure"],

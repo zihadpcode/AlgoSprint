@@ -85,7 +85,7 @@
     },
     {
       "position": 2,
-      "content": "longest(cell) = 1 + the maximum of longest(neighbor) over neighbors that are strictly higher."
+      "content": "Look at one cell and its strictly higher neighbors. How does the longest trail starting at the cell relate to the longest trails starting at those neighbors?"
     },
     {
       "position": 3,

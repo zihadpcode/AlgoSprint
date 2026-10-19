@@ -97,11 +97,11 @@
   "hints": [
     {
       "position": 1,
-      "content": "Track where one pixel goes: the pixel at row r, column c moves to row c, column n - 1 - r."
+      "content": "Follow the four corner pixels of a small 3 x 3 image through the turn. How do the row and the column of a pixel change?"
     },
     {
       "position": 2,
-      "content": "Building a new matrix from that formula is straightforward."
+      "content": "A pixel's new row comes from its old column, and its new column is counted from the right-hand end using its old row. That is enough to fill a fresh matrix in one pass."
     },
     {
       "position": 3,
@@ -113,7 +113,7 @@
     },
     {
       "position": 5,
-      "content": "A transpose followed by reversing each row is a clockwise rotation. On a copy, that also shows how to rotate in place with O(1) extra memory."
+      "content": "A transpose followed by reversing each row is a clockwise rotation. Apply both moves to a copy of the input, because the input must not change."
     }
   ],
   "starterCode": [
@@ -2283,7 +2283,7 @@
         "Swapping r and c in the formula, which rotates counter-clockwise.",
         "Writing into the input matrix while still reading from it."
       ],
-      "interviewExplanation": "Reading each output cell from its source cell is the most direct approach. It's already linear in the number of pixels; the only cost is the separate output matrix.",
+      "interviewExplanation": "Reading each output cell from its source cell is the most direct approach. It is already linear in the number of pixels and has the same O(n²) time and space as the transpose-and-reverse solution; the two differ in how the result is built, not in cost.",
       "steps": [
         {
           "position": 1,
@@ -2306,12 +2306,12 @@
       "pseudocode": "m = copy(matrix)\nfor r: for c > r: swap m[r][c], m[c][r]\nfor row in m: reverse row\nreturn m",
       "code": "function gridTurn(matrix) {\n  const m = matrix.map((row) => [...row]);\n  const n = m.length;\n  for (let r = 0; r < n; r++)\n    for (let c = r + 1; c < n; c++) {\n      const t = m[r][c];\n      m[r][c] = m[c][r];\n      m[c][r] = t;\n    }\n  for (const row of m) row.reverse();\n  return m;\n}",
       "timeComplexity": "O(n²)",
-      "spaceComplexity": "O(n²) for the copy; O(1) extra if rotating in place",
+      "spaceComplexity": "O(n²) for the copy",
       "commonMistakes": [
         "Looping c over all columns during the transpose, which swaps every pair twice and undoes it.",
         "Reversing columns instead of rows, which produces a counter-clockwise turn."
       ],
-      "interviewExplanation": "Rotation decomposes into a transpose and a row reversal, both easy to do in place. Here I copy first because the input must not change, but if in-place were allowed this uses O(1) extra space, which is the usual interview follow-up. Swapping only above the diagonal is the key detail.",
+      "interviewExplanation": "Rotation decomposes into a transpose and a row reversal. The input must not change, so I copy it first and apply both moves to the copy, which costs O(n²) extra space. The same two moves applied directly to a mutable matrix would need only O(1) extra space, but that variant is not implemented here because this problem forbids modifying the input. Swapping only above the diagonal is the key detail.",
       "steps": [
         {
           "position": 1,

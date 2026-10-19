@@ -141,10 +141,10 @@
       "timeComplexity": "O(n²)",
       "spaceComplexity": "O(1)",
       "commonMistakes": [
-        "Returning a letter before reading the whole record can miss a later duplicate.",
-        "Returning an arbitrary unique map entry can ignore the required arrival order."
+        "Returning the first letter that has appeared only once so far, which misses a later duplicate of that letter.",
+        "Counting only the letters after position i, which treats a letter that already appeared earlier as unique."
       ],
-      "interviewExplanation": "I count every badge letter first, then scan the record in its original order. This preserves the earliest-arrival requirement while avoiding a full recount for each position. Two linear scans are O(n), and the fixed alphabet bounds the map size.",
+      "interviewExplanation": "For each arrival I count how often its letter occurs in the whole record and return the first position whose count is one. Scanning positions in order gives the earliest arrival for free, but every position recounts the entire string, so it costs O(n²) time with O(1) extra space. The optimal solution counts every letter once in a frequency map and then scans the positions in order, which brings the time down to O(n).",
       "steps": [
         {
           "position": 1,
@@ -159,7 +159,7 @@
         {
           "position": 3,
           "title": "Step 3",
-          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+          "content": "For abacbd, positions 0, 1 and 2 (a, b, a) each have a count of 2. Position 3 holds c, which occurs once, so the scan stops and returns 3. If no count were one, it would return -1."
         }
       ]
     },

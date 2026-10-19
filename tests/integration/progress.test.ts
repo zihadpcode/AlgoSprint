@@ -143,3 +143,20 @@ it("bounds recent attempts to ten with deterministic newest-first ordering", asy
   const recent = (await queryProgress(db, users[0])).recentAttempts;
   expect(recent).toHaveLength(10); expect(recent[0].createdAt).toBe("2026-01-12T00:00:00.000Z"); expect(recent[9].createdAt).toBe("2026-01-03T00:00:00.000Z");
 });
+it("keeps another user's submissions out of recent attempts", async () => {
+  const mine = new Date("2026-02-01T00:00:00Z"); const theirs = new Date("2026-03-01T00:00:00Z");
+  const row = (userId: string, createdAt: Date) => ({ userId, problemId, problemRevision: 1, mode: "RUN" as const, language: "JAVASCRIPT" as const, status: "INTERNAL_ERROR" as const, code: "private", createdAt, completedAt: createdAt });
+  await db.userSubmission.createMany({ data: [row(users[0], mine), row(users[1], theirs), row(users[1], new Date("2026-03-02T00:00:00Z"))] });
+  expect((await queryProgress(db, users[0])).recentAttempts.map((a) => a.createdAt)).toEqual([mine.toISOString()]);
+  expect((await queryProgress(db, users[1])).recentAttempts).toHaveLength(2);
+  expect((await queryProgress(db, randomUUID())).recentAttempts).toEqual([]);
+});
+it("does not verify a solve when ACCEPTED is reported with fewer passes than cases", async () => {
+  // The database check constraint rejects this verdict outright; nothing may be verified or completed. (The
+  // application's own passedCount === totalCount clause is defence in depth behind that constraint, so it is not
+  // separately observable without altering the schema, which a test must not do.)
+  const blocked = await reserve();
+  await expect(finishSubmission(db, users[0], { ...verdict(blocked.id), passedCount: blocked.cases.length - 1 })).rejects.toThrow();
+  expect(await db.userSubmission.findUniqueOrThrow({ where: { id: blocked.id } })).toMatchObject({ status: "RUNNING", completedAt: null });
+  expect(await progress()).toMatchObject({ status: "ATTEMPTED", verifiedRevision: null });
+});

@@ -187,10 +187,10 @@
       "timeComplexity": "O(n × width)",
       "spaceComplexity": "O(1)",
       "commonMistakes": [
-        "Initializing the best total to zero fails when every valid sum is negative.",
-        "Compare each full window, including the initial window and the last possible window."
+        "Initializing the best total to 0, which is wrong when every window total is negative; start from -Infinity or the first window.",
+        "Getting the last start index wrong: the final valid start is loads.length - width, so the loop must include it and must not read past the array."
       ],
-      "interviewExplanation": "I first considered recomputing each reservation in O(n × width). Adjacent windows share width - 1 entries, so I maintain one running sum and update only the entering and leaving values. The algorithm takes linear time and constant extra space.",
+      "interviewExplanation": "I try every starting index whose window fits, add up its width entries, and keep the largest total. That is easy to verify, but neighboring windows share width - 1 entries and the brute force adds them again, costing O(n × width) time with O(1) extra space. The optimal solution keeps one running sum and, for each shift, adds the entering value and subtracts the leaving value, which takes O(n) time.",
       "steps": [
         {
           "position": 1,
@@ -205,7 +205,7 @@
         {
           "position": 3,
           "title": "Step 3",
-          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+          "content": "For [3,1,5,2,6,1] and width 3, the starts 0 through 3 give totals 9, 8, 13 and 9 by re-adding three entries each time, so the best is 13."
         }
       ]
     },

@@ -39,7 +39,8 @@ describe("one-time production bootstrap", () => {
     ]) expect(() => migrationEnvironment({ ...env, DATABASE_URL: value }, ref)).toThrow();
   });
   it("keeps credential values out of validation errors", () => {
+    expect.assertions(2);
     try { migrationEnvironment({ ...env, DATABASE_URL: "private-credential" }, ref); }
-    catch (error) { expect(String(error)).not.toContain("private-credential"); }
+    catch (error) { expect(error).toBeInstanceOf(Error); expect(String(error)).not.toContain("private-credential"); }
   });
 });

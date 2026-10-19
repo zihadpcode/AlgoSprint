@@ -464,13 +464,13 @@
       "approach": "Use a Map. On get, if the key exists delete and re-insert it to mark it most recent, then return its value. On put, delete any existing entry, insert the new pair, and if the size exceeds the capacity delete the first key in iteration order.",
       "pseudocode": "cache = Map; get: if absent -1; else v = cache[key]; delete; set(key, v); return v. put: delete key; set(key, value); if size > capacity delete first key.",
       "code": "function lruResults(capacity, operations) {\n    const cache = new Map();\n    const results = [];\n    for (const operation of operations) {\n        const key = operation[1];\n        if (operation[0] === \"get\") {\n            if (!cache.has(key)) {\n                results.push(-1);\n                continue;\n            }\n            const value = cache.get(key);\n            cache.delete(key);\n            cache.set(key, value);\n            results.push(value);\n        } else {\n            cache.delete(key);\n            cache.set(key, operation[2]);\n            if (cache.size > capacity)\n                cache.delete(cache.keys().next().value);\n        }\n    }\n    return results;\n}",
-      "timeComplexity": "O(1) amortized per operation",
+      "timeComplexity": "O(1) amortized per operation, assuming Map keeps a linked insertion order (as in the judge’s QuickJS)",
       "spaceComplexity": "O(capacity)",
       "commonMistakes": [
         "Calling set without deleting first, which keeps the key's old position and breaks recency.",
         "Evicting before inserting when the key already exists, which can evict unnecessarily."
       ],
-      "interviewExplanation": "The classic design is a hash map plus a doubly linked list so lookups and recency moves are both constant time. JavaScript's Map iterates in insertion order, so deleting and re-inserting a key moves it to the most-recent end and the first iterated key is the least recently used. That gives the same O(1) behavior with far less code; in a language without ordered maps I would build the linked list explicitly.",
+      "interviewExplanation": "The classic design is a hash map plus a doubly linked list so lookups and recency moves are both constant time. JavaScript's Map iterates in insertion order, so deleting and re-inserting a key moves it to the most-recent end and the first iterated key is the least recently used. That gives the same O(1) behavior with far less code; in a language without ordered maps I would build the linked list explicitly. This O(1) bound relies on the engine’s Map keeping a linked insertion order, as the judge’s QuickJS does; in engines where repeated deletions leave tombstones that iteration must skip, taking the first key can degrade, and the explicit linked list is the safe choice.",
       "steps": [
         {
           "position": 1,
