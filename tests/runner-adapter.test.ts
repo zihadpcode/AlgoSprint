@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 import { getRunnerConfig } from "@/features/submissions/config";
 import { makeProgram, makeStdin, runnerSupports } from "@/features/submissions/harness";
-import { executeJudge0, judgeOutcome } from "@/features/submissions/judge0";
+import { executeJudge0, judgeOutcome, JUDGE0_RESPONSE_LIMIT } from "@/features/submissions/judge0";
+import { RUNNER_LIMITS } from "@/features/submissions/limits";
 const config = { url: "https://runner.example/", key: "private-key", auth: "token" as const, languageId: 102 };
 const b64 = (s: string) => Buffer.from(s).toString("base64");
 const raw = (output: string, id = 3) => ({ status: { id }, stdout: b64(output), stderr: null, compile_output: null, time: "0.012", memory: 1234 });
@@ -60,6 +61,11 @@ describe("trusted verdict calculation", () => {
     const result = judgeOutcome({ ...raw(JSON.stringify(value)), stderr: b64(value) }, value);
     expect(result?.status).toBe("ACCEPTED"); expect(result?.stdout).toHaveLength(4000); expect(result?.diagnostic).toHaveLength(4000);
   });
+  it("accepts full-size base64 UTF-8 output and rejects decoded bytes beyond the budget", () => {
+    const exact = "é".repeat((RUNNER_LIMITS.maxOutputBytes - 2) / 2);
+    expect(judgeOutcome(raw(JSON.stringify(exact)), exact)).toMatchObject({ status: "ACCEPTED", stdout: expect.any(String) });
+    expect(judgeOutcome(raw(JSON.stringify(exact + "é")), exact)).toMatchObject({ status: "RUNTIME_ERROR", diagnostic: "Output exceeds the sandbox limit." });
+  });
 });
 
 describe("Judge0 transport with an inert HTTP stub", () => {
@@ -77,7 +83,7 @@ describe("Judge0 transport with an inert HTTP stub", () => {
     expect(url.toString()).toBe("https://runner.example/submissions/batch?base64_encoded=true");
     expect(body.submissions).toHaveLength(2);
     for (const submission of body.submissions) {
-      expect(submission).toMatchObject({ language_id: 102, enable_network: false, number_of_runs: 1, max_file_size: 64, wall_time_limit: 5, max_processes_and_or_threads: 32 });
+      expect(submission).toMatchObject({ language_id: 102, enable_network: false, number_of_runs: 1, max_file_size: 256, wall_time_limit: 5, max_processes_and_or_threads: 32 });
       for (const key of ["expected_output", "callback_url", "additional_files", "compiler_options", "command_line_arguments"]) expect(submission).not.toHaveProperty(key);
       expect(Buffer.from(submission.source_code, "base64").toString()).toBe("source");
     }
@@ -96,12 +102,20 @@ describe("Judge0 transport with an inert HTTP stub", () => {
     expect(JSON.parse(req.body).submissions[0]).toMatchObject({ cpu_time_limit: 2, memory_limit: 262144 });
   });
   it("fails closed on provider errors, oversized responses, invalid tokens and mismatched batch sizes", async () => {
-    for (const response of [new Response("secret", { status: 401 }), new Response("x".repeat(128001)), Response.json([{ token: "../../secret" }]), Response.json([{ language_id: ["does not exist"] }]), Response.json([{ token: token(1) }, { token: token(2) }])]) {
+    for (const response of [new Response("secret", { status: 401 }), new Response("x".repeat(JUDGE0_RESPONSE_LIMIT + 1)), Response.json([{ token: "../../secret" }]), Response.json([{ language_id: ["does not exist"] }]), Response.json([{ token: token(1) }, { token: token(2) }])]) {
       fetchMock.mockResolvedValueOnce(response);
       await expect(executeJudge0(config, "source", [{ stdin: "[]", expected: 0 }], { timeMs: 2000, memoryKb: 262144 })).rejects.toThrow();
     }
     fetchMock.mockResolvedValueOnce(Response.json([{ token: token(1) }])).mockResolvedValueOnce(Response.json({ submissions: [raw("0"), raw("0")] }));
     await expect(executeJudge0(config, "source", [{ stdin: "[]", expected: 0 }], { timeMs: 2000, memoryKb: 262144 })).rejects.toThrow();
+  });
+  it("accepts a ten-case response with every output stream at its allowed size", async () => {
+    const expected = "x".repeat(RUNNER_LIMITS.maxOutputBytes - 2);
+    const output = { ...raw(JSON.stringify(expected)), stderr: b64("e".repeat(RUNNER_LIMITS.maxOutputBytes)), compile_output: b64("c".repeat(RUNNER_LIMITS.maxOutputBytes)) };
+    fetchMock.mockResolvedValueOnce(Response.json(Array.from({ length: 10 }, (_, i) => ({ token: token(i + 1) }))))
+      .mockResolvedValueOnce(Response.json({ submissions: Array(10).fill(output) }));
+    const results = await executeJudge0(config, "source", Array.from({ length: 10 }, () => ({ stdin: "[]", expected })), { timeMs: 2000, memoryKb: 262144 });
+    expect(results.every((result) => result.status === "ACCEPTED" && result.stdout.length === 4000 && result.diagnostic.length === 4000)).toBe(true);
   });
   it("bounds queue polling and never treats unfinished work as accepted", async () => {
     vi.useFakeTimers();

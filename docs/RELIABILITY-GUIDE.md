@@ -36,7 +36,7 @@ Previously, diagnostics accumulated as an unbounded array and the complete logs 
 
 - Accumulates at most 4,000 diagnostic characters; later logging stops inspecting values once the buffer fills. A truncation marker fits inside this bound.
 - Serializes object diagnostics within the remaining budget, with a placeholder for oversized or unserializable values.
-- Stops result serialization when string/key traversal or node counts exceed a 90,000-character budget, and checks the final JSON length to account for escaping.
+- Stops result serialization when string/key traversal or node counts exceed the shared budget, and checks final JSON UTF-8 bytes to account for escaping and multibyte characters. The current result budget is 262,144 bytes; see [stored-case byte limits](RUNNER-BYTE-LIMITS.md).
 - Rejects oversized return values with a runtime error and no result payload. Complete permitted JSON is compared structurally before the separate 4,000-character display truncation.
 - Rejects malformed worker envelopes, oversized fields and non-finite/negative runtime values, and terminates the worker after a terminal result.
 

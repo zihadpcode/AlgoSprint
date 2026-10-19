@@ -35,7 +35,10 @@ def __as_main():
         __as_solve = __as_scope.get(__as_entry)
         if not callable(__as_solve):
             raise NameError("Define a function named " + __as_entry + ".")
-        __as_text = __as_json.dumps(__as_solve(*__as_args), allow_nan=False)
+        __as_text = __as_json.dumps(__as_solve(*__as_args), allow_nan=False, ensure_ascii=False, separators=(",", ":"))
+        # Keep lone UTF-16 surrogates representable as JSON escapes while other
+        # Unicode is emitted as UTF-8, matching the JavaScript result encoding.
+        __as_text = __as_text.encode("utf-8", errors="backslashreplace").decode("utf-8")
     except BaseException:
         __as_traceback.print_exc(file=__as_sys.stderr)
         return ${PYTHON_EXIT_RUNTIME_ERROR}
