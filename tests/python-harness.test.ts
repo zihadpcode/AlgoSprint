@@ -80,8 +80,17 @@ const run = (source: string, args: unknown[], entry = "relay_window") => {
 const executable = it.skipIf(!hasPython);
 executable("python3: returns the result as JSON on stdout, with print output kept on stderr", () => {
   const done = run(`def relay_window(loads, width):\n    print("debug line")\n    return {"best": [loads[0], width], "ok": True, "none": None}`, [[4, 5], 2]);
-  expect(done).toMatchObject({ status: 0, stdout: '{"best": [4, 2], "ok": true, "none": null}' });
+  expect(done).toMatchObject({ status: 0, stdout: '{"best":[4,2],"ok":true,"none":null}' });
   expect(done.stderr).toContain("debug line");
+});
+executable("python3: serializes compact UTF-8 JSON at the shared result boundary without a newline", () => {
+  const expected = "é".repeat(131071);
+  const done = run('def relay_window(loads, width):\n    return "é" * 131071', [[1], 1]);
+  expect(done.status).toBe(0);
+  expect(done.stdout).toBe(JSON.stringify(expected));
+  expect(Buffer.byteLength(done.stdout)).toBe(262144);
+  const lone = run('def relay_window(loads, width):\n    return chr(0xd800)', [[1], 1]);
+  expect(lone).toMatchObject({ status: 0, stdout: JSON.stringify(String.fromCharCode(0xd800)) });
 });
 executable("python3: solves a real case from the seeded stdin shape", () => {
   const stdin = JSON.parse(makeStdin("relay-window", { loads: [3, 1, 5, 2, 6, 1], width: 3 })) as unknown[];

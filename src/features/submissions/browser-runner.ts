@@ -1,4 +1,6 @@
 import type { CaseResult, ExecutionResult, Verdict } from "./contracts";
+import { RUNNER_LIMITS } from "./limits";
+import { utf8ByteLength } from "./serialization";
 
 // Visible tests run inside a Web Worker in the learner's own browser. Nothing is sent to or saved on the server,
 // so this gives instant feedback for free; only Submit needs the configured server runner. The worker mirrors the Judge0
@@ -7,7 +9,7 @@ import type { CaseResult, ExecutionResult, Verdict } from "./contracts";
 export const BROWSER_TIME_LIMIT_MS = 3000;
 export const BROWSER_OUTPUT_LIMIT = 4000;
 // Keep complete JSON for comparison up to this bound; the smaller limit is only for display and diagnostics.
-export const BROWSER_RESULT_LIMIT = 90_000;
+export const BROWSER_RESULT_LIMIT = RUNNER_LIMITS.maxOutputBytes;
 
 export const BROWSER_WORKER_SOURCE = `"use strict";
 self.onmessage = function (event) {
@@ -28,7 +30,7 @@ self.onmessage = function (event) {
       if (size > limit || ++nodes > limit) throw overflow;
       return item;
     });
-    if (json !== undefined && json.length > limit) throw overflow;
+    if (json !== undefined && new TextEncoder().encode(json).byteLength > limit) throw overflow;
     return json;
   };
   var append = function (text) {
@@ -114,7 +116,7 @@ function isWorkerMessage(value: unknown): value is WorkerMessage {
   if (!value || typeof value !== "object") return false;
   const message = value as Record<string, unknown>;
   return ["ok", "syntax", "runtime", "output-limit"].includes(message.kind as string)
-    && typeof message.stdout === "string" && message.stdout.length <= BROWSER_RESULT_LIMIT
+    && typeof message.stdout === "string" && utf8ByteLength(message.stdout) <= BROWSER_RESULT_LIMIT
     && typeof message.diagnostic === "string" && message.diagnostic.length <= BROWSER_OUTPUT_LIMIT
     && typeof message.runtimeMs === "number" && Number.isFinite(message.runtimeMs) && message.runtimeMs >= 0;
 }

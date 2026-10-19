@@ -3,6 +3,7 @@ import { isDeepStrictEqual } from "node:util";
 import type { RunnerCase, RunnerOutcome } from "./judge0";
 import { PYTHON_EXIT_COMPILE_ERROR } from "./harness-python";
 import { RUNNER_LIMITS } from "./limits";
+import { utf8ByteLength } from "./serialization";
 
 // Pluggable Python execution. The application owns the generated program (harness-python.ts), the per-case limits and
 // the verdict mapping below; an executor only runs one program against one stdin and reports what the process did.
@@ -11,7 +12,7 @@ import { RUNNER_LIMITS } from "./limits";
 
 export const PYTHON_UNAVAILABLE_DIAGNOSTIC = "The Python runtime is not installed on this server.";
 // Same bound the QuickJS sandbox applies to a program's output.
-export const PYTHON_OUTPUT_BYTES = 90_000;
+export const PYTHON_OUTPUT_BYTES = RUNNER_LIMITS.maxOutputBytes;
 const DISPLAY_CHARS = 4000;
 
 export type PythonCaseRequest = {
@@ -55,7 +56,7 @@ export function mapPythonRun(run: PythonCaseRun, expected: unknown, limits: { ti
   const base = { stdout: run.stdout.slice(0, DISPLAY_CHARS), diagnostic: tail(run.stderr), runtimeMs: run.runtimeMs, memoryKb: run.memoryKb };
   if (run.kind === "time-limit") return { ...base, status: "TIME_LIMIT", diagnostic: tail(run.stderr) || `Execution exceeded ${limits.timeMs} ms.` };
   if (run.kind === "memory-limit") return { ...base, status: "MEMORY_LIMIT", diagnostic: tail(run.stderr) || `Execution exceeded ${limits.memoryKb} KB.` };
-  if (run.stdout.length > PYTHON_OUTPUT_BYTES || run.stderr.length > PYTHON_OUTPUT_BYTES) {
+  if (utf8ByteLength(run.stdout) > PYTHON_OUTPUT_BYTES || utf8ByteLength(run.stderr) > PYTHON_OUTPUT_BYTES) {
     return { ...base, status: "RUNTIME_ERROR", diagnostic: "Output exceeds the sandbox limit." };
   }
   if (run.exitCode === PYTHON_EXIT_COMPILE_ERROR) return { ...base, status: "COMPILE_ERROR" };
