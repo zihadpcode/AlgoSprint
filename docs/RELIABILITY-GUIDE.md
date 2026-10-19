@@ -99,3 +99,7 @@ A later bounded ten-minute production log query returned three pg concurrent-que
 | Interface acceptance | Finish authenticated screenshots, keyboard, zoom, screen reader and actual mobile-browser checks in SCREENSHOTS.md. |
 
 Use DEPLOYMENT.md for the release checklist and production evidence. Passing local tests does not complete those live checks.
+
+## 2026-10-18 interview bank update
+
+The noncoding mock interview bank now has 76 prompts, with at least five for every style and difficulty. The first 46 prompts are pinned by a SHA-256 test and must not change, because sessions snapshot prompts and saved reports depend on them.
