@@ -1,6 +1,6 @@
 # Problem library guide
 
-The curated seed library contains 113 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and one hundred eight hand-authored problems in `src/data/seeds/problems/library/` (28 easy, 56 medium, 29 hard). The first 100 met the brief's 100-problem milestone (25 easy, 50 medium, 25 hard); batch 6 prepares thirteen more for publication, and the next milestone is 1,000. Production counts change only after the reviewed seed rollout. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The curated seed library contains 125 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and one hundred twenty hand-authored problems in `src/data/seeds/problems/library/` (31 easy, 61 medium, 33 hard across all 125). The first 100 met the brief's 100-problem milestone (25 easy, 50 medium, 25 hard); batch 6 added thirteen more, batch 7 prepares twelve more for publication, and the next milestone is 1,000. Production counts change only after the reviewed seed rollout. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
@@ -114,6 +114,18 @@ The curated seed library contains 113 original coding problems: the five foundat
 | `suffix-alarm` | Suffix Alarm | Hard | trie | tries, strings, design |
 | `grove-harvest` | Grove Harvest | Hard | tree-recursion | binary-search-trees, trees, recursion |
 | `crew-cover` | Crew Cover | Hard | bitmask-dp | dynamic-programming, bit-manipulation |
+| `worn-tiles` | Worn Tiles | Easy | difference-array | arrays, intervals |
+| `close-calls` | Close Calls | Easy | two-pointers | two-pointers, sorting, arrays |
+| `dial-distance` | Dial Distance | Easy | gray-code | bit-manipulation, math |
+| `zero-tail` | Zero Tail | Medium | prime-factorization | math, arrays |
+| `toll-slide` | Toll Slide | Medium | two-dimensional-dp | dynamic-programming, arrays |
+| `bay-ledger` | Bay Ledger | Medium | fenwick-tree | arrays, binary-search, design |
+| `booth-bookings` | Booth Bookings | Medium | design | object-oriented, system-design, intervals |
+| `pulse-gates` | Pulse Gates | Medium | state-space-bfs | bfs, graphs, queue |
+| `profit-block` | Profit Block | Hard | monotonic-deque | sliding-window, queue, arrays |
+| `tile-pop` | Tile Pop | Hard | interval-dp | dynamic-programming, arrays |
+| `prefix-echoes` | Prefix Echoes | Hard | prefix-function | strings, arrays |
+| `scale-splits` | Scale Splits | Hard | meet-in-the-middle | arrays, sorting, two-pointers |
 
 Trees are passed as level-order arrays with `null` for missing children. Tree bounds count serialized entries (nulls included), and batch 6 schemas additionally require the canonical form: a present root, no trailing `null`, and no entries for missing parents. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
 
@@ -127,9 +139,11 @@ A problem is complete only when three pieces agree:
 
    Problems added after the first 35 put their reference in `scripts/lib/reference-expansion.ts` instead. Each entry there also carries an independent brute-force baseline and a seeded random-input sampler, and `tests/reference-expansion.test.ts` checks that the two implementations agree on 400 sampled inputs per problem. Batch 6 keeps its thirteen entries in `scripts/lib/reference-batch6.ts` with the same entry shape (merged into the registry by `reference-library.ts`); `tests/reference-batch6.test.ts` compares the two implementations on 600 sampled inputs per problem and asserts that every input schema rejects malformed input and checks synthetic worst-case outputs against the current 262,144-byte budget. The 7,000-statement `elevation-ledger` and 6,000-operation `ring-router` authoring caps were chosen for the former 90,000-byte limit and remain conservative. These output probes do not bypass the separate stdin limit for stored tests. Samplers shuffle only with a seeded Fisher-Yates, never a random sort comparator.
 
+   Batch 7 keeps its twelve entries in `scripts/lib/reference-batch7.ts` (same entry shape, merged by `reference-library.ts`). `tests/reference-batch7.test.ts` compares the two implementations on 600 sampled inputs per problem, checks that the samplers produce every kind of answer, and builds a worst-case input at the statement cap for every problem: each must serialize to at most 64,000 bytes of stdin and its result to under 70% of the sandbox output cap, and the optimal solution is run on those worst cases through the real QuickJS sandbox. Size the caps from the worst serialized input (for example `toll-slide` limits the grid to 20,000 cells and `bay-ledger` to 3,000 operations) and keep every hidden suite at or below ten cases, including at least one maximum-size case on which the brute force exceeds the time limit.
+
 Every published problem must also pass the execution gate in `tests/library-sandbox.test.ts`, which runs each authored JavaScript solution through the same QuickJS sandbox and harness that verified submissions use. Optimal, better and alternative solutions must be accepted on every test. A brute-force solution may hit the time limit on a large case, but it must never return a wrong answer or crash. The untouched starter code must not be accepted. Keep each problem at or below 10 test cases, the default 2000 ms and 262144 KB limits, and 64,000 bytes of input per case so it stays executable by both runner providers. The shared schema validates each stored example and test using the actual positional stdin serializer (at most 64,000 UTF-8 bytes) and compact expected JSON (at most 262,144 UTF-8 bytes). Only stored cases reach the server-side runner. Learners can separately try JavaScript custom input in a browser worker, within the same 64,000-byte input and 262,144-byte output budgets; custom inputs are not submitted or saved. Statement maxima can exceed these budgets, so authors must check stored cases and explain any worst-case limitation that learners may encounter in a browser-only run. See [runner byte limits](RUNNER-BYTE-LIMITS.md).
 
-Python execution remains disabled. Prepare the matching Python stub with `npm run starters:python` (it only appends rows for the new signatures), and put every published problem on at least one roadmap. Batch 6 is the new `capstone-mix-2` path in `src/data/seeds/roadmaps.ts`.
+Python execution remains disabled. Prepare the matching Python stub with `npm run starters:python` (it only appends rows for the new signatures), and put every published problem on at least one roadmap. Batch 6 is the `capstone-mix-2` path and batch 7 adds `capstone-mix-3` in `src/data/seeds/roadmaps.ts`.
 
 Then run:
 

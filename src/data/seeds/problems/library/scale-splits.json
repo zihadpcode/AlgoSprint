@@ -1,0 +1,436 @@
+{
+  "schemaVersion": 1,
+  "slug": "scale-splits",
+  "title": "Scale Splits",
+  "difficulty": "HARD",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "meet-in-the-middle",
+  "statement": "A balance scale has a left pan and a right pan. Every crate in weights must go on exactly one of the two pans. Crates are distinct even when their weights match, and swapping every crate to the other pan gives a different placement. Count the placements for which the two pan totals differ by at most tolerance. The count can reach 2^36, which a JavaScript number holds exactly.",
+  "constraints": [
+    "1 <= weights.length <= 36",
+    "1 <= weights[i] <= 1000000000",
+    "0 <= tolerance <= 36000000000"
+  ],
+  "estimatedMinutes": 60,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "arrays",
+    "sorting",
+    "two-pointers"
+  ],
+  "tags": [
+    "sorting",
+    "pointer-pair"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [
+    "badge-subsets",
+    "crew-cover",
+    "crate-combinations"
+  ],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "weights": [
+          3,
+          5,
+          8,
+          16
+        ],
+        "tolerance": 0
+      },
+      "output": 2,
+      "explanation": "The pans balance exactly only when 3, 5 and 8 sit on one pan against the 16, since 3 + 5 + 8 = 16. That placement and its mirror image are the 2 answers."
+    },
+    {
+      "position": 2,
+      "input": {
+        "weights": [
+          5,
+          3,
+          8,
+          6,
+          2,
+          9
+        ],
+        "tolerance": 3
+      },
+      "output": 12,
+      "explanation": "There are 2^6 = 64 placements. The total weight is 33, so the pan totals always differ by an odd number, and exactly 12 of the 64 placements differ by 1 or 3."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "There are 2^n placements, so n = 36 rules out trying them all. What is the difference between the pans actually made of, and could any part of it be worked out independently of the rest?"
+    },
+    {
+      "position": 2,
+      "content": "Describe a placement by a signed sum: +w for a crate on the left pan and -w for one on the right. If you cut the crates into a first half and a second half, the final difference is the signed sum of the first half plus the signed sum of the second half, and the halves can be handled separately."
+    },
+    {
+      "position": 3,
+      "content": "List every signed sum for the first 18 crates and, separately, for the last 18: each list has up to 2^18 = 262,144 entries. Keep them sorted, for example by merging x + w and x - w as each crate is added."
+    },
+    {
+      "position": 4,
+      "content": "Now count pairs (x, y) with -tolerance <= x + y <= tolerance. With both lists sorted, a two-pointer sweep counts the pairs with x + y <= limit in linear time."
+    },
+    {
+      "position": 5,
+      "content": "Answer = count(x + y <= tolerance) - count(x + y <= -tolerance - 1). This is about O(2^(n/2)) time and memory. Use Float64Array: sums reach 3.6e10, beyond 32-bit integers."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "scaleSplits",
+      "code": "function scaleSplits(weights, tolerance) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "weights": [
+          3,
+          5,
+          8,
+          16
+        ],
+        "tolerance": 0
+      },
+      "output": 2,
+      "explanation": "Exact balance with a single possible split and its mirror."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "weights": [
+          5,
+          3,
+          8,
+          6,
+          2,
+          9
+        ],
+        "tolerance": 3
+      },
+      "output": 12,
+      "explanation": "A small mix with a tolerance of 3."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          7
+        ],
+        "tolerance": 7
+      },
+      "output": 2,
+      "explanation": "One crate: both pans leave a difference of 7, and both placements count."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          7
+        ],
+        "tolerance": 6
+      },
+      "output": 0,
+      "explanation": "One crate cannot be balanced within 6."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          4,
+          4,
+          4
+        ],
+        "tolerance": 100
+      },
+      "output": 8,
+      "explanation": "A tolerance larger than any possible difference counts every placement."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "tolerance": 0
+      },
+      "output": 184756,
+      "explanation": "Twenty equal crates: balanced placements are the ways to choose which 10 go left."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          21,
+          2,
+          2,
+          5,
+          11,
+          24,
+          24,
+          23,
+          18,
+          8,
+          2,
+          22,
+          21,
+          4,
+          23,
+          30,
+          19,
+          2,
+          2,
+          17,
+          5,
+          15,
+          25,
+          5,
+          20,
+          2
+        ],
+        "tolerance": 0
+      },
+      "output": 629682,
+      "explanation": "26 small random crates (with an even total) and exact balance, a count in the hundreds of thousands."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          978806831,
+          610222366,
+          790794415,
+          713135578,
+          326823254,
+          694252187,
+          864087109,
+          632454093,
+          527389292,
+          783549932,
+          893709555,
+          631699643,
+          187839640,
+          946340427,
+          653848270,
+          494483117,
+          664595040,
+          159145489,
+          561325201,
+          66737107,
+          238547050,
+          121748873,
+          105945999,
+          545661898,
+          48203060,
+          261902585,
+          577917247,
+          156688297,
+          348464564,
+          17457774,
+          983354325,
+          253891425,
+          636314329,
+          664609332,
+          804113062,
+          343223677
+        ],
+        "tolerance": 500000000
+      },
+      "output": 7712141216,
+      "explanation": "36 large random crates: 2^36 placements are far too many to try one by one."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          5,
+          34,
+          33,
+          13,
+          10,
+          26,
+          35,
+          6,
+          27,
+          39,
+          25,
+          5,
+          29,
+          12,
+          26,
+          1,
+          37,
+          15,
+          40,
+          39,
+          31,
+          24,
+          2,
+          23,
+          8,
+          33,
+          27,
+          20,
+          5,
+          17,
+          24,
+          33,
+          23,
+          33,
+          37,
+          14
+        ],
+        "tolerance": 3
+      },
+      "output": 1421613564,
+      "explanation": "36 small random crates with a tiny tolerance, so a very large count of nearly balanced placements."
+    },
+    {
+      "position": 10,
+      "visibility": "HIDDEN",
+      "input": {
+        "weights": [
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000,
+          1000000000
+        ],
+        "tolerance": 36000000000
+      },
+      "output": 68719476736,
+      "explanation": "36 maximum-weight crates with the largest tolerance: all 2^36 placements count."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Try every placement",
+      "intuition": "Walk through the crates choosing left or right for each, tracking the difference between the pans.",
+      "approach": "place(index, difference) recurses over the crates, adding the weight for the left pan or subtracting it for the right. At the end, count 1 when |difference| <= tolerance.",
+      "pseudocode": "place(i, diff): if i == n: return |diff| <= tolerance ? 1 : 0\n  return place(i+1, diff + w[i]) + place(i+1, diff - w[i])",
+      "code": "function scaleSplits(weights, tolerance) {\n  const place = (index, difference) => {\n    if (index === weights.length) return Math.abs(difference) <= tolerance ? 1 : 0;\n    return place(index + 1, difference + weights[index]) + place(index + 1, difference - weights[index]);\n  };\n  return place(0, 0);\n}",
+      "timeComplexity": "O(2^n): 68 billion leaves at n = 36",
+      "spaceComplexity": "O(n) recursion depth",
+      "commonMistakes": [
+        "Counting a placement and its mirror once instead of twice.",
+        "Using 32-bit integer operations on sums that exceed 2^31."
+      ],
+      "interviewExplanation": "Enumerating the placements is the specification and is fine up to about twenty crates. At 36 crates there are 2^36 placements, so no amount of constant-factor tuning helps; the problem needs the meet-in-the-middle split.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Branch",
+          "content": "For [3, 5, 8, 16] the recursion tries 16 placements; the sums 3 + 5 + 8 - 16 and its negative are zero."
+        },
+        {
+          "position": 2,
+          "title": "Count",
+          "content": "No other placement has difference zero, so the result is 2."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Meet in the middle with sorted signed sums",
+      "intuition": "The difference splits into a first-half part and a second-half part, so count pairs of half-sums instead of whole placements.",
+      "approach": "For each half, build the sorted list of all signed sums by starting from [0] and merging (sums + w) with (sums - w) for each crate. Then count pairs with x + y <= tolerance and pairs with x + y <= -tolerance - 1 using a two-pointer pass (ascending x, descending pointer into y) and subtract.",
+      "pseudocode": "signedSums(items): sums = [0]; for w in items: sums = merge(sums + w, sums - w)\nA = signedSums(first half); B = signedSums(second half)\natMost(limit): j = len(B) - 1; total = 0; for x in A ascending: while j >= 0 and x + B[j] > limit: j -= 1; total += j + 1\nreturn atMost(tolerance) - atMost(-tolerance - 1)",
+      "code": "function scaleSplits(weights, tolerance) {\n  const signedSums = (items) => {\n    let sums = new Float64Array([0]);\n    for (const weight of items) {\n      const merged = new Float64Array(sums.length * 2);\n      let a = 0;\n      let b = 0;\n      let out = 0;\n      while (a < sums.length && b < sums.length) {\n        if (sums[a] + weight <= sums[b] - weight) merged[out++] = sums[a++] + weight;\n        else merged[out++] = sums[b++] - weight;\n      }\n      while (a < sums.length) merged[out++] = sums[a++] + weight;\n      while (b < sums.length) merged[out++] = sums[b++] - weight;\n      sums = merged;\n    }\n    return sums;\n  };\n  const half = weights.length >> 1;\n  const left = signedSums(weights.slice(0, half));\n  const right = signedSums(weights.slice(half));\n  const atMost = (limit) => {\n    let pointer = right.length - 1;\n    let count = 0;\n    for (let i = 0; i < left.length; i++) {\n      while (pointer >= 0 && left[i] + right[pointer] > limit) pointer--;\n      count += pointer + 1;\n    }\n    return count;\n  };\n  return atMost(tolerance) - atMost(-tolerance - 1);\n}",
+      "timeComplexity": "O(2^(n/2)): about 2 * 262,144 sums, built by merging, and two linear two-pointer sweeps at n = 36",
+      "spaceComplexity": "O(2^(n/2)) doubles",
+      "commonMistakes": [
+        "Using Int32Array, which overflows beyond 2 billion.",
+        "Counting pairs in [-tolerance, tolerance] with one pointer sweep instead of subtracting two prefix counts.",
+        "Sorting the lists with the default comparator, which orders numbers as text."
+      ],
+      "interviewExplanation": "Each placement's difference is a half-sum from the first 18 crates plus a half-sum from the last 18, and the two halves are independent. That replaces 2^36 placements by two lists of 2^18 sums and a counting problem on two sorted arrays, solved by a monotone pointer. Building the lists by merging x + w and x - w keeps them sorted without ever calling sort. The count is exact in a double because it never exceeds 2^36.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Build the halves",
+          "content": "For [3, 5, 8, 16] the first half [3, 5] gives sums -8, -2, 2, 8 and the second half [8, 16] gives -24, -8, 8, 24."
+        },
+        {
+          "position": 2,
+          "title": "Count pairs",
+          "content": "Only -8 + 8 and 8 + -8 are zero, so atMost(0) - atMost(-1) = 2."
+        }
+      ]
+    }
+  ]
+}

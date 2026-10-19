@@ -676,5 +676,77 @@
     "language": "PYTHON",
     "entryPoint": "crew_cover",
     "code": "def crew_cover(skills, volunteers):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "worn-tiles",
+    "language": "PYTHON",
+    "entryPoint": "worn_tiles",
+    "code": "def worn_tiles(length, passes, limit):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "close-calls",
+    "language": "PYTHON",
+    "entryPoint": "close_calls",
+    "code": "def close_calls(readings, tolerance):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "dial-distance",
+    "language": "PYTHON",
+    "entryPoint": "dial_distance",
+    "code": "def dial_distance(bits, pairs):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "zero-tail",
+    "language": "PYTHON",
+    "entryPoint": "zero_tail",
+    "code": "def zero_tail(numbers, base):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "toll-slide",
+    "language": "PYTHON",
+    "entryPoint": "toll_slide",
+    "code": "def toll_slide(grid):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "bay-ledger",
+    "language": "PYTHON",
+    "entryPoint": "bay_ledger",
+    "code": "def bay_ledger(bays, operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "booth-bookings",
+    "language": "PYTHON",
+    "entryPoint": "booth_bookings",
+    "code": "def booth_bookings(gap, operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "pulse-gates",
+    "language": "PYTHON",
+    "entryPoint": "pulse_gates",
+    "code": "def pulse_gates(grid, period):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "profit-block",
+    "language": "PYTHON",
+    "entryPoint": "profit_block",
+    "code": "def profit_block(profits, min_len, max_len):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "tile-pop",
+    "language": "PYTHON",
+    "entryPoint": "tile_pop",
+    "code": "def tile_pop(weights, tolerance):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "prefix-echoes",
+    "language": "PYTHON",
+    "entryPoint": "prefix_echoes",
+    "code": "def prefix_echoes(text, lengths):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "scale-splits",
+    "language": "PYTHON",
+    "entryPoint": "scale_splits",
+    "code": "def scale_splits(weights, tolerance):\n    # Write your solution here.\n    pass"
   }
 ]
