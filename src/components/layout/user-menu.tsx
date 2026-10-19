@@ -13,7 +13,7 @@ function initials(name: string) {
   return ((parts[0]?.[0] ?? "?") + (parts[1]?.[0] ?? "")).toUpperCase();
 }
 
-/** Profile dropdown (menu button pattern): Escape and outside clicks close it, focus returns to the trigger. */
+/** Profile dropdown (disclosure of navigation links): Escape and outside clicks close it, focus returns to the trigger. */
 export function UserMenu({ name, email, admin = false }: { name: string; email?: string | null; admin?: boolean }) {
   const pathname = usePathname();
   // The menu belongs to the page it was opened on, so navigating closes it without an effect.
@@ -41,7 +41,7 @@ export function UserMenu({ name, email, admin = false }: { name: string; email?:
     return () => { document.removeEventListener("pointerdown", onPointer); document.removeEventListener("keydown", onKey); };
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps -- setOpen is recreated per render but only closes
   return <div ref={root} className="relative">
-    <button ref={trigger} type="button" aria-haspopup="true" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(!open)}
+    <button ref={trigger} type="button" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(!open)}
       className="inline-flex h-9 items-center gap-1.5 rounded-lg pr-1.5 pl-1 text-muted transition-colors hover:bg-surface-hover hover:text-ink">
       <span aria-hidden="true" className="grid size-7 place-items-center rounded-md bg-gradient-to-br from-zinc-700 to-zinc-800 text-[0.6875rem] font-semibold text-ink ring-1 ring-line-strong">{initials(name)}</span>
       <span className="sr-only">Account menu for {name}</span>

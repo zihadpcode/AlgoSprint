@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
@@ -41,14 +41,15 @@ export function MobileNav() {
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
   const setOpen = (value: boolean) => setOpenOn(value ? pathname : null);
+  const trigger = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (!open) return;
-    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    const close = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); } };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps -- setOpen only closes
   return <div className="md:hidden">
-    <button type="button" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}
+    <button ref={trigger} type="button" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}
       className="grid size-9 place-items-center rounded-md text-muted hover:bg-surface-hover hover:text-ink">
       {open ? <X aria-hidden="true" size={18} /> : <Menu aria-hidden="true" size={18} />}
     </button>

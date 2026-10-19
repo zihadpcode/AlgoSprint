@@ -10,15 +10,18 @@ export const PALETTE_RESULTS = 8;
 export async function searchPublishedProblems(db: PrismaClient, raw: string) {
   const q = stripSearchControls(raw).trim().slice(0, PALETTE_QUERY_MAX);
   if (q.length < 2) return [];
-  const rows = await db.problem.findMany({
-    where: { status: "PUBLISHED", title: { contains: literalSearch(q), mode: "insensitive" } },
-    orderBy: [{ title: "asc" }],
-    take: 40,
-    select: { slug: true, title: true, difficulty: true, pattern: true },
+  const select = { slug: true, title: true, difficulty: true, pattern: true } as const;
+  // Titles that start with the query first, then other matches; both alphabetical. Two bounded queries so a prefix
+  // match can never be crowded out by many earlier-sorting "contains" matches.
+  const pattern = literalSearch(q);
+  const prefix = await db.problem.findMany({
+    where: { status: "PUBLISHED", title: { startsWith: pattern, mode: "insensitive" } },
+    orderBy: [{ title: "asc" }], take: PALETTE_RESULTS, select,
   });
-  // Titles that start with the query rank first, then alphabetical.
-  const lower = q.toLowerCase();
-  return rows
-    .sort((a, b) => Number(!a.title.toLowerCase().startsWith(lower)) - Number(!b.title.toLowerCase().startsWith(lower)) || a.title.localeCompare(b.title))
-    .slice(0, PALETTE_RESULTS);
+  if (prefix.length >= PALETTE_RESULTS) return prefix;
+  const rest = await db.problem.findMany({
+    where: { status: "PUBLISHED", title: { contains: pattern, mode: "insensitive" }, NOT: { title: { startsWith: pattern, mode: "insensitive" } } },
+    orderBy: [{ title: "asc" }], take: PALETTE_RESULTS - prefix.length, select,
+  });
+  return [...prefix, ...rest];
 }

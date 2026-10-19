@@ -12,10 +12,12 @@
   --color-line-strong: #3f3f46;
   --color-ink: #fafafa;
   --color-muted: #a1a1aa;
-  --color-subtle: #71717a;
+  --color-subtle: #8f8f99;
+  --color-field-border: #60606b;
   --color-accent: #818cf8;
   --color-accent-strong: #a5b4fc;
-  --color-accent-solid: #6366f1;
+  --color-accent-solid: #4f46e5;
+  --color-accent-solid-hover: #4338ca;
   --color-info: #22d3ee;
   --color-warm: #fbbf24;
   --color-lilac: #c4b5fd;
@@ -119,7 +121,7 @@
   }
 
   .action-link-primary {
-    @apply bg-accent-solid text-white hover:bg-accent;
+    @apply bg-accent-solid text-white hover:bg-accent-solid-hover;
   }
 
   .action-link-secondary {

@@ -38,8 +38,11 @@ export function CommandPalette() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); if (open) close(); else show(); }
-      else if (event.key === "/" && !open && !editableTarget(event.target)) { event.preventDefault(); show(); }
+      // Inside Monaco, Cmd/Ctrl+K starts the editor's own chords, so leave it alone there.
+      if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === "k" && !(event.target as HTMLElement | null)?.closest?.(".monaco-editor")) {
+        event.preventDefault(); if (open) close(); else show();
+      } else if (open && event.key === "Escape") { event.preventDefault(); close(); }
+      else if (event.key === "/" && !open && !event.metaKey && !event.ctrlKey && !event.altKey && !editableTarget(event.target)) { event.preventDefault(); show(); }
     };
     window.addEventListener("keydown", onKey);
     window.addEventListener(OPEN_EVENT, show);
@@ -78,14 +81,14 @@ export function CommandPalette() {
 
   if (!open) return null;
   return <div className="fixed inset-0 z-[55] flex items-start justify-center bg-black/60 px-4 pt-[12vh] backdrop-blur-[2px] animate-fade-in" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
-    <div role="dialog" aria-modal="true" aria-label="Search" className="w-full max-w-xl animate-slide-up overflow-hidden rounded-xl border border-line bg-surface-raised shadow-pop">
+    <div role="dialog" aria-modal="true" aria-label="Search" onMouseDown={(event) => { if (event.target !== input.current) event.preventDefault(); }} className="w-full max-w-xl animate-slide-up overflow-hidden rounded-xl border border-line bg-surface-raised shadow-pop">
       <div className="flex items-center gap-2.5 border-b border-line px-3.5">
         <Search aria-hidden="true" size={16} className="shrink-0 text-subtle" />
         <input ref={input} value={query} onChange={(event) => { setQuery(event.target.value); setActive(0); }} placeholder="Search problems or jump to a page…"
           role="combobox" aria-expanded="true" aria-controls={listId} aria-activedescendant={entries[current] ? `${listId}-${current}` : undefined} aria-autocomplete="list"
+          onBlur={() => window.setTimeout(() => { if (input.current && document.activeElement === document.body) input.current.focus(); })}
           onKeyDown={(event) => {
-            if (event.key === "Escape") { event.preventDefault(); close(); }
-            else if (event.key === "ArrowDown") { event.preventDefault(); setActive(Math.min(current + 1, entries.length - 1)); }
+            if (event.key === "ArrowDown") { event.preventDefault(); setActive(Math.min(current + 1, entries.length - 1)); }
             else if (event.key === "ArrowUp") { event.preventDefault(); setActive(Math.max(current - 1, 0)); }
             else if (event.key === "Enter") { event.preventDefault(); go(entries[current]); }
             else if (event.key === "Tab") event.preventDefault();

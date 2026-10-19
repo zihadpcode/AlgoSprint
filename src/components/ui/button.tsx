@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 type Variant = "primary" | "secondary" | "quiet" | "danger" | "success";
 type Size = "sm" | "md" | "lg" | "icon";
 const variants: Record<Variant, string> = {
-  primary: "border-transparent bg-accent-solid text-white shadow-[0_1px_0_0_#ffffff26_inset] hover:bg-accent",
+  primary: "border-transparent bg-accent-solid text-white shadow-[0_1px_0_0_#ffffff26_inset] hover:bg-accent-solid-hover",
   secondary: "border-line bg-surface-raised text-ink hover:border-line-strong hover:bg-surface-hover",
   quiet: "border-transparent text-muted hover:bg-surface-hover hover:text-ink",
   danger: "border-danger/30 bg-danger/10 text-danger hover:bg-danger/20",
