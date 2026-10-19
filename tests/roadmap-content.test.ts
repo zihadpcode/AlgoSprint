@@ -26,3 +26,32 @@ it("describes all-solved as recorded progress, without claiming mastery or execu
   const html = renderToStaticMarkup(createElement(RoadmapNext, { roadmap: fixture() }));
   expect(html).toContain("All steps are recorded solved"); expect(html).toContain("repeat any step"); expect(html).not.toContain("mastered");
 });
+import { RoadmapCard } from "@/components/roadmaps/roadmap-content";
+const track = (): RoadmapView => {
+  const step = (position: number, slug: string, solved: boolean) => ({ position, title: "Step " + position + " title", description: null,
+    problem: { slug, title: slug, difficulty: "MEDIUM" as const, estimatedMinutes: 10 },
+    progress: progressView({ status: solved ? "SOLVED" : "NOT_STARTED", selfMarked: true, reviewLater: false, verifiedRevision: null }, 1) });
+  const steps = [step(1, "one", true), step(2, "two", false), step(3, "three", false)];
+  return { slug: "track", title: "Track", description: "d", difficulty: "MEDIUM", estimatedMinutes: 30, steps, progress: roadmapProgress(steps, true), next: recommendStep(steps, true) };
+};
+it("marks solved steps, highlights only the first unsolved step and gives it a Continue button", () => {
+  const html = renderToStaticMarkup(createElement(RoadmapSteps, { roadmap: track() }));
+  expect(html.match(/Up next/g)).toHaveLength(1);
+  expect(html.match(/>Continue</g)).toHaveLength(1);
+  expect(html.indexOf("Up next")).toBeGreaterThan(html.indexOf("Step 1 title"));
+  expect(html.indexOf("Up next")).toBeLessThan(html.indexOf("Step 3 title"));
+  expect(html).toContain("Solved · self-marked");
+});
+it("offers Start to guests on the first step", () => {
+  const roadmap = track(); roadmap.progress = null;
+  roadmap.steps = roadmap.steps.map((s) => ({ ...s, progress: null })); roadmap.next = recommendStep(roadmap.steps, false);
+  const html = renderToStaticMarkup(createElement(RoadmapSteps, { roadmap }));
+  expect(html).toContain("Start here"); expect(html).toContain(">Start<"); expect(html).not.toContain("Continue");
+});
+it("shows card progress for signed-in viewers and a sign-in hint for guests, without a fabricated zero", () => {
+  const signed = renderToStaticMarkup(createElement(RoadmapCard, { roadmap: track() }));
+  for (const text of ["1 / 3 steps solved", "33%", "<progress", ">Continue<", "3 steps"]) expect(signed).toContain(text);
+  const roadmap = track(); roadmap.progress = null;
+  const guest = renderToStaticMarkup(createElement(RoadmapCard, { roadmap }));
+  expect(guest).toContain("Sign in to track your progress"); expect(guest).not.toContain("0%"); expect(guest).toContain("Open roadmap");
+});

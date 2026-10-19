@@ -4,6 +4,7 @@ vi.mock("server-only", () => ({}));
 import { createDatabaseClient } from "@/lib/db/client";
 import { queryLibrary } from "@/features/problems/query";
 import { parseLibraryFilters } from "@/features/problems/filters";
+import { queryPracticeStats } from "@/features/problems/stats";
 import { loadProblems } from "../../scripts/lib/load-problems";
 import { seedProblems } from "../../prisma/seed-data";
 import { seedCategoryGroups } from "../../prisma/seed-categories";
@@ -90,6 +91,62 @@ describe("published library against PostgreSQL", () => {
     const ranks = { EASY: 0, MEDIUM: 1, HARD: 2 };
     const values = difficulty.items.map((item) => ranks[item.difficulty]);
     expect(values).toEqual([...values].sort());
+  });
+  it("combines several difficulties, categories and statuses as alternatives within a filter and narrows across filters", async () => {
+    const byDifficulty = (level: string) => seeds.filter((seed) => seed.status === "PUBLISHED" && seed.difficulty === level).length;
+    expect((await queryLibrary(db, filters({ difficulty: ["EASY", "HARD"] }), null)).total).toBe(byDifficulty("EASY") + byDifficulty("HARD"));
+    expect((await queryLibrary(db, filters({ difficulty: "MEDIUM" }), null)).total).toBe(byDifficulty("MEDIUM"));
+    const [first, second] = [...new Set(seeds.flatMap((seed) => seed.categories))];
+    const inEither = seeds.filter((seed) => seed.status === "PUBLISHED" && (seed.categories.includes(first) || seed.categories.includes(second))).length;
+    const both = await queryLibrary(db, filters({ category: [first, second] }), null);
+    expect(both.total).toBe(inEither);
+    expect((await queryLibrary(db, filters({ category: [first, second], difficulty: ["EASY"] }), null)).total)
+      .toBe(seeds.filter((seed) => seed.status === "PUBLISHED" && seed.difficulty === "EASY" && (seed.categories.includes(first) || seed.categories.includes(second))).length);
+    // Unknown slugs in a list match nothing extra and never error.
+    expect((await queryLibrary(db, filters({ category: [first, "no-such-category"] }), null)).total)
+      .toBe(seeds.filter((seed) => seed.status === "PUBLISHED" && seed.categories.includes(first)).length);
+    const solvedProblem = await db.problem.findUniqueOrThrow({ where: { slug: seeds[1].slug } });
+    const attemptedProblem = await db.problem.findUniqueOrThrow({ where: { slug: seeds[2].slug } });
+    await db.userProgress.createMany({ data: [
+      { userId: users[1], problemId: solvedProblem.id, status: "SOLVED", solvedAt: new Date(), selfMarked: true },
+      { userId: users[1], problemId: attemptedProblem.id, status: "ATTEMPTED" },
+    ] });
+    const total = (await queryLibrary(db, filters({}), null)).total;
+    // users[1] already has one ATTEMPTED row from the previous test, so ATTEMPTED covers two problems here.
+    const attempted = await queryLibrary(db, filters({ completion: "ATTEMPTED" }), users[1]);
+    const solved = await queryLibrary(db, filters({ completion: "SOLVED" }), users[1]);
+    const notStarted = await queryLibrary(db, filters({ completion: "NOT_STARTED" }), users[1]);
+    expect(attempted.total + solved.total + notStarted.total).toBe(total);
+    const union = await queryLibrary(db, filters({ completion: ["SOLVED", "NOT_STARTED"] }), users[1]);
+    expect(union.total).toBe(solved.total + notStarted.total);
+    expect((await queryLibrary(db, filters({ completion: ["ATTEMPTED", "SOLVED"] }), users[1])).total).toBe(attempted.total + solved.total);
+    expect((await queryLibrary(db, filters({ completion: ["SOLVED", "ATTEMPTED"] }), users[0])).total).toBeGreaterThan(0);
+    const stats = await queryPracticeStats(db, users[1]);
+    expect(stats).toMatchObject({ solved: solved.total, total, submitted: 0, accepted: 0, acceptance: null });
+    expect(stats.difficulty.EASY.total + stats.difficulty.MEDIUM.total + stats.difficulty.HARD.total).toBe(total);
+    expect((await queryPracticeStats(db, randomUUID())).solved).toBe(0);
+    // Another user's rows never leak into this viewer's status filter.
+    expect((await queryLibrary(db, filters({ completion: ["SOLVED"] }), randomUUID())).total).toBe(0);
+    await expect(queryLibrary(db, filters({ completion: ["SOLVED", "ATTEMPTED"] }), null)).rejects.toThrow("Verified viewer");
+  });
+  it("sorts server side by title, difficulty and time in both directions, keeping slug order stable for ties", async () => {
+    const ranks = { EASY: 0, MEDIUM: 1, HARD: 2 };
+    const titles = async (params: Record<string, string>) => (await queryLibrary(db, filters(params), null)).items.map((item) => item.title);
+    const asc = await titles({ sort: "title" });
+    const desc = await titles({ sort: "title", dir: "desc" });
+    expect(desc[0]).not.toBe(asc[0]);
+    const hard = await queryLibrary(db, filters({ sort: "difficulty", dir: "desc" }), null);
+    const values = hard.items.map((item) => ranks[item.difficulty]);
+    expect(values).toEqual([...values].sort((a, b) => b - a));
+    const longest = await queryLibrary(db, filters({ sort: "time", dir: "desc" }), null);
+    const minutes = longest.items.map((item) => item.estimatedMinutes);
+    expect(minutes).toEqual([...minutes].sort((a, b) => b - a));
+    // Descending pages never repeat a problem across pages.
+    const first = await queryLibrary(db, filters({ sort: "time", dir: "desc" }), null);
+    const last = await queryLibrary(db, filters({ sort: "time", dir: "desc", page: String(first.pages) }), null);
+    expect(new Set([...first.items, ...last.items].map((item) => item.slug)).size).toBe(first.pages === 1 ? first.items.length : first.items.length + last.items.length);
+    // A hostile sort or direction falls back to the unchanged default ordering.
+    expect(await titles({ sort: "title; DROP TABLE", dir: "sideways" })).toEqual(asc);
   });
   it("paginates equal sort values without duplicates and clamps out-of-range pages", async () => {
     await db.problem.createMany({ data: extraSlugs.filter((slug) => slug.startsWith("qa-page-")).map((slug) => ({

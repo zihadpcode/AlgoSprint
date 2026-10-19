@@ -16,12 +16,14 @@ const publicSelect = {
   },
 } satisfies Prisma.ProblemSelect;
 
-function orderBy(sort: LibraryFilters["sort"]): Prisma.ProblemOrderByWithRelationInput[] {
+// `dir` is literal: title A-Z / easiest / shortest / oldest are "asc". The slug tie-breaker stays ascending so paging
+// is stable. The parser defaults `dir` to "desc" for "newest" so existing links keep their meaning.
+export function orderBy(sort: LibraryFilters["sort"], dir: LibraryFilters["dir"]): Prisma.ProblemOrderByWithRelationInput[] {
   switch (sort) {
-    case "newest": return [{ publishedAt: { sort: "desc", nulls: "last" } }, { slug: "asc" }];
-    case "difficulty": return [{ difficulty: "asc" }, { slug: "asc" }];
-    case "time": return [{ estimatedMinutes: "asc" }, { slug: "asc" }];
-    default: return [{ title: "asc" }, { slug: "asc" }];
+    case "newest": return [{ publishedAt: { sort: dir, nulls: "last" } }, { slug: "asc" }];
+    case "difficulty": return [{ difficulty: dir }, { slug: "asc" }];
+    case "time": return [{ estimatedMinutes: dir }, { slug: "asc" }];
+    default: return [{ title: dir }, { slug: "asc" }];
   }
 }
 
@@ -29,23 +31,26 @@ export function libraryWhere(filters: LibraryFilters, viewerId: string | null, h
   if (!viewerId && needsPersonalProgress(filters)) throw new Error("Verified viewer required for personal filters.");
   const and: Prisma.ProblemWhereInput[] = [];
   if (filters.q) and.push({ title: { contains: literalSearch(filters.q), mode: "insensitive" } });
-  if (filters.difficulty) and.push({ difficulty: filters.difficulty });
-  if (filters.category) and.push({ categories: { some: { category: { slug: filters.category } } } });
-  if (filters.group) {
+  // Selected values within one filter are alternatives (OR); different filters narrow each other (AND).
+  if (filters.difficulty.length) and.push({ difficulty: { in: filters.difficulty } });
+  if (filters.category.length) and.push({ categories: { some: { category: { slug: { in: filters.category } } } } });
+  if (filters.group.length) {
     // A group matches its children (and any problem attached to the group row itself). Without the hierarchy columns
     // (migration not applied yet) no group exists, so the filter matches nothing instead of failing.
     and.push({ categories: { some: { category: hierarchy
-      ? { OR: [{ slug: filters.group }, { parent: { slug: filters.group } }] }
+      ? { OR: [{ slug: { in: filters.group } }, { parent: { slug: { in: filters.group } } }] }
       : { slug: "" } } } });
   }
   if (filters.tag) and.push({ tags: { some: { tag: { slug: filters.tag } } } });
   if (filters.pattern) and.push({ pattern: filters.pattern });
   if (filters.maxMinutes) and.push({ estimatedMinutes: { lte: filters.maxMinutes } });
   if (viewerId) {
-    if (filters.completion === "NOT_STARTED") {
-      and.push({ progress: { none: { userId: viewerId, status: { in: ["ATTEMPTED", "SOLVED"] } } } });
-    } else if (filters.completion !== "ALL") {
-      and.push({ progress: { some: { userId: viewerId, status: filters.completion } } });
+    if (filters.completion.length) {
+      const started = filters.completion.filter((status) => status !== "NOT_STARTED");
+      const alternatives: Prisma.ProblemWhereInput[] = [];
+      if (filters.completion.includes("NOT_STARTED")) alternatives.push({ progress: { none: { userId: viewerId, status: { in: ["ATTEMPTED", "SOLVED"] } } } });
+      if (started.length) alternatives.push({ progress: { some: { userId: viewerId, status: { in: started } } } });
+      and.push({ OR: alternatives });
     }
     if (filters.review) and.push({ progress: { some: { userId: viewerId, reviewLater: true } } });
   }
@@ -81,7 +86,7 @@ async function queryLibrarySnapshot(db: PrismaClient, filters: LibraryFilters, v
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(filters.page, pages);
     const rows = await tx.problem.findMany({
-      where, select: publicSelect, orderBy: orderBy(filters.sort),
+      where, select: publicSelect, orderBy: orderBy(filters.sort, filters.dir),
       skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE,
     });
     const progress = viewerId && rows.length ? await tx.userProgress.findMany({

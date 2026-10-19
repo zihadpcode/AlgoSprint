@@ -123,6 +123,10 @@ model User {
   displayName String?          @db.VarChar(80)
   role        Role             @default(USER)
   timeZone    String           @default("UTC") @db.VarChar(80)
+  // Opt-in only: the leaderboard shows displayName and solved counts for users who turned this on.
+  leaderboardOptIn Boolean     @default(false)
+  // Confusable skeleton of displayName while opted in (unique among opted-in users); null otherwise.
+  leaderboardNameKey String?   @db.VarChar(80)
   createdAt   DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
   progress    UserProgress[]

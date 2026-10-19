@@ -35,3 +35,17 @@ it("offers no device persistence to a guest and clears a former account's code",
   readDeviceDraft(localStorage, scope); writeDeviceDraft(localStorage, scope, JSON.stringify({ JAVASCRIPT: "private code" }));
   await render(null); expect(host.querySelector("textarea")!.value).toBe("js starter"); expect(host.querySelector('input[type="checkbox"]')).toBeNull(); expect(localStorage.getItem(draftKey(scope))).toBeNull();
 });
+it("announces a recoverable draft with a status message, a visible chip and an open panel, without moving focus or restoring it", async () => {
+  readDeviceDraft(localStorage, scope); writeDeviceDraft(localStorage, scope, JSON.stringify({ JAVASCRIPT: "private code" }));
+  const before = document.activeElement;
+  await render();
+  expect(host.querySelector('[role="status"]')?.textContent).toBe("An unsaved draft from this device is available. Open Device drafts to restore it.");
+  expect(host.textContent).toContain("Draft found");
+  const trigger = host.querySelector<HTMLButtonElement>('button[aria-controls][aria-expanded]')!;
+  expect(trigger.getAttribute("aria-label")).toContain("saved draft is available"); expect(trigger.getAttribute("aria-expanded")).toBe("true");
+  expect(document.activeElement).toBe(before); expect(host.querySelector("textarea")!.value).toBe("js starter");
+  expect(readDeviceDraft(localStorage, scope).draft?.payload).toBe(JSON.stringify({ JAVASCRIPT: "private code" }));
+});
+it("shows no chip or message when nothing is saved", async () => {
+  await render(); expect(host.textContent).not.toContain("Draft found"); expect(host.querySelector('[role="status"]')?.textContent).toBe("");
+});

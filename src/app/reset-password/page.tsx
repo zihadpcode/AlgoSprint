@@ -16,9 +16,9 @@ export default async function ResetPasswordPage() {
     catch { /* Missing or expired recovery access must not render the mutation form. */ }
   }
   return <AuthPage title="Choose a new password" description="Use a unique password to secure your AlgoSprint account.">
-    {!accountsConfigured() ? <AccountsUnavailable /> : verified ? <ResetPasswordForm /> : <div className="mt-6 space-y-4 text-sm leading-6">
+    {!accountsConfigured() ? <AccountsUnavailable /> : verified ? <ResetPasswordForm /> : <div className="mt-6 space-y-3 text-sm leading-6">
       <p role="alert">Open a recent password reset link in this browser before choosing a new password.</p>
-      <Link href="/forgot-password" className="inline-block rounded text-accent underline underline-offset-4">Request a new reset link</Link>
+      <Link href="/forgot-password" className="inline-block rounded text-accent underline-offset-4 hover:underline">Request a new reset link</Link>
     </div>}
   </AuthPage>;
 }
