@@ -40,3 +40,8 @@ export async function queryRoadmap(db: PrismaClient, viewerId: string | null, sl
   return db.$transaction(async (tx) => (await readRoadmaps(tx, viewerId, { ...available, slug }))[0] ?? null, { isolationLevel: "RepeatableRead" });
 }
 export type RoadmapView = NonNullable<Awaited<ReturnType<typeof queryRoadmap>>>;
+
+/** Same availability rule as the roadmap pages, as a cheap existence check (see roadmaps/[slug]/layout.tsx). */
+export async function availableRoadmapExists(db: PrismaClient, slug: string) {
+  return Boolean(await db.roadmap.findFirst({ where: { ...available, slug }, select: { id: true } }));
+}
