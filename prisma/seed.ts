@@ -2,6 +2,7 @@ import { loadEnvConfig } from "@next/env";
 import { createDatabaseClient } from "../src/lib/db/client";
 import { loadProblems } from "../scripts/lib/load-problems";
 import { seedProblems } from "./seed-data";
+import { seedCategoryGroups } from "./seed-categories";
 import { seedRoadmaps } from "./seed-roadmaps";
 import { seedVideos } from "./seed-videos";
 import { ROADMAPS } from "../src/data/seeds/roadmaps";
@@ -17,6 +18,7 @@ async function main() {
   const db = createDatabaseClient(url);
   try {
     console.log("Problems:", await seedProblems(db, problems));
+    console.log("Category groups:", await seedCategoryGroups(db));
     console.log("Roadmaps:", await seedRoadmaps(db, ROADMAPS));
     console.log("Videos:", await seedVideos(db));
   }

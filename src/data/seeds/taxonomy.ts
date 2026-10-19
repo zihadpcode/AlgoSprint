@@ -15,6 +15,22 @@ export const CATEGORIES = [
   ["object-oriented", "Object-Oriented Programming Interview Problems"],
 ] as const;
 
+// One level of grouping above the leaf categories. Groups are NOT in CATEGORIES: problems link to leaves only.
+// Seeding is insert-only (prisma/seed-categories.ts), so a published leaf is never moved to another group by a rerun.
+// To add a group or a subcategory safely, follow docs/TAXONOMY.md. Child order is display order within the group.
+export const CATEGORY_GROUPS = [
+  { slug: "data-structures", name: "Data Structures", position: 1, children: [
+    "arrays", "strings", "hash-maps", "stack", "queue", "linked-list", "trees", "binary-search-trees",
+    "heaps", "graphs", "tries", "union-find",
+  ] },
+  { slug: "algorithms", name: "Algorithms", position: 2, children: [
+    "two-pointers", "sliding-window", "bfs", "dfs", "backtracking", "dynamic-programming", "greedy",
+    "binary-search", "intervals", "sorting", "recursion", "bit-manipulation", "math", "topological-sort",
+  ] },
+  { slug: "design-and-systems", name: "Design and Systems", position: 3, children: ["design", "system-design", "object-oriented"] },
+  { slug: "databases", name: "Databases", position: 4, children: ["sql"] },
+] as const;
+
 export const TAGS = [
   ["prefix-sum", "Prefix Sum"], ["frequency-count", "Frequency Count"],
   ["fixed-window", "Fixed Window"], ["monotone-search", "Monotone Search"],

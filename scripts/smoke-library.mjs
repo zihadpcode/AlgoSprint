@@ -90,6 +90,37 @@ try {
   assert.ok(!searchHtml.includes("Dock Threshold"));
   const empty = await fetch(origin + "/problems?q=no-such-title-ever");
   assert.ok((await empty.text()).includes("No matches yet"));
+  // Category hierarchy: the oracle is SQL, not the app. Without parents the select must stay the old flat list.
+  const groupRows = (await db.query(`
+    SELECT g.slug, g.name, array_agg(DISTINCT p.slug ORDER BY p.slug) AS problems
+    FROM app."Category" g
+    JOIN app."Category" c ON c."parentId" = g.id
+    JOIN app."ProblemCategory" pc ON pc."categoryId" = c.id
+    JOIN app."Problem" p ON p.id = pc."problemId" AND p.status = 'PUBLISHED'
+    GROUP BY g.slug, g.name, g.position ORDER BY g.position, g.name`)).rows;
+  if (!groupRows.length) {
+    assert.ok(!html.includes("<optgroup"), "A library without category groups must render the flat category list");
+  } else {
+    for (const group of groupRows) {
+      assert.ok(html.includes(`<optgroup label="${group.name}">`), `Grouped select lists ${group.name}`);
+      assert.ok(html.includes(`value="group:${group.slug}"`), `${group.name} has an All option`);
+    }
+    const cardSlugs = (body) => [...new Set([...body.matchAll(/<a\b[^>]*\bhref="\/problems\/([a-z0-9-]+)"/g)].map((match) => match[1]))];
+    for (const group of groupRows) {
+      for (const query of [`group=${group.slug}`, `category=${encodeURIComponent("group:" + group.slug)}`]) {
+        const seen = [];
+        let pages = 1;
+        for (let page = 1; page <= pages; page++) {
+          const response = await fetch(origin + `/problems?${query}&page=${page}`, { redirect: "manual" });
+          assert.equal(response.status, 200, `${query} page ${page}`);
+          const body = await response.text();
+          if (page === 1) pages = Math.max(1, Math.ceil(group.problems.length / 12));
+          seen.push(...cardSlugs(body));
+        }
+        assert.deepEqual([...seen].sort(), [...group.problems].sort(), `Group filter ${query} must return exactly the union of its children across all pages`);
+      }
+    }
+  }
   const personal = await fetch(origin + "/problems?completion=SOLVED&userId=forged");
   assert.equal(personal.status, 200);
   const personalHtml = await personal.text();
