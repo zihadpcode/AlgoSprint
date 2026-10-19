@@ -172,3 +172,47 @@ it("runs Python end to end through an injected executor and stores the verdict",
     expect((await db.userProgress.findUnique({ where: { userId_problemId: { userId: owners[0], problemId } } }))?.status).toBe("SOLVED");
   } finally { registerPythonExecutor(null); }
 }, 30_000);
+
+it("refuses a published non-CODING problem even with a reviewed signature and starter row, recording nothing", async () => {
+  expect(await db.starterCode.count({ where: { problemId, language: "JAVASCRIPT" } })).toBe(1);
+  for (const kind of ["SQL", "CONCEPTUAL", "OBJECT_ORIENTED"] as const) {
+    await db.problem.update({ where: { id: problemId }, data: { kind } });
+    try {
+      for (const mode of ["RUN", "SUBMIT"] as const) {
+        expect(await reserveSubmission(db, owners[0], { ...input, mode }), `${kind} ${mode}`).toEqual({ error: "This problem is no longer available for execution." });
+      }
+      expect(await db.userSubmission.count()).toBe(0);
+      expect(await db.userProgress.count({ where: { userId: owners[0] } })).toBe(0);
+    } finally { await db.problem.update({ where: { id: problemId }, data: { kind: "CODING" } }); }
+  }
+  expect(await reserveSubmission(db, owners[0], input)).not.toHaveProperty("error");
+});
+it("enforces the deployment-wide cap of 20 active attempts across different owners", async () => {
+  const others = Array.from({ length: 4 }, () => randomUUID());
+  await db.user.createMany({ data: others.map((id) => ({ id })) });
+  try {
+    const active = (userId: string) => ({ userId, problemId, problemRevision: 1, language: "JAVASCRIPT" as const, mode: "RUN" as const, code: "fixture", status: "RUNNING" as const, createdAt: new Date() });
+    await db.userSubmission.createMany({ data: Array.from({ length: 19 }, (_, i) => active(others[i % others.length])) });
+    const first = await reserveSubmission(db, owners[0], input);
+    expect(first).not.toHaveProperty("error");
+    await db.userSubmission.createMany({ data: [active(others[0])] });
+    await db.userSubmission.updateMany({ where: { userId: owners[0] }, data: { status: "INTERNAL_ERROR", completedAt: new Date() } });
+    expect(await db.userSubmission.count({ where: { status: { in: ["QUEUED", "RUNNING"] } } })).toBe(20);
+    const before = await db.userSubmission.count();
+    expect(await reserveSubmission(db, owners[1], input)).toHaveProperty("error");
+    expect(await db.userSubmission.count()).toBe(before);
+  } finally {
+    await db.userSubmission.deleteMany({ where: { userId: { in: others } } });
+    await db.user.deleteMany({ where: { id: { in: others } } });
+  }
+});
+it("rejects Submit for a problem with no HIDDEN case while Run still works", async () => {
+  const hidden = await db.testCase.findMany({ where: { problemId, visibility: "HIDDEN" }, select: { id: true } });
+  expect(hidden.length).toBeGreaterThan(0);
+  await db.testCase.updateMany({ where: { id: { in: hidden.map((t) => t.id) } }, data: { visibility: "VISIBLE" } });
+  try {
+    expect(await reserveSubmission(db, owners[0], { ...input, mode: "SUBMIT" })).toEqual({ error: "This problem does not have a supported test suite yet." });
+    expect(await db.userSubmission.count()).toBe(0);
+    expect(await reserveSubmission(db, owners[0], input)).not.toHaveProperty("error");
+  } finally { await db.testCase.updateMany({ where: { id: { in: hidden.map((t) => t.id) } }, data: { visibility: "HIDDEN" } }); }
+});
