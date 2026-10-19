@@ -8,17 +8,17 @@ The separately reviewed October 19 follow-up preserves the original `686cfd86860
 
 Parcel Checkpoints retains its original constraints. The platform's shared 256 KiB result budget handles the reviewed synthetic case; this content transaction does not apply a parcel-range cap.
 
-Branch `algosprint/content-corrections-oct18`, based on `origin/main` 1bacb2f.
+The original correction checkpoint was based on source `1bacb2f947de89e92cb4fc08604132c1b78090e0`; the reviewed final corrected source is `03c3ac9936a4b5ada88a53888d5bb09475f38cca`.
 
 An independent audit of the 100 published problems found text errors in the seed JSON. This change applies only text corrections to 18 problem files (a second commit on this branch, described in the section "Hint-ladder corrections" below, touches 7 more files, one of which is already among the 18, so 24 in all). Test cases, schemas, pattern/category labels, tags and every other problem are untouched. The only code string that changed is the OPTIMAL solution of `first-redundant-link` (union by size added).
 
-## WARNING: this change makes `npm run db:seed` abort
+## Production reconciliation completed
 
-Production already holds these problems. The seeder is insert-only and compares `sha256(canonicalJson(ProblemSeed))` of each file with the `seedHash` stored for the slug. Every edit below changes that hash, so after this branch is merged `npm run db:seed` (and any other call to `seedProblems`) throws `Seed conflict for <slug>: existing content differs. No seed content was changed.` for each of the 24 slugs listed in the hash table, until production content is reconciled. That reconciliation must be a separate, reviewed transaction and is deliberately not part of this change; nothing here updates or proposes to run anything against production. Do not merge or deploy this branch together with a seed step until that is done.
+The seeder is insert-only and compares `sha256(canonicalJson(ProblemSeed))` with the stored `seedHash`. Before reconciliation, these 24 edits would have made `npm run db:seed` abort with `Seed conflict for <slug>: existing content differs. No seed content was changed.` A separate, independently reviewed transaction was applied to production on October 19 before this branch merged. It changed exactly the 24 existing problems to the pinned new hashes and revision +1: 12 hints, 23 solutions, 7 solution steps and 24 parent records. No examples, test cases, starter code, categories, tags, videos, roadmaps or IDs changed. The SQL artifact SHA256 is `fbe9c1ef63ea34566a13562c0fdf24e05f78be052ddc16a0fcfabf40b8866fbe`; its pre-apply public baseline SHA256 is `86476b2b325483186d77961f1c11d6fef7f65462ace3ef9c8cc7c992a15d4f7e`. A fresh postflight read matched every row and value in all 17 public content tables against the expected state, with 113 published problems, 19 roadmaps and 320 steps. The transaction also checked all six private table digests inside the database, and the two existing submissions retained their pre-rollout digest. The generated SQL and baseline are local operator artifacts, not committed to this repository.
 
 ## Old and new problem hashes
 
-Computed with the repository's own `problemHash` / `canonicalJson` from `prisma/seed-data.ts`, after parsing through `problemBatchSchema` exactly as the seeder does. Old = `git show origin/main:<path>`, new = the file in this branch.
+Computed with the repository's own `problemHash` / `canonicalJson` from `prisma/seed-data.ts`, after parsing through `problemBatchSchema` exactly as the seeder does. Old = pinned source `1bacb2f947de89e92cb4fc08604132c1b78090e0`; new = pinned corrected source `03c3ac9936a4b5ada88a53888d5bb09475f38cca`.
 
 | Slug | File | Old sha256 | New sha256 |
 | --- | --- | --- | --- |
@@ -993,4 +993,4 @@ Take the line version first. For house i there are only two choices, use it or n
 - Findings 2 and 3: the BRUTE and OPTIMAL `timeComplexity` fields of balanced-canopy and ledger-tree-check were left as they were. They describe the traversal; the `queue.shift()` caveat is stated in the balanced-canopy interview text only, because ledger-tree-check's text never called the build linear.
 - No test pinned any of the old strings, so no test was changed. The existing QuickJS sandbox gate (`tests/library-sandbox.test.ts`) runs every authored solution, including the new first-redundant-link OPTIMAL code.
 - Older phase guides under `docs/` quote earlier seed text; they are historical and were not edited.
-- Second commit: the seed hash of the 7 slugs in the hint-ladder section differs from production in the same way as the first 18; the same reconciliation and the same `db:seed` warning apply to all 24.
+- Second correction checkpoint: the seed hash of the 7 slugs in the hint-ladder section changed in the same way as the first 18; all 24 were included in the completed production reconciliation above.
