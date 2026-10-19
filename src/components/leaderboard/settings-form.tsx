@@ -18,7 +18,7 @@ export function LeaderboardSettingsForm({ optedIn, initialName }: { optedIn: boo
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
         <h2 id={`${id}-title`} className="flex items-center gap-2 text-base font-semibold"><Trophy aria-hidden="true" size={16} className="text-warm" />Leaderboard</h2>
-        <p id={`${id}-copy`} className="mt-1.5 text-sm leading-6 text-muted">Off by default. When on, other learners, signed in or not, can see your display name and your solved counts on the <Link href="/leaderboard" className="text-accent hover:underline">leaderboard</Link>. Your email and everything else stay private.</p>
+        <p id={`${id}-copy`} className="mt-1.5 text-sm leading-6 text-muted">Off by default. When on, other learners, signed in or not, can see your display name and your solved counts on the <Link href="/leaderboard" className="text-accent hover:underline">leaderboard</Link>. Your email and everything else stay private. The display name is account-wide: it is also the name shown in the header menu and on your dashboard, so changing it here changes it everywhere.</p>
       </div>
       <label className="relative mt-0.5 inline-flex shrink-0 cursor-pointer items-center">
         <span className="sr-only">Show me on the leaderboard</span>

@@ -102,15 +102,21 @@ describe("PostgreSQL migration invariants", () => {
       await db.query(`DELETE FROM app."Category" WHERE slug LIKE 'iso-%-fixture'`);
     }
   });
-  it("adds the leaderboard opt-in column hidden by default and keeps opted-in names unique", async () => {
+  it("adds the leaderboard opt-in columns hidden by default and keeps opted-in name keys unique", async () => {
     const [a, b, c] = ["40000000-0000-4000-8000-00000000000a", "40000000-0000-4000-8000-00000000000b", "40000000-0000-4000-8000-00000000000c"];
-    // A row written the pre-migration way is not on the leaderboard.
+    // A row written the pre-migration way is not on the leaderboard and has no name key.
     await db.query(`INSERT INTO app."User" (id,"displayName","updatedAt") VALUES ($1,'Lb Name',now()),($2,'lb name',now()),($3,NULL,now())`, [a, b, c]);
-    expect((await db.query(`SELECT "leaderboardOptIn" FROM app."User" WHERE id=ANY($1)`, [[a, b, c]])).rows).toEqual([{ leaderboardOptIn: false }, { leaderboardOptIn: false }, { leaderboardOptIn: false }]);
-    await expect(db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [c])).rejects.toMatchObject({ code: "23514" });
-    await db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [a]);
-    await expect(db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [b])).rejects.toMatchObject({ code: "23505" });
-    await db.query(`UPDATE app."User" SET "leaderboardOptIn"=false WHERE id=$1`, [a]);
+    expect((await db.query(`SELECT "leaderboardOptIn","leaderboardNameKey" FROM app."User" WHERE id=ANY($1) ORDER BY id`, [[a, b, c]])).rows)
+      .toEqual(Array(3).fill({ leaderboardOptIn: false, leaderboardNameKey: null }));
+    // Opting in needs a name and a name key.
+    await expect(db.query(`UPDATE app."User" SET "leaderboardOptIn"=true,"leaderboardNameKey"='x name' WHERE id=$1`, [c])).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [a])).rejects.toMatchObject({ code: "23514" });
+    await expect(db.query(`UPDATE app."User" SET "leaderboardNameKey"=repeat('x',81) WHERE id=$1`, [a])).rejects.toMatchObject({ code: "22001" });
+    await db.query(`UPDATE app."User" SET "leaderboardOptIn"=true,"leaderboardNameKey"='lb name' WHERE id=$1`, [a]);
+    // A look-alike (same key) cannot opt in while the first is listed; a user who is not opted in may hold the same key.
+    await expect(db.query(`UPDATE app."User" SET "leaderboardOptIn"=true,"leaderboardNameKey"='lb name' WHERE id=$1`, [b])).rejects.toMatchObject({ code: "23505" });
+    await db.query(`UPDATE app."User" SET "leaderboardNameKey"='lb name' WHERE id=$1`, [b]);
+    await db.query(`UPDATE app."User" SET "leaderboardOptIn"=false,"leaderboardNameKey"=NULL WHERE id=$1`, [a]);
     await db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [b]);
     await db.query(`DELETE FROM app."User" WHERE id=ANY($1)`, [[a, b, c]]);
   });
