@@ -12,7 +12,7 @@ describe("video seed validator", () => {
     const published = (await loadProblems()).filter((p) => p.status === "PUBLISHED").map((p) => p.slug);
     expect(validateVideoReferences(VIDEOS, new Set(published))).toHaveLength(VIDEOS.length);
     expect(VIDEOS.length).toBeGreaterThanOrEqual(10);
-    expect(VIDEOS.length).toBeLessThanOrEqual(20);
+    expect(VIDEOS.length).toBeLessThanOrEqual(60);
   });
   it("rejects videos for missing or unpublished problems", () => {
     expect(() => validateVideoReferences(VIDEOS, new Set(["only-this"]))).toThrow(/requires published problem/);

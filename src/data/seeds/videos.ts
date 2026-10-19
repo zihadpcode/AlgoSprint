@@ -64,6 +64,71 @@ const mergeIntervals: Source = {
   segments: [seg(85, 340, "Drawing solution"), seg(340, 614, "Coding solution")],
 };
 
+// Batch 2 (added 2026-10-14). Same rules as above: id, title and channel were returned by oEmbed (HTTP 200) on this date;
+// segments are chapters published in the video's own description (the "Read the problem" chapter is skipped, and a
+// segment ends where the next chapter starts or at the video length reported by the watch page). The Longest Common
+// Subsequence video lists three chapters that are all named "Read the problem", so it carries no segments.
+// Existing rows above are never edited: production seeding is insert-only.
+const implementTrie: Source = {
+  youtubeId: "oobqoCJlHA0", channel: "NeetCode", title: "Implement Trie (Prefix Tree) - Leetcode 208",
+  segments: [seg(113, 700, "Drawing explanation"), seg(700, 1135, "Coding explanation")],
+};
+const networkDelay: Source = {
+  youtubeId: "EaphyqKU4PQ", channel: "NeetCode", title: "Network Delay Time - Dijkstra's algorithm - Leetcode 743",
+  segments: [seg(277, 877, "Drawing explanation"), seg(877, 1187, "Coding explanation")],
+};
+const longestCommonSubsequence: Source = {
+  youtubeId: "Ua0GhsJSlWM", channel: "NeetCode", title: "Longest Common Subsequence - Dynamic Programming - Leetcode 1143",
+  segments: [],
+};
+const coinChange: Source = {
+  youtubeId: "H9bfqozjoqs", channel: "NeetCode", title: "Coin Change - Dynamic Programming Bottom Up - Leetcode 322",
+  segments: [seg(90, 185, "Greedy doesn't work"), seg(185, 640, "DFS solution"), seg(640, 935, "Dynamic programming"), seg(935, 1163, "Coding solution")],
+};
+const coinChangeTwo: Source = {
+  youtubeId: "Mjy4hd2xgrs", channel: "NeetCode", title: "Coin Change 2 - Dynamic Programming Unbounded Knapsack - Leetcode 518 - Python",
+  segments: [
+    seg(145, 357, "Brute force explained"), seg(357, 532, "Memoization explained"), seg(532, 820, "Naive DP explained"),
+    seg(820, 1095, "Optimal space DP explained"), seg(1095, 1210, "Memoization code"), seg(1210, 1340, "O(n*m) space DP"), seg(1340, 1399, "O(n) space DP"),
+  ],
+};
+const jumpGameTwo: Source = {
+  youtubeId: "dJ7sWiOoK7g", channel: "NeetCode", title: "Jump Game II - Greedy - Leetcode 45 - Python",
+  segments: [seg(126, 425, "Drawing explanation"), seg(425, 718, "Coding explanation")],
+};
+const linkedListCycle: Source = {
+  youtubeId: "gBTe7lFR3vc", channel: "NeetCode", title: "Linked List Cycle - Floyd's Tortoise and Hare - Leetcode 141 - Python",
+  segments: [seg(214, 562, "Drawing explanation"), seg(562, 643, "Coding explanation")],
+};
+const kokoBananas: Source = {
+  youtubeId: "U2SozAs9RzA", channel: "NeetCode", title: "Koko Eating Bananas - Binary Search - Leetcode 875 - Python",
+  segments: [seg(100, 415, "Intuition"), seg(415, 775, "Drawing explanation"), seg(775, 912, "Coding explanation")],
+};
+const numberOfOneBits: Source = {
+  youtubeId: "5Km3utixwZs", channel: "NeetCode", title: "Number of 1 Bits - Leetcode 191 - Python",
+  segments: [seg(70, 273, "Explain solution 1"), seg(273, 340, "Coding solution 1"), seg(340, 663, "Explain solution 2"), seg(663, 718, "Coding solution 2")],
+};
+const lruCache: Source = {
+  youtubeId: "7ABFKPK2hD4", channel: "NeetCode", title: "LRU Cache - Twitch Interview Question - Leetcode 146",
+  segments: [seg(120, 450, "Drawing solution"), seg(450, 1069, "Coding solution")],
+};
+const lastStoneWeight: Source = {
+  youtubeId: "B-QCq79-Vfw", channel: "NeetCode", title: "Last Stone Weight - Priority Queue - Leetcode 1046 - Python",
+  segments: [seg(112, 439, "Drawing explanation"), seg(439, 757, "Coding explanation")],
+};
+const longestIncreasingSubsequence: Source = {
+  youtubeId: "cjWnW0hdF1Y", channel: "NeetCode", title: "Longest Increasing Subsequence - Dynamic Programming - Leetcode 300",
+  segments: [seg(105, 178, "Brute force solution"), seg(178, 655, "DFS solution"), seg(655, 935, "Dynamic programming solution"), seg(935, 1093, "Coding solution")],
+};
+const palindromePartitioning: Source = {
+  youtubeId: "3jvWodd7ht0", channel: "NeetCode", title: "Palindrome Partitioning - Backtracking - Leetcode 131",
+  segments: [seg(100, 360, "Drawing explanation"), seg(360, 623, "Coding explanation")],
+};
+const regularExpressionMatching: Source = {
+  youtubeId: "HAA8mgxlov8", channel: "NeetCode", title: "Regular Expression Matching - Dynamic Programming Top-Down Memoization - Leetcode 10",
+  segments: [seg(235, 1140, "Drawing solution"), seg(1140, 1675, "Coding solution")],
+};
+
 function video(problemSlug: string, source: Source, concept: string, referenceProblem: string, bridge: string): VideoSeed {
   return { problemSlug, ...source, concept, referenceProblem, bridge };
 }
@@ -105,4 +170,40 @@ export const VIDEOS: VideoSeed[] = [
     "The video sorts intervals by start and sweeps through them, extending the current block while the next one overlaps. The free time you want is the space between those merged blocks, so merge first and then read off the gaps. Mind the boundary rule: here a block is [start, end), so a block that begins exactly when the previous one ends leaves no gap."),
   video("slot-insert", mergeIntervals, "Sorting then sweeping intervals", "Merge Intervals (LeetCode 56)",
     "The video merges overlapping intervals while sweeping through a list ordered by start. Your calendar is already sorted and disjoint, so no sorting is needed: slots that end before the new slot starts stay as they are, slots that overlap it fold into one growing block, and the remaining slots follow unchanged. The overlap test is the same idea as in the video, and both endpoints count here, so touching at a single minute is an overlap."),
+
+  // Batch 2 (added 2026-10-14).
+  video("prefix-counts", implementTrie, "Trie (prefix tree)", "Implement Trie (Prefix Tree) (LeetCode 208)",
+    "The video stores words as paths of letters in a prefix tree, so looking up a prefix means walking the same path letter by letter. Your task asks for a count rather than a yes or no: words can repeat, the empty prefix matches every word, and you answer a whole list of queries. Decide what each node should record, for example how many words pass through it, and what a prefix whose path leaves the tree should return."),
+  video("prefix-suggestions", implementTrie, "Trie (prefix tree)", "Implement Trie (Prefix Tree) (LeetCode 208)",
+    "The video stores words as paths in a prefix tree and follows one letter at a time, which is also how you follow what the visitor types. The answer at each step differs: instead of yes or no you report up to three words, the alphabetically smallest ones, that start with the typed letters so far. Think about whether to keep a short ordered list at each node or to collect words below the node in alphabetical order, and what to report once the typed prefix no longer matches any path."),
+  video("cheapest-route", networkDelay, "Dijkstra's shortest path", "Network Delay Time (LeetCode 743)",
+    "This problem is a close variant of the video's example: both ask for the cheapest travel cost from a source through a weighted network, which is the job of Dijkstra's algorithm, and tolls here are not negative either. What you must adapt is the question and the roads: you need the cost to one target stop, or -1 when it cannot be reached, instead of a single value summarizing every node as in the video's reference problem; your roads are two-way, the same two stops may be joined by several roads with different tolls, and a toll may be 0."),
+  video("typo-distance", longestCommonSubsequence, "Dynamic programming over prefixes of two strings", "Longest Common Subsequence (LeetCode 1143)",
+    "The video applies dynamic programming to two strings, deciding for prefixes of both whether their last letters match. Typo distance has the same two-string shape but a different goal and different transitions: it counts edits, and a mismatch is not a dead end because you can replace, insert or delete a letter, each costing 1. Work out what each of the three edits means for which prefixes you move to, and what the answers are when one of the words is empty, which costs the length of the other."),
+  video("fare-combinations", coinChange, "Unbounded knapsack over amounts", "Coin Change (LeetCode 322)",
+    "The video works with an unlimited supply of each coin value and builds answers for amounts up to the target. Your ferry also has unlimited tickets of each value, but you count combinations instead of finding the fewest tickets. Combinations are unordered, so two of value 1 plus one of value 2 must be counted once; how you nest the loops over ticket values and over amounts decides whether different orderings are counted separately. The amount 0 has exactly one way, and the count is taken modulo 1000000007."),
+  video("fewest-tokens", coinChangeTwo, "Unbounded knapsack over amounts", "Coin Change II (LeetCode 518)",
+    "The video's reference problem counts the combinations of coins that make an amount when each value has an unlimited supply, building answers from smaller amounts. Fewest Tokens has the same unlimited supply but asks for the smallest number of tokens, so each entry stores a minimum instead of a number of ways. The reference problem is about unordered combinations, whereas for a minimum only the count of tokens matters. Decide how to represent an amount that cannot be formed so that it is reported as -1, and note that the amount 0 needs zero tokens."),
+  video("charging-hops", jumpGameTwo, "Greedy reach along an array of jump lengths", "Jump Game II (LeetCode 45)",
+    "The video's reference problem also gives, for each position, how far you can jump forward, and its title names a greedy approach. There the task is the fewest jumps. Here you only need a yes or no: can the scooter reach the last station at all? A range of 0 can leave the scooter stuck short of the end, so decide how to detect that from the farthest station reached so far. A road with a single station is already reachable."),
+  video("middle-car", linkedListCycle, "Fast and slow pointers on a linked chain", "Linked List Cycle (LeetCode 141)",
+    "The video moves two pointers along a linked list at different speeds. The same pair finds the middle car: when the faster pointer, moving two cars at a time, runs off the end of the chain, the slower pointer, moving one car at a time, is at the middle. The video looks for a loop; your chain always ends at -1 and visits every car exactly once, so the stopping condition is the end of the chain rather than the pointers meeting. Check the even-length rule, since you want the second of the two middle cars, which depends on exactly when you stop."),
+  video("chain-loop-start", linkedListCycle, "Fast and slow pointers on a linked chain", "Linked List Cycle (LeetCode 141)",
+    "This problem is a close variant of the video's example: the chain is a linked list where next[i] is the link, and the first question, whether the chain ends at -1 or loops forever, is the one the video's pointers answer. What you must adapt is the result: the video's reference problem only asks whether a loop exists, while you return the index of the first station on the loop, or -1 when the chain ends, including when head is -1. The place where the two pointers meet is not in general the start of the loop, so think about how to find the start from there while keeping constant extra memory."),
+  video("bake-batches", kokoBananas, "Binary search on the answer", "Koko Eating Bananas (LeetCode 875)",
+    "The video does not search through the input but through the possible answers: pick a candidate eating speed, check whether it is fast enough, and narrow the range accordingly. Here the unknown is the oven capacity, and the check is different: the trays must stay in order and go into consecutive blocks, so for a candidate capacity you walk through the trays, start a new day when the next tray would overflow, and compare the days used with days. Think about the range to search: the capacity cannot be smaller than the heaviest tray and never needs to exceed the total weight."),
+  video("lit-panels", numberOfOneBits, "Counting set bits", "Number of 1 Bits (LeetCode 191)",
+    "The video counts the 1 bits of a single number, and its chapters present two different solutions. Your board needs that count for every number from 0 through count, so applying a per-number count to each one works, but you can also reuse answers you have already computed for smaller numbers. Look at how the count for a number relates to the count for the number you get by dropping its lowest bit. Remember that entry 0 is 0 and the array has count + 1 entries."),
+  video("signal-flips", numberOfOneBits, "Counting set bits", "Number of 1 Bits (LeetCode 191)",
+    "The video counts how many bits of one number are 1. The toggles to flip between a and b are exactly the bit positions where the two numbers differ, so the task reduces to producing one number whose 1 bits mark those positions and then counting its 1 bits as in the video. Ask which bitwise operation turns a position where the bits differ into 1 and a position where they agree into 0. Equal inputs give 0 flips."),
+  video("popularity-cache", lruCache, "Cache design with an eviction order", "LRU Cache (LeetCode 146)",
+    "The video designs a cache of fixed capacity that evicts the least recently used key and keeps both get and put fast. Yours also evicts when full, but the first rule is the use count: the least frequently used key goes, and only among keys tied on the lowest count does the recency rule from the video decide. Both a get of a present key and every put, including an update of an existing key, count as a use, so you need to keep track of each key's count and, per count, the order in which keys were used, plus a way to know the lowest count."),
+  video("splice-cables", lastStoneWeight, "Priority queue that repeatedly combines two items", "Last Stone Weight (LeetCode 1046)",
+    "The video keeps its items in a priority queue, repeatedly takes two of them out, combines them and puts a result back. Your crew also repeatedly takes two pieces and puts one combined piece back, but the rule differs: you must decide which two pieces to take so that the total labor stays as small as possible, and instead of keeping only a leftover you add a + b to a running total each time you join. No pieces or a single piece costs nothing, so check that your loop condition handles those cases."),
+  video("nested-crates", longestIncreasingSubsequence, "Longest increasing subsequence", "Longest Increasing Subsequence (LeetCode 300)",
+    "The video finds the longest strictly increasing subsequence of one list of numbers. A crate has two dimensions, so the first step is to order the crates so that the question becomes an increasing subsequence in one dimension, for example by width and then looking at heights. Strictness matters in both dimensions: crates with the same width can never nest, so decide how to order crates of equal width so that two of them cannot both end up in one increasing chain of heights. With up to 10000 crates, check the time limit against the approach you pick."),
+  video("mirror-cuts", palindromePartitioning, "Palindrome partitioning", "Palindrome Partitioning (LeetCode 131)",
+    "The video cuts a string into pieces that are all palindromes, trying each possible first piece and continuing with the rest of the string. You want only the smallest number of cuts rather than every way to split, and the text can be 2000 letters long, so listing every split is too slow. What carries over is testing whether a stretch of the text is a palindrome and choosing where the next piece ends. Think about how to remember the best result for each position so that nothing is recomputed, and how to avoid testing the same stretch repeatedly."),
+  video("pattern-gate", regularExpressionMatching, "Dynamic programming over text and pattern positions", "Regular Expression Matching (LeetCode 10)",
+    "The video matches a text against a pattern using dynamic programming over positions in both, where in its reference problem . matches any single character and * repeats the element before it. Your pattern language differs: ? matches any one letter, as . does there, but * stands alone and matches any run of letters, including an empty run, instead of modifying the preceding letter. The transitions for * therefore have to be rewritten. The whole text must be matched by the whole pattern, so check empty text and patterns made only of *."),
 ];
