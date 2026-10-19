@@ -177,10 +177,10 @@
       "timeComplexity": "O(n)",
       "spaceComplexity": "O(1)",
       "commonMistakes": [
-        "Returning immediately on equality may select a later duplicate.",
-        "When the midpoint fails, advance to mid + 1 so the search always shrinks."
+        "Using capacity > load instead of capacity >= load, which skips a dock whose capacity equals the load exactly.",
+        "Returning 0 or capacities.length when no dock qualifies instead of -1."
       ],
-      "interviewExplanation": "This is a search for the first qualifying position, not any matching value. I keep a half-open interval around the boundary and discard half of it at every comparison. Equal values remain on the qualifying side, which preserves the first-index requirement.",
+      "interviewExplanation": "I scan the docks from left to right and return the first index whose capacity is at least the load, or -1 if the scan finishes without a match. Stopping at the first qualifying dock gives the earliest index even when capacities repeat. In the worst case that is O(n) comparisons. Because the capacities are sorted, the optimal solution binary searches for the qualifying boundary instead, discarding half of the remaining docks per comparison for O(log n) time.",
       "steps": [
         {
           "position": 1,
@@ -195,7 +195,7 @@
         {
           "position": 3,
           "title": "Step 3",
-          "content": "After exploring every allowed candidate, return the best valid result under the statement’s rules."
+          "content": "For [2,5,5,9] and load 5, the scan rejects 2 and stops at index 1. With load 10 it checks all four docks and returns -1."
         }
       ]
     },

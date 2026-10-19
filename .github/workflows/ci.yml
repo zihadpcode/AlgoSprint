@@ -37,6 +37,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # The local reconciliation rehearsal reads only these two immutable source
+      # commits; checkout's depth-one tree does not otherwise contain them.
+      - name: Fetch pinned reconciliation source objects
+        run: git fetch --no-tags --depth=1 origin 1bacb2f947de89e92cb4fc08604132c1b78090e0 03c3ac9936a4b5ada88a53888d5bb09475f38cca
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc

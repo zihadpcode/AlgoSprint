@@ -223,7 +223,7 @@
       "pseudocode": "balanced(node): if null return true; if |height(left) - height(right)| > 1 return false; return balanced(left) and balanced(right).",
       "code": "function balancedCanopy(tree) {\n    function build(values) {\n        if (values.length === 0)\n            return null;\n        const root = { value: values[0], left: null, right: null };\n        const queue = [root];\n        let index = 1;\n        while (queue.length > 0 && index < values.length) {\n            const node = queue.shift();\n            const left = values[index++];\n            if (left !== undefined && left !== null)\n                queue.push(node.left = { value: left, left: null, right: null });\n            const right = values[index++];\n            if (right !== undefined && right !== null)\n                queue.push(node.right = { value: right, left: null, right: null });\n        }\n        return root;\n    }\n    function height(node) {\n        if (node === null)\n            return 0;\n        return 1 + Math.max(height(node.left), height(node.right));\n    }\n    function balanced(node) {\n        if (node === null)\n            return true;\n        if (Math.abs(height(node.left) - height(node.right)) > 1)\n            return false;\n        return balanced(node.left) && balanced(node.right);\n    }\n    return balanced(build(tree));\n}",
       "timeComplexity": "O(n²) in the worst case, because height is recomputed for every ancestor",
-      "spaceComplexity": "O(h) recursion depth",
+      "spaceComplexity": "O(n) for the rebuilt nodes, plus an O(h) recursion stack",
       "commonMistakes": [
         "Checking only the root's two branches and skipping deeper junctions.",
         "Defining a missing branch's height as -1 in one place and 0 in another."
@@ -250,13 +250,13 @@
       "approach": "Rebuild the junctions, then run one post-order traversal that returns a branch's height, or -1 if anything inside it is unbalanced. A junction returns -1 when either branch does or when their heights differ by more than one.",
       "pseudocode": "checked(node): if null return 0; l = checked(left); if l < 0 return -1; r = checked(right); if r < 0 or |l - r| > 1 return -1; return max(l, r) + 1. Answer: checked(root) >= 0.",
       "code": "function balancedCanopy(tree) {\n    function build(values) {\n        if (values.length === 0)\n            return null;\n        const root = { value: values[0], left: null, right: null };\n        const queue = [root];\n        let index = 1;\n        while (queue.length > 0 && index < values.length) {\n            const node = queue.shift();\n            const left = values[index++];\n            if (left !== undefined && left !== null)\n                queue.push(node.left = { value: left, left: null, right: null });\n            const right = values[index++];\n            if (right !== undefined && right !== null)\n                queue.push(node.right = { value: right, left: null, right: null });\n        }\n        return root;\n    }\n    function checkedHeight(node) {\n        if (node === null)\n            return 0;\n        const left = checkedHeight(node.left);\n        if (left < 0)\n            return -1;\n        const right = checkedHeight(node.right);\n        if (right < 0 || Math.abs(left - right) > 1)\n            return -1;\n        return Math.max(left, right) + 1;\n    }\n    return checkedHeight(build(tree)) >= 0;\n}",
-      "timeComplexity": "O(n)",
-      "spaceComplexity": "O(h) recursion depth",
+      "timeComplexity": "O(n) height check; O(n²) worst case including this queue.shift() tree builder, where n is the input array length",
+      "spaceComplexity": "O(n) for the rebuilt nodes, plus an O(h) recursion stack",
       "commonMistakes": [
         "Continuing to compute the right branch after the left branch already reported -1, which wastes work but is still correct.",
         "Forgetting to propagate -1 upward so a deep imbalance is masked by a balanced ancestor."
       ],
-      "interviewExplanation": "I traverse bottom-up, returning each subtree's height and using -1 as an imbalance signal. Each junction combines its two children in constant time, so the whole check is linear, and the sentinel lets the recursion stop as soon as any imbalance is found. Building the tree from the level-order array is also linear.",
+      "interviewExplanation": "I traverse bottom-up, returning each subtree's height and using -1 as an imbalance signal. Each junction combines its two children in constant time, so the whole check is linear, and the sentinel lets the recursion stop as soon as any imbalance is found. Rebuilding the tree from the level-order array is linear apart from its queue.shift() calls, which can cost up to O(n) each on a large queue in some engines; walking an index pointer through the array instead of shifting would keep the build strictly linear.",
       "steps": [
         {
           "position": 1,

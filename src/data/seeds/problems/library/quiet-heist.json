@@ -60,7 +60,7 @@
     },
     {
       "position": 2,
-      "content": "On a line: best(i) = max(best(i - 1), best(i - 2) + houses[i])."
+      "content": "Take the line version first. For house i there are only two choices, use it or not. What does each choice leave you free to use among the earlier houses?"
     },
     {
       "position": 3,

@@ -1,0 +1,2512 @@
+{
+  "source": "1bacb2f947de89e92cb4fc08604132c1b78090e0",
+  "sources": {
+    "src/data/seeds/roadmaps.ts": "8d6588fa5e7fc4cb6cc109cae0fd56c0322b42835962b2d846125f334b4b362c",
+    "src/data/seeds/videos.ts": "f60e3ce06de04729c63a4e34522e230b826b7fd85f77aa54e14fed82311fe71f"
+  },
+  "roadmaps": [
+    {
+      "slug": "scan-store-reuse",
+      "title": "Scan, Store, Reuse",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 75,
+      "description": "Turn repeated scans into reusable information. Start with counting, keep a running window, then prepare totals for many questions. Allow extra time to trace examples and explain each tradeoff.",
+      "steps": [
+        {
+          "problemSlug": "quiet-badge",
+          "title": "Count before choosing",
+          "description": "Record letter frequencies, then preserve arrival order when choosing an answer. Explain why seeing a letter once so far is not enough."
+        },
+        {
+          "problemSlug": "relay-window",
+          "title": "Update instead of recounting",
+          "description": "Carry one window total forward by removing the outgoing load and adding the incoming one. Trace an all-negative example."
+        },
+        {
+          "problemSlug": "parcel-checkpoints",
+          "title": "Prepare totals for later questions",
+          "description": "Build cumulative totals once and subtract two checkpoints for each range. Connect this preprocessing tradeoff to the state reused in the previous steps."
+        }
+      ]
+    },
+    {
+      "slug": "boundaries-to-decisions",
+      "title": "Boundaries to Decisions",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 65,
+      "description": "Practice stating what a search or recurrence means before coding it. This short path moves from a sorted boundary to the cheapest sequence of decisions; it is not a full search or dynamic programming course.",
+      "steps": [
+        {
+          "problemSlug": "dock-threshold",
+          "title": "Keep the earliest valid boundary",
+          "description": "Use sorted capacities to narrow the first qualifying dock. State the search interval invariant and trace duplicates and an empty list."
+        },
+        {
+          "problemSlug": "lantern-steps",
+          "title": "Define the cost of reaching a state",
+          "description": "Write the meaning and base cases of each stored cost before the recurrence. Carry forward the habit of checking boundaries, then compare a table with rolling state."
+        }
+      ]
+    },
+    {
+      "slug": "first-steps",
+      "title": "First Steps in Problem Solving",
+      "difficulty": "EASY",
+      "estimatedMinutes": 300,
+      "description": "A gentle start for learners new to interview problems. Each step introduces one idea, such as a running best value, a hash map, two pointers, a window, a stack or a queue, and later steps reuse it. Explain each solution out loud before moving on.",
+      "steps": [
+        {
+          "problemSlug": "ridge-count",
+          "title": "Track the best so far",
+          "description": "Walk once while remembering the tallest height seen. Say out loud why a strict comparison matters for equal heights."
+        },
+        {
+          "problemSlug": "trail-gain",
+          "title": "Carry the lowest point forward",
+          "description": "For every finish point, the best start is the lowest altitude before it. Keep that minimum instead of checking every pair."
+        },
+        {
+          "problemSlug": "ticket-pair",
+          "title": "Remember what you have seen",
+          "description": "Store earlier prices in a hash map so each new price asks one question: has its partner already appeared?"
+        },
+        {
+          "problemSlug": "quiet-badge",
+          "title": "Count first, then decide",
+          "description": "Build letter counts in one pass, then scan again in arrival order. Explain why a single pass cannot know the future."
+        },
+        {
+          "problemSlug": "shuffled-signs",
+          "title": "Compare letter counts",
+          "description": "Two words use the same tiles exactly when their 26 counters match. Contrast this with sorting both words."
+        },
+        {
+          "problemSlug": "mirror-callsign",
+          "title": "Meet in the middle",
+          "description": "Move two pointers inward and skip what does not count. Test empty, punctuation-only and mixed-case inputs."
+        },
+        {
+          "problemSlug": "roster-merge",
+          "title": "Merge two sorted lists",
+          "description": "Always take the smaller front value. This is the merge step of merge sort, and later heaps generalize it."
+        },
+        {
+          "problemSlug": "relay-window",
+          "title": "Slide, do not recount",
+          "description": "Update a fixed-size window by removing the outgoing value and adding the incoming one. Trace an all-negative example."
+        },
+        {
+          "problemSlug": "tally-ranges",
+          "title": "Precompute running totals",
+          "description": "Prefix sums turn every range question into one subtraction. Mind the leading zero."
+        },
+        {
+          "problemSlug": "balanced-blueprint",
+          "title": "Match the most recent opener",
+          "description": "A stack holds unmatched openers; each closer must match the top. Test a leftover opener at the end."
+        },
+        {
+          "problemSlug": "ticket-turns",
+          "title": "Simulate, then shortcut",
+          "description": "Simulate the queue once to see the pattern, then compute each person's contribution directly."
+        },
+        {
+          "problemSlug": "middle-car",
+          "title": "Move at two speeds",
+          "description": "A pointer moving twice as fast reaches the end exactly when the slow one reaches the middle."
+        },
+        {
+          "problemSlug": "canopy-layers",
+          "title": "Visit a tree layer by layer",
+          "description": "Breadth-first search processes one depth at a time. Sum each layer before building the next."
+        },
+        {
+          "problemSlug": "dock-threshold",
+          "title": "Keep the earliest valid boundary",
+          "description": "Binary search for the first qualifying position. State the interval invariant before coding."
+        },
+        {
+          "problemSlug": "tower-tiles",
+          "title": "Split on the first choice",
+          "description": "The first column is covered one of two ways, giving a Fibonacci-style recurrence. Roll it forward with two variables."
+        }
+      ]
+    },
+    {
+      "slug": "arrays-and-strings",
+      "title": "Arrays and Strings Workshop",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 495,
+      "description": "Practice the scans that most array and string questions reduce to: counting, canonical keys, two pointers, sliding windows, prefix differences, intervals and in-place transforms. It ends with a hard window problem that combines several of them.",
+      "steps": [
+        {
+          "problemSlug": "rank-tags",
+          "title": "Count, then order by a rule",
+          "description": "Tally with a map, then sort by count and break ties alphabetically. Write the comparator before coding it."
+        },
+        {
+          "problemSlug": "word-groups",
+          "title": "Find a canonical key",
+          "description": "Anagrams share their sorted letters, so that string becomes a hash-map key. Discuss the 26-count signature as an alternative key."
+        },
+        {
+          "problemSlug": "one-slip-mirror",
+          "title": "Branch only once",
+          "description": "Walk inward until the first mismatch, then try skipping either side exactly once. Show why one branch point keeps it linear."
+        },
+        {
+          "problemSlug": "longest-clean-streak",
+          "title": "Grow and shrink a window",
+          "description": "Extend the right edge and shrink the left edge only when a repeat appears. Each index moves forward at most once."
+        },
+        {
+          "problemSlug": "fuel-stretch",
+          "title": "Shrink while the goal holds",
+          "description": "With positive values, a window that reaches the target should shrink as far as possible. Explain why negatives break this."
+        },
+        {
+          "problemSlug": "parcel-checkpoints",
+          "title": "Prepare totals for later questions",
+          "description": "Build cumulative totals once and answer many ranges by subtraction, the same trade of memory for speed."
+        },
+        {
+          "problemSlug": "balance-runs",
+          "title": "Count with prefix differences",
+          "description": "A run hits the target when an earlier prefix equals the current prefix minus the target. Count earlier prefixes in a map."
+        },
+        {
+          "problemSlug": "grid-turn",
+          "title": "Decompose a transformation",
+          "description": "A quarter turn is a transpose followed by row reversal. Swap only above the diagonal."
+        },
+        {
+          "problemSlug": "spiral-survey",
+          "title": "Peel rings with four boundaries",
+          "description": "Keep top, bottom, left and right. Guard the last ring when it is a single row or column."
+        },
+        {
+          "problemSlug": "merge-shifts",
+          "title": "Sort, then sweep",
+          "description": "After sorting by start, a shift can only overlap the block being built. Keep the larger end when merging."
+        },
+        {
+          "problemSlug": "slot-insert",
+          "title": "Use the order you are given",
+          "description": "The slots are already sorted and disjoint, so copy, absorb and copy again in one pass."
+        },
+        {
+          "problemSlug": "charging-loop",
+          "title": "Rule out many starts at once",
+          "description": "If a run fails at station i, every start before i fails too. Pair that with the total-balance check."
+        },
+        {
+          "problemSlug": "gutter-capacity",
+          "title": "Let the shorter wall decide",
+          "description": "Two pointers move from both ends; the side with the lower wall already knows its water level."
+        },
+        {
+          "problemSlug": "cipher-window",
+          "title": "Track what is still missing",
+          "description": "Keep need counts that can go negative plus one 'missing' counter. Record only strictly shorter windows so ties stay leftmost."
+        }
+      ]
+    },
+    {
+      "slug": "lists-stacks-queues-heaps",
+      "title": "Lists, Stacks, Queues and Heaps",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 595,
+      "description": "Learn which item you need next: the most recent, the oldest, the smallest, or the one a pointer reaches. The path moves from monotonic and evaluation stacks and linked chains to bounded heaps, two-heap medians and sweep lines.",
+      "steps": [
+        {
+          "problemSlug": "warmer-wait",
+          "title": "Wait on a decreasing stack",
+          "description": "Indices waiting for a warmer day form a decreasing stack; each new day resolves everything colder below it."
+        },
+        {
+          "problemSlug": "postfix-ledger",
+          "title": "Evaluate with an operand stack",
+          "description": "Push numbers and let each operator pop its right operand first. Truncate division toward zero."
+        },
+        {
+          "problemSlug": "floor-tracker",
+          "title": "Store the answer alongside the data",
+          "description": "Keep the minimum at every stack height so min stays O(1) through pops."
+        },
+        {
+          "problemSlug": "chain-loop-start",
+          "title": "Detect, then locate the loop",
+          "description": "Fast and slow pointers meet inside a loop. Restarting one from the head finds the entrance."
+        },
+        {
+          "problemSlug": "splice-cables",
+          "title": "Always combine the two cheapest",
+          "description": "A min-heap exposes the two smallest pieces in O(log n). Argue why merging cheap pieces first is optimal."
+        },
+        {
+          "problemSlug": "nearest-beacons",
+          "title": "Bound the heap at k",
+          "description": "A max-heap of size k keeps the best candidates and evicts the worst. Sort the survivors with the same comparator."
+        },
+        {
+          "problemSlug": "studio-bookings",
+          "title": "Sweep start and end events",
+          "description": "Sort starts and ends separately and release finished bookings before counting a new one. Half-open ranges decide the tie rule."
+        },
+        {
+          "problemSlug": "lane-merge",
+          "title": "Merge many sorted lists",
+          "description": "Keep only the k lane fronts in a min-heap. Each output costs O(log k)."
+        },
+        {
+          "problemSlug": "peak-watch",
+          "title": "Keep only useful candidates",
+          "description": "A decreasing deque of indices drops readings that can never be a maximum again. Expire the front when it leaves the window."
+        },
+        {
+          "problemSlug": "pace-median",
+          "title": "Balance two heaps",
+          "description": "The lower half lives in a max-heap and the upper half in a min-heap. Rebalance after every insert."
+        },
+        {
+          "problemSlug": "billboard-space",
+          "title": "Find both boundaries with one stack",
+          "description": "When a shorter bar arrives, popped bars learn their right edge and the new top gives the left edge. Add a zero sentinel."
+        },
+        {
+          "problemSlug": "bracket-run",
+          "title": "Keep a base marker on the stack",
+          "description": "The bottom of the stack marks where the current valid stretch cannot extend. Measure from the top after each match."
+        },
+        {
+          "problemSlug": "city-skyline",
+          "title": "Sweep with lazy deletion",
+          "description": "Visit edges in order with a max-heap of standing buildings. Discard ended buildings only when they surface."
+        }
+      ]
+    },
+    {
+      "slug": "trees-and-search",
+      "title": "Trees and Search Spaces",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 500,
+      "description": "Use structure to avoid looking at everything. Binary search on positions, rotations, answers and partitions sits alongside tree traversals, binary search tree invariants, tries and a Fenwick tree.",
+      "steps": [
+        {
+          "problemSlug": "dock-threshold",
+          "title": "Keep the earliest valid boundary",
+          "description": "Binary search for the first qualifying position. State the interval invariant before coding."
+        },
+        {
+          "problemSlug": "dial-lookup",
+          "title": "Find the sorted half",
+          "description": "In a rotated array one half is always ordinary. Decide which, then whether the target can be there."
+        },
+        {
+          "problemSlug": "bake-batches",
+          "title": "Binary search the answer",
+          "description": "When feasibility is monotone in the answer, search over answers instead of positions."
+        },
+        {
+          "problemSlug": "snapshot-registry",
+          "title": "Store history, search by time",
+          "description": "Append-only histories are sorted for free. A get is an upper-bound binary search."
+        },
+        {
+          "problemSlug": "canopy-layers",
+          "title": "Visit a tree layer by layer",
+          "description": "Breadth-first search processes one depth at a time. Sum each layer before building the next."
+        },
+        {
+          "problemSlug": "balanced-canopy",
+          "title": "Return two facts from recursion",
+          "description": "A height-or-failure value lets one post-order pass check balance without recomputing heights."
+        },
+        {
+          "problemSlug": "ledger-tree-check",
+          "title": "Pass bounds down the tree",
+          "description": "Each node must fit inside limits inherited from its ancestors, not just its parent."
+        },
+        {
+          "problemSlug": "kth-badge",
+          "title": "Use the order a BST already has",
+          "description": "In-order traversal visits values in increasing order, so stop at the k-th visit."
+        },
+        {
+          "problemSlug": "prefix-counts",
+          "title": "Share prefixes in a tree",
+          "description": "A trie stores each prefix once, and each node can count the words that pass through it."
+        },
+        {
+          "problemSlug": "prefix-suggestions",
+          "title": "Precompute answers at each node",
+          "description": "Insert words in sorted order so each trie node keeps its three smallest matches."
+        },
+        {
+          "problemSlug": "later-lower",
+          "title": "Count with a Fenwick tree",
+          "description": "Scanning from the right turns 'later and lower' into a prefix count over values."
+        },
+        {
+          "problemSlug": "dual-median",
+          "title": "Binary search a partition",
+          "description": "Choose how many values the shorter list contributes to the left half; the cross comparisons say which way to move."
+        }
+      ]
+    },
+    {
+      "slug": "graph-routes",
+      "title": "Graph Routes",
+      "difficulty": "HARD",
+      "estimatedMinutes": 575,
+      "description": "Model problems as graphs and pick the right traversal: flood fill, breadth-first search, union-find, topological order, Dijkstra's algorithm, memoized search on a DAG and bridge finding. Draw the graph before writing code.",
+      "steps": [
+        {
+          "problemSlug": "orchard-plots",
+          "title": "Flood a connected region",
+          "description": "Each unvisited plot starts a depth-first fill. Mark cells when you first reach them."
+        },
+        {
+          "problemSlug": "grid-rescue-hops",
+          "title": "Shortest steps with BFS",
+          "description": "Breadth-first search reaches cells in order of distance in an unweighted grid."
+        },
+        {
+          "problemSlug": "mold-spread",
+          "title": "Start BFS from many sources",
+          "description": "Seed the queue with every source and count layers; leftover fresh cells mean -1."
+        },
+        {
+          "problemSlug": "radio-clusters",
+          "title": "Merge groups with union-find",
+          "description": "Each successful union lowers the cluster count by one. Use path compression and union by size."
+        },
+        {
+          "problemSlug": "first-redundant-link",
+          "title": "Spot the link that closes a cycle",
+          "description": "The first link whose endpoints already share a root is redundant."
+        },
+        {
+          "problemSlug": "module-plan",
+          "title": "Order work with in-degrees",
+          "description": "Kahn's algorithm takes modules with no unfinished prerequisites; a stall means a cycle."
+        },
+        {
+          "problemSlug": "task-order",
+          "title": "Break ties in a topological order",
+          "description": "A min-heap of ready tasks produces the smallest valid order."
+        },
+        {
+          "problemSlug": "cheapest-route",
+          "title": "Expand the cheapest frontier",
+          "description": "Dijkstra's algorithm settles the nearest stop first. Skip stale heap entries."
+        },
+        {
+          "problemSlug": "signal-codes",
+          "title": "Generate neighbors instead of comparing pairs",
+          "description": "BFS over one-letter changes, checking a set of unused codes. Remove codes when enqueued."
+        },
+        {
+          "problemSlug": "ridge-trails",
+          "title": "Memoize a path in a DAG",
+          "description": "Strictly climbing steps cannot cycle, so each cell's longest climb can be cached."
+        },
+        {
+          "problemSlug": "glyph-order",
+          "title": "Infer an order from evidence",
+          "description": "Adjacent words give one constraint each. Kahn's algorithm with the smallest ready glyph gives a canonical answer."
+        },
+        {
+          "problemSlug": "fragile-links",
+          "title": "Find bridges with low-link values",
+          "description": "A tree edge is a bridge when nothing below it reaches back above it."
+        }
+      ]
+    },
+    {
+      "slug": "decisions-and-tables",
+      "title": "Decisions and Tables",
+      "difficulty": "HARD",
+      "estimatedMinutes": 490,
+      "description": "A dynamic programming path. For every problem, write down what one table entry means, its base cases and the order you fill it in before writing the recurrence. It moves from one-dimensional choices to two-sequence tables and string matching.",
+      "steps": [
+        {
+          "problemSlug": "tower-tiles",
+          "title": "Split on the first choice",
+          "description": "The first column is covered one of two ways, giving a Fibonacci-style recurrence. Roll it forward with two variables."
+        },
+        {
+          "problemSlug": "lantern-steps",
+          "title": "Define the cost of reaching a state",
+          "description": "Write what each stored cost means and its base cases before the recurrence."
+        },
+        {
+          "problemSlug": "quiet-heist",
+          "title": "Take or skip, then handle the circle",
+          "description": "Solve the line version twice, once without the first house and once without the last."
+        },
+        {
+          "problemSlug": "fewest-tokens",
+          "title": "Minimum over choices",
+          "description": "The fewest tokens for an amount comes from the best last token. Mark unreachable amounts."
+        },
+        {
+          "problemSlug": "fare-combinations",
+          "title": "Count combinations, not orders",
+          "description": "Put coins in the outer loop and totals in the inner loop so each combination is counted once."
+        },
+        {
+          "problemSlug": "warehouse-routes",
+          "title": "Count paths in a grid",
+          "description": "Routes into a cell come from above or the left. One rolling row is enough."
+        },
+        {
+          "problemSlug": "rising-marks",
+          "title": "Keep the best tails",
+          "description": "For each length, keep the smallest possible ending value and binary search where each mark fits."
+        },
+        {
+          "problemSlug": "shared-melody",
+          "title": "Compare two sequences",
+          "description": "A table over prefixes of both sequences either extends a match or drops one side."
+        },
+        {
+          "problemSlug": "typo-distance",
+          "title": "Edit one prefix into another",
+          "description": "Replace, insert and delete map to the diagonal, left and above neighbors. Keep two rows."
+        },
+        {
+          "problemSlug": "mirror-cuts",
+          "title": "Combine palindromes with a cuts table",
+          "description": "Expand around every center and relax the cut count for each palindrome found."
+        },
+        {
+          "problemSlug": "pattern-gate",
+          "title": "Match wildcards with a table",
+          "description": "A star either matches nothing or absorbs one more letter; '?' uses the diagonal."
+        }
+      ]
+    },
+    {
+      "slug": "choose-and-backtrack",
+      "title": "Choose and Backtrack",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 275,
+      "description": "Two ways to make decisions. Greedy steps commit to one choice and need a proof that it is safe; backtracking tries choices, undoes them and prunes. Compare the two styles as you go.",
+      "steps": [
+        {
+          "problemSlug": "charging-hops",
+          "title": "Reach as far as possible",
+          "description": "Track the farthest reachable index; extend it greedily and count jumps per frontier."
+        },
+        {
+          "problemSlug": "splice-cables",
+          "title": "Always combine the two cheapest",
+          "description": "A min-heap exposes the two smallest pieces in O(log n). Argue why merging cheap pieces first is optimal."
+        },
+        {
+          "problemSlug": "charging-loop",
+          "title": "Rule out many starts at once",
+          "description": "If a run fails at station i, every start before i fails too. Pair that with the total-balance check."
+        },
+        {
+          "problemSlug": "badge-subsets",
+          "title": "Choose by size, in order",
+          "description": "Backtrack over increasing positions for each size to emit subsets in the required order."
+        },
+        {
+          "problemSlug": "lineup-orders",
+          "title": "Place one position at a time",
+          "description": "A used[] array and sorted candidates produce permutations lexicographically."
+        },
+        {
+          "problemSlug": "crate-combinations",
+          "title": "Prune as you search",
+          "description": "Sort, skip duplicates at the same depth and stop when the remaining target goes negative."
+        },
+        {
+          "problemSlug": "watchtower-placements",
+          "title": "Constrain, place, undo",
+          "description": "Track occupied columns and diagonals so each placement check is O(1)."
+        }
+      ]
+    },
+    {
+      "slug": "design-fundamentals",
+      "title": "Design Fundamentals",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 290,
+      "description": "Object-oriented and system-design basics in runnable form. Each problem is a small class with private state and an invariant to protect, ending with a rate limiter and a streaming median. Discuss how each design would change under concurrency or across several servers.",
+      "steps": [
+        {
+          "problemSlug": "vault-account",
+          "title": "Protect an invariant",
+          "description": "Hide the balance behind methods and check before mutating, so a failed withdrawal has no side effects."
+        },
+        {
+          "problemSlug": "floor-tracker",
+          "title": "Store the answer alongside the data",
+          "description": "Keep the minimum at every stack height so min stays O(1) through pops."
+        },
+        {
+          "problemSlug": "snapshot-registry",
+          "title": "Store history, search by time",
+          "description": "Append-only histories are sorted for free. A get is an upper-bound binary search."
+        },
+        {
+          "problemSlug": "lru-results",
+          "title": "Combine a map with an order",
+          "description": "A map finds entries and an ordering structure says which is least recently used. Update both on every access."
+        },
+        {
+          "problemSlug": "prefix-counts",
+          "title": "Share prefixes in a tree",
+          "description": "A trie stores each prefix once, and each node can count the words that pass through it."
+        },
+        {
+          "problemSlug": "rate-gate",
+          "title": "Limit requests per client",
+          "description": "A per-client log drops expired times from the front. Compare it with a token bucket and a shared store."
+        },
+        {
+          "problemSlug": "pace-median",
+          "title": "Balance two heaps",
+          "description": "The lower half lives in a max-heap and the upper half in a min-heap. Rebalance after every insert."
+        }
+      ]
+    },
+    {
+      "slug": "bits-and-numbers",
+      "title": "Bits and Numbers",
+      "difficulty": "EASY",
+      "estimatedMinutes": 95,
+      "description": "Short problems where a bit trick or a number-theory fact replaces brute force: XOR cancellation, popcount, a bit-counting recurrence, the sieve and Euclid's algorithm.",
+      "steps": [
+        {
+          "problemSlug": "lone-sensor",
+          "title": "Cancel pairs with XOR",
+          "description": "x ^ x = 0, so XOR of everything leaves the value without a partner."
+        },
+        {
+          "problemSlug": "signal-flips",
+          "title": "Count differing bits",
+          "description": "XOR marks differences, and x & (x - 1) clears one set bit at a time."
+        },
+        {
+          "problemSlug": "lit-panels",
+          "title": "Reuse smaller answers",
+          "description": "bits[i] = bits[i >> 1] + (i & 1) turns bit counting into a tiny dynamic program."
+        },
+        {
+          "problemSlug": "prime-tally",
+          "title": "Sieve instead of testing",
+          "description": "Cross out multiples starting from p², and stop at the square root of the limit."
+        },
+        {
+          "problemSlug": "tile-side",
+          "title": "Fold with Euclid",
+          "description": "The longest common piece length is the gcd of all planks."
+        }
+      ]
+    },
+    {
+      "slug": "interview-in-30-days",
+      "title": "Interview in 30 Days",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 995,
+      "description": "One problem a day for thirty days, cycling through every core pattern from scans and hashing to graphs, dynamic programming and design. Each day: solve it, compare with the optimal solution, then explain it aloud in under three minutes. Revisit any day you could not explain cleanly before moving on.",
+      "steps": [
+        {
+          "problemSlug": "ridge-count",
+          "title": "Day 1: Track the best so far",
+          "description": "Walk once while remembering the tallest height seen. Say out loud why a strict comparison matters for equal heights."
+        },
+        {
+          "problemSlug": "ticket-pair",
+          "title": "Day 2: Remember what you have seen",
+          "description": "Store earlier prices in a hash map so each new price asks one question: has its partner already appeared?"
+        },
+        {
+          "problemSlug": "mirror-callsign",
+          "title": "Day 3: Meet in the middle",
+          "description": "Move two pointers inward and skip what does not count. Test empty, punctuation-only and mixed-case inputs."
+        },
+        {
+          "problemSlug": "relay-window",
+          "title": "Day 4: Slide, do not recount",
+          "description": "Update a fixed-size window by removing the outgoing value and adding the incoming one. Trace an all-negative example."
+        },
+        {
+          "problemSlug": "tally-ranges",
+          "title": "Day 5: Precompute running totals",
+          "description": "Prefix sums turn every range question into one subtraction. Mind the leading zero."
+        },
+        {
+          "problemSlug": "balanced-blueprint",
+          "title": "Day 6: Match the most recent opener",
+          "description": "A stack holds unmatched openers; each closer must match the top. Test a leftover opener at the end."
+        },
+        {
+          "problemSlug": "middle-car",
+          "title": "Day 7: Move at two speeds",
+          "description": "A pointer moving twice as fast reaches the end exactly when the slow one reaches the middle."
+        },
+        {
+          "problemSlug": "longest-clean-streak",
+          "title": "Day 8: Grow and shrink a window",
+          "description": "Extend the right edge and shrink the left edge only when a repeat appears. Each index moves forward at most once."
+        },
+        {
+          "problemSlug": "balance-runs",
+          "title": "Day 9: Count with prefix differences",
+          "description": "A run hits the target when an earlier prefix equals the current prefix minus the target. Count earlier prefixes in a map."
+        },
+        {
+          "problemSlug": "merge-shifts",
+          "title": "Day 10: Sort, then sweep",
+          "description": "After sorting by start, a shift can only overlap the block being built. Keep the larger end when merging."
+        },
+        {
+          "problemSlug": "warmer-wait",
+          "title": "Day 11: Wait on a decreasing stack",
+          "description": "Indices waiting for a warmer day form a decreasing stack; each new day resolves everything colder below it."
+        },
+        {
+          "problemSlug": "dock-threshold",
+          "title": "Day 12: Keep the earliest valid boundary",
+          "description": "Binary search for the first qualifying position. State the interval invariant before coding."
+        },
+        {
+          "problemSlug": "dial-lookup",
+          "title": "Day 13: Find the sorted half",
+          "description": "In a rotated array one half is always ordinary. Decide which, then whether the target can be there."
+        },
+        {
+          "problemSlug": "canopy-layers",
+          "title": "Day 14: Visit a tree layer by layer",
+          "description": "Breadth-first search processes one depth at a time. Sum each layer before building the next."
+        },
+        {
+          "problemSlug": "kth-badge",
+          "title": "Day 15: Use the order a BST already has",
+          "description": "In-order traversal visits values in increasing order, so stop at the k-th visit."
+        },
+        {
+          "problemSlug": "splice-cables",
+          "title": "Day 16: Always combine the two cheapest",
+          "description": "A min-heap exposes the two smallest pieces in O(log n). Argue why merging cheap pieces first is optimal."
+        },
+        {
+          "problemSlug": "nearest-beacons",
+          "title": "Day 17: Bound the heap at k",
+          "description": "A max-heap of size k keeps the best candidates and evicts the worst. Sort the survivors with the same comparator."
+        },
+        {
+          "problemSlug": "orchard-plots",
+          "title": "Day 18: Flood a connected region",
+          "description": "Each unvisited plot starts a depth-first fill. Mark cells when you first reach them."
+        },
+        {
+          "problemSlug": "grid-rescue-hops",
+          "title": "Day 19: Shortest steps with BFS",
+          "description": "Breadth-first search reaches cells in order of distance in an unweighted grid."
+        },
+        {
+          "problemSlug": "module-plan",
+          "title": "Day 20: Order work with in-degrees",
+          "description": "Kahn's algorithm takes modules with no unfinished prerequisites; a stall means a cycle."
+        },
+        {
+          "problemSlug": "radio-clusters",
+          "title": "Day 21: Merge groups with union-find",
+          "description": "Each successful union lowers the cluster count by one. Use path compression and union by size."
+        },
+        {
+          "problemSlug": "lantern-steps",
+          "title": "Day 22: Define the cost of reaching a state",
+          "description": "Write what each stored cost means and its base cases before the recurrence."
+        },
+        {
+          "problemSlug": "fewest-tokens",
+          "title": "Day 23: Minimum over choices",
+          "description": "The fewest tokens for an amount comes from the best last token. Mark unreachable amounts."
+        },
+        {
+          "problemSlug": "warehouse-routes",
+          "title": "Day 24: Count paths in a grid",
+          "description": "Routes into a cell come from above or the left. One rolling row is enough."
+        },
+        {
+          "problemSlug": "badge-subsets",
+          "title": "Day 25: Choose by size, in order",
+          "description": "Backtrack over increasing positions for each size to emit subsets in the required order."
+        },
+        {
+          "problemSlug": "charging-hops",
+          "title": "Day 26: Reach as far as possible",
+          "description": "Track the farthest reachable index; extend it greedily and count jumps per frontier."
+        },
+        {
+          "problemSlug": "lru-results",
+          "title": "Day 27: Combine a map with an order",
+          "description": "A map finds entries and an ordering structure says which is least recently used. Update both on every access."
+        },
+        {
+          "problemSlug": "bake-batches",
+          "title": "Day 28: Binary search the answer",
+          "description": "When feasibility is monotone in the answer, search over answers instead of positions."
+        },
+        {
+          "problemSlug": "typo-distance",
+          "title": "Day 29: Edit one prefix into another",
+          "description": "Replace, insert and delete map to the diagonal, left and above neighbors. Keep two rows."
+        },
+        {
+          "problemSlug": "cheapest-route",
+          "title": "Day 30: Expand the cheapest frontier",
+          "description": "Dijkstra's algorithm settles the nearest stop first. Skip stale heap entries."
+        }
+      ]
+    },
+    {
+      "slug": "capstone-mix",
+      "title": "Capstone Mix",
+      "difficulty": "HARD",
+      "estimatedMinutes": 580,
+      "description": "A final mixed set that revisits pointers, voting, union-find, intervals, backtracking, tries, tree recursion, minimax paths, state-space search and cache design. Problems are deliberately not grouped by pattern: before each one, name the technique you expect to use and why, then check your guess against the hints.",
+      "steps": [
+        {
+          "problemSlug": "reverse-convoy",
+          "title": "Reverse links in place",
+          "description": "Three pointers, previous, current and saved next, turn the chain around in one pass."
+        },
+        {
+          "problemSlug": "badge-majority",
+          "title": "Cancel votes to find a majority",
+          "description": "Boyer–Moore voting pairs off different values; the majority survives with O(1) memory."
+        },
+        {
+          "problemSlug": "drop-nth-car",
+          "title": "Keep a fixed gap",
+          "description": "Lead and trail pointers k apart find the k-th node from the end in one pass. Handle removing the head."
+        },
+        {
+          "problemSlug": "shared-mentor",
+          "title": "Find where two searches split",
+          "description": "In a BST, both targets stay on the same side until their lowest common ancestor."
+        },
+        {
+          "problemSlug": "ledger-equalities",
+          "title": "Union first, then check",
+          "description": "Apply every equality with union-find, then reject any inequality whose letters share a root."
+        },
+        {
+          "problemSlug": "quiet-hours",
+          "title": "Find the gaps between merged blocks",
+          "description": "Sort by start and carry the latest end; a later start is a free gap."
+        },
+        {
+          "problemSlug": "crossword-trace",
+          "title": "Backtrack on a board",
+          "description": "Match letters cell by cell, mark cells while in use and unmark on the way back."
+        },
+        {
+          "problemSlug": "nested-crates",
+          "title": "Reduce to an increasing subsequence",
+          "description": "Sort by width, break ties by descending height, then run the n log n LIS."
+        },
+        {
+          "problemSlug": "twin-xor",
+          "title": "Choose bits greedily in a trie",
+          "description": "A binary trie of earlier values lets each value find its best XOR partner from the top bit down."
+        },
+        {
+          "problemSlug": "canopy-gain",
+          "title": "Return one side, record both",
+          "description": "Each node passes its best single chain upward while the answer considers both children."
+        },
+        {
+          "problemSlug": "floodgate-path",
+          "title": "Minimize the worst step",
+          "description": "Dijkstra with max instead of + finds the lowest possible peak on a route."
+        },
+        {
+          "problemSlug": "tile-shuffle",
+          "title": "Search a state space",
+          "description": "Encode each board as a string and run BFS over the 720 arrangements."
+        },
+        {
+          "problemSlug": "popularity-cache",
+          "title": "Design for O(1) eviction",
+          "description": "Frequency buckets in recency order plus a minimum-frequency pointer make LFU eviction constant time."
+        }
+      ]
+    },
+    {
+      "slug": "interview-in-60-days",
+      "title": "Interview in 60 Days",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 2380,
+      "description": "Sixty days, one problem a day. This is the 90-day plan condensed: the same order, with thirty of the more repetitive problems skipped, so every core pattern still appears once. Solve it, compare with the optimal solution, then explain it aloud in under three minutes. Some problems are estimated at 45 minutes or more, so treat a day as a block you can stretch; if a day overruns, repeat it rather than skipping ahead.",
+      "steps": [
+        {
+          "problemSlug": "ridge-count",
+          "title": "Day 1: Track the best so far",
+          "description": "Walk once while remembering the tallest height seen. Say out loud why a strict comparison matters for equal heights."
+        },
+        {
+          "problemSlug": "trail-gain",
+          "title": "Day 2: Carry the lowest point forward",
+          "description": "For every finish point, the best start is the lowest altitude before it. Keep that minimum instead of checking every pair."
+        },
+        {
+          "problemSlug": "quiet-badge",
+          "title": "Day 3: Count before choosing",
+          "description": "Record letter frequencies, then preserve arrival order when choosing an answer. Explain why seeing a letter once so far is not enough."
+        },
+        {
+          "problemSlug": "ticket-pair",
+          "title": "Day 4: Remember what you have seen",
+          "description": "Store earlier prices in a hash map so each new price asks one question: has its partner already appeared?"
+        },
+        {
+          "problemSlug": "badge-majority",
+          "title": "Day 5: Cancel votes to find a majority",
+          "description": "Boyer–Moore voting pairs off different values; the majority survives with O(1) memory."
+        },
+        {
+          "problemSlug": "mirror-callsign",
+          "title": "Day 6: Meet in the middle",
+          "description": "Move two pointers inward and skip what does not count. Test empty, punctuation-only and mixed-case inputs."
+        },
+        {
+          "problemSlug": "roster-merge",
+          "title": "Day 7: Merge two sorted lists",
+          "description": "Always take the smaller front value. This is the merge step of merge sort, and later heaps generalize it."
+        },
+        {
+          "problemSlug": "tally-ranges",
+          "title": "Day 8: Precompute running totals",
+          "description": "Prefix sums turn every range question into one subtraction. Mind the leading zero."
+        },
+        {
+          "problemSlug": "relay-window",
+          "title": "Day 9: Update instead of recounting",
+          "description": "Carry one window total forward by removing the outgoing load and adding the incoming one. Trace an all-negative example."
+        },
+        {
+          "problemSlug": "balanced-blueprint",
+          "title": "Day 10: Match the most recent opener",
+          "description": "A stack holds unmatched openers; each closer must match the top. Test a leftover opener at the end."
+        },
+        {
+          "problemSlug": "middle-car",
+          "title": "Day 11: Move at two speeds",
+          "description": "A pointer moving twice as fast reaches the end exactly when the slow one reaches the middle."
+        },
+        {
+          "problemSlug": "drop-nth-car",
+          "title": "Day 12: Keep a fixed gap",
+          "description": "Lead and trail pointers k apart find the k-th node from the end in one pass. Handle removing the head."
+        },
+        {
+          "problemSlug": "longest-clean-streak",
+          "title": "Day 13: Grow and shrink a window",
+          "description": "Extend the right edge and shrink the left edge only when a repeat appears. Each index moves forward at most once."
+        },
+        {
+          "problemSlug": "warmer-wait",
+          "title": "Day 14: Wait on a decreasing stack",
+          "description": "Indices waiting for a warmer day form a decreasing stack; each new day resolves everything colder below it."
+        },
+        {
+          "problemSlug": "postfix-ledger",
+          "title": "Day 15: Evaluate with an operand stack",
+          "description": "Push numbers and let each operator pop its right operand first. Truncate division toward zero."
+        },
+        {
+          "problemSlug": "balance-runs",
+          "title": "Day 16: Count with prefix differences",
+          "description": "A run hits the target when an earlier prefix equals the current prefix minus the target. Count earlier prefixes in a map."
+        },
+        {
+          "problemSlug": "merge-shifts",
+          "title": "Day 17: Sort, then sweep",
+          "description": "After sorting by start, a shift can only overlap the block being built. Keep the larger end when merging."
+        },
+        {
+          "problemSlug": "dock-threshold",
+          "title": "Day 18: Keep the earliest valid boundary",
+          "description": "Use sorted capacities to narrow the first qualifying dock. State the search interval invariant and trace duplicates and an empty list."
+        },
+        {
+          "problemSlug": "dial-lookup",
+          "title": "Day 19: Find the sorted half",
+          "description": "In a rotated array one half is always ordinary. Decide which, then whether the target can be there."
+        },
+        {
+          "problemSlug": "canopy-layers",
+          "title": "Day 20: Visit a tree layer by layer",
+          "description": "Breadth-first search processes one depth at a time. Sum each layer before building the next."
+        },
+        {
+          "problemSlug": "balanced-canopy",
+          "title": "Day 21: Return two facts from recursion",
+          "description": "A height-or-failure value lets one post-order pass check balance without recomputing heights."
+        },
+        {
+          "problemSlug": "kth-badge",
+          "title": "Day 22: Use the order a BST already has",
+          "description": "In-order traversal visits values in increasing order, so stop at the k-th visit."
+        },
+        {
+          "problemSlug": "shared-mentor",
+          "title": "Day 23: Find where two searches split",
+          "description": "In a BST, both targets stay on the same side until their lowest common ancestor."
+        },
+        {
+          "problemSlug": "prefix-suggestions",
+          "title": "Day 24: Precompute answers at each node",
+          "description": "Insert words in sorted order so each trie node keeps its three smallest matches."
+        },
+        {
+          "problemSlug": "lru-results",
+          "title": "Day 25: Combine a map with an order",
+          "description": "A map finds entries and an ordering structure says which is least recently used. Update both on every access."
+        },
+        {
+          "problemSlug": "splice-cables",
+          "title": "Day 26: Always combine the two cheapest",
+          "description": "A min-heap exposes the two smallest pieces in O(log n). Argue why merging cheap pieces first is optimal."
+        },
+        {
+          "problemSlug": "studio-bookings",
+          "title": "Day 27: Sweep start and end events",
+          "description": "Sort starts and ends separately and release finished bookings before counting a new one. Half-open ranges decide the tie rule."
+        },
+        {
+          "problemSlug": "charging-hops",
+          "title": "Day 28: Reach as far as possible",
+          "description": "Track the farthest reachable index; extend it greedily and count jumps per frontier."
+        },
+        {
+          "problemSlug": "orchard-plots",
+          "title": "Day 29: Flood a connected region",
+          "description": "Each unvisited plot starts a depth-first fill. Mark cells when you first reach them."
+        },
+        {
+          "problemSlug": "grid-rescue-hops",
+          "title": "Day 30: Shortest steps with BFS",
+          "description": "Breadth-first search reaches cells in order of distance in an unweighted grid."
+        },
+        {
+          "problemSlug": "mold-spread",
+          "title": "Day 31: Start BFS from many sources",
+          "description": "Seed the queue with every source and count layers; leftover fresh cells mean -1."
+        },
+        {
+          "problemSlug": "radio-clusters",
+          "title": "Day 32: Merge groups with union-find",
+          "description": "Each successful union lowers the cluster count by one. Use path compression and union by size."
+        },
+        {
+          "problemSlug": "ledger-equalities",
+          "title": "Day 33: Union first, then check",
+          "description": "Apply every equality with union-find, then reject any inequality whose letters share a root."
+        },
+        {
+          "problemSlug": "module-plan",
+          "title": "Day 34: Order work with in-degrees",
+          "description": "Kahn's algorithm takes modules with no unfinished prerequisites; a stall means a cycle."
+        },
+        {
+          "problemSlug": "tower-tiles",
+          "title": "Day 35: Split on the first choice",
+          "description": "The first column is covered one of two ways, giving a Fibonacci-style recurrence. Roll it forward with two variables."
+        },
+        {
+          "problemSlug": "fewest-tokens",
+          "title": "Day 36: Minimum over choices",
+          "description": "The fewest tokens for an amount comes from the best last token. Mark unreachable amounts."
+        },
+        {
+          "problemSlug": "quiet-heist",
+          "title": "Day 37: Take or skip, then handle the circle",
+          "description": "Solve the line version twice, once without the first house and once without the last."
+        },
+        {
+          "problemSlug": "warehouse-routes",
+          "title": "Day 38: Count paths in a grid",
+          "description": "Routes into a cell come from above or the left. One rolling row is enough."
+        },
+        {
+          "problemSlug": "rising-marks",
+          "title": "Day 39: Keep the best tails",
+          "description": "For each length, keep the smallest possible ending value and binary search where each mark fits."
+        },
+        {
+          "problemSlug": "typo-distance",
+          "title": "Day 40: Edit one prefix into another",
+          "description": "Replace, insert and delete map to the diagonal, left and above neighbors. Keep two rows."
+        },
+        {
+          "problemSlug": "nested-crates",
+          "title": "Day 41: Reduce to an increasing subsequence",
+          "description": "Sort by width, break ties by descending height, then run the n log n LIS."
+        },
+        {
+          "problemSlug": "badge-subsets",
+          "title": "Day 42: Choose by size, in order",
+          "description": "Backtrack over increasing positions for each size to emit subsets in the required order."
+        },
+        {
+          "problemSlug": "cheapest-route",
+          "title": "Day 43: Expand the cheapest frontier",
+          "description": "Dijkstra's algorithm settles the nearest stop first. Skip stale heap entries."
+        },
+        {
+          "problemSlug": "floodgate-path",
+          "title": "Day 44: Minimize the worst step",
+          "description": "Dijkstra with max instead of + finds the lowest possible peak on a route."
+        },
+        {
+          "problemSlug": "ridge-trails",
+          "title": "Day 45: Memoize a path in a DAG",
+          "description": "Strictly climbing steps cannot cycle, so each cell's longest climb can be cached."
+        },
+        {
+          "problemSlug": "lane-merge",
+          "title": "Day 46: Merge many sorted lists",
+          "description": "Keep only the k lane fronts in a min-heap. Each output costs O(log k)."
+        },
+        {
+          "problemSlug": "pace-median",
+          "title": "Day 47: Balance two heaps",
+          "description": "The lower half lives in a max-heap and the upper half in a min-heap. Rebalance after every insert."
+        },
+        {
+          "problemSlug": "billboard-space",
+          "title": "Day 48: Find both boundaries with one stack",
+          "description": "When a shorter bar arrives, popped bars learn their right edge and the new top gives the left edge. Add a zero sentinel."
+        },
+        {
+          "problemSlug": "bracket-run",
+          "title": "Day 49: Keep a base marker on the stack",
+          "description": "The bottom of the stack marks where the current valid stretch cannot extend. Measure from the top after each match."
+        },
+        {
+          "problemSlug": "peak-watch",
+          "title": "Day 50: Keep only useful candidates",
+          "description": "A decreasing deque of indices drops readings that can never be a maximum again. Expire the front when it leaves the window."
+        },
+        {
+          "problemSlug": "cipher-window",
+          "title": "Day 51: Track what is still missing",
+          "description": "Keep need counts that can go negative plus one 'missing' counter. Record only strictly shorter windows so ties stay leftmost."
+        },
+        {
+          "problemSlug": "canopy-gain",
+          "title": "Day 52: Return one side, record both",
+          "description": "Each node passes its best single chain upward while the answer considers both children."
+        },
+        {
+          "problemSlug": "dual-median",
+          "title": "Day 53: Binary search a partition",
+          "description": "Choose how many values the shorter list contributes to the left half; the cross comparisons say which way to move."
+        },
+        {
+          "problemSlug": "city-skyline",
+          "title": "Day 54: Sweep with lazy deletion",
+          "description": "Visit edges in order with a max-heap of standing buildings. Discard ended buildings only when they surface."
+        },
+        {
+          "problemSlug": "pattern-gate",
+          "title": "Day 55: Match wildcards with a table",
+          "description": "A star either matches nothing or absorbs one more letter; '?' uses the diagonal."
+        },
+        {
+          "problemSlug": "watchtower-placements",
+          "title": "Day 56: Constrain, place, undo",
+          "description": "Track occupied columns and diagonals so each placement check is O(1)."
+        },
+        {
+          "problemSlug": "later-lower",
+          "title": "Day 57: Count with a Fenwick tree",
+          "description": "Scanning from the right turns 'later and lower' into a prefix count over values."
+        },
+        {
+          "problemSlug": "rate-gate",
+          "title": "Day 58: Limit requests per client",
+          "description": "A per-client log drops expired times from the front. Compare it with a token bucket and a shared store."
+        },
+        {
+          "problemSlug": "crossword-trace",
+          "title": "Day 59: Backtrack on a board",
+          "description": "Match letters cell by cell, mark cells while in use and unmark on the way back."
+        },
+        {
+          "problemSlug": "popularity-cache",
+          "title": "Day 60: Design for O(1) eviction",
+          "description": "Frequency buckets in recency order plus a minimum-frequency pointer make LFU eviction constant time."
+        }
+      ]
+    },
+    {
+      "slug": "interview-in-90-days",
+      "title": "Interview in 90 Days",
+      "difficulty": "HARD",
+      "estimatedMinutes": 3510,
+      "description": "Ninety days, one problem a day, in themed two-week blocks: scans and hashing, linked chains and stacks, search and trees, heaps and graphs, dynamic programming and backtracking, then the hardest mixed problems. Solve it, compare with the optimal solution, then explain it aloud in under three minutes. Use the spare time on harder days to revisit anything you could not explain cleanly. Problems left out here (bit tricks, matrix transforms, and the most specialised hard problems) are on the other paths.",
+      "steps": [
+        {
+          "problemSlug": "ridge-count",
+          "title": "Day 1: Track the best so far",
+          "description": "Walk once while remembering the tallest height seen. Say out loud why a strict comparison matters for equal heights."
+        },
+        {
+          "problemSlug": "trail-gain",
+          "title": "Day 2: Carry the lowest point forward",
+          "description": "For every finish point, the best start is the lowest altitude before it. Keep that minimum instead of checking every pair."
+        },
+        {
+          "problemSlug": "quiet-badge",
+          "title": "Day 3: Count before choosing",
+          "description": "Record letter frequencies, then preserve arrival order when choosing an answer. Explain why seeing a letter once so far is not enough."
+        },
+        {
+          "problemSlug": "ticket-pair",
+          "title": "Day 4: Remember what you have seen",
+          "description": "Store earlier prices in a hash map so each new price asks one question: has its partner already appeared?"
+        },
+        {
+          "problemSlug": "shuffled-signs",
+          "title": "Day 5: Compare letter counts",
+          "description": "Two words use the same tiles exactly when their 26 counters match. Contrast this with sorting both words."
+        },
+        {
+          "problemSlug": "badge-majority",
+          "title": "Day 6: Cancel votes to find a majority",
+          "description": "Boyer–Moore voting pairs off different values; the majority survives with O(1) memory."
+        },
+        {
+          "problemSlug": "rank-tags",
+          "title": "Day 7: Count, then order by a rule",
+          "description": "Tally with a map, then sort by count and break ties alphabetically. Write the comparator before coding it."
+        },
+        {
+          "problemSlug": "mirror-callsign",
+          "title": "Day 8: Meet in the middle",
+          "description": "Move two pointers inward and skip what does not count. Test empty, punctuation-only and mixed-case inputs."
+        },
+        {
+          "problemSlug": "one-slip-mirror",
+          "title": "Day 9: Branch only once",
+          "description": "Walk inward until the first mismatch, then try skipping either side exactly once. Show why one branch point keeps it linear."
+        },
+        {
+          "problemSlug": "roster-merge",
+          "title": "Day 10: Merge two sorted lists",
+          "description": "Always take the smaller front value. This is the merge step of merge sort, and later heaps generalize it."
+        },
+        {
+          "problemSlug": "tally-ranges",
+          "title": "Day 11: Precompute running totals",
+          "description": "Prefix sums turn every range question into one subtraction. Mind the leading zero."
+        },
+        {
+          "problemSlug": "parcel-checkpoints",
+          "title": "Day 12: Prepare totals for later questions",
+          "description": "Build cumulative totals once and subtract two checkpoints for each range. Connect this preprocessing tradeoff to the state reused in the previous steps."
+        },
+        {
+          "problemSlug": "relay-window",
+          "title": "Day 13: Update instead of recounting",
+          "description": "Carry one window total forward by removing the outgoing load and adding the incoming one. Trace an all-negative example."
+        },
+        {
+          "problemSlug": "balanced-blueprint",
+          "title": "Day 14: Match the most recent opener",
+          "description": "A stack holds unmatched openers; each closer must match the top. Test a leftover opener at the end."
+        },
+        {
+          "problemSlug": "ticket-turns",
+          "title": "Day 15: Simulate, then shortcut",
+          "description": "Simulate the queue once to see the pattern, then compute each person's contribution directly."
+        },
+        {
+          "problemSlug": "middle-car",
+          "title": "Day 16: Move at two speeds",
+          "description": "A pointer moving twice as fast reaches the end exactly when the slow one reaches the middle."
+        },
+        {
+          "problemSlug": "reverse-convoy",
+          "title": "Day 17: Reverse links in place",
+          "description": "Three pointers, previous, current and saved next, turn the chain around in one pass."
+        },
+        {
+          "problemSlug": "drop-nth-car",
+          "title": "Day 18: Keep a fixed gap",
+          "description": "Lead and trail pointers k apart find the k-th node from the end in one pass. Handle removing the head."
+        },
+        {
+          "problemSlug": "chain-loop-start",
+          "title": "Day 19: Detect, then locate the loop",
+          "description": "Fast and slow pointers meet inside a loop. Restarting one from the head finds the entrance."
+        },
+        {
+          "problemSlug": "longest-clean-streak",
+          "title": "Day 20: Grow and shrink a window",
+          "description": "Extend the right edge and shrink the left edge only when a repeat appears. Each index moves forward at most once."
+        },
+        {
+          "problemSlug": "fuel-stretch",
+          "title": "Day 21: Shrink while the goal holds",
+          "description": "With positive values, a window that reaches the target should shrink as far as possible. Explain why negatives break this."
+        },
+        {
+          "problemSlug": "warmer-wait",
+          "title": "Day 22: Wait on a decreasing stack",
+          "description": "Indices waiting for a warmer day form a decreasing stack; each new day resolves everything colder below it."
+        },
+        {
+          "problemSlug": "postfix-ledger",
+          "title": "Day 23: Evaluate with an operand stack",
+          "description": "Push numbers and let each operator pop its right operand first. Truncate division toward zero."
+        },
+        {
+          "problemSlug": "floor-tracker",
+          "title": "Day 24: Store the answer alongside the data",
+          "description": "Keep the minimum at every stack height so min stays O(1) through pops."
+        },
+        {
+          "problemSlug": "word-groups",
+          "title": "Day 25: Find a canonical key",
+          "description": "Anagrams share their sorted letters, so that string becomes a hash-map key. Discuss the 26-count signature as an alternative key."
+        },
+        {
+          "problemSlug": "balance-runs",
+          "title": "Day 26: Count with prefix differences",
+          "description": "A run hits the target when an earlier prefix equals the current prefix minus the target. Count earlier prefixes in a map."
+        },
+        {
+          "problemSlug": "merge-shifts",
+          "title": "Day 27: Sort, then sweep",
+          "description": "After sorting by start, a shift can only overlap the block being built. Keep the larger end when merging."
+        },
+        {
+          "problemSlug": "slot-insert",
+          "title": "Day 28: Use the order you are given",
+          "description": "The slots are already sorted and disjoint, so copy, absorb and copy again in one pass."
+        },
+        {
+          "problemSlug": "quiet-hours",
+          "title": "Day 29: Find the gaps between merged blocks",
+          "description": "Sort by start and carry the latest end; a later start is a free gap."
+        },
+        {
+          "problemSlug": "dock-threshold",
+          "title": "Day 30: Keep the earliest valid boundary",
+          "description": "Use sorted capacities to narrow the first qualifying dock. State the search interval invariant and trace duplicates and an empty list."
+        },
+        {
+          "problemSlug": "dial-lookup",
+          "title": "Day 31: Find the sorted half",
+          "description": "In a rotated array one half is always ordinary. Decide which, then whether the target can be there."
+        },
+        {
+          "problemSlug": "bake-batches",
+          "title": "Day 32: Binary search the answer",
+          "description": "When feasibility is monotone in the answer, search over answers instead of positions."
+        },
+        {
+          "problemSlug": "canopy-layers",
+          "title": "Day 33: Visit a tree layer by layer",
+          "description": "Breadth-first search processes one depth at a time. Sum each layer before building the next."
+        },
+        {
+          "problemSlug": "balanced-canopy",
+          "title": "Day 34: Return two facts from recursion",
+          "description": "A height-or-failure value lets one post-order pass check balance without recomputing heights."
+        },
+        {
+          "problemSlug": "ledger-tree-check",
+          "title": "Day 35: Pass bounds down the tree",
+          "description": "Each node must fit inside limits inherited from its ancestors, not just its parent."
+        },
+        {
+          "problemSlug": "kth-badge",
+          "title": "Day 36: Use the order a BST already has",
+          "description": "In-order traversal visits values in increasing order, so stop at the k-th visit."
+        },
+        {
+          "problemSlug": "shared-mentor",
+          "title": "Day 37: Find where two searches split",
+          "description": "In a BST, both targets stay on the same side until their lowest common ancestor."
+        },
+        {
+          "problemSlug": "prefix-counts",
+          "title": "Day 38: Share prefixes in a tree",
+          "description": "A trie stores each prefix once, and each node can count the words that pass through it."
+        },
+        {
+          "problemSlug": "prefix-suggestions",
+          "title": "Day 39: Precompute answers at each node",
+          "description": "Insert words in sorted order so each trie node keeps its three smallest matches."
+        },
+        {
+          "problemSlug": "lru-results",
+          "title": "Day 40: Combine a map with an order",
+          "description": "A map finds entries and an ordering structure says which is least recently used. Update both on every access."
+        },
+        {
+          "problemSlug": "snapshot-registry",
+          "title": "Day 41: Store history, search by time",
+          "description": "Append-only histories are sorted for free. A get is an upper-bound binary search."
+        },
+        {
+          "problemSlug": "vault-account",
+          "title": "Day 42: Protect an invariant",
+          "description": "Hide the balance behind methods and check before mutating, so a failed withdrawal has no side effects."
+        },
+        {
+          "problemSlug": "splice-cables",
+          "title": "Day 43: Always combine the two cheapest",
+          "description": "A min-heap exposes the two smallest pieces in O(log n). Argue why merging cheap pieces first is optimal."
+        },
+        {
+          "problemSlug": "nearest-beacons",
+          "title": "Day 44: Bound the heap at k",
+          "description": "A max-heap of size k keeps the best candidates and evicts the worst. Sort the survivors with the same comparator."
+        },
+        {
+          "problemSlug": "studio-bookings",
+          "title": "Day 45: Sweep start and end events",
+          "description": "Sort starts and ends separately and release finished bookings before counting a new one. Half-open ranges decide the tie rule."
+        },
+        {
+          "problemSlug": "charging-hops",
+          "title": "Day 46: Reach as far as possible",
+          "description": "Track the farthest reachable index; extend it greedily and count jumps per frontier."
+        },
+        {
+          "problemSlug": "charging-loop",
+          "title": "Day 47: Rule out many starts at once",
+          "description": "If a run fails at station i, every start before i fails too. Pair that with the total-balance check."
+        },
+        {
+          "problemSlug": "gutter-capacity",
+          "title": "Day 48: Let the shorter wall decide",
+          "description": "Two pointers move from both ends; the side with the lower wall already knows its water level."
+        },
+        {
+          "problemSlug": "orchard-plots",
+          "title": "Day 49: Flood a connected region",
+          "description": "Each unvisited plot starts a depth-first fill. Mark cells when you first reach them."
+        },
+        {
+          "problemSlug": "grid-rescue-hops",
+          "title": "Day 50: Shortest steps with BFS",
+          "description": "Breadth-first search reaches cells in order of distance in an unweighted grid."
+        },
+        {
+          "problemSlug": "mold-spread",
+          "title": "Day 51: Start BFS from many sources",
+          "description": "Seed the queue with every source and count layers; leftover fresh cells mean -1."
+        },
+        {
+          "problemSlug": "radio-clusters",
+          "title": "Day 52: Merge groups with union-find",
+          "description": "Each successful union lowers the cluster count by one. Use path compression and union by size."
+        },
+        {
+          "problemSlug": "ledger-equalities",
+          "title": "Day 53: Union first, then check",
+          "description": "Apply every equality with union-find, then reject any inequality whose letters share a root."
+        },
+        {
+          "problemSlug": "first-redundant-link",
+          "title": "Day 54: Spot the link that closes a cycle",
+          "description": "The first link whose endpoints already share a root is redundant."
+        },
+        {
+          "problemSlug": "module-plan",
+          "title": "Day 55: Order work with in-degrees",
+          "description": "Kahn's algorithm takes modules with no unfinished prerequisites; a stall means a cycle."
+        },
+        {
+          "problemSlug": "task-order",
+          "title": "Day 56: Break ties in a topological order",
+          "description": "A min-heap of ready tasks produces the smallest valid order."
+        },
+        {
+          "problemSlug": "tower-tiles",
+          "title": "Day 57: Split on the first choice",
+          "description": "The first column is covered one of two ways, giving a Fibonacci-style recurrence. Roll it forward with two variables."
+        },
+        {
+          "problemSlug": "lantern-steps",
+          "title": "Day 58: Define the cost of reaching a state",
+          "description": "Write the meaning and base cases of each stored cost before the recurrence. Carry forward the habit of checking boundaries, then compare a table with rolling state."
+        },
+        {
+          "problemSlug": "fewest-tokens",
+          "title": "Day 59: Minimum over choices",
+          "description": "The fewest tokens for an amount comes from the best last token. Mark unreachable amounts."
+        },
+        {
+          "problemSlug": "quiet-heist",
+          "title": "Day 60: Take or skip, then handle the circle",
+          "description": "Solve the line version twice, once without the first house and once without the last."
+        },
+        {
+          "problemSlug": "fare-combinations",
+          "title": "Day 61: Count combinations, not orders",
+          "description": "Put coins in the outer loop and totals in the inner loop so each combination is counted once."
+        },
+        {
+          "problemSlug": "warehouse-routes",
+          "title": "Day 62: Count paths in a grid",
+          "description": "Routes into a cell come from above or the left. One rolling row is enough."
+        },
+        {
+          "problemSlug": "rising-marks",
+          "title": "Day 63: Keep the best tails",
+          "description": "For each length, keep the smallest possible ending value and binary search where each mark fits."
+        },
+        {
+          "problemSlug": "shared-melody",
+          "title": "Day 64: Compare two sequences",
+          "description": "A table over prefixes of both sequences either extends a match or drops one side."
+        },
+        {
+          "problemSlug": "typo-distance",
+          "title": "Day 65: Edit one prefix into another",
+          "description": "Replace, insert and delete map to the diagonal, left and above neighbors. Keep two rows."
+        },
+        {
+          "problemSlug": "mirror-cuts",
+          "title": "Day 66: Combine palindromes with a cuts table",
+          "description": "Expand around every center and relax the cut count for each palindrome found."
+        },
+        {
+          "problemSlug": "nested-crates",
+          "title": "Day 67: Reduce to an increasing subsequence",
+          "description": "Sort by width, break ties by descending height, then run the n log n LIS."
+        },
+        {
+          "problemSlug": "badge-subsets",
+          "title": "Day 68: Choose by size, in order",
+          "description": "Backtrack over increasing positions for each size to emit subsets in the required order."
+        },
+        {
+          "problemSlug": "lineup-orders",
+          "title": "Day 69: Place one position at a time",
+          "description": "A used[] array and sorted candidates produce permutations lexicographically."
+        },
+        {
+          "problemSlug": "crate-combinations",
+          "title": "Day 70: Prune as you search",
+          "description": "Sort, skip duplicates at the same depth and stop when the remaining target goes negative."
+        },
+        {
+          "problemSlug": "cheapest-route",
+          "title": "Day 71: Expand the cheapest frontier",
+          "description": "Dijkstra's algorithm settles the nearest stop first. Skip stale heap entries."
+        },
+        {
+          "problemSlug": "floodgate-path",
+          "title": "Day 72: Minimize the worst step",
+          "description": "Dijkstra with max instead of + finds the lowest possible peak on a route."
+        },
+        {
+          "problemSlug": "signal-codes",
+          "title": "Day 73: Generate neighbors instead of comparing pairs",
+          "description": "BFS over one-letter changes, checking a set of unused codes. Remove codes when enqueued."
+        },
+        {
+          "problemSlug": "ridge-trails",
+          "title": "Day 74: Memoize a path in a DAG",
+          "description": "Strictly climbing steps cannot cycle, so each cell's longest climb can be cached."
+        },
+        {
+          "problemSlug": "glyph-order",
+          "title": "Day 75: Infer an order from evidence",
+          "description": "Adjacent words give one constraint each. Kahn's algorithm with the smallest ready glyph gives a canonical answer."
+        },
+        {
+          "problemSlug": "lane-merge",
+          "title": "Day 76: Merge many sorted lists",
+          "description": "Keep only the k lane fronts in a min-heap. Each output costs O(log k)."
+        },
+        {
+          "problemSlug": "pace-median",
+          "title": "Day 77: Balance two heaps",
+          "description": "The lower half lives in a max-heap and the upper half in a min-heap. Rebalance after every insert."
+        },
+        {
+          "problemSlug": "billboard-space",
+          "title": "Day 78: Find both boundaries with one stack",
+          "description": "When a shorter bar arrives, popped bars learn their right edge and the new top gives the left edge. Add a zero sentinel."
+        },
+        {
+          "problemSlug": "bracket-run",
+          "title": "Day 79: Keep a base marker on the stack",
+          "description": "The bottom of the stack marks where the current valid stretch cannot extend. Measure from the top after each match."
+        },
+        {
+          "problemSlug": "peak-watch",
+          "title": "Day 80: Keep only useful candidates",
+          "description": "A decreasing deque of indices drops readings that can never be a maximum again. Expire the front when it leaves the window."
+        },
+        {
+          "problemSlug": "cipher-window",
+          "title": "Day 81: Track what is still missing",
+          "description": "Keep need counts that can go negative plus one 'missing' counter. Record only strictly shorter windows so ties stay leftmost."
+        },
+        {
+          "problemSlug": "canopy-gain",
+          "title": "Day 82: Return one side, record both",
+          "description": "Each node passes its best single chain upward while the answer considers both children."
+        },
+        {
+          "problemSlug": "dual-median",
+          "title": "Day 83: Binary search a partition",
+          "description": "Choose how many values the shorter list contributes to the left half; the cross comparisons say which way to move."
+        },
+        {
+          "problemSlug": "city-skyline",
+          "title": "Day 84: Sweep with lazy deletion",
+          "description": "Visit edges in order with a max-heap of standing buildings. Discard ended buildings only when they surface."
+        },
+        {
+          "problemSlug": "pattern-gate",
+          "title": "Day 85: Match wildcards with a table",
+          "description": "A star either matches nothing or absorbs one more letter; '?' uses the diagonal."
+        },
+        {
+          "problemSlug": "watchtower-placements",
+          "title": "Day 86: Constrain, place, undo",
+          "description": "Track occupied columns and diagonals so each placement check is O(1)."
+        },
+        {
+          "problemSlug": "later-lower",
+          "title": "Day 87: Count with a Fenwick tree",
+          "description": "Scanning from the right turns 'later and lower' into a prefix count over values."
+        },
+        {
+          "problemSlug": "rate-gate",
+          "title": "Day 88: Limit requests per client",
+          "description": "A per-client log drops expired times from the front. Compare it with a token bucket and a shared store."
+        },
+        {
+          "problemSlug": "crossword-trace",
+          "title": "Day 89: Backtrack on a board",
+          "description": "Match letters cell by cell, mark cells while in use and unmark on the way back."
+        },
+        {
+          "problemSlug": "popularity-cache",
+          "title": "Day 90: Design for O(1) eviction",
+          "description": "Frequency buckets in recency order plus a minimum-frequency pointer make LFU eviction constant time."
+        }
+      ]
+    },
+    {
+      "slug": "intervals-and-sweeps",
+      "title": "Intervals and Sweeps",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 215,
+      "description": "Sort ranges by their start, then either sweep once or insert into an already ordered list. Decide before coding whether touching endpoints overlap, since that single rule changes every answer in this path.",
+      "steps": [
+        {
+          "problemSlug": "merge-shifts",
+          "title": "Merge sorted ranges",
+          "description": "Sort by start and extend the current block while the next shift begins at or before its end. Closed ends mean touching shifts merge."
+        },
+        {
+          "problemSlug": "slot-insert",
+          "title": "Insert into an ordered list",
+          "description": "The slots are already sorted and disjoint, so copy those before the new slot, absorb the overlapping ones, then copy the rest."
+        },
+        {
+          "problemSlug": "quiet-hours",
+          "title": "Read the gaps between blocks",
+          "description": "Merge the busy blocks, then report the space between neighbours. Here the end is excluded, so blocks that touch leave no gap."
+        },
+        {
+          "problemSlug": "studio-bookings",
+          "title": "Count what is open at once",
+          "description": "Sweep start and end events in time order, processing an end before a start at the same minute. The peak count is the answer."
+        },
+        {
+          "problemSlug": "city-skyline",
+          "title": "Track the tallest open building",
+          "description": "Sweep the edges while a max-heap holds the buildings currently open. Emit a point only when the maximum height changes."
+        }
+      ]
+    },
+    {
+      "slug": "greedy-choices",
+      "title": "Greedy Choices",
+      "difficulty": "MEDIUM",
+      "estimatedMinutes": 160,
+      "description": "Use a local rule only when you can say why it never loses. Each step names its rule, then you test it against a brute-force check on small inputs before trusting it.",
+      "steps": [
+        {
+          "problemSlug": "charging-hops",
+          "title": "Track the farthest reach",
+          "description": "Walk forward while keeping the farthest reachable station. If the walk passes that limit, the end cannot be reached."
+        },
+        {
+          "problemSlug": "charging-loop",
+          "title": "Reset the start after a shortfall",
+          "description": "Keep a running balance, and when it drops below zero no start before this station can work, so restart just after it. Check the total separately."
+        },
+        {
+          "problemSlug": "bake-batches",
+          "title": "Binary search a greedy check",
+          "description": "For one candidate capacity, pack trays greedily and count the days. Feasibility only improves as capacity grows, so binary search the smallest that works."
+        },
+        {
+          "problemSlug": "splice-cables",
+          "title": "Always join the two smallest",
+          "description": "A min-heap gives the two cheapest pieces each round. Joining small pieces first keeps repeated costs low."
+        }
+      ]
+    },
+    {
+      "slug": "heaps-and-streams",
+      "title": "Heaps and Streams",
+      "difficulty": "HARD",
+      "estimatedMinutes": 195,
+      "description": "Keep only the part of the data that can still change the answer. A heap holds the best candidates, two heaps hold a median, and a monotonic deque holds window maxima without a log factor.",
+      "steps": [
+        {
+          "problemSlug": "nearest-beacons",
+          "title": "Keep the best k",
+          "description": "Compare squared distances and keep only k candidates, using the stated tie rules. A bounded heap avoids sorting everything."
+        },
+        {
+          "problemSlug": "lane-merge",
+          "title": "Merge sorted lanes",
+          "description": "Put each lane's front value in a min-heap and pop the smallest, pushing that lane's next value. Handle empty lanes first."
+        },
+        {
+          "problemSlug": "pace-median",
+          "title": "Split the stream across two heaps",
+          "description": "A max-heap holds the lower half and a min-heap the upper half. Rebalance after each arrival so the median sits at the tops."
+        },
+        {
+          "problemSlug": "peak-watch",
+          "title": "Drop what can never be the maximum",
+          "description": "A deque of indices keeps values in decreasing order. Pop smaller values from the back, expire the front, and read the maximum at the front."
+        }
+      ]
+    }
+  ],
+  "videos": [
+    {
+      "problemSlug": "cipher-window",
+      "youtubeId": "wiGpQwVHdE0",
+      "channel": "NeetCode",
+      "title": "Longest Substring Without Repeating Characters - Leetcode 3 - Python",
+      "segments": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 280,
+          "label": "Conceptual"
+        },
+        {
+          "startSeconds": 280,
+          "endSeconds": 405,
+          "label": "Coding solution"
+        }
+      ],
+      "concept": "Variable-size sliding window",
+      "referenceProblem": "Longest Substring Without Repeating Characters (LeetCode 3)",
+      "bridge": "The video grows a window one character at a time and moves its left edge forward to restore a rule about what the window may contain. Here the rule is reversed: the window must contain every letter of the pattern, repeats included, so you track which letters are still missing as the right edge grows. The video looks for the longest valid window while you want the shortest, so the moment at which you record an answer and shrink from the left is different."
+    },
+    {
+      "problemSlug": "gutter-capacity",
+      "youtubeId": "UuiTKBwPgAo",
+      "channel": "NeetCode",
+      "title": "Container with Most Water - Leetcode 11 - Python",
+      "segments": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 325,
+          "label": "Brute force"
+        },
+        {
+          "startSeconds": 325,
+          "endSeconds": 570,
+          "label": "Optimal solution"
+        },
+        {
+          "startSeconds": 570,
+          "endSeconds": 756,
+          "label": "Coding the optimal solution"
+        }
+      ],
+      "concept": "Two pointers moving inward from both ends",
+      "referenceProblem": "Container with Most Water (LeetCode 11)",
+      "bridge": "The video starts one pointer at each end of the heights and moves the pointer on the shorter side inward, because the shorter side is what limits the container. Water on a roof also depends on the lower of the walls on either side, so asking which side is currently the limit tells you which pointer can safely advance. What you accumulate differs: the video keeps the best single container, while this problem adds up the water held above every block as the pointers close in."
+    },
+    {
+      "problemSlug": "dock-threshold",
+      "youtubeId": "s4DPM8ct1pI",
+      "channel": "NeetCode",
+      "title": "Binary Search - Leetcode 704 - Python",
+      "segments": [
+        {
+          "startSeconds": 58,
+          "endSeconds": 310,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 310,
+          "endSeconds": 579,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Binary search on a sorted array",
+      "referenceProblem": "Binary Search (LeetCode 704)",
+      "bridge": "The video repeatedly halves a sorted range using a low and a high pointer and a midpoint. The dock capacities are sorted as well, so the same halving applies; the change is the question you ask at the midpoint. Instead of stopping at an exact match you want the earliest index whose capacity is at least the load, so a qualifying midpoint is a candidate to remember while the search continues to its left, which matters when capacities repeat."
+    },
+    {
+      "problemSlug": "parcel-checkpoints",
+      "youtubeId": "fFVZt-6sgyo",
+      "channel": "NeetCode",
+      "title": "Subarray Sum Equals K - Prefix Sums - Leetcode 560 - Python",
+      "segments": [
+        {
+          "startSeconds": 147,
+          "endSeconds": 791,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 791,
+          "endSeconds": 918,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Prefix sums",
+      "referenceProblem": "Subarray Sum Equals K (LeetCode 560)",
+      "bridge": "The video builds a running total of the array and reasons about the difference between two running totals to get the sum of a stretch. Each of your ranges is exactly such a stretch: its total is the running total before the end index minus the running total before the start index. The video pairs prefix sums with a hash map to count matching stretches; here you only need the prefix totals themselves, built once and then read once per range."
+    },
+    {
+      "problemSlug": "ticket-pair",
+      "youtubeId": "KLlXCFG5TnA",
+      "channel": "NeetCode",
+      "title": "Two Sum - Leetcode 1 - HashMap - Python",
+      "segments": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 110,
+          "label": "Brute force (conceptual)"
+        },
+        {
+          "startSeconds": 110,
+          "endSeconds": 414,
+          "label": "One pass (conceptual)"
+        },
+        {
+          "startSeconds": 414,
+          "endSeconds": 506,
+          "label": "Coding the one pass solution"
+        }
+      ],
+      "concept": "Hash map lookup of a complement",
+      "referenceProblem": "Two Sum (LeetCode 1)",
+      "bridge": "This problem is a close variant of the video's example: for each price you ask whether the amount that would complete the budget was already seen, and a hash map answers that without rescanning. The part the video does not cover is the tie-break rule that decides which valid pair to return, so check what your map stores for repeated prices against that rule. You also need to return [-1, -1] when no pair matches."
+    },
+    {
+      "problemSlug": "bracket-run",
+      "youtubeId": "WTzjTskDFMg",
+      "channel": "NeetCode",
+      "title": "Valid Parentheses - Stack - Leetcode 20 - Python",
+      "segments": [
+        {
+          "startSeconds": 85,
+          "endSeconds": 440,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 440,
+          "endSeconds": 643,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Stack of unmatched openers",
+      "referenceProblem": "Valid Parentheses (LeetCode 20)",
+      "bridge": "The video pushes opening brackets onto a stack and checks every closing bracket against the top of the stack. Your string has only two kinds of bracket, so the matching itself is simpler, but you need more than a yes or no: the answer is the length of the longest well-formed stretch. Think about what the stack should remember, such as positions instead of characters, so that when a closing bracket matches you can tell how long the valid stretch ending there is."
+    },
+    {
+      "problemSlug": "billboard-space",
+      "youtubeId": "cTBiBSnjO3c",
+      "channel": "NeetCode",
+      "title": "Daily Temperatures - Monotonic Stack - Leetcode 739 - Python",
+      "segments": [
+        {
+          "startSeconds": 111,
+          "endSeconds": 565,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 565,
+          "endSeconds": 712,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Monotonic stack",
+      "referenceProblem": "Daily Temperatures (LeetCode 739)",
+      "bridge": "The video keeps a stack of indices whose answers are still unknown and pops them when a value that settles them arrives, so each index is pushed and popped once. For each building the question here is how far a billboard can extend before meeting a shorter building, which is a similar next-smaller-value question with the comparison reversed. When the incoming height is lower than the one on top, the popped building's reach is settled, and the indices that remain on the stack give you its width."
+    },
+    {
+      "problemSlug": "nearest-beacons",
+      "youtubeId": "hOjcdrqMoQ8",
+      "channel": "NeetCode",
+      "title": "Kth Largest Element in a Stream - Leetcode 703 - Python",
+      "segments": [
+        {
+          "startSeconds": 140,
+          "endSeconds": 490,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 490,
+          "endSeconds": 677,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Fixed-size heap of the best k items",
+      "referenceProblem": "Kth Largest Element in a Stream (LeetCode 703)",
+      "bridge": "The video keeps only the k most relevant values in a heap and evicts the one that no longer qualifies, so the work stays proportional to k instead of the whole input. Here the values are beacons ranked by distance from the origin and you want the k closest, so the item to evict is the farthest one kept so far. The video reads a single value off the heap; you return all k beacons in the order the statement requires, with its tie-break rules, so the final ordering is still your job."
+    },
+    {
+      "problemSlug": "mold-spread",
+      "youtubeId": "pV2kpPD66nE",
+      "channel": "NeetCode",
+      "title": "NUMBER OF ISLANDS - Leetcode 200 - Python",
+      "segments": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 300,
+          "label": "Conceptual solution"
+        },
+        {
+          "startSeconds": 300,
+          "endSeconds": 701,
+          "label": "Coding"
+        }
+      ],
+      "concept": "Grid traversal over connected cells",
+      "referenceProblem": "Number of Islands (LeetCode 200)",
+      "bridge": "The video visits the cells of a grid by moving up, down, left and right and marks each visited cell so it is never processed twice. Mold uses the same four-direction neighbors, but exploring from one cell is not enough: every spoiled loaf starts spreading in the same minute, so you start from all of them together and count rounds. The video counts separate groups of land; you count how many minutes the spread needs, and fresh bread that is never reached means -1."
+    },
+    {
+      "problemSlug": "grid-rescue-hops",
+      "youtubeId": "pV2kpPD66nE",
+      "channel": "NeetCode",
+      "title": "NUMBER OF ISLANDS - Leetcode 200 - Python",
+      "segments": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 300,
+          "label": "Conceptual solution"
+        },
+        {
+          "startSeconds": 300,
+          "endSeconds": 701,
+          "label": "Coding"
+        }
+      ],
+      "concept": "Grid traversal over connected cells",
+      "referenceProblem": "Number of Islands (LeetCode 200)",
+      "bridge": "The video moves through a grid to the four orthogonal neighbors and remembers visited cells, which is the movement model you need here: no diagonals, no entering shelves, no leaving the floor. The video asks how many separate regions exist, while this problem asks for the fewest hops from S to T, so you must explore in order of distance from the start and record how many hops had been taken when T is reached. Return -1 if the exploration ends without reaching T."
+    },
+    {
+      "problemSlug": "module-plan",
+      "youtubeId": "Akt3glAwyfY",
+      "channel": "NeetCode",
+      "title": "Course Schedule II - Topological Sort - Leetcode 210",
+      "segments": [
+        {
+          "startSeconds": 145,
+          "endSeconds": 640,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 640,
+          "endSeconds": 1029,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Topological ordering and cycle detection",
+      "referenceProblem": "Course Schedule II (LeetCode 210)",
+      "bridge": "The video turns prerequisites into a directed graph and decides whether every course can be ordered after what it needs, which fails exactly when the graph has a cycle. Your pairs describe the same kind of graph, and you only need a yes or no for whether a valid order exists, so showing that no cycle exists is enough. The video also produces an actual order, which this problem does not ask for."
+    },
+    {
+      "problemSlug": "task-order",
+      "youtubeId": "Akt3glAwyfY",
+      "channel": "NeetCode",
+      "title": "Course Schedule II - Topological Sort - Leetcode 210",
+      "segments": [
+        {
+          "startSeconds": 145,
+          "endSeconds": 640,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 640,
+          "endSeconds": 1029,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Topological ordering and cycle detection",
+      "referenceProblem": "Course Schedule II (LeetCode 210)",
+      "bridge": "The video builds a graph from prerequisite pairs and produces an order that respects them, returning nothing when a cycle makes that impossible; this problem has the same two outcomes. Note the direction of each pair: here [before, after] lists the earlier task first, the opposite reading of the video's course pairs. The extra rule is that among all valid orders you must always run the smallest-numbered ready task, so you need a way to keep the ready tasks ordered rather than taking them in any order."
+    },
+    {
+      "problemSlug": "radio-clusters",
+      "youtubeId": "FXWRE67PLL0",
+      "channel": "NeetCode",
+      "title": "Redundant Connection - Union Find - Leetcode 684 - Python",
+      "segments": [
+        {
+          "startSeconds": 120,
+          "endSeconds": 650,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 650,
+          "endSeconds": 964,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Union-find (disjoint set union)",
+      "referenceProblem": "Redundant Connection (LeetCode 684)",
+      "bridge": "The video gives every node a group and merges the groups of the two ends of each edge, using find to ask which group a node belongs to. Starting with every tower as its own cluster, a link that joins two different clusters reduces the cluster count by one, while a link inside one cluster changes nothing. The video stops at the first edge that closes a loop; you process every link and report how many clusters remain."
+    },
+    {
+      "problemSlug": "ledger-equalities",
+      "youtubeId": "FXWRE67PLL0",
+      "channel": "NeetCode",
+      "title": "Redundant Connection - Union Find - Leetcode 684 - Python",
+      "segments": [
+        {
+          "startSeconds": 120,
+          "endSeconds": 650,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 650,
+          "endSeconds": 964,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Union-find (disjoint set union)",
+      "referenceProblem": "Redundant Connection (LeetCode 684)",
+      "bridge": "The video's union-find structure answers whether two items are already connected. The equal-to facts connect accounts into groups that hold the same amount, so merge those first. Each not-equal-to fact is then a check on the finished groups: it contradicts the ledger if both accounts ended up in the same group. In the video an edge between already connected nodes is the answer; here the connection test is applied after all merges."
+    },
+    {
+      "problemSlug": "quiet-heist",
+      "youtubeId": "73r3KWiEvyk",
+      "channel": "NeetCode",
+      "title": "House Robber -  Leetcode 198 - Python Dynamic Programming",
+      "segments": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 483,
+          "label": "Conceptual"
+        },
+        {
+          "startSeconds": 483,
+          "endSeconds": 635,
+          "label": "Coding the optimal solution"
+        }
+      ],
+      "concept": "One-dimensional dynamic programming",
+      "referenceProblem": "House Robber (LeetCode 198)",
+      "bridge": "The video solves the straight-line version: at each house you either skip it or take it together with the best total from earlier houses, and only the last two results need to be kept. This problem is the same decision with one twist, because the first and last houses are neighbors and cannot both be taken. Think about how the circle changes which houses may be chosen together and how to reduce it to the straight-line problem the video solves; a circle of one house needs separate care."
+    },
+    {
+      "problemSlug": "crate-combinations",
+      "youtubeId": "REOH22Xwdkk",
+      "channel": "NeetCode",
+      "title": "Subsets - Backtracking - Leetcode 78",
+      "segments": [
+        {
+          "startSeconds": 75,
+          "endSeconds": 330,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 330,
+          "endSeconds": 527,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Backtracking over include-or-skip choices",
+      "referenceProblem": "Subsets (LeetCode 78)",
+      "bridge": "The video builds every subset by deciding for each element in turn whether to include it, recursing, and then undoing the choice. Crate combinations walks the same decision tree, but you keep only the sets whose weights add up to exactly the target. Because every weight is positive, a branch whose running total already passes the target can be abandoned, and sorting the weights first helps produce the required output order."
+    },
+    {
+      "problemSlug": "quiet-hours",
+      "youtubeId": "44H3cEC2fFM",
+      "channel": "NeetCode",
+      "title": "Merge Intervals - Sorting - Leetcode 56",
+      "segments": [
+        {
+          "startSeconds": 85,
+          "endSeconds": 340,
+          "label": "Drawing solution"
+        },
+        {
+          "startSeconds": 340,
+          "endSeconds": 614,
+          "label": "Coding solution"
+        }
+      ],
+      "concept": "Sorting then sweeping intervals",
+      "referenceProblem": "Merge Intervals (LeetCode 56)",
+      "bridge": "The video sorts intervals by start and sweeps through them, extending the current block while the next one overlaps. The free time you want is the space between those merged blocks, so merge first and then read off the gaps. Mind the boundary rule: here a block is [start, end), so a block that begins exactly when the previous one ends leaves no gap."
+    },
+    {
+      "problemSlug": "slot-insert",
+      "youtubeId": "44H3cEC2fFM",
+      "channel": "NeetCode",
+      "title": "Merge Intervals - Sorting - Leetcode 56",
+      "segments": [
+        {
+          "startSeconds": 85,
+          "endSeconds": 340,
+          "label": "Drawing solution"
+        },
+        {
+          "startSeconds": 340,
+          "endSeconds": 614,
+          "label": "Coding solution"
+        }
+      ],
+      "concept": "Sorting then sweeping intervals",
+      "referenceProblem": "Merge Intervals (LeetCode 56)",
+      "bridge": "The video merges overlapping intervals while sweeping through a list ordered by start. Your calendar is already sorted and disjoint, so no sorting is needed: slots that end before the new slot starts stay as they are, slots that overlap it fold into one growing block, and the remaining slots follow unchanged. The overlap test is the same idea as in the video, and both endpoints count here, so touching at a single minute is an overlap."
+    },
+    {
+      "problemSlug": "prefix-counts",
+      "youtubeId": "oobqoCJlHA0",
+      "channel": "NeetCode",
+      "title": "Implement Trie (Prefix Tree) - Leetcode 208",
+      "segments": [
+        {
+          "startSeconds": 113,
+          "endSeconds": 700,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 700,
+          "endSeconds": 1135,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Trie (prefix tree)",
+      "referenceProblem": "Implement Trie (Prefix Tree) (LeetCode 208)",
+      "bridge": "The video stores words as paths of letters in a prefix tree, so looking up a prefix means walking the same path letter by letter. Your task asks for a count rather than a yes or no: words can repeat, the empty prefix matches every word, and you answer a whole list of queries. Decide what each node should record, for example how many words pass through it, and what a prefix whose path leaves the tree should return."
+    },
+    {
+      "problemSlug": "prefix-suggestions",
+      "youtubeId": "oobqoCJlHA0",
+      "channel": "NeetCode",
+      "title": "Implement Trie (Prefix Tree) - Leetcode 208",
+      "segments": [
+        {
+          "startSeconds": 113,
+          "endSeconds": 700,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 700,
+          "endSeconds": 1135,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Trie (prefix tree)",
+      "referenceProblem": "Implement Trie (Prefix Tree) (LeetCode 208)",
+      "bridge": "The video stores words as paths in a prefix tree and follows one letter at a time, which is also how you follow what the visitor types. The answer at each step differs: instead of yes or no you report up to three words, the alphabetically smallest ones, that start with the typed letters so far. Think about whether to keep a short ordered list at each node or to collect words below the node in alphabetical order, and what to report once the typed prefix no longer matches any path."
+    },
+    {
+      "problemSlug": "cheapest-route",
+      "youtubeId": "EaphyqKU4PQ",
+      "channel": "NeetCode",
+      "title": "Network Delay Time - Dijkstra's algorithm - Leetcode 743",
+      "segments": [
+        {
+          "startSeconds": 277,
+          "endSeconds": 877,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 877,
+          "endSeconds": 1187,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Dijkstra's shortest path",
+      "referenceProblem": "Network Delay Time (LeetCode 743)",
+      "bridge": "This problem is a close variant of the video's example: both ask for the cheapest travel cost from a source through a weighted network, which is the job of Dijkstra's algorithm, and tolls here are not negative either. What you must adapt is the question and the roads: you need the cost to one target stop, or -1 when it cannot be reached, instead of a single value summarizing every node as in the video's reference problem; your roads are two-way, the same two stops may be joined by several roads with different tolls, and a toll may be 0."
+    },
+    {
+      "problemSlug": "typo-distance",
+      "youtubeId": "Ua0GhsJSlWM",
+      "channel": "NeetCode",
+      "title": "Longest Common Subsequence - Dynamic Programming - Leetcode 1143",
+      "segments": [],
+      "concept": "Dynamic programming over prefixes of two strings",
+      "referenceProblem": "Longest Common Subsequence (LeetCode 1143)",
+      "bridge": "The video applies dynamic programming to two strings, deciding for prefixes of both whether their last letters match. Typo distance has the same two-string shape but a different goal and different transitions: it counts edits, and a mismatch is not a dead end because you can replace, insert or delete a letter, each costing 1. Work out what each of the three edits means for which prefixes you move to, and what the answers are when one of the words is empty, which costs the length of the other."
+    },
+    {
+      "problemSlug": "fare-combinations",
+      "youtubeId": "H9bfqozjoqs",
+      "channel": "NeetCode",
+      "title": "Coin Change - Dynamic Programming Bottom Up - Leetcode 322",
+      "segments": [
+        {
+          "startSeconds": 90,
+          "endSeconds": 185,
+          "label": "Greedy doesn't work"
+        },
+        {
+          "startSeconds": 185,
+          "endSeconds": 640,
+          "label": "DFS solution"
+        },
+        {
+          "startSeconds": 640,
+          "endSeconds": 935,
+          "label": "Dynamic programming"
+        },
+        {
+          "startSeconds": 935,
+          "endSeconds": 1163,
+          "label": "Coding solution"
+        }
+      ],
+      "concept": "Unbounded knapsack over amounts",
+      "referenceProblem": "Coin Change (LeetCode 322)",
+      "bridge": "The video works with an unlimited supply of each coin value and builds answers for amounts up to the target. Your ferry also has unlimited tickets of each value, but you count combinations instead of finding the fewest tickets. Combinations are unordered, so two of value 1 plus one of value 2 must be counted once; how you nest the loops over ticket values and over amounts decides whether different orderings are counted separately. The amount 0 has exactly one way, and the count is taken modulo 1000000007."
+    },
+    {
+      "problemSlug": "fewest-tokens",
+      "youtubeId": "Mjy4hd2xgrs",
+      "channel": "NeetCode",
+      "title": "Coin Change 2 - Dynamic Programming Unbounded Knapsack - Leetcode 518 - Python",
+      "segments": [
+        {
+          "startSeconds": 145,
+          "endSeconds": 357,
+          "label": "Brute force explained"
+        },
+        {
+          "startSeconds": 357,
+          "endSeconds": 532,
+          "label": "Memoization explained"
+        },
+        {
+          "startSeconds": 532,
+          "endSeconds": 820,
+          "label": "Naive DP explained"
+        },
+        {
+          "startSeconds": 820,
+          "endSeconds": 1095,
+          "label": "Optimal space DP explained"
+        },
+        {
+          "startSeconds": 1095,
+          "endSeconds": 1210,
+          "label": "Memoization code"
+        },
+        {
+          "startSeconds": 1210,
+          "endSeconds": 1340,
+          "label": "O(n*m) space DP"
+        },
+        {
+          "startSeconds": 1340,
+          "endSeconds": 1399,
+          "label": "O(n) space DP"
+        }
+      ],
+      "concept": "Unbounded knapsack over amounts",
+      "referenceProblem": "Coin Change II (LeetCode 518)",
+      "bridge": "The video's reference problem counts the combinations of coins that make an amount when each value has an unlimited supply, building answers from smaller amounts. Fewest Tokens has the same unlimited supply but asks for the smallest number of tokens, so each entry stores a minimum instead of a number of ways. The reference problem is about unordered combinations, whereas for a minimum only the count of tokens matters. Decide how to represent an amount that cannot be formed so that it is reported as -1, and note that the amount 0 needs zero tokens."
+    },
+    {
+      "problemSlug": "charging-hops",
+      "youtubeId": "dJ7sWiOoK7g",
+      "channel": "NeetCode",
+      "title": "Jump Game II - Greedy - Leetcode 45 - Python",
+      "segments": [
+        {
+          "startSeconds": 126,
+          "endSeconds": 425,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 425,
+          "endSeconds": 718,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Greedy reach along an array of jump lengths",
+      "referenceProblem": "Jump Game II (LeetCode 45)",
+      "bridge": "The video's reference problem also gives, for each position, how far you can jump forward, and its title names a greedy approach. There the task is the fewest jumps. Here you only need a yes or no: can the scooter reach the last station at all? A range of 0 can leave the scooter stuck short of the end, so decide how to detect that from the farthest station reached so far. A road with a single station is already reachable."
+    },
+    {
+      "problemSlug": "middle-car",
+      "youtubeId": "gBTe7lFR3vc",
+      "channel": "NeetCode",
+      "title": "Linked List Cycle - Floyd's Tortoise and Hare - Leetcode 141 - Python",
+      "segments": [
+        {
+          "startSeconds": 214,
+          "endSeconds": 562,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 562,
+          "endSeconds": 643,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Fast and slow pointers on a linked chain",
+      "referenceProblem": "Linked List Cycle (LeetCode 141)",
+      "bridge": "The video moves two pointers along a linked list at different speeds. The same pair finds the middle car: when the faster pointer, moving two cars at a time, runs off the end of the chain, the slower pointer, moving one car at a time, is at the middle. The video looks for a loop; your chain always ends at -1 and visits every car exactly once, so the stopping condition is the end of the chain rather than the pointers meeting. Check the even-length rule, since you want the second of the two middle cars, which depends on exactly when you stop."
+    },
+    {
+      "problemSlug": "chain-loop-start",
+      "youtubeId": "gBTe7lFR3vc",
+      "channel": "NeetCode",
+      "title": "Linked List Cycle - Floyd's Tortoise and Hare - Leetcode 141 - Python",
+      "segments": [
+        {
+          "startSeconds": 214,
+          "endSeconds": 562,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 562,
+          "endSeconds": 643,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Fast and slow pointers on a linked chain",
+      "referenceProblem": "Linked List Cycle (LeetCode 141)",
+      "bridge": "This problem is a close variant of the video's example: the chain is a linked list where next[i] is the link, and the first question, whether the chain ends at -1 or loops forever, is the one the video's pointers answer. What you must adapt is the result: the video's reference problem only asks whether a loop exists, while you return the index of the first station on the loop, or -1 when the chain ends, including when head is -1. The place where the two pointers meet is not in general the start of the loop, so think about how to find the start from there while keeping constant extra memory."
+    },
+    {
+      "problemSlug": "bake-batches",
+      "youtubeId": "U2SozAs9RzA",
+      "channel": "NeetCode",
+      "title": "Koko Eating Bananas - Binary Search - Leetcode 875 - Python",
+      "segments": [
+        {
+          "startSeconds": 100,
+          "endSeconds": 415,
+          "label": "Intuition"
+        },
+        {
+          "startSeconds": 415,
+          "endSeconds": 775,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 775,
+          "endSeconds": 912,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Binary search on the answer",
+      "referenceProblem": "Koko Eating Bananas (LeetCode 875)",
+      "bridge": "The video does not search through the input but through the possible answers: pick a candidate eating speed, check whether it is fast enough, and narrow the range accordingly. Here the unknown is the oven capacity, and the check is different: the trays must stay in order and go into consecutive blocks, so for a candidate capacity you walk through the trays, start a new day when the next tray would overflow, and compare the days used with days. Think about the range to search: the capacity cannot be smaller than the heaviest tray and never needs to exceed the total weight."
+    },
+    {
+      "problemSlug": "lit-panels",
+      "youtubeId": "5Km3utixwZs",
+      "channel": "NeetCode",
+      "title": "Number of 1 Bits - Leetcode 191 - Python",
+      "segments": [
+        {
+          "startSeconds": 70,
+          "endSeconds": 273,
+          "label": "Explain solution 1"
+        },
+        {
+          "startSeconds": 273,
+          "endSeconds": 340,
+          "label": "Coding solution 1"
+        },
+        {
+          "startSeconds": 340,
+          "endSeconds": 663,
+          "label": "Explain solution 2"
+        },
+        {
+          "startSeconds": 663,
+          "endSeconds": 718,
+          "label": "Coding solution 2"
+        }
+      ],
+      "concept": "Counting set bits",
+      "referenceProblem": "Number of 1 Bits (LeetCode 191)",
+      "bridge": "The video counts the 1 bits of a single number, and its chapters present two different solutions. Your board needs that count for every number from 0 through count, so applying a per-number count to each one works, but you can also reuse answers you have already computed for smaller numbers. Look at how the count for a number relates to the count for the number you get by dropping its lowest bit. Remember that entry 0 is 0 and the array has count + 1 entries."
+    },
+    {
+      "problemSlug": "signal-flips",
+      "youtubeId": "5Km3utixwZs",
+      "channel": "NeetCode",
+      "title": "Number of 1 Bits - Leetcode 191 - Python",
+      "segments": [
+        {
+          "startSeconds": 70,
+          "endSeconds": 273,
+          "label": "Explain solution 1"
+        },
+        {
+          "startSeconds": 273,
+          "endSeconds": 340,
+          "label": "Coding solution 1"
+        },
+        {
+          "startSeconds": 340,
+          "endSeconds": 663,
+          "label": "Explain solution 2"
+        },
+        {
+          "startSeconds": 663,
+          "endSeconds": 718,
+          "label": "Coding solution 2"
+        }
+      ],
+      "concept": "Counting set bits",
+      "referenceProblem": "Number of 1 Bits (LeetCode 191)",
+      "bridge": "The video counts how many bits of one number are 1. The toggles to flip between a and b are exactly the bit positions where the two numbers differ, so the task reduces to producing one number whose 1 bits mark those positions and then counting its 1 bits as in the video. Ask which bitwise operation turns a position where the bits differ into 1 and a position where they agree into 0. Equal inputs give 0 flips."
+    },
+    {
+      "problemSlug": "popularity-cache",
+      "youtubeId": "7ABFKPK2hD4",
+      "channel": "NeetCode",
+      "title": "LRU Cache - Twitch Interview Question - Leetcode 146",
+      "segments": [
+        {
+          "startSeconds": 120,
+          "endSeconds": 450,
+          "label": "Drawing solution"
+        },
+        {
+          "startSeconds": 450,
+          "endSeconds": 1069,
+          "label": "Coding solution"
+        }
+      ],
+      "concept": "Cache design with an eviction order",
+      "referenceProblem": "LRU Cache (LeetCode 146)",
+      "bridge": "The video designs a cache of fixed capacity that evicts the least recently used key and keeps both get and put fast. Yours also evicts when full, but the first rule is the use count: the least frequently used key goes, and only among keys tied on the lowest count does the recency rule from the video decide. Both a get of a present key and every put, including an update of an existing key, count as a use, so you need to keep track of each key's count and, per count, the order in which keys were used, plus a way to know the lowest count."
+    },
+    {
+      "problemSlug": "splice-cables",
+      "youtubeId": "B-QCq79-Vfw",
+      "channel": "NeetCode",
+      "title": "Last Stone Weight - Priority Queue - Leetcode 1046 - Python",
+      "segments": [
+        {
+          "startSeconds": 112,
+          "endSeconds": 439,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 439,
+          "endSeconds": 757,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Priority queue that repeatedly combines two items",
+      "referenceProblem": "Last Stone Weight (LeetCode 1046)",
+      "bridge": "The video keeps its items in a priority queue, repeatedly takes two of them out, combines them and puts a result back. Your crew also repeatedly takes two pieces and puts one combined piece back, but the rule differs: you must decide which two pieces to take so that the total labor stays as small as possible, and instead of keeping only a leftover you add a + b to a running total each time you join. No pieces or a single piece costs nothing, so check that your loop condition handles those cases."
+    },
+    {
+      "problemSlug": "nested-crates",
+      "youtubeId": "cjWnW0hdF1Y",
+      "channel": "NeetCode",
+      "title": "Longest Increasing Subsequence - Dynamic Programming - Leetcode 300",
+      "segments": [
+        {
+          "startSeconds": 105,
+          "endSeconds": 178,
+          "label": "Brute force solution"
+        },
+        {
+          "startSeconds": 178,
+          "endSeconds": 655,
+          "label": "DFS solution"
+        },
+        {
+          "startSeconds": 655,
+          "endSeconds": 935,
+          "label": "Dynamic programming solution"
+        },
+        {
+          "startSeconds": 935,
+          "endSeconds": 1093,
+          "label": "Coding solution"
+        }
+      ],
+      "concept": "Longest increasing subsequence",
+      "referenceProblem": "Longest Increasing Subsequence (LeetCode 300)",
+      "bridge": "The video finds the longest strictly increasing subsequence of one list of numbers. A crate has two dimensions, so the first step is to order the crates so that the question becomes an increasing subsequence in one dimension, for example by width and then looking at heights. Strictness matters in both dimensions: crates with the same width can never nest, so decide how to order crates of equal width so that two of them cannot both end up in one increasing chain of heights. With up to 10000 crates, check the time limit against the approach you pick."
+    },
+    {
+      "problemSlug": "mirror-cuts",
+      "youtubeId": "3jvWodd7ht0",
+      "channel": "NeetCode",
+      "title": "Palindrome Partitioning - Backtracking - Leetcode 131",
+      "segments": [
+        {
+          "startSeconds": 100,
+          "endSeconds": 360,
+          "label": "Drawing explanation"
+        },
+        {
+          "startSeconds": 360,
+          "endSeconds": 623,
+          "label": "Coding explanation"
+        }
+      ],
+      "concept": "Palindrome partitioning",
+      "referenceProblem": "Palindrome Partitioning (LeetCode 131)",
+      "bridge": "The video cuts a string into pieces that are all palindromes, trying each possible first piece and continuing with the rest of the string. You want only the smallest number of cuts rather than every way to split, and the text can be 2000 letters long, so listing every split is too slow. What carries over is testing whether a stretch of the text is a palindrome and choosing where the next piece ends. Think about how to remember the best result for each position so that nothing is recomputed, and how to avoid testing the same stretch repeatedly."
+    },
+    {
+      "problemSlug": "pattern-gate",
+      "youtubeId": "HAA8mgxlov8",
+      "channel": "NeetCode",
+      "title": "Regular Expression Matching - Dynamic Programming Top-Down Memoization - Leetcode 10",
+      "segments": [
+        {
+          "startSeconds": 235,
+          "endSeconds": 1140,
+          "label": "Drawing solution"
+        },
+        {
+          "startSeconds": 1140,
+          "endSeconds": 1675,
+          "label": "Coding solution"
+        }
+      ],
+      "concept": "Dynamic programming over text and pattern positions",
+      "referenceProblem": "Regular Expression Matching (LeetCode 10)",
+      "bridge": "The video matches a text against a pattern using dynamic programming over positions in both, where in its reference problem . matches any single character and * repeats the element before it. Your pattern language differs: ? matches any one letter, as . does there, but * stands alone and matches any run of letters, including an empty run, instead of modifying the preceding letter. The transitions for * therefore have to be rewritten. The whole text must be matched by the whole pattern, so check empty text and patterns made only of *."
+    }
+  ]
+}

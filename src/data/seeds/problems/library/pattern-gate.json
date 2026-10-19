@@ -179,7 +179,7 @@
       "pseudocode": "go(i, j): if j == |p|: return i == |t|\n  if p[j] == '*': return any(go(k, j+1) for k in i..|t|)\n  return i < |t| and (p[j] == '?' or p[j] == t[i]) and go(i+1, j+1)",
       "code": "function patternGate(text, pattern) {\n  const go = (i, j) => {\n    if (j === pattern.length) return i === text.length;\n    if (pattern[j] === '*') {\n      for (let k = i; k <= text.length; k++) if (go(k, j + 1)) return true;\n      return false;\n    }\n    return i < text.length && (pattern[j] === '?' || pattern[j] === text[i]) && go(i + 1, j + 1);\n  };\n  return go(0, 0);\n}",
       "timeComplexity": "Exponential in the number of stars",
-      "spaceComplexity": "O(|t| + |p|) recursion",
+      "spaceComplexity": "O(|p|) recursion depth (at most |p| + 1 frames)",
       "commonMistakes": [
         "Letting '?' match an empty run.",
         "Returning true when the pattern ends but text remains."

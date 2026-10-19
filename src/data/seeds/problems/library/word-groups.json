@@ -291,7 +291,7 @@
       "approach": "For each word compute its sorted letters and push it to that key's list in a Map. Sort each list, then sort the lists by their first word.",
       "pseudocode": "groups = map; for w: groups[sorted(w)].push(w)\nreturn sort(groups.values with each sorted) by first word",
       "code": "function wordGroups(words) {\n  const groups = new Map();\n  for (const word of words) {\n    const key = [...word].sort().join('');\n    if (!groups.has(key)) groups.set(key, []);\n    groups.get(key).push(word);\n  }\n  const result = [...groups.values()].map((g) => g.sort());\n  return result.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));\n}",
-      "timeComplexity": "O(n · L log L + n log n)",
+      "timeComplexity": "O(n * L log L + n * L log n)",
       "spaceComplexity": "O(n · L)",
       "commonMistakes": [
         "Using an object with a key like 'constructor' unguarded; a Map avoids prototype keys.",

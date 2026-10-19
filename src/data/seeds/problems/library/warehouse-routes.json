@@ -55,11 +55,11 @@
   "hints": [
     {
       "position": 1,
-      "content": "Every route into a cell arrives either from the cell above or from the cell to the left."
+      "content": "Look at the very last step of any route into a cell. Which cells could that step have started from?"
     },
     {
       "position": 2,
-      "content": "So routes(r, c) = routes(r - 1, c) + routes(r, c - 1) for an open cell, and 0 for a shelf."
+      "content": "A cell can only be entered from the cell above or from the cell to its left, and a shelf can never be entered. How could the route counts of those two cells help you count the routes into this one?"
     },
     {
       "position": 3,

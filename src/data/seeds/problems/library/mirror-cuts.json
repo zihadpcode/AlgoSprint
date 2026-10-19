@@ -51,7 +51,7 @@
     },
     {
       "position": 2,
-      "content": "Let cuts[i] be the fewest cuts for the first i letters. If text[j..i) is a palindrome, cuts[i] can be cuts[j] + 1."
+      "content": "Let cuts[i] be the fewest cuts for the first i letters. In the best split of those letters, the last piece is a palindrome; what remains in front of it?"
     },
     {
       "position": 3,
