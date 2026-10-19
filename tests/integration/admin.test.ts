@@ -119,6 +119,24 @@ it("edits ordered roadmap placement with conflict tokens and preserves existing 
   await expect(seedRoadmaps(db, ROADMAPS)).rejects.toThrow(/seed conflict/);
   await lifecycle("quiet-badge", 1, "archive"); expect(await queryRoadmap(db, null, slug)).toBeNull();
 });
+it("refuses to publish a roadmap that includes a draft or archived problem, but allows it as a draft roadmap", async () => {
+  await seedRoadmaps(db, ROADMAPS); const slug = ROADMAPS[0].slug;
+  const stepSlug = ROADMAPS[0].steps[0].problemSlug;
+  const read = async () => (await queryAdminRoadmap(db, admin, slug))!;
+  const send = async (status: "DRAFT" | "PUBLISHED") => { const row = await read();
+    return writeAdmin(db, admin, { operation: "roadmap", slug, token: row.token, payload: JSON.stringify({ content: row.content, status }), reviewed: true }); };
+  await send("DRAFT");
+  for (const status of ["DRAFT", "ARCHIVED"] as const) {
+    await db.problem.update({ where: { slug: stepSlug }, data: { status } });
+    await expect(send("PUBLISHED"), status).rejects.toThrow(/published roadmaps require published problems/);
+    expect((await db.roadmap.findUniqueOrThrow({ where: { slug } })).status, `${status} leaves the roadmap unpublished`).toBe("DRAFT");
+    expect(await queryRoadmap(db, null, slug)).toBeNull();
+    await send("DRAFT");
+  }
+  await db.problem.update({ where: { slug: stepSlug }, data: { status: "PUBLISHED" } });
+  await send("PUBLISHED");
+  expect((await db.roadmap.findUniqueOrThrow({ where: { slug } })).status).toBe("PUBLISHED");
+});
 it("protects runner contracts and rejects reserved slugs before writing", async () => {
   const p = structuredClone(seeds.find((x) => x.slug === "relay-window")!); p.testCases[0].output = 9999999;
   await expect(save(p, 1, true)).rejects.toThrow(/expected output/);

@@ -26,6 +26,11 @@ describe("auth actions", () => {
   it("supports immediate sessions only when returned by the provider", async () => {
     f.signUp.mockResolvedValue({ data: { session: { access_token: "private" } }, error: null }); await expect(register({}, form())).rejects.toThrow("REDIRECT:/dashboard");
   });
+  it("limits post-registration navigation to known local destinations", async () => {
+    f.signUp.mockResolvedValue({ data: { session: { access_token: "private" } }, error: null });
+    for (const next of ["//evil.test", "https://evil.test", "/\\evil.test", "javascript:alert(1)", "/admin/../../evil"]) await expect(register({}, form({ next })), next).rejects.toThrow("REDIRECT:/dashboard");
+    await expect(register({}, form({ next: "/problems/relay-window" }))).rejects.toThrow("REDIRECT:/problems/relay-window");
+  });
   it("does not report successful logout if revocation fails", async () => {
     f.signOut.mockResolvedValue({ error: { status: 503 } }); await expect(logout()).rejects.toThrow("Could not sign out"); expect(f.revalidate).not.toHaveBeenCalled();
     f.signOut.mockResolvedValue({ error: null }); await expect(logout()).rejects.toThrow("REDIRECT:/login?signedOut=1"); expect(f.signOut).toHaveBeenCalledWith({ scope: "local" });

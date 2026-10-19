@@ -38,3 +38,12 @@ it("rejects invalid flow identifiers without falling back to another verifier", 
   }
   expect(f.exchange).not.toHaveBeenCalled();
 });
+it("does not exchange an oversized code", async () => {
+  f.exchange.mockResolvedValue({ error: null });
+  const long = await GET(new NextRequest(`https://learn.example.com/auth/callback?code=${"a".repeat(2049)}`));
+  expect(long.headers.get("location")).toBe("https://learn.example.com/login?confirmation=failed");
+  expect(f.exchange).not.toHaveBeenCalled();
+  const limit = await GET(new NextRequest(`https://learn.example.com/auth/callback?code=${"a".repeat(2048)}`));
+  expect(limit.headers.get("location")).toBe("https://learn.example.com/dashboard");
+  expect(f.exchange).toHaveBeenCalledTimes(1);
+});

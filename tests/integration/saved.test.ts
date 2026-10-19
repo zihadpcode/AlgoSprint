@@ -109,3 +109,29 @@ it("searches saved titles literally: percent, underscore and backslash are not w
     await db.userNote.deleteMany({ where: { userId: users[0] } });
   }
 });
+
+it("deleting or clearing a note never touches another owner's note on the same problem", async () => {
+  for (const removal of ["delete-note", "save-empty"] as const) {
+    await db.userNote.deleteMany({ where: { userId: { in: users } } });
+    await save("A-KEEP"); await save("B-GONE", "", users[1]);
+    const change = removal === "delete-note"
+      ? { slug, operation: "delete-note" as const, expectedContent: "B-GONE" }
+      : { slug, operation: "save-note" as const, content: "", expectedContent: "B-GONE" };
+    expect(await writeProblemChange(db, users[1], change), removal).toBe("saved");
+    expect(await db.userNote.findUnique({ where: { userId_problemId: { userId: users[1], problemId } } }), `${removal} removes the caller's note`).toBeNull();
+    expect((await db.userNote.findUniqueOrThrow({ where: { userId_problemId: { userId: users[0], problemId } } })).content, `${removal} keeps the other owner's note`).toBe("A-KEEP");
+  }
+});
+it("lists only the caller's own notes, rows and note text when two users share problems", async () => {
+  const [other] = await db.problem.findMany({ where: { slug: { in: extras.slice(0, 2) } }, orderBy: { slug: "asc" } });
+  const second = await db.problem.findUniqueOrThrow({ where: { slug: extras[1] } });
+  await db.userNote.createMany({ data: [
+    { userId: users[0], problemId, content: "A-SHARED" }, { userId: users[1], problemId, content: "B-SHARED" },
+    { userId: users[0], problemId: other.id, content: "A-ONLY" }, { userId: users[1], problemId: second.id, content: "B-ONLY" },
+  ] });
+  const a = await querySaved(db, users[0], "notes", filters); const b = await querySaved(db, users[1], "notes", filters);
+  expect(a.items.map((item) => [item.slug, item.note]).sort()).toEqual([[extras[0], "A-ONLY"], [slug, "A-SHARED"]].sort());
+  expect(b.items.map((item) => [item.slug, item.note]).sort()).toEqual([[extras[1], "B-ONLY"], [slug, "B-SHARED"]].sort());
+  expect(a.total).toBe(2); expect(b.total).toBe(2);
+  expect(JSON.stringify(a)).not.toContain("B-"); expect(JSON.stringify(b)).not.toContain("A-");
+});

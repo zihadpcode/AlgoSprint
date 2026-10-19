@@ -27,6 +27,20 @@ it("selects distinct matching published questions and hides reference content un
   await writeInterview(db, owner, { operation: "finish", id: result.id });
   expect((await queryInterview(db, owner, result.id!))!.questions.every((q) => q.reference)).toBe(true);
 });
+it("offers only published coding problems: with all but two unpublished, exactly those two are selectable", async () => {
+  const keep = ["relay-window", "quiet-badge"];
+  const others = slugs.filter((slug) => !keep.includes(slug));
+  expect(others.length).toBeGreaterThan(3);
+  await db.problem.updateMany({ where: { slug: { in: others.slice(0, 2) } }, data: { status: "ARCHIVED" } });
+  await db.problem.updateMany({ where: { slug: { in: others.slice(2) } }, data: { status: "DRAFT" } });
+  // Counting every unpublished row as a candidate would let this request through the pool-size check.
+  await expect(start({ count: 3 })).rejects.toThrow(/Only 2 matching/);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const result = await start({ count: 2 }); const view = (await queryInterview(db, owner, result.id!))!;
+    expect(view.questions.map((q) => q.prompt.slug).sort()).toEqual([...keep].sort());
+    await writeInterview(db, owner, { operation: "abandon", id: result.id });
+  }
+});
 it("enforces ownership for reads, writes and reports, even for another admin", async () => {
   const result = await start(); expect(await queryInterview(db, stranger, result.id!)).toBeNull(); expect(await queryInterviews(db, stranger)).toEqual([]);
   await expect(writeInterview(db, stranger, { operation: "finish", id: result.id })).rejects.toThrow(/unavailable/);
