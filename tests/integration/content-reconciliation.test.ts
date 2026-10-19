@@ -143,3 +143,35 @@ it("respects existing parent runner locks and administrator advisory order witho
     }
   } finally { await blocker.end(); }
 }, 30_000);
+it("rejects a child inserted while waiting for the administrator advisory lock", async () => {
+  const blocker = new Client({ connectionString: process.env.TEST_DATABASE_URL! }); await blocker.connect();
+  const helperPid = (await client.query<{ pid: number }>("SELECT pg_backend_pid() AS pid")).rows[0].pid;
+  const blockerPid = (await blocker.query<{ pid: number }>("SELECT pg_backend_pid() AS pid")).rows[0].pid;
+  let waiting!: () => void; const dispatched = new Promise<void>((resolve) => { waiting = resolve; });
+  const original = client.query.bind(client); const proxy = Object.create(client) as Client;
+  proxy.query = ((sql: string, values?: unknown[]) => {
+    const result = original(sql, values);
+    if (sql === "SELECT pg_advisory_xact_lock(713013::bigint)") waiting();
+    return result;
+  }) as Client["query"];
+  let outcome: Promise<{ value?: unknown; error?: unknown }> | undefined;
+  try {
+    await blocker.query("BEGIN"); await blocker.query("SELECT pg_advisory_xact_lock(713013::bigint)");
+    outcome = reconcileContent(proxy, baseline).then((value) => ({ value }), (error) => ({ error }));
+    await dispatched;
+    const endsAt = Date.now() + 300; let blocked = false;
+    while (Date.now() < endsAt) {
+      const pids = (await blocker.query<{ pids: number[] }>("SELECT pg_blocking_pids($1::int) AS pids", [helperPid])).rows[0].pids;
+      if (pids.includes(blockerPid)) { blocked = true; break; }
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+    expect(blocked).toBe(true);
+    await blocker.query(`INSERT INTO app."ProblemSolution"
+      SELECT (jsonb_populate_record(NULL::app."ProblemSolution", to_jsonb(s) || jsonb_build_object('id',gen_random_uuid(),'language','PYTHON'))).*
+      FROM app."ProblemSolution" s JOIN app."Problem" p ON p.id=s."problemId" WHERE p.slug='dock-threshold' AND s.kind='OPTIMAL' AND s.language='JAVASCRIPT'`);
+    await blocker.query("COMMIT"); const before = await appState(); const result = await outcome;
+    expect(result.error).toBeInstanceOf(Error);
+    expect((result.error as Error).message).toContain("content or child-ID shape drift");
+    expect(await appState()).toEqual(before);
+  } finally { await blocker.query("ROLLBACK"); await outcome; await blocker.end(); }
+}, 30_000);

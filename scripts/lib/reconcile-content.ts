@@ -54,7 +54,7 @@ async function localOnly(db: Client) {
 }
 async function begin(db: Client, readOnly = false) {
   await localOnly(db);
-  await db.query(`BEGIN ISOLATION LEVEL REPEATABLE READ${readOnly ? " READ ONLY" : ""}`);
+  await db.query(readOnly ? "BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY" : "BEGIN ISOLATION LEVEL READ COMMITTED");
   try {
     await db.query("SET LOCAL TIME ZONE 'UTC'");
     await db.query("SET LOCAL lock_timeout='500ms'");
@@ -159,6 +159,11 @@ export async function reconcileContent(db: Client, baseline: ContentBaseline) {
   try {
     await assertJobTimestamp(db, baseline.appliedAt, targetRows(baseline.content, plan));
     await db.query("SELECT pg_advisory_xact_lock(713013::bigint)"); await db.query("SELECT pg_advisory_xact_lock(712012::bigint)");
+    // READ COMMITTED sees writers that committed while the advisory locks were
+    // pending. Freeze the complete public content before reading its shape;
+    // parent/child row locks alone do not exclude every insert phantom under an
+    // already-established REPEATABLE READ snapshot.
+    await db.query(`LOCK TABLE ${[...PUBLIC_TABLES].sort().map((table) => `app."${table}"`).join(", ")} IN SHARE ROW EXCLUSIVE MODE`);
     const ids = batches.map((batch) => String(batch.patches.at(-1)!.old.id));
     const locked = await db.query('SELECT id FROM app."Problem" WHERE id=ANY($1::uuid[]) ORDER BY id FOR UPDATE', [ids]);
     if (locked.rowCount !== 24) fail("target IDs changed");
