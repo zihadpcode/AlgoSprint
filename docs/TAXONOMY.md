@@ -70,3 +70,24 @@ the library still shows the flat list because no category has a parent.
 Future groups are expected for **system design**, **programming languages** (other languages) and **data tools**. They
 are not in `CATEGORY_GROUPS` today and nothing in the schema is specific to them: they are new groups with new leaves,
 added with the steps above.
+
+## Hierarchy writes require READ COMMITTED
+
+The one-level trigger (`Category_one_level_trigger`) serialises parent changes with an advisory lock and then re-checks
+the hierarchy. Those checks require a snapshot that includes the previous lock holder's commit. READ COMMITTED (the
+PostgreSQL default) provides fresh snapshots inside the trigger; REPEATABLE READ and SERIALIZABLE retain the
+transaction's older snapshot. The trigger refuses to validate using that older snapshot: it raises
+`invalid_transaction_state` (SQLSTATE 25000) when a triggered write has a non-NULL `parentId` or changes a category ID.
+The error is not retryable at the same isolation level; run the write in READ COMMITTED. Metadata-only writes and
+top-level inserts remain available at every isolation level.
+
+ID changes take the same advisory lock even for top-level rows: otherwise a renamed child could appear between another
+writer's hierarchy check and its foreign-key check. Valid READ COMMITTED ID changes keep the existing ON UPDATE CASCADE
+behavior. `seedCategoryGroups` requests READ COMMITTED explicitly; other callers that change the hierarchy or IDs must
+use it too. The follow-up guard changes enforcement; it does not repair any invalid tree already present, so deployment
+preflight must check for existing second-level rows.
+
+`tests/integration/category-concurrency.test.ts` forces the parent-ID visibility gap with separate PostgreSQL connections
+and explicit lock barriers. It also checks concurrent parent creation, ID cascades, rejected group moves, and isolation
+restrictions. `tests/integration/categories.test.ts` covers concurrent nesting and preserves external placements,
+positions, and deletions during seeding, including rollback of earlier seed writes on conflict.
