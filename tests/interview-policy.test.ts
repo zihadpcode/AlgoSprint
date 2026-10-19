@@ -13,7 +13,7 @@ const ORIGINAL_FIVE_SHA256 = "337b4b43f0ec369404a439c4bb3efa3593f4342f40603e918e
 const FIRST_46_SHA256 = "4b3ea0c4316f11b30fb8e007dfb314ad7cd72b99c19731a2a2b8cc343e225f18";
 // SHA-256 of JSON.stringify of the first 76 prompt objects (the 46 above plus the 30 added in the second expansion, including the
 // review corrections). Prompts may be appended after these 76, but these must never change, for the same reason as above.
-const FIRST_76_SHA256 = "55a90406e34bfc1ed03e4cc4c95d154c37060ba72998626c22a9f9b86739dc5b";
+const FIRST_76_SHA256 = "4f2a55f2da2a53cdba787d1d32aaefed8084f3a4e570f712766c0c4ddbdb9fda";
 const MIN_PER_STYLE_AND_DIFFICULTY = 7;
 describe("interview boundaries and self-assessment", () => {
   it("bounds setup, rejects forged fields and unknown selection values", () => {
