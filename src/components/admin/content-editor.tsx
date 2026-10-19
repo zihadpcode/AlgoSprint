@@ -47,21 +47,21 @@ export function ContentEditor({ kind, initial, slug, revision: initialRevision, 
         { operation: "roadmap", slug: slug!, token, payload: JSON.stringify({ content, status }), reviewed });
     } catch (error) { setResult({ success: false, message: error instanceof Error ? error.message : "Check the draft." }); }
   }
-  return <div className="space-y-6">
-    <p className="text-sm leading-7 text-muted">Save explicitly before leaving. All required content must be complete, even for a draft. Input and expected-output boxes use JSON; code is stored as text. {kind === "problem" && (executable
+  return <div className="max-w-4xl space-y-6">
+    <p className="rounded-xl border border-line bg-surface p-4 text-sm leading-6 text-muted">Save explicitly before leaving. All required content must be complete, even for a draft. Input and expected-output boxes use JSON; code is stored as text. {kind === "problem" && (executable
       ? `This slug is registered with the JavaScript runner, so submissions execute here: keep at most ${RUNNER_LIMITS.maxCases} test cases, a time limit at or below ${RUNNER_LIMITS.maxTimeMs} ms and a memory limit at or below ${RUNNER_LIMITS.maxMemoryKb} KB. Starter code must include a reviewed JavaScript entry.`
       : "This slug is not registered with the runner, so the problem is study-only. Authoring stays flexible — a reviewed JavaScript signature is required before submissions can execute. Starter code alone does not make a problem executable.")}</p>
     <form onSubmit={save} className="space-y-6"><fieldset disabled={pending} className="min-w-0 space-y-6">
       <ContentFields fields={fields} value={draft} immutableSlug={Boolean(slug)} onChange={(next) => { setDraft(next); setReviewed(false); }} />
-      {kind === "roadmap" && <label className="block space-y-2"><span>Publication status</span><Select value={status} onChange={(e) => { setStatus(e.target.value); setReviewed(false); }}>{["DRAFT", "PUBLISHED", "ARCHIVED"].map((s) => <option key={s}>{s}</option>)}</Select></label>}
-      <label className="flex items-start gap-3 text-sm leading-7"><input type="checkbox" className="mt-2" checked={reviewed} onChange={(e) => setReviewed(e.target.checked)} />I reviewed the originality, wording, sequence, examples and expected outputs. Required when saving published content.</label>
+      {kind === "roadmap" && <label className="block space-y-1.5"><span className="text-sm font-medium">Publication status</span><Select value={status} onChange={(e) => { setStatus(e.target.value); setReviewed(false); }}>{["DRAFT", "PUBLISHED", "ARCHIVED"].map((s) => <option key={s}>{s}</option>)}</Select></label>}
+      <label className="flex items-start gap-3 text-sm leading-6"><input type="checkbox" className="mt-1 size-4 accent-[var(--color-accent-solid)]" checked={reviewed} onChange={(e) => setReviewed(e.target.checked)} />I reviewed the originality, wording, sequence, examples and expected outputs. Required when saving published content.</label>
       <div className="flex flex-wrap gap-3"><Button type="submit">{pending ? "Saving…" : "Save content"}</Button><ButtonLink href="/admin" variant="secondary">Back to manager</ButtonLink></div>
     </fieldset></form>
-    {result && <div role={result.success ? "status" : "alert"} className="rounded-xl border border-line p-4 text-sm leading-7"><p>{result.message}</p>{result.errors && <ul className="mt-3 list-disc pl-5">{result.errors.map((error, i) => <li key={i}>{error}</li>)}</ul>}</div>}
-    {kind === "problem" && slug && revision && <fieldset disabled={pending || dirty} className="min-w-0 space-y-4 rounded-xl border border-line p-5">
-      <legend className="px-2 font-semibold">Archive or safely delete</legend>
+    {result && <div role={result.success ? "status" : "alert"} className={`rounded-xl border p-4 text-sm leading-6 ${result.success ? "border-success/30 bg-success/10" : "border-danger/30 bg-danger/10"}`}><p>{result.message}</p>{result.errors && <ul className="mt-3 list-disc pl-5">{result.errors.map((error, i) => <li key={i}>{error}</li>)}</ul>}</div>}
+    {kind === "problem" && slug && revision && <fieldset disabled={pending || dirty} className="min-w-0 space-y-4 rounded-xl border border-danger/30 bg-danger/5 p-5">
+      <legend className="px-2 text-sm font-semibold">Archive or safely delete</legend>
       <p className="text-sm leading-7 text-muted">Archive hides the problem and any roadmap containing it, preserving history. Deletion is permanent and allowed only after archiving, with no user history or references. Save unsaved changes first.</p>
-      <label className="block space-y-2"><span className="text-sm">Type {slug} to confirm</span><Input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} autoComplete="off" /></label>
+      <label className="block space-y-1.5"><span className="text-sm">Type {slug} to confirm</span><Input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} autoComplete="off" /></label>
       <div className="flex flex-wrap gap-3"><Button variant="secondary" disabled={confirmation !== slug || draft.status === "ARCHIVED"} onClick={() => send({ operation: "archive", slug, revision, confirmation })}>Archive problem</Button>
         <Button variant="danger" disabled={confirmation !== slug || draft.status !== "ARCHIVED"} onClick={() => send({ operation: "delete", slug, revision, confirmation })}>Permanently delete</Button></div>
     </fieldset>}

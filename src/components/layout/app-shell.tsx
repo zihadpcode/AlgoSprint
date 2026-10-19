@@ -1,27 +1,40 @@
-import type { ReactNode } from "react";
-import { Sparkles } from "lucide-react";
+import { Suspense, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { Brand } from "./brand";
-import { WorkspaceNav } from "./workspace-nav";
-import { ButtonLink } from "@/components/ui/button";
-import { SignOutForm } from "@/components/auth/sign-out-form";
+import { MobileNav, PrimaryLinks, SearchTrigger } from "./top-nav";
+import { GuestActions, ShellStatus, ShellStatusFallback } from "./shell-status";
 
-export function AppShell({ children, admin = false, signedIn = false }: { children: ReactNode; admin?: boolean; signedIn?: boolean }) {
-  return <div className="min-h-dvh">
-    <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-canvas focus:p-4">Skip to content</a>
-    <header className="border-b border-line bg-canvas"><div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8">
-      <Brand /><div className="flex items-center gap-6"><span className="hidden text-sm text-muted sm:block">Practice with purpose.</span>
-        {signedIn ? <SignOutForm /> : <ButtonLink href="/login" variant="secondary">Sign in</ButtonLink>}
-      </div>
-    </div></header>
-    <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[240px_minmax(0,1fr)]">
-      <aside className="min-w-0 border-b border-line bg-surface/40 px-4 py-3 lg:sticky lg:top-0 lg:flex lg:h-[calc(100dvh-81px)] lg:flex-col lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
-        <p className="eyebrow mb-4 hidden px-4 text-xs text-muted lg:block">Workspace</p>
-        <WorkspaceNav admin={admin} />
-        <div className="mt-auto hidden rounded-2xl border border-line bg-surface p-5 lg:block"><Sparkles aria-hidden="true" size={20} className="text-warm" /><p className="mt-3 text-sm font-medium">Keep one insight.</p><p className="mt-2 text-xs leading-6 text-muted">After each practice session, write down one thing you want to remember.</p></div>
-      </aside>
-      <div className="min-w-0"><main id="main-content" tabIndex={-1} className="px-5 py-8 sm:px-8 lg:p-10">{children}</main>
-        <footer className="px-5 pb-8 text-xs text-muted sm:px-8 lg:px-10">One problem. One insight. Another step forward.</footer>
+/** Global top bar: logo, primary navigation, Cmd/Ctrl+K search, streak/solved badge and profile menu. */
+export function TopBar({ signedIn = false, admin = false, wide = false }: { signedIn?: boolean; admin?: boolean; wide?: boolean }) {
+  return <header className="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur supports-[backdrop-filter]:bg-canvas/70">
+    <div className={cn("mx-auto flex h-14 items-center gap-3 px-4 sm:px-6", wide ? "max-w-none" : "max-w-[1400px]")}>
+      <MobileNav />
+      <Brand />
+      <span aria-hidden="true" className="mx-1 hidden h-5 w-px bg-line md:block" />
+      <PrimaryLinks />
+      <div className="ml-auto flex items-center gap-2">
+        <SearchTrigger />
+        {signedIn ? <Suspense fallback={<ShellStatusFallback />}><ShellStatus admin={admin} /></Suspense> : <GuestActions />}
       </div>
     </div>
+  </header>;
+}
+
+/**
+ * Page frame for every app page. `layout="workspace"` gives the problem IDE the full viewport width and height
+ * below the bar; the default centres page content.
+ */
+export function AppShell({ children, admin = false, signedIn = false, layout = "page" }: { children: ReactNode; admin?: boolean; signedIn?: boolean; layout?: "page" | "workspace" }) {
+  const workspace = layout === "workspace";
+  return <div className="flex min-h-dvh flex-col">
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:rounded-lg focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-sm">Skip to content</a>
+    <TopBar signedIn={signedIn} admin={admin} wide={workspace} />
+    <main id="main-content" tabIndex={-1} className={cn("min-w-0 flex-1 focus:outline-none", workspace ? "flex flex-col" : "mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8")}>{children}</main>
+    {!workspace && <footer className="border-t border-line">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs text-subtle sm:px-6">
+        <span>One problem. One insight. Another step forward.</span>
+        <span>Press <kbd className="rounded border border-line px-1 font-mono">/</kbd> or <kbd className="rounded border border-line px-1 font-mono">Ctrl K</kbd> to search</span>
+      </div>
+    </footer>}
   </div>;
 }

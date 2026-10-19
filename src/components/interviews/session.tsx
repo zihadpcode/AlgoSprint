@@ -4,8 +4,10 @@ import { DeviceDraftRecovery } from "@/components/drafts/device-draft-recovery";
 import { interviewDraftSchema, removeDeviceDraft } from "@/features/drafts/storage";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Select, Textarea } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Timer } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { interviewAction } from "@/features/interviews/actions";
 import { EMPTY_ANSWER, type InterviewAnswer, type SessionView } from "@/features/interviews/contracts";
 
@@ -67,29 +69,38 @@ export function InterviewSession({ session, draftOwner = null }: { session: Sess
     } catch { setMessage("Could not confirm the save. Copy your draft, then reload to check the saved version."); }
     finally { busy.current = false; setPending(false); }
   }
-  return <div className="space-y-6">
-    <Card><p className="text-lg font-semibold" role="timer" aria-label="Time remaining">{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")} remaining</p>
-      <p className="mt-2 text-sm text-muted">The timer continues when you leave. Save each answer before the deadline. References unlock when the session ends.</p>
-      {seconds === 0 && <p role="alert" className="mt-3 text-warm">Time is up. Copy any unsaved text if needed, then open the report. Only answers received before the server deadline count.</p>}
-      <p role="status" className="mt-3 text-sm">{message}</p>
-    </Card>
+  const low = seconds > 0 && seconds <= 300;
+  return <div className="space-y-5">
+    <div className="sticky top-14 z-30 -mx-4 border-b border-line bg-canvas/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <p role="timer" aria-label="Time remaining" className={cn("inline-flex h-9 items-center gap-2 rounded-lg border px-3 font-mono text-sm font-semibold tabular-nums", seconds === 0 ? "border-danger/40 bg-danger/10 text-danger" : low ? "border-warm/40 bg-warm/10 text-warm" : "border-line bg-surface text-ink")}>
+          <Timer aria-hidden="true" size={15} />{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")} remaining</p>
+        <p className="min-w-0 flex-1 text-xs leading-5 text-muted">The timer continues when you leave. Save each answer before the deadline. References unlock when the session ends.</p>
+      </div>
+      <p role="status" aria-live="polite" className="empty:hidden mt-2 text-sm">{message}</p>
+      {seconds === 0 && <p role="alert" className="mt-2 text-sm text-warm">Time is up. Copy any unsaved text if needed, then open the report. Only answers received before the server deadline count.</p>}
+    </div>
     <DeviceDraftRecovery scope={draftScope} value={JSON.stringify(drafts)} dirty={dirty} baseline={JSON.stringify(tokens)} disabled={pending || seconds === 0 || ended} onClear={clearDrafts} onRestore={(payload) => {
       const restored = interviewDraftSchema.safeParse(JSON.parse(payload));
       if (restored.success && restored.data.length === session.questions.length) setDrafts(restored.data);
     }} />
-    {session.questions.map((q, index) => <Card key={q.id}>
-      <p className="eyebrow text-xs text-muted">Question {q.position} · {q.kind.replaceAll("_", " ")}</p><h2 className="mt-3 text-xl font-semibold">{q.prompt.title}</h2>
-      <p className="mt-4 whitespace-pre-wrap text-sm leading-7">{q.prompt.statement}</p><pre className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-muted">{q.prompt.details}</pre>
-      <fieldset disabled={pending || seconds === 0 || ended} className="mt-5 space-y-5"><legend className="mb-3 font-semibold">Your explanation and self-assessment</legend>
+    {session.questions.map((q, index) => <section key={q.id} aria-labelledby={`${q.id}-title`} className="grid overflow-hidden rounded-xl border border-line bg-surface lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <div className="min-w-0 space-y-3 border-b border-line p-5 lg:border-r lg:border-b-0">
+        <div className="flex flex-wrap items-center gap-2"><Badge tone="accent">Question {q.position}</Badge><Badge>{q.kind.replaceAll("_", " ")}</Badge></div>
+        <h2 id={`${q.id}-title`} className="text-lg font-semibold tracking-tight">{q.prompt.title}</h2>
+        <p className="whitespace-pre-wrap text-sm leading-7">{q.prompt.statement}</p>
+        <pre className="whitespace-pre-wrap break-words rounded-lg border border-line bg-canvas p-3 text-xs leading-6 text-muted">{q.prompt.details}</pre>
+      </div>
+      <fieldset disabled={pending || seconds === 0 || ended} className="min-w-0 space-y-5 p-5"><legend className="sr-only">Your explanation and self-assessment</legend>
         <p className="text-sm text-muted">Write your answer, then rate each area honestly. Your score comes only from the three ratings; text without a rating cannot be saved.</p>
         {DIMENSIONS.map(([field, rating, label]) => <div key={field} className="space-y-2">
           <label htmlFor={`${q.id}-${field}`} className="block text-sm font-medium">{label}</label>
-          <textarea id={`${q.id}-${field}`} maxLength={4000} rows={5} className="w-full rounded-xl border border-line bg-canvas p-3 text-sm" value={drafts[index][field]} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [field]: e.target.value } : d))} />
-          <label className="block text-sm text-muted">Self-rating for {label.toLowerCase()}<Select value={drafts[index][rating] ?? ""} aria-invalid={Boolean(drafts[index][field].trim()) && drafts[index][rating] === null} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [rating]: e.target.value === "" ? null : Number(e.target.value) } : d))}><option value="">Choose a rating</option><option value="0">0 — Not yet explained</option><option value="1">1 — Partial explanation</option><option value="2">2 — Clear explanation with support</option></Select></label>
+          <Textarea id={`${q.id}-${field}`} maxLength={4000} rows={5} className="font-mono text-[0.8125rem]" value={drafts[index][field]} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [field]: e.target.value } : d))} />
+          <label className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted"><span>Self-rating for {label.toLowerCase()}</span><Select className="h-8 w-auto min-w-0 text-xs" value={drafts[index][rating] ?? ""} aria-invalid={Boolean(drafts[index][field].trim()) && drafts[index][rating] === null} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [rating]: e.target.value === "" ? null : Number(e.target.value) } : d))}><option value="">Choose a rating</option><option value="0">0 — Not yet explained</option><option value="1">1 — Partial explanation</option><option value="2">2 — Clear explanation with support</option></Select></label>
         </div>)}
-        <Button onClick={() => send("save", index)}>{pending ? "Working…" : "Save answer"}</Button><span className="ml-3 text-xs text-muted">{JSON.stringify(toAnswer(drafts[index])) === saved[index] ? "No unsaved changes" : "Unsaved changes"}</span>
+        <div className="flex flex-wrap items-center gap-3"><Button onClick={() => send("save", index)}>{pending ? "Working…" : "Save answer"}</Button><span className="text-xs text-muted">{JSON.stringify(toAnswer(drafts[index])) === saved[index] ? "No unsaved changes" : "Unsaved changes"}</span></div>
       </fieldset>
-    </Card>)}
-    <div className="flex flex-wrap gap-3"><Button disabled={pending} onClick={() => send("finish")}>{seconds === 0 ? "Open report" : "Finish and review"}</Button><Button disabled={pending} variant="secondary" onClick={() => send("abandon")}>Abandon session</Button></div>
+    </section>)}
+    <div className="flex flex-wrap gap-3"><Button size="lg" disabled={pending} onClick={() => send("finish")}>{seconds === 0 ? "Open report" : "Finish and review"}</Button><Button size="lg" disabled={pending} variant="secondary" onClick={() => send("abandon")}>Abandon session</Button></div>
   </div>;
 }

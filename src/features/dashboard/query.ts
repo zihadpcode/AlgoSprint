@@ -23,14 +23,7 @@ export async function queryDashboard(db: PrismaClient, userId: string, now = new
       select: { status: true, problemRevision: true, passedCount: true, totalCount: true, createdAt: true, completedAt: true,
         problem: { select: { slug: true, title: true, revision: true } } },
     });
-    // Distinct UTC days with saved practice: first attempts, solves, and every server run or submission. Only dates leave
-    // the database, so no problem, code or result data can reach this part of the dashboard.
-    const dayRows = await tx.$queryRaw<{ day: string }[]>`
-      SELECT to_char(d.day, 'YYYY-MM-DD') AS day FROM (
-        SELECT (s."createdAt" AT TIME ZONE 'UTC')::date AS day FROM app."UserSubmission" s WHERE s."userId" = ${userId}::uuid
-        UNION SELECT (p."attemptedAt" AT TIME ZONE 'UTC')::date FROM app."UserProgress" p WHERE p."userId" = ${userId}::uuid AND p."attemptedAt" IS NOT NULL
-        UNION SELECT (p."solvedAt" AT TIME ZONE 'UTC')::date FROM app."UserProgress" p WHERE p."userId" = ${userId}::uuid AND p."solvedAt" IS NOT NULL
-      ) d ORDER BY d.day DESC`;
+    const dayRows = await practiceDays(tx, userId);
     const interviews = await tx.mockInterview.findMany({ where: { userId, status: "COMPLETED", score: { not: null }, completedAt: { not: null } },
       orderBy: [{ completedAt: "desc" }, { id: "desc" }], take: 5, select: { id: true, score: true, durationMinutes: true, completedAt: true } });
     return { analytics: { overall, difficulty, categories }, insights: { ...suggestions,
@@ -45,3 +38,27 @@ export async function queryDashboard(db: PrismaClient, userId: string, now = new
   }, { isolationLevel: "RepeatableRead", timeout: 15_000 });
 }
 export type DashboardInsights = Awaited<ReturnType<typeof queryDashboard>>["insights"];
+
+type Reader = Pick<PrismaClient, "$queryRaw">;
+
+// Distinct UTC days with saved practice: first attempts, solves, and every server run or submission. Only dates leave
+// the database, so no problem, code or result data can reach the streak.
+function practiceDays(db: Reader, userId: string) {
+  return db.$queryRaw<{ day: string }[]>`
+    SELECT to_char(d.day, 'YYYY-MM-DD') AS day FROM (
+      SELECT (s."createdAt" AT TIME ZONE 'UTC')::date AS day FROM app."UserSubmission" s WHERE s."userId" = ${userId}::uuid
+      UNION SELECT (p."attemptedAt" AT TIME ZONE 'UTC')::date FROM app."UserProgress" p WHERE p."userId" = ${userId}::uuid AND p."attemptedAt" IS NOT NULL
+      UNION SELECT (p."solvedAt" AT TIME ZONE 'UTC')::date FROM app."UserProgress" p WHERE p."userId" = ${userId}::uuid AND p."solvedAt" IS NOT NULL
+    ) d ORDER BY d.day DESC`;
+}
+
+/** Small owner-scoped summary for the navigation bar: current streak and solved published problems. */
+export async function queryPracticeSummary(db: PrismaClient, userId: string, now = new Date()) {
+  if (!userId) throw new Error("Verified viewer required");
+  const [days, solved] = await Promise.all([
+    practiceDays(db, userId),
+    db.userProgress.count({ where: { userId, status: "SOLVED", problem: { status: "PUBLISHED" } } }),
+  ]);
+  const streak = practiceStreak(days.map((row) => row.day), now);
+  return { streak: streak.current, activeToday: streak.activeToday, solved };
+}

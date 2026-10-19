@@ -2,7 +2,7 @@ import "server-only";
 import { getViewer } from "@/features/auth/session";
 import { getDatabase } from "@/lib/prisma";
 import { roadmapSlug } from "@/lib/validators/roadmap";
-import { queryRoadmap, queryRoadmaps } from "./query";
+import { availableRoadmapExists, queryRoadmap, queryRoadmaps } from "./query";
 
 export function roadmapPage(value: string | string[] | undefined) {
   return typeof value === "string" && /^[1-9][0-9]{0,5}$/.test(value) ? Number(value) : 1;
@@ -19,4 +19,11 @@ export async function loadRoadmap(slug: string) {
   const roadmap = await queryRoadmap(getDatabase(), viewer?.id ?? null, slug);
   if (!roadmap) return { kind: "not-found" as const };
   return { kind: "ready" as const, signedIn: Boolean(viewer), admin: viewer?.role === "ADMIN", roadmap };
+}
+
+/** Runs in the [slug] layout, before the loading boundary streams, so unknown roadmaps return a real 404. */
+export async function roadmapExists(slug: string) {
+  if (!roadmapSlug.safeParse(slug).success) return false;
+  if (!process.env.DATABASE_URL) return true;
+  return availableRoadmapExists(getDatabase(), slug);
 }

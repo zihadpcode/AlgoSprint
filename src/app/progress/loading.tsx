@@ -1,3 +1,2 @@
-export default function ProgressLoading() {
-  return <p role="status" className="p-8 text-sm text-muted">Loading your progress…</p>;
-}
+import { DashboardSkeleton } from "@/components/dashboard/skeletons";
+export default function ProgressLoading() { return <DashboardSkeleton label="Loading your progress…" stats={6} />; }

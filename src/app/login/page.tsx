@@ -17,8 +17,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   // has a session. Showing the fixed alert does not grant password recovery.
   if (!linkFailed && await getViewer()) redirect(next);
   return <AuthPage title="Welcome back" description="Pick up your practice, one clear idea at a time.">
-    {linkFailed && <p role="alert" className="mt-4 text-sm text-warm">That email link could not be used. It may have expired, been opened already, or been opened in a different browser or on a different site address than the one you requested it from. Request a new link (signup confirmation or password reset) and open it in the same browser.</p>}
-    {query.signedOut === "1" && <><SignedOutDraftCleanup /><p role="status" className="mt-4 text-sm text-accent">You have signed out of this browser.</p></>}
+    {linkFailed && <p role="alert" className="mt-4 rounded-lg border border-warm/30 bg-warm/10 p-3 text-sm leading-6 text-warm">That email link could not be used. It may have expired, been opened already, or been opened in a different browser or on a different site address than the one you requested it from. Request a new link (signup confirmation or password reset) and open it in the same browser.</p>}
+    {query.signedOut === "1" && <><SignedOutDraftCleanup /><p role="status" className="mt-4 rounded-lg border border-accent/25 bg-accent/10 p-3 text-sm text-accent">You have signed out of this browser.</p></>}
     {accountsConfigured() ? <AuthForm mode="login" returnTo={next} /> : <AccountsUnavailable />}
   </AuthPage>;
 }

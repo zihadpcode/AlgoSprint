@@ -13,7 +13,7 @@ async function main() {
   const db = createDatabaseClient(url);
   try {
     // Only an existing, authenticated profile can be promoted; no account creation.
-    await db.user.update({ where: { id }, data: { role } });
+    await db.user.update({ where: { id }, data: { role }, select: { id: true } });
     console.log(`Updated role for ${id} to ${role}.`);
   } finally { await db.$disconnect(); }
 }

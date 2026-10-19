@@ -1,8 +1,14 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
+
+const field = "h-10 w-full rounded-lg border border-field-border bg-canvas text-sm text-ink transition-colors placeholder:text-subtle hover:border-muted focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-danger";
+
 export function Input({ className, ...props }: ComponentProps<"input">) {
-  return <input {...props} className={cn("min-h-12 w-full rounded-xl border border-muted/60 bg-canvas px-4 text-sm text-ink placeholder:text-muted/70 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-danger", className)} />;
+  return <input {...props} className={cn(field, "px-3", className)} />;
 }
 export function Select({ className, ...props }: ComponentProps<"select">) {
-  return <select {...props} className={cn("min-h-12 w-full rounded-xl border border-muted/60 bg-canvas px-3 text-sm text-ink disabled:opacity-50", className)} />;
+  return <select {...props} className={cn(field, "px-2.5", className)} />;
+}
+export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
+  return <textarea {...props} className={cn(field, "h-auto min-h-24 px-3 py-2 leading-6", className)} />;
 }
