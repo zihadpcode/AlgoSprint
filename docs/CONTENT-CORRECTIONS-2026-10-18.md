@@ -1,5 +1,13 @@
 # Content corrections, 2026-10-18
 
+The separately reviewed October 19 follow-up preserves the original `686cfd868601ea7790c8f8bf2a081209eacbc5b7` checkpoint and makes four additional text corrections within the same 24 slugs. The new-hash column below includes these follow-up corrections:
+
+- Task Order's brute-force bound includes scanning completed tasks even when the prerequisite list is empty: `O(tasks² × (prerequisites + 1))`.
+- Crate Combinations states an output-sensitive bound for its brute-force enumeration and final comparison sort: `O(n × 2^n + n × K log K)`, where `K` is the number of matching subsets and `K log K` is zero for at most one result. Comparing two recorded subsets can inspect up to `n` weights.
+- Balanced Canopy and Ledger Tree Check distinguish their linear optimal traversals from their bundled tree builders. With `n` equal to the input array length, repeated `queue.shift()` calls can make the total cost quadratic. No algorithm or test data changed in this follow-up.
+
+Parcel Checkpoints retains its original constraints. The platform's shared 256 KiB result budget handles the reviewed synthetic case; this content transaction does not apply a parcel-range cap.
+
 Branch `algosprint/content-corrections-oct18`, based on `origin/main` 1bacb2f.
 
 An independent audit of the 100 published problems found text errors in the seed JSON. This change applies only text corrections to 18 problem files (a second commit on this branch, described in the section "Hint-ladder corrections" below, touches 7 more files, one of which is already among the 18, so 24 in all). Test cases, schemas, pattern/category labels, tags and every other problem are untouched. The only code string that changed is the OPTIMAL solution of `first-redundant-link` (union by size added).
@@ -15,10 +23,10 @@ Computed with the repository's own `problemHash` / `canonicalJson` from `prisma/
 | Slug | File | Old sha256 | New sha256 |
 | --- | --- | --- | --- |
 | first-redundant-link | `src/data/seeds/problems/library/first-redundant-link.json` | `bd4aac8567074ed07a4b572b6b5d3267df06351566845d2b1adbc41de8b65f40` | `1b0703b7375b04f1814ff5b13d45e407ac8e4a16c705bc155a6c1fb40a5758d1` |
-| balanced-canopy | `src/data/seeds/problems/library/balanced-canopy.json` | `2f00bf90f052aa58220f18046d15a1b1e2aa255a6493f8333a1d1f6a10a7fc1e` | `28467e2cca577f6a01908e4b374b41639edc6386731e4662e95c5315f343d291` |
-| ledger-tree-check | `src/data/seeds/problems/library/ledger-tree-check.json` | `2e4c8332fc10a80ee6ee47e55650170a3922bdc660d75d601766cb70c6782db2` | `e40dc8c918f87a50c694418c841d45a33eb27f38a643874fec27ea388d249169` |
+| balanced-canopy | `src/data/seeds/problems/library/balanced-canopy.json` | `2f00bf90f052aa58220f18046d15a1b1e2aa255a6493f8333a1d1f6a10a7fc1e` | `8ed61b57ded2f08550d712959ba4b6a61f6b237999c3970f462fcc30f214381f` |
+| ledger-tree-check | `src/data/seeds/problems/library/ledger-tree-check.json` | `2e4c8332fc10a80ee6ee47e55650170a3922bdc660d75d601766cb70c6782db2` | `b082ed2159eb2c5f947439d85e02fa97b69abe284bfbf4af8e232543004d220e` |
 | watchtower-placements | `src/data/seeds/problems/library/watchtower-placements.json` | `50e32df7b06d3e894f6a1106ab0dbaf179d952ffdb08857abae3e89e19748f4d` | `f5ea183830073f580715e6902c9beb6bf3982c31f4ebca3946f9a31a2eec25f4` |
-| task-order | `src/data/seeds/problems/library/task-order.json` | `38b7ed1c1d42d879ec6ac9fda8b382b18690f5e0d59f99f83a1996879003cbdd` | `ff3d197eb19a790473fafa6d77db9c57b39b70dfbd023dd8dfc24cce2ae08f34` |
+| task-order | `src/data/seeds/problems/library/task-order.json` | `38b7ed1c1d42d879ec6ac9fda8b382b18690f5e0d59f99f83a1996879003cbdd` | `7ea751f6657f292bf31c8c08716bdb81fe430f641125dca09c8a1ecf474c0f4a` |
 | dock-threshold | `src/data/seeds/problems/foundation/dock-threshold.json` | `c6855c286767361e2d00a735b04dcdc9f65f4f104e1b9b6540e1ae732f3888a7` | `3b9bd289e82719fe5b16f70b42cac0b0a3bda65f03de2e4624c6da001bd8a8f4` |
 | quiet-badge | `src/data/seeds/problems/foundation/quiet-badge.json` | `c3d90068740391a129a50961b0dfbbb81b646044d06b1f11acb871b322311519` | `b0850e761d03fa243bec0b7205cb412bd24091fa135d63c1da0b879499d5652f` |
 | lantern-steps | `src/data/seeds/problems/foundation/lantern-steps.json` | `8d88e731a2cdcea1fca6564e0a555dfd88683018b724fe537c2eea90bf95b5f8` | `f97c6a5a0ea5dc2c0181ef6ef18354dd451d87c8fbe1f91318b825a13c5709f9` |
@@ -30,7 +38,7 @@ Computed with the repository's own `problemHash` / `canonicalJson` from `prisma/
 | lru-results | `src/data/seeds/problems/library/lru-results.json` | `286517f566b7b0a79c6771a931e7cd239380ff1dc0dc4960d352912a22785ccd` | `d5349cc2fbe9358321e33d30d5681476d1f1d16e17a74c741ae956f292e986b1` |
 | popularity-cache | `src/data/seeds/problems/library/popularity-cache.json` | `480cfdb48dbda5f098de2998cbb9418109811f8d689cb30525e47ef33bdac045` | `1ad4dd659c07a8466894dc2e2ae90caa267635f11c6238beda7d6b8af51b25dd` |
 | word-groups | `src/data/seeds/problems/library/word-groups.json` | `13b3c40c642928c0304f8522231fd97c24e59148ee7576f863e1a99cf51aba3f` | `fdc0d906ad7a8d44b4538188f133befab516068d87ab493a85381a2ab030d1c9` |
-| crate-combinations | `src/data/seeds/problems/library/crate-combinations.json` | `1aeeeec0e96ef5bcd2c12f62a38fa2899511b5f67cd72668de2a1e6cb2528b23` | `db4f7b18473f6ad595a6e458d5ca435a6211be259e7eadbae8ae3077f46eeb97` |
+| crate-combinations | `src/data/seeds/problems/library/crate-combinations.json` | `1aeeeec0e96ef5bcd2c12f62a38fa2899511b5f67cd72668de2a1e6cb2528b23` | `d69a82b20290ff70007ee7be87775abbfa017dffef174e841ec825ce13aa7485` |
 | pattern-gate | `src/data/seeds/problems/library/pattern-gate.json` | `01360fd6aa03b8864cd8b5d60b9fd13a9291ba014123d5d165bd9595f136f796` | `2f57d9da6f5af031b8cd031bee95eca827c94e25684e54280f9906792319586b` |
 | grid-turn | `src/data/seeds/problems/library/grid-turn.json` | `a4b2e22ce74ffe667b82afce5717f1f12ef7add4db071815d668bc9e47cedb30` | `89c39599b481d00edd530f909e1f18b454bb858389759618681d14b00cdbbc0d` |
 | warehouse-routes | `src/data/seeds/problems/library/warehouse-routes.json` | `effb96c8ca9dd2d62405db2962e7fe8f040f2ccc87c7936d73ad8319c4d0ed13` | `c84fc289f5c0702cbd6e38451509e2ebd560827fde06947ea58315f578c45781` |
