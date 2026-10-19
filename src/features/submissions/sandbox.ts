@@ -13,7 +13,7 @@ import { RUNNER_LIMITS } from "./limits";
 export const SANDBOX_LIMITS = {
   maxCpuMs: RUNNER_LIMITS.maxTimeMs, graceMs: 500, maxMemoryKb: RUNNER_LIMITS.maxMemoryKb,
   interpreterStackBytes: 4 * 1024 * 1024, workerStackMb: 64,
-  outputBytes: 90_000, totalMs: RUNNER_LIMITS.totalBudgetMs, workerGraceMs: 5000,
+  outputBytes: RUNNER_LIMITS.maxOutputBytes, totalMs: RUNNER_LIMITS.totalBudgetMs, workerGraceMs: 5000,
 } as const;
 
 // Runs inside the worker thread. Plain CommonJS so it needs no bundling; the interpreter packages resolve from the
@@ -48,9 +48,12 @@ function classify(error, cpuMs, memoryKb) {
 
 function runCase(QuickJS, test, budgetEndsAt) {
   const output = ["", ""];
+  const outputBytes = [0, 0];
   let overflow = false;
   const write = (stream, chunk) => {
-    if (output[stream].length + chunk.length > config.outputBytes) { overflow = true; throw new Error("Output exceeds the sandbox limit."); }
+    const bytes = Buffer.byteLength(chunk, "utf8");
+    if (outputBytes[stream] + bytes > config.outputBytes) { overflow = true; throw new Error("Output exceeds the sandbox limit."); }
+    outputBytes[stream] += bytes;
     output[stream] += chunk;
   };
   const cpuMs = Math.min(limits.timeMs, config.maxCpuMs);

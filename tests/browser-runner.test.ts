@@ -10,7 +10,7 @@ function fakeWorker(onTransfer?: (data: unknown) => void): WorkerLike & { termin
   // (Function, JSON, Promise, SyntaxError) are used so user code cannot reach the host realm.
   const self: Record<string, unknown> = {
     fetch: () => {}, XMLHttpRequest: class {}, WebSocket: class {}, importScripts: () => {}, EventSource: class {},
-    console: { ...console }, performance,
+    console: { ...console }, performance, TextEncoder,
     postMessage: (data: unknown) => { onTransfer?.(data); queueMicrotask(() => handlers?.message(structuredClone(data))); },
   };
   self.self = self;
@@ -93,7 +93,7 @@ describe("browser runner harness", () => {
     const atLimit = "x".repeat(BROWSER_RESULT_LIMIT - 2);
     expect((await run(`function solve() { return 'x'.repeat(${BROWSER_RESULT_LIMIT - 2}); }`, [{ input: {}, expected: atLimit }])).status).toBe("ACCEPTED");
     expect((await run("function solve() { return Array(20000).fill(0); }", [{ input: {}, expected: Array(20000).fill(0) }])).status).toBe("ACCEPTED");
-    for (const expression of ["'x'.repeat(1000000)", "Array(100000).fill(0)", "{ toJSON() { return 'x'.repeat(1000000); } }", "'\\u0001'.repeat(20000)"]) {
+    for (const expression of ["'x'.repeat(1000000)", "Array(150000).fill(0)", "{ toJSON() { return 'x'.repeat(1000000); } }", "'\\u0001'.repeat(50000)"]) {
       const transfers: { kind: string; stdout: string; diagnostic: string }[] = [];
       const result = await runInBrowser({ entryPoint: "solve", keys: [], code: `function solve() { return ${expression}; }`, cases: [{ position: 1, input: {}, expected: null }] },
         { createWorker: () => fakeWorker((message) => transfers.push(message as typeof transfers[number])) });
@@ -101,6 +101,12 @@ describe("browser runner harness", () => {
       expect(transfers[0]).toMatchObject({ kind: "output-limit", stdout: "", diagnostic: expect.stringContaining("Output exceeds") });
       expect(transfers[0].diagnostic.length).toBeLessThanOrEqual(BROWSER_OUTPUT_LIMIT);
     }
+  });
+  it("uses UTF-8 bytes for full JSON results, including multibyte values", async () => {
+    const count = (BROWSER_RESULT_LIMIT - 2) / 2;
+    const exact = "é".repeat(count);
+    expect((await run(`function solve() { return 'é'.repeat(${count}); }`, [{ input: {}, expected: exact }])).status).toBe("ACCEPTED");
+    expect((await run(`function solve() { return 'é'.repeat(${count + 1}); }`, [{ input: {}, expected: null }])).status).toBe("RUNTIME_ERROR");
   });
   it("bounds object diagnostics and runtime errors while preserving cyclic-result failures", async () => {
     const logged = await run("function solve() { console.log({ huge: 'x'.repeat(1000000) }); return 1; }", [{ input: {}, expected: 1 }]);

@@ -3,6 +3,7 @@ vi.mock("server-only", () => ({}));
 import { executePython, getPythonExecutor, mapPythonRun, PYTHON_UNAVAILABLE_DIAGNOSTIC, registerPythonExecutor, unavailablePythonExecutor,
   type PythonCaseRequest, type PythonCaseRun, type PythonExecutor } from "@/features/submissions/python-runner";
 import { supportedRunnerLanguages } from "@/features/submissions/runner-languages";
+import { RUNNER_LIMITS } from "@/features/submissions/limits";
 
 const limits = { timeMs: 2000, memoryKb: 262_144 };
 const exited = (stdout: string, extra: Partial<Extract<PythonCaseRun, { kind: "exited" }>> = {}): PythonCaseRun =>
@@ -73,10 +74,11 @@ it("truncates stored output to 4,000 characters but compares the complete output
   // The exception line sits at the end of a traceback, so the tail is kept.
   expect(failed.diagnostic).toHaveLength(4000); expect(failed.diagnostic.endsWith("ZeroDivisionError: final line")).toBe(true); expect(failed.diagnostic).not.toContain("start-marker");
 });
-it("treats output beyond the 90,000 character limit as a runtime error instead of a verdict", () => {
-  const huge = JSON.stringify("z".repeat(90_001));
-  expect(mapPythonRun(exited(huge), "z".repeat(90_001), limits)).toMatchObject({ status: "RUNTIME_ERROR", diagnostic: "Output exceeds the sandbox limit." });
-  expect(mapPythonRun(exited("1", { stderr: "e".repeat(90_001) }), 1, limits).status).toBe("RUNTIME_ERROR");
+it("bounds UTF-8 bytes rather than characters for stdout and stderr", () => {
+  const exact = "é".repeat((RUNNER_LIMITS.maxOutputBytes - 2) / 2);
+  expect(mapPythonRun(exited(JSON.stringify(exact)), exact, limits).status).toBe("ACCEPTED");
+  expect(mapPythonRun(exited(JSON.stringify(exact + "é")), exact, limits)).toMatchObject({ status: "RUNTIME_ERROR", diagnostic: "Output exceeds the sandbox limit." });
+  expect(mapPythonRun(exited("1", { stderr: "é".repeat(RUNNER_LIMITS.maxOutputBytes / 2 + 1) }), 1, limits).status).toBe("RUNTIME_ERROR");
 });
 it("turns an executor-reported unavailability into an internal error that is not a verdict on the code", () => {
   expect(mapPythonRun({ kind: "unavailable", diagnostic: "" }, 1, limits)).toMatchObject({ status: "INTERNAL_ERROR", diagnostic: PYTHON_UNAVAILABLE_DIAGNOSTIC });

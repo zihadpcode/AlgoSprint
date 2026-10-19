@@ -598,5 +598,83 @@
     "language": "PYTHON",
     "entryPoint": "nested_crates",
     "code": "def nested_crates(crates):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "switch-gap",
+    "language": "PYTHON",
+    "entryPoint": "switch_gap",
+    "code": "def switch_gap(mask):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "merge-point",
+    "language": "PYTHON",
+    "entryPoint": "merge_point",
+    "code": "def merge_point(next, head_a, head_b):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "sensor-ring",
+    "language": "PYTHON",
+    "entryPoint": "sensor_ring",
+    "code": "def sensor_ring(capacity, operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "rival-teams",
+    "language": "PYTHON",
+    "entryPoint": "rival_teams",
+    "code": "def rival_teams(campers, rivalries):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "parallel-stages",
+    "language": "PYTHON",
+    "entryPoint": "parallel_stages",
+    "code": "def parallel_stages(tasks, prerequisites):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "laser-shots",
+    "language": "PYTHON",
+    "entryPoint": "laser_shots",
+    "code": "def laser_shots(panels):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "exact-flags",
+    "language": "PYTHON",
+    "entryPoint": "exact_flags",
+    "code": "def exact_flags(readings, k):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "digit-power",
+    "language": "PYTHON",
+    "entryPoint": "digit_power",
+    "code": "def digit_power(base, digits, modulus):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "ring-router",
+    "language": "PYTHON",
+    "entryPoint": "ring_router",
+    "code": "def ring_router(operations):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "elevation-ledger",
+    "language": "PYTHON",
+    "entryPoint": "elevation_ledger",
+    "code": "def elevation_ledger(benchmarks, statements):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "suffix-alarm",
+    "language": "PYTHON",
+    "entryPoint": "suffix_alarm",
+    "code": "def suffix_alarm(words, stream):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "grove-harvest",
+    "language": "PYTHON",
+    "entryPoint": "grove_harvest",
+    "code": "def grove_harvest(tree):\n    # Write your solution here.\n    pass"
+  },
+  {
+    "slug": "crew-cover",
+    "language": "PYTHON",
+    "entryPoint": "crew_cover",
+    "code": "def crew_cover(skills, volunteers):\n    # Write your solution here.\n    pass"
   }
 ]

@@ -36,7 +36,7 @@ Previously, diagnostics accumulated as an unbounded array and the complete logs 
 
 - Accumulates at most 4,000 diagnostic characters; later logging stops inspecting values once the buffer fills. A truncation marker fits inside this bound.
 - Serializes object diagnostics within the remaining budget, with a placeholder for oversized or unserializable values.
-- Stops result serialization when string/key traversal or node counts exceed a 90,000-character budget, and checks the final JSON length to account for escaping.
+- Stops result serialization when string/key traversal or node counts exceed the shared budget, and checks final JSON UTF-8 bytes to account for escaping and multibyte characters. The current result budget is 262,144 bytes; see [stored-case byte limits](RUNNER-BYTE-LIMITS.md).
 - Rejects oversized return values with a runtime error and no result payload. Complete permitted JSON is compared structurally before the separate 4,000-character display truncation.
 - Rejects malformed worker envelopes, oversized fields and non-finite/negative runtime values, and terminates the worker after a terminal result.
 
@@ -99,3 +99,7 @@ A later bounded ten-minute production log query returned three pg concurrent-que
 | Interface acceptance | Finish authenticated screenshots, keyboard, zoom, screen reader and actual mobile-browser checks in SCREENSHOTS.md. |
 
 Use DEPLOYMENT.md for the release checklist and production evidence. Passing local tests does not complete those live checks.
+
+## 2026-10-18 interview bank update
+
+The noncoding mock interview bank now has 76 prompts, with at least five for every style and difficulty. The first 46 prompts are pinned by a SHA-256 test and must not change, because sessions snapshot prompts and saved reports depend on them.

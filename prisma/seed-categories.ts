@@ -6,8 +6,8 @@ export type CategorySeedResult = { groupsCreated: number; leavesCreated: number;
 
 // Insert-only, like every other seed: create missing group rows and link a leaf ONLY while it has no parent. Anything
 // already placed (even in a different group, or with a different position) is never rewritten. A leaf that sits under a
-// different parent than the seed says is a conflict: the whole step throws before it writes anything, and because the
-// reads and writes share one transaction, the database is left unchanged.
+// different parent than the seed says is a conflict: the whole step throws, and its transaction rolls back all seed
+// writes. Concurrent placements are rechecked in the conditional UPDATE rather than trusted from the initial read.
 export async function seedCategoryGroups(
   db: PrismaClient,
   groupsInput: unknown = CATEGORY_GROUPS,
@@ -60,13 +60,24 @@ export async function seedCategoryGroups(
           bySlug.set(child, created);
           result.leavesCreated++;
         } else if (leaf.parentId === null) {
-          await tx.category.update({ where: { id: leaf.id }, data: { parentId: parent.id, position: index } });
-          result.linked++;
+          // The preflight snapshot is not a write guard: another writer can place this leaf while we wait.
+          // Recheck null in the UPDATE itself, so an existing placement/order is never overwritten.
+          const linked = await tx.category.updateMany({ where: { id: leaf.id, parentId: null }, data: { parentId: parent.id, position: index } });
+          if (linked.count) {
+            result.linked++;
+          } else {
+            const current = await tx.category.findUnique({ where: { id: leaf.id }, select: { parentId: true, parent: { select: { slug: true } } } });
+            if (!current || current.parentId !== parent.id) {
+              throw new Error(`Category conflict: ${child} changed during seeding${current?.parent ? ` (now under ${current.parent.slug})` : ""}. No categories were changed.`);
+            }
+            // A cooperating or manual writer already linked it to this group. Keep its chosen position too.
+            result.alreadyLinked++;
+          }
         } else {
           result.alreadyLinked++;
         }
       }
     }
     return result;
-  }, { timeout: 30_000 });
+  }, { timeout: 30_000, isolationLevel: "ReadCommitted" }); // the one-level trigger validates only under READ COMMITTED; do not rely on the session default
 }

@@ -417,4 +417,23 @@ export const ROADMAPS = [
       { problemSlug: "peak-watch", title: "Drop what can never be the maximum", description: "A deque of indices keeps values in decreasing order. Pop smaller values from the back, expire the front, and read the maximum at the front." },
     ],
   },
+  {
+    slug: "capstone-mix-2", title: "Capstone Mix 2", difficulty: "HARD", estimatedMinutes: 520,
+    description: "A second mixed set built only from the newest thirteen problems: bit scanning, bipartite colouring, pointer switching, window counting, greedy shots, ring buffers, level-by-level scheduling, modular exponentiation, consistent routing, weighted union-find, reversed tries, bottom-up tree summaries and bitmask dynamic programming. Problems are not grouped by pattern: name the technique you expect before each one, then check your guess against the hints.",
+    steps: [
+      { problemSlug: "switch-gap", title: "Visit only the set bits", description: "Isolate the lowest set bit, read its position, clear it, and compare with the previous set bit. Trace a mask with several zeros between the ones." },
+      { problemSlug: "rival-teams", title: "Force every neighbour into the other group", description: "Colour each connected group from a start node. A neighbour with the same colour means an odd cycle." },
+      { problemSlug: "merge-point", title: "Walk both routes, then swap", description: "Let each pointer continue down the other route after reaching the end so both cover the same total distance. Handle routes that never meet." },
+      { problemSlug: "exact-flags", title: "Turn exactly k into two at-most counts", description: "Count windows with at most k flagged readings and subtract those with at most k - 1. Handle k = 0 explicitly." },
+      { problemSlug: "laser-shots", title: "Fire at the earliest right end", description: "Sort spans by right end and shoot only when the next span starts after the last shot. State why the exchange never loses." },
+      { problemSlug: "sensor-ring", title: "Wrap indexes instead of moving data", description: "Track the oldest slot and a count, and use a remainder to wrap. Decide what a full buffer does on write." },
+      { problemSlug: "parallel-stages", title: "Peel the graph one level at a time", description: "Run Kahn's algorithm in batches: each batch is one stage. Unfinished tasks at the end mean a cycle." },
+      { problemSlug: "digit-power", title: "Build the exponent digit by digit", description: "Use base^(10x + d) = (base^x)^10 * base^d with small square-and-multiply powers, reducing after every product." },
+      { problemSlug: "ring-router", title: "Binary search a circular order", description: "Find the first position at or after the key and wrap to the start when the search runs off the end. Be precise about the cost of inserting into a sorted array." },
+      { problemSlug: "suffix-alarm", title: "Match suffixes with a reversed trie", description: "Insert words backwards and walk the stream from its newest letter. Bound each walk by the longest word." },
+      { problemSlug: "elevation-ledger", title: "Store differences inside union-find", description: "Keep each node's offset to its parent, rewrite offsets during path compression, and use the root-to-root gap when linking groups." },
+      { problemSlug: "grove-harvest", title: "Summarise each subtree with four numbers", description: "Report ordered, total, minimum and maximum from every node to its parent. Sweep level order backwards so children finish first." },
+      { problemSlug: "crew-cover", title: "Make the covered set the state", description: "Index a table by the covered-skill bitmask and relax it once per volunteer. Explain why reusing a volunteer inside the pass cannot help." },
+    ],
+  },
 ] satisfies RoadmapSeed[];

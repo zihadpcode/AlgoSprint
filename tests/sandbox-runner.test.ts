@@ -47,7 +47,7 @@ describe("QuickJS sandbox executor", () => {
     expect(outcome.status).toBe("ACCEPTED");
   }, 20_000);
   it("bounds output size, truncates displayed text and keeps cases isolated from each other", async () => {
-    const [flood] = await run("function relayWindow() { process.stdout.write('x'.repeat(100000)); return 1; }", [{ loads: [1], width: 1, expected: 1 }]);
+    const [flood] = await run(`function relayWindow() { process.stdout.write('x'.repeat(${SANDBOX_LIMITS.outputBytes + 1})); return 1; }`, [{ loads: [1], width: 1, expected: 1 }]);
     expect(flood.status).toBe("RUNTIME_ERROR");
     const [long] = await run("function relayWindow() { return 'y'.repeat(5000); }", [{ loads: [1], width: 1, expected: "y".repeat(5000) }]);
     expect(long.status).toBe("ACCEPTED"); expect(long.stdout).toHaveLength(4000);
@@ -55,13 +55,43 @@ describe("QuickJS sandbox executor", () => {
     expect(results.map((r) => r.status)).toEqual(["ACCEPTED", "ACCEPTED"]);
     await expect(executeSandbox(program("x"), [], limits)).rejects.toThrow("Unsupported test count");
   }, 20_000);
+  it("accepts the audited parcel case without changing the stored problem", async () => {
+    const input = { parcels: [-1000000], ranges: Array.from({ length: 10664 }, () => [0, 1]) };
+    const expected = Array(10664).fill(-1000000);
+    const stdin = makeStdin("parcel-checkpoints", input);
+    expect(Buffer.byteLength(stdin)).toBe(63998);
+    expect(Buffer.byteLength(JSON.stringify(expected))).toBe(95977);
+    const source = makeProgram("parcel-checkpoints", "parcelCheckpoints", "function parcelCheckpoints(parcels, ranges) { const p = [0]; for (const n of parcels) p.push(p.at(-1) + n); return ranges.map(([start,end]) => p[end] - p[start]); }");
+    const [result] = await executeSandbox(source, [{ stdin, expected }], limits);
+    expect(result.status).toBe("ACCEPTED");
+    expect(result.stdout).toHaveLength(4000);
+  }, 20_000);
+  it("counts UTF-8 bytes across stdout and stderr writes", async () => {
+    const count = (SANDBOX_LIMITS.outputBytes - 2) / 2;
+    const [exact] = await run(`function relayWindow() { return 'é'.repeat(${count}); }`, [{ loads: [1], width: 1, expected: "é".repeat(count) }]);
+    expect(exact.status).toBe("ACCEPTED");
+    const [over] = await run(`function relayWindow() { return 'é'.repeat(${count + 1}); }`, [{ loads: [1], width: 1, expected: null }]);
+    expect(over).toMatchObject({ status: "RUNTIME_ERROR", diagnostic: "Output exceeds the sandbox limit." });
+    const [noisy] = await run(`function relayWindow() { process.stderr.write('é'.repeat(${count + 2})); return 1; }`, [{ loads: [1], width: 1, expected: 1 }]);
+    expect(noisy.status).toBe("RUNTIME_ERROR");
+    const emojiCount = Math.floor((SANDBOX_LIMITS.outputBytes - 2) / 4);
+    const expected = "😀".repeat(emojiCount) + "aa";
+    const [complete] = await run(`function relayWindow() { return '😀'.repeat(${emojiCount}) + 'aa'; }`, [{ loads: [1], width: 1, expected }]);
+    expect(complete.status).toBe("ACCEPTED");
+    // The bridge replaces isolated surrogate halves before the host sees them;
+    // separate writes cannot combine them into a four-byte emoji to evade the cap.
+    const prefix = SANDBOX_LIMITS.outputBytes - 6;
+    const [split] = await executeSandbox(`process.stdout.write('"' + 'a'.repeat(${prefix})); process.stdout.write(String.fromCharCode(0xd83d)); process.stdout.write(String.fromCharCode(0xde00)); process.stdout.write('"');`, [{ stdin: "[]", expected: "a".repeat(prefix) + "😀" }], limits);
+    expect(split).toMatchObject({ status: "RUNTIME_ERROR", diagnostic: "Output exceeds the sandbox limit." });
+  }, 20_000);
 });
 it("fails closed when the worker dies, keeping verdicts already produced", async () => {
   vi.useFakeTimers();
-  const pending = executeSandbox(program("function relayWindow() { return 1; }"), [{ stdin: stdin([1], 1), expected: 1 }], limits);
-  // Nothing has resolved under fake timers; the guard timeout terminates the worker and marks the case unavailable.
-  await vi.advanceTimersByTimeAsync(SANDBOX_LIMITS.totalMs + SANDBOX_LIMITS.workerGraceMs + 1);
-  const result = await pending;
-  vi.useRealTimers();
-  expect(result[0].status).toBe("INTERNAL_ERROR");
+  try {
+    const pending = executeSandbox(program("function relayWindow() { return 1; }"), [{ stdin: stdin([1], 1), expected: 1 }], limits);
+    // Nothing has resolved under fake timers; the guard timeout terminates the worker and marks the case unavailable.
+    await vi.advanceTimersByTimeAsync(SANDBOX_LIMITS.totalMs + SANDBOX_LIMITS.workerGraceMs + 1);
+    const result = await pending;
+    expect(result[0].status).toBe("INTERNAL_ERROR");
+  } finally { vi.useRealTimers(); }
 }, 20_000);

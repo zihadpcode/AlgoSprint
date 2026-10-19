@@ -18,6 +18,7 @@ vi.mock("@/lib/supabase/config", () => ({
 
 import { GET } from "@/app/auth/callback/route";
 import LoginPage from "@/app/login/page";
+import RegisterPage from "@/app/register/page";
 import ResetPasswordPage from "@/app/reset-password/page";
 import { requestPasswordReset, resendConfirmation, updatePassword } from "@/features/auth/recovery-actions";
 import { getRecoveryUser } from "@/features/auth/recovery-session";
@@ -140,4 +141,16 @@ it("retains the normal signed-in login redirect and rejects an external next des
   f.viewer.mockResolvedValue(user);
   await expect(LoginPage({ searchParams: Promise.resolve({ next: "//evil.test" }) })).rejects.toThrow("REDIRECT:/dashboard");
   await expect(LoginPage({ searchParams: Promise.resolve({ next: "/profile" }) })).rejects.toThrow("REDIRECT:/profile");
+});
+
+it("rejects an external next destination on the register page for signed-in and signed-out visitors", async () => {
+  f.viewer.mockResolvedValue(user);
+  await expect(RegisterPage({ searchParams: Promise.resolve({ next: "//evil.test" }) })).rejects.toThrow("REDIRECT:/dashboard");
+  await expect(RegisterPage({ searchParams: Promise.resolve({ next: "https://evil.test" }) })).rejects.toThrow("REDIRECT:/dashboard");
+  await expect(RegisterPage({ searchParams: Promise.resolve({ next: "/profile" }) })).rejects.toThrow("REDIRECT:/profile");
+  f.viewer.mockResolvedValue(null);
+  const hostile = renderToStaticMarkup(await RegisterPage({ searchParams: Promise.resolve({ next: "//evil.test" }) }));
+  expect(hostile).not.toContain("evil.test");
+  expect(hostile).toContain('name="next" value="/dashboard"');
+  expect(renderToStaticMarkup(await RegisterPage({ searchParams: Promise.resolve({ next: "/profile" }) }))).toContain('name="next" value="/profile"');
 });

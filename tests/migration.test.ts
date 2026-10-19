@@ -81,6 +81,27 @@ describe("PostgreSQL migration invariants", () => {
     await db.query(`UPDATE app."Category" SET "parentId"=NULL WHERE id=$1`, [leaf]);
     await db.query(`DELETE FROM app."Category" WHERE slug LIKE '%-fixture'`);
   });
+  it("refuses hierarchy writes outside READ COMMITTED, where the lock holder's commit would be invisible", async () => {
+    const [group, leaf] = ["30000000-0000-4000-8000-0000000000a1", "30000000-0000-4000-8000-0000000000a2"];
+    await db.query(`INSERT INTO app."Category" (id,slug,name) VALUES ($1,'iso-group-fixture','iso-group-fixture'),($2,'iso-leaf-fixture','iso-leaf-fixture')`, [group, leaf]);
+    try {
+      for (const level of ["REPEATABLE READ", "SERIALIZABLE"]) {
+        await db.exec(`BEGIN ISOLATION LEVEL ${level}`);
+        try {
+          await expect(db.query(`UPDATE app."Category" SET "parentId"=$1 WHERE id=$2`, [group, leaf])).rejects.toMatchObject({ code: "25000", message: expect.stringContaining("READ COMMITTED") });
+        } finally { await db.exec("ROLLBACK"); }
+      }
+      expect((await db.query(`SELECT "parentId" FROM app."Category" WHERE id=$1`, [leaf])).rows).toEqual([{ parentId: null }]);
+      // Metadata writes (for example, reordering) remain available at any level, and READ COMMITTED still links.
+      await db.exec("BEGIN ISOLATION LEVEL REPEATABLE READ");
+      try { await db.query(`UPDATE app."Category" SET position=3 WHERE id=$1`, [group]); } finally { await db.exec("ROLLBACK"); }
+      await db.query(`UPDATE app."Category" SET "parentId"=$1 WHERE id=$2`, [group, leaf]);
+      expect((await db.query(`SELECT "parentId" FROM app."Category" WHERE id=$1`, [leaf])).rows).toEqual([{ parentId: group }]);
+    } finally {
+      await db.query(`UPDATE app."Category" SET "parentId"=NULL WHERE slug LIKE 'iso-%-fixture'`);
+      await db.query(`DELETE FROM app."Category" WHERE slug LIKE 'iso-%-fixture'`);
+    }
+  });
   it("requires solved timestamps and protects problems with user history", async () => {
     await db.query(`INSERT INTO app."User" (id,"updatedAt") VALUES ($1,now())`, [userId]);
     await expect(db.query(`INSERT INTO app."UserProgress" ("userId","problemId",status,"updatedAt") VALUES ($1,$2,'SOLVED',now())`, [userId, problemId])).rejects.toMatchObject({ code: "23514" });

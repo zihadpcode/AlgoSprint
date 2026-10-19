@@ -11,7 +11,7 @@ import { registerPythonExecutor } from "@/features/submissions/python-runner";
 const input = { slug: "relay-window", language: "JAVASCRIPT", mode: "RUN", code: "function relayWindow() { return 13; }" };
 beforeEach(() => { vi.clearAllMocks(); f.viewer.mockResolvedValue({ id: "verified-owner" }); f.db.mockReturnValue("db"); f.config.mockReturnValue("server-config"); f.run.mockResolvedValue({ success: true, result: { id: "saved" } }); });
 it("rejects tampered fields, unsupported languages, invalid modes and oversized code", async () => {
-  for (const change of [{ userId: "forged" }, { role: "ADMIN" }, { tests: [] }, { url: "https://evil.example" }, { language: "JAVA" }, { language: "python" }, { mode: "ACCEPTED" }, { code: " " }, { code: "x".repeat(20001) }, { slug: "../admin" }])
+  for (const change of [{ userId: "forged" }, { role: "ADMIN" }, { tests: [] }, { url: "https://evil.example" }, { language: "JAVA" }, { language: "python" }, { mode: "ACCEPTED" }, { code: " " }, { code: "a\0b" }, { code: "x".repeat(20001) }, { slug: "../admin" }])
     expect((await executeCode({ ...input, ...change })).success).toBe(false);
   expect(f.viewer).not.toHaveBeenCalled(); expect(f.run).not.toHaveBeenCalled();
 });

@@ -1,6 +1,6 @@
 # Problem library guide
 
-The published library holds 100 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and ninety-five hand-authored problems in `src/data/seeds/problems/library/`. This meets the brief's 100-problem milestone (25 easy, 50 medium, 25 hard); the next milestone is 1,000. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The curated seed library contains 113 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and one hundred eight hand-authored problems in `src/data/seeds/problems/library/` (28 easy, 56 medium, 29 hard). The first 100 met the brief's 100-problem milestone (25 easy, 50 medium, 25 hard); batch 6 prepares thirteen more for publication, and the next milestone is 1,000. Production counts change only after the reviewed seed rollout. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
@@ -101,8 +101,21 @@ The published library holds 100 original coding problems: the five foundation pr
 | `popularity-cache` | Popularity Cache | Hard | design | design, object-oriented, hash-maps |
 | `tile-shuffle` | Tile Shuffle | Hard | state-space-bfs | bfs, graphs |
 | `nested-crates` | Nested Crates | Hard | increasing-subsequence | dynamic-programming, binary-search, sorting |
+| `switch-gap` | Switch Gap | Easy | bit-scan | bit-manipulation, math |
+| `merge-point` | Merge Point | Easy | two-pointers | linked-list, two-pointers |
+| `sensor-ring` | Sensor Ring | Easy | design | design, queue, object-oriented |
+| `rival-teams` | Rival Teams | Medium | bipartite-coloring | graphs, bfs |
+| `parallel-stages` | Parallel Stages | Medium | topological-sort | topological-sort, graphs |
+| `laser-shots` | Laser Shots | Medium | greedy | greedy, intervals, sorting |
+| `exact-flags` | Exact Flags | Medium | variable-window | sliding-window, arrays |
+| `digit-power` | Digit Power | Medium | fast-exponentiation | math |
+| `ring-router` | Ring Router | Medium | lower-bound | system-design, design, binary-search |
+| `elevation-ledger` | Elevation Ledger | Hard | union-find | union-find, graphs |
+| `suffix-alarm` | Suffix Alarm | Hard | trie | tries, strings, design |
+| `grove-harvest` | Grove Harvest | Hard | tree-recursion | binary-search-trees, trees, recursion |
+| `crew-cover` | Crew Cover | Hard | bitmask-dp | dynamic-programming, bit-manipulation |
 
-Trees are passed as level-order arrays with `null` for missing children. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
+Trees are passed as level-order arrays with `null` for missing children. Tree bounds count serialized entries (nulls included), and batch 6 schemas additionally require the canonical form: a present root, no trailing `null`, and no entries for missing parents. Linked chains are passed as a `next` pointer array plus a `head` index. Grids are arrays of equal-length strings. Every problem exposes a single JavaScript entry point that takes positional arguments and returns a JSON value.
 
 ## 🟩 Adding a problem
 
@@ -112,9 +125,11 @@ A problem is complete only when three pieces agree:
 2. **Runner signature** in `src/features/submissions/signatures.ts`: the entry point name and the ordered argument keys. The Judge0 harness reads test inputs by these keys, so JSON key order never matters.
 3. **Trusted reference** in `scripts/lib/reference-library.ts`: a Zod input schema that rejects malformed inputs and a typed optimal implementation. `validateProblemSemantics` recomputes every example and test output with it and fails on any mismatch, both in `npm run seed:validate` and inside `seedProblems`.
 
-   Problems added after the first 35 put their reference in `scripts/lib/reference-expansion.ts` instead. Each entry there also carries an independent brute-force baseline and a seeded random-input sampler, and `tests/reference-expansion.test.ts` checks that the two implementations agree on 400 sampled inputs per problem.
+   Problems added after the first 35 put their reference in `scripts/lib/reference-expansion.ts` instead. Each entry there also carries an independent brute-force baseline and a seeded random-input sampler, and `tests/reference-expansion.test.ts` checks that the two implementations agree on 400 sampled inputs per problem. Batch 6 keeps its thirteen entries in `scripts/lib/reference-batch6.ts` with the same entry shape (merged into the registry by `reference-library.ts`); `tests/reference-batch6.test.ts` compares the two implementations on 600 sampled inputs per problem and asserts that every input schema rejects malformed input and checks synthetic worst-case outputs against the current 262,144-byte budget. The 7,000-statement `elevation-ledger` and 6,000-operation `ring-router` authoring caps were chosen for the former 90,000-byte limit and remain conservative. These output probes do not bypass the separate stdin limit for stored tests. Samplers shuffle only with a seeded Fisher-Yates, never a random sort comparator.
 
-Every published problem must also pass the execution gate in `tests/library-sandbox.test.ts`, which runs each authored JavaScript solution through the same QuickJS sandbox and harness that verified submissions use. Optimal, better and alternative solutions must be accepted on every test. A brute-force solution may hit the time limit on a large case, but it must never return a wrong answer or crash. The untouched starter code must not be accepted. Keep each problem at or below 10 test cases, the default 2000 ms and 262144 KB limits, and 64,000 bytes of input per case so it stays executable by both runner providers.
+Every published problem must also pass the execution gate in `tests/library-sandbox.test.ts`, which runs each authored JavaScript solution through the same QuickJS sandbox and harness that verified submissions use. Optimal, better and alternative solutions must be accepted on every test. A brute-force solution may hit the time limit on a large case, but it must never return a wrong answer or crash. The untouched starter code must not be accepted. Keep each problem at or below 10 test cases, the default 2000 ms and 262144 KB limits, and 64,000 bytes of input per case so it stays executable by both runner providers. The shared schema validates each stored example and test using the actual positional stdin serializer (at most 64,000 UTF-8 bytes) and compact expected JSON (at most 262,144 UTF-8 bytes). Only stored cases reach the runner; there is no learner custom-input mode. Statement maxima can exceed transport budgets, so authors must check the actual stored cases as well as any worst-case probes. See [runner byte limits](RUNNER-BYTE-LIMITS.md).
+
+Python execution remains disabled. Prepare the matching Python stub with `npm run starters:python` (it only appends rows for the new signatures), and put every published problem on at least one roadmap. Batch 6 is the new `capstone-mix-2` path in `src/data/seeds/roadmaps.ts`.
 
 Then run:
 

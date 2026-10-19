@@ -6,6 +6,9 @@ import { SIGNATURES } from "./signatures";
 export const RUNNER_LIMITS = {
   // The sandbox worker and the Judge0 batch endpoint both enforce an array of 1..10 cases.
   maxCases: 10,
+  // UTF-8 bytes of positional JSON stdin and serialized JSON output, per case.
+  maxInputBytes: 64_000,
+  maxOutputBytes: 256 * 1024,
   // Per-case CPU budget. Judge0 caps cpu_time_limit at 2 s; the sandbox interrupts at this deadline too.
   maxTimeMs: 2000,
   // Per-case memory. Judge0 passes this as memory_limit (KB); the sandbox applies it to the interpreter runtime.
