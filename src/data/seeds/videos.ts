@@ -129,6 +129,48 @@ const regularExpressionMatching: Source = {
   segments: [seg(235, 1140, "Drawing solution"), seg(1140, 1675, "Coding solution")],
 };
 
+// Batch 3 (added 2026-10-18). Same rules as above: id, title and channel were returned by oEmbed (HTTP 200) on this date;
+// segments are chapters published in the video's own description (the "Read the problem" chapter is skipped, and a
+// segment ends where the next chapter starts or at the video length reported by the watch page).
+// Existing rows above are never edited: production seeding is insert-only.
+const singleNumber: Source = {
+  youtubeId: "qMPX1AOa83k", channel: "NeetCode", title: "Single Number - Leetcode 136 - Python",
+  segments: [seg(38, 85, "O(n) Memory Solution"), seg(85, 376, "O(1) Memory Solution"), seg(376, 428, "Coding Solution")],
+};
+
+// Batch 4 (added 2026-10-18). Same rules as above: id, title and channel were returned by oEmbed (HTTP 200) on this date;
+// segments are chapters published in the video's own description (the "Read the problem" chapter is skipped, and a
+// segment ends where the next chapter starts or at the video length reported by the watch page).
+// Existing rows above are never edited: production seeding is insert-only.
+const permutations: Source = {
+  youtubeId: "s7AvT7cGdSo", channel: "NeetCode", title: "Backtracking: Permutations - Leetcode 46 - Python",
+  segments: [seg(0, 372, "Drawing explanation"), seg(372, 583, "Coding solution")],
+};
+const climbingStairs: Source = {
+  youtubeId: "Y0lT9Fck7qI", channel: "NeetCode", title: "Climbing Stairs - Dynamic Programming - Leetcode 70 - Python",
+  segments: [seg(235, 480, "Brute Force"), seg(480, 665, "Memoization"), seg(665, 1009, "Dynamic Programming"), seg(1009, 1087, "Coding DP")],
+};
+const gasStation: Source = {
+  youtubeId: "lJwbPZGo05A", channel: "NeetCode", title: "Gas Station - Greedy - Leetcode 134 - Python",
+  segments: [seg(100, 735, "Drawing Explanation"), seg(735, 947, "Coding Explanation")],
+};
+const topKFrequent: Source = {
+  youtubeId: "YPTqKIgVk-k", channel: "NeetCode", title: "Top K Frequent Elements - Bucket Sort - Leetcode 347 - Python",
+  segments: [seg(178, 582, "Drawing Explanation"), seg(582, 793, "Coding Explanation")],
+};
+const alienDictionary: Source = {
+  youtubeId: "6kTZYvNNyps", channel: "NeetCode", title: "Alien Dictionary - Topological Sort - Leetcode 269 - Python",
+  segments: [seg(286, 946, "Drawing Explanation"), seg(946, 1325, "Coding Explanation")],
+};
+const uniquePaths: Source = {
+  youtubeId: "IlEsdxuD4lY", channel: "NeetCode", title: "Unique Paths - Dynamic Programming - Leetcode 62",
+  segments: [seg(55, 500, "Drawing solution"), seg(500, 648, "Coding Solution")],
+};
+const groupAnagrams: Source = {
+  youtubeId: "vzdNOK2oB2E", channel: "NeetCode", title: "Group Anagrams - Categorize Strings by Count - Leetcode 49",
+  segments: [seg(0, 275, "Drawing solution"), seg(275, 491, "Coding solution")],
+};
+
 function video(problemSlug: string, source: Source, concept: string, referenceProblem: string, bridge: string): VideoSeed {
   return { problemSlug, ...source, concept, referenceProblem, bridge };
 }
@@ -206,4 +248,28 @@ export const VIDEOS: VideoSeed[] = [
     "The video cuts a string into pieces that are all palindromes, trying each possible first piece and continuing with the rest of the string. You want only the smallest number of cuts rather than every way to split, and the text can be 2000 letters long, so listing every split is too slow. What carries over is testing whether a stretch of the text is a palindrome and choosing where the next piece ends. Think about how to remember the best result for each position so that nothing is recomputed, and how to avoid testing the same stretch repeatedly."),
   video("pattern-gate", regularExpressionMatching, "Dynamic programming over text and pattern positions", "Regular Expression Matching (LeetCode 10)",
     "The video matches a text against a pattern using dynamic programming over positions in both, where in its reference problem . matches any single character and * repeats the element before it. Your pattern language differs: ? matches any one letter, as . does there, but * stands alone and matches any run of letters, including an empty run, instead of modifying the preceding letter. The transitions for * therefore have to be rewritten. The whole text must be matched by the whole pattern, so check empty text and patterns made only of *."),
+
+  // Batch 3 (added 2026-10-18).
+  video("signal-flips", singleNumber, "Bitwise operations on integers", "Single Number (LeetCode 136)",
+    "This problem is related to the video's reference problem, Single Number, through bitwise operations on integers, but the task is different. There you start from a list of numbers; here you compare two integers a and b, each stored as 31 toggles, and return how many bit positions differ. Which bitwise operation on a and b marks the positions where the bits differ? Once you have that, what would you do to turn it into a count? Check that equal inputs give 0."),
+
+  // Batch 4 (added 2026-10-18).
+  video("badge-subsets", subsets, "Backtracking for subsets", "Subsets (LeetCode 78)",
+    "This problem is closely related to the video's reference problem, Subsets: both list every selection from a set of distinct numbers, including the empty one. The main new element here is the required order of the output: each selection is written in increasing order and the list is ordered by size first, then lexicographically. The badges arrive unsorted, so decide where ordering has to happen to produce exactly the order shown in the first example."),
+  video("lineup-orders", permutations, "Backtracking for orderings", "Permutations (LeetCode 46)",
+    "This problem is closely related to the video's reference problem, Permutations: both list every ordering of a set of distinct numbers. The main new element here is the required output order: the statement lists the orderings lexicographically by number, and the jersey numbers arrive in no particular order. What would you need to arrange so that your output matches the first example exactly?"),
+  video("lantern-steps", climbingStairs, "Dynamic programming over positions", "Climbing Stairs (LeetCode 70)",
+    "This problem is related to the video's reference problem, Climbing Stairs: each move here also advances one or two positions. The question differs: instead of the number of ways to get there, you want the minimum total tokens to reach the exit. Read the statement for what is paid and when: a platform's cost is paid when you leave it, the exit is free, and you may start on platform 0 or platform 1. What should you record for each position?"),
+  video("tower-tiles", climbingStairs, "Counting ways with dynamic programming", "Climbing Stairs (LeetCode 70)",
+    "This problem is related to the video's reference problem, Climbing Stairs, because both ask you to count the number of ways to build up to a given size. Here nothing lists the allowed moves: you count tilings of a strip of a given width with 1 x 2 tiles. Work out the counts for length 1, 2 and 3 by hand, and look for how counts for different lengths are connected. The answer is taken modulo 1000000007."),
+  video("charging-loop", gasStation, "Circular route with gains and costs", "Gas Station (LeetCode 134)",
+    "This problem is closely related to the video's reference problem, Gas Station: a vehicle goes around a circular route, gaining at each stop and spending to reach the next. The main thing to check in this statement is that you must return the smallest starting station that works, or -1. Can more than one start work here, and does your approach return the smallest of them? Also note that gain and cost can be 0."),
+  video("rank-tags", topKFrequent, "Counting values and ordering by frequency", "Top K Frequent Elements (LeetCode 347)",
+    "This problem is related to the video's reference problem, Top K Frequent Elements, since both need how often each value occurs. The differences are in what you return: here it is every distinct tag, not only the top few, ordered from most to least frequent. Tags with the same frequency are ordered alphabetically, so decide how that second ordering rule fits into your approach. Tags are strings, and an empty list gives an empty result."),
+  video("glyph-order", alienDictionary, "Topological sort of ordering constraints", "Alien Dictionary (LeetCode 269)",
+    "This problem is closely related to the video's reference problem, Alien Dictionary: a list of words sorted in an unknown alphabet, from which you recover an order of the glyphs. The main new element in this statement is the tie-break: when several orders are consistent, you must return the one that is smallest in ordinary a-z order. How do you decide which glyph to place next so that the result is that one? The second example shows an inconsistent input, which gives an empty string."),
+  video("warehouse-routes", uniquePaths, "Grid path counting with dynamic programming", "Unique Paths (LeetCode 62)",
+    "This problem is related to the video's reference problem, Unique Paths: a robot moves only right or down from the top-left to the bottom-right of a grid. The difference is that some cells here are shelves the robot cannot enter. How many routes pass through a shelf cell, and how does that affect the cells next to it? The statement also says there are no routes when the start or the destination is a shelf, and the count is taken modulo 1000000007."),
+  video("word-groups", groupAnagrams, "Grouping words that use the same letters", "Group Anagrams (LeetCode 49)",
+    "This problem is related to the video's reference problem, Group Anagrams, whose title mentions categorizing strings by count: both put words that use the same letters into groups. The main new element here is the fixed output order: inside each group the words are listed alphabetically, with repeats kept, and the groups are ordered by their first word. Grouping alone is therefore not the finished answer. Check the first example for the exact order, and note that the list of words may be empty."),
 ];
