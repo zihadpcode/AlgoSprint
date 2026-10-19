@@ -102,6 +102,18 @@ describe("PostgreSQL migration invariants", () => {
       await db.query(`DELETE FROM app."Category" WHERE slug LIKE 'iso-%-fixture'`);
     }
   });
+  it("adds the leaderboard opt-in column hidden by default and keeps opted-in names unique", async () => {
+    const [a, b, c] = ["40000000-0000-4000-8000-00000000000a", "40000000-0000-4000-8000-00000000000b", "40000000-0000-4000-8000-00000000000c"];
+    // A row written the pre-migration way is not on the leaderboard.
+    await db.query(`INSERT INTO app."User" (id,"displayName","updatedAt") VALUES ($1,'Lb Name',now()),($2,'lb name',now()),($3,NULL,now())`, [a, b, c]);
+    expect((await db.query(`SELECT "leaderboardOptIn" FROM app."User" WHERE id=ANY($1)`, [[a, b, c]])).rows).toEqual([{ leaderboardOptIn: false }, { leaderboardOptIn: false }, { leaderboardOptIn: false }]);
+    await expect(db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [c])).rejects.toMatchObject({ code: "23514" });
+    await db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [a]);
+    await expect(db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [b])).rejects.toMatchObject({ code: "23505" });
+    await db.query(`UPDATE app."User" SET "leaderboardOptIn"=false WHERE id=$1`, [a]);
+    await db.query(`UPDATE app."User" SET "leaderboardOptIn"=true WHERE id=$1`, [b]);
+    await db.query(`DELETE FROM app."User" WHERE id=ANY($1)`, [[a, b, c]]);
+  });
   it("requires solved timestamps and protects problems with user history", async () => {
     await db.query(`INSERT INTO app."User" (id,"updatedAt") VALUES ($1,now())`, [userId]);
     await expect(db.query(`INSERT INTO app."UserProgress" ("userId","problemId",status,"updatedAt") VALUES ($1,$2,'SOLVED',now())`, [userId, problemId])).rejects.toMatchObject({ code: "23514" });

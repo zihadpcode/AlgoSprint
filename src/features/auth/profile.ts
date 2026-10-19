@@ -6,7 +6,7 @@ import { displayNameSchema } from "./validation";
 export async function ensureProfile(db: PrismaClient, verifiedUser: { id: string; user_metadata?: Record<string, unknown> }) {
   const id = z.uuid().parse(verifiedUser.id);
   const name = displayNameSchema.safeParse(verifiedUser.user_metadata?.display_name);
-  const select = { id: true, displayName: true, role: true, timeZone: true, createdAt: true } as const;
+  const select = { id: true, displayName: true, role: true, timeZone: true, leaderboardOptIn: true, createdAt: true } as const;
   try { return await db.user.upsert({
     where: { id },
     create: { id, displayName: name.success ? name.data : null, role: "USER" },
