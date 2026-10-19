@@ -15,7 +15,7 @@ import type { LibraryResult } from "@/features/problems/query";
 function values(filters: LibraryFilters): Record<string, string[]> {
   const one = (value: string) => value ? [value] : [];
   return {
-    q: one(filters.q), difficulty: filters.difficulty, category: filters.category, tag: one(filters.tag), pattern: one(filters.pattern),
+    q: one(filters.q), difficulty: filters.difficulty, category: [...filters.category, ...filters.group.map((group) => GROUP_PREFIX + group)], tag: one(filters.tag), pattern: one(filters.pattern),
     maxMinutes: one(filters.maxMinutes ? String(filters.maxMinutes) : ""), completion: filters.completion, review: filters.review ? ["1"] : [],
     sort: [filters.sort], dir: filters.dir === defaultDirection(filters.sort) ? [] : [filters.dir],
   };
@@ -38,7 +38,7 @@ const label = (value: string) => value[0] + value.slice(1).toLowerCase();
 const STATUS_LABELS = { NOT_STARTED: "Not started", ATTEMPTED: "Attempted", SOLVED: "Solved" } as const;
 const unmatched = (slug: string) => slug.replace(GROUP_PREFIX, "") + " (no published matches)";
 
-function TopicOptions({ facets, selected }: { facets: LibraryResult["facets"]; selected: string[] }) {
+function TopicOptions({ facets, selected, groups }: { facets: LibraryResult["facets"]; selected: string[]; groups: string[] }) {
   const tree = facets.categoryTree;
   const known = new Set(tree
     ? [...tree.ungrouped.map((c) => c.slug), ...tree.groups.flatMap((g) => g.children.map((c) => c.slug))]
@@ -52,6 +52,8 @@ function TopicOptions({ facets, selected }: { facets: LibraryResult["facets"]; s
           {tree.groups.map((group) => (
             <div key={group.slug} role="group" aria-label={group.name} className="py-1">
               <p className="px-2 pt-1 pb-0.5 text-[0.6875rem] font-semibold tracking-wide text-subtle uppercase">{group.name}</p>
+              {/* Selects every topic in the group, including topics added later. */}
+              <CheckOption name="category" value={GROUP_PREFIX + group.slug} label={`All ${group.name}`} defaultChecked={groups.includes(group.slug)} />
               {group.children.map((child) => check(child.slug, child.name))}
             </div>
           ))}
@@ -146,9 +148,9 @@ export function LibraryFiltersForm({ filters, facets, signedIn }: {
         {DIFFICULTIES.map((value) => <CheckOption key={value} name="difficulty" value={value} label={label(value)} defaultChecked={filters.difficulty.includes(value)} />)}
       </FilterMenu>
       <FilterMenu label="Topics" count={filters.category.length + filters.group.length}>
-        <TopicOptions facets={facets} selected={filters.category} />
+        <TopicOptions facets={facets} selected={filters.category} groups={filters.group} />
       </FilterMenu>
-      {filters.group.map((group) => <input key={group} type="hidden" name="category" value={GROUP_PREFIX + group} />)}
+      {filters.group.filter((group) => !facets.categoryTree?.groups.some((entry) => entry.slug === group)).map((group) => <input key={group} type="hidden" name="category" value={GROUP_PREFIX + group} />)}
       {signedIn ? (
         <FilterMenu label="Status" count={filters.completion.length + Number(filters.review)}>
           {(Object.keys(STATUS_LABELS) as Array<keyof typeof STATUS_LABELS>).map((value) => <CheckOption key={value} name="completion" value={value} label={STATUS_LABELS[value]} defaultChecked={filters.completion.includes(value)} />)}

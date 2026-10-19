@@ -44,8 +44,9 @@ it("renders one labelled group per category group with its leaves in order", asy
   await render(grouped);
   const groups = [...host.querySelectorAll('[role="group"]')];
   expect(groups.map((g) => g.getAttribute("aria-label"))).toEqual(["Data Structures", "Algorithms"]);
-  expect([...groups[0].querySelectorAll("input")].map((o) => [o.value, labelOf(o)])).toEqual([["arrays", "Arrays"], ["trees", "Trees"]]);
-  expect([...groups[1].querySelectorAll("input")].map((o) => o.value)).toEqual(["bfs"]);
+  // Each group starts with an "All <group>" option that selects every topic in it, then its leaves in order.
+  expect([...groups[0].querySelectorAll("input")].map((o) => [o.value, labelOf(o)])).toEqual([["group:data-structures", "All Data Structures"], ["arrays", "Arrays"], ["trees", "Trees"]]);
+  expect([...groups[1].querySelectorAll("input")].map((o) => o.value)).toEqual(["group:algorithms", "bfs"]);
 });
 it("keeps an accessible label and submits through a plain GET form to /problems", async () => {
   await render(grouped);
@@ -64,11 +65,14 @@ it("preselects several difficulties and topics from the current URL", async () =
   expect(checked("category")).toEqual(["trees", "bfs"]);
   expect([...host.querySelectorAll("summary")].map((summary) => summary.textContent)).toEqual(["Difficulty2", "Topics2", "More"]);
 });
-it("keeps a whole group selected from the URL as a hidden category value that still submits", async () => {
+it("shows a whole group selected from the URL as its checked All option, so it still submits and can be cleared", async () => {
   await render(grouped, { group: "algorithms" });
-  const hidden = host.querySelector<HTMLInputElement>('input[type="hidden"][name="category"]');
-  expect(hidden?.value).toBe("group:algorithms");
-  expect(checked("category")).toEqual([]);
+  expect(host.querySelector('input[type="hidden"][name="category"]')).toBeNull();
+  expect(checked("category")).toEqual(["group:algorithms"]);
+});
+it("keeps a selected group that the menu cannot show as a hidden value that still submits", async () => {
+  await render(grouped, { group: "databases" });
+  expect(host.querySelector<HTMLInputElement>('input[type="hidden"][name="category"]')?.value).toBe("group:databases");
 });
 it("keeps a selected topic that has no published matches visible instead of silently resetting", async () => {
   await render(grouped, { category: "databases" });

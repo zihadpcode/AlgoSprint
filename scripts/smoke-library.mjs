@@ -99,10 +99,10 @@ try {
     JOIN app."Problem" p ON p.id = pc."problemId" AND p.status = 'PUBLISHED'
     GROUP BY g.slug, g.name, g.position ORDER BY g.position, g.name`)).rows;
   if (!groupRows.length) {
-    assert.ok(!html.includes("<optgroup"), "A library without category groups must render the flat category list");
+    assert.ok(!html.includes('value="group:'), "A library without category groups must render the flat topic list");
   } else {
     for (const group of groupRows) {
-      assert.ok(html.includes(`<optgroup label="${group.name}">`), `Grouped select lists ${group.name}`);
+      assert.ok(html.includes(`role="group" aria-label="${group.name}"`), `Topic menu lists the ${group.name} group`);
       assert.ok(html.includes(`value="group:${group.slug}"`), `${group.name} has an All option`);
     }
     const cardSlugs = (body) => [...new Set([...body.matchAll(/<a\b[^>]*\bhref="\/problems\/([a-z0-9-]+)"/g)].map((match) => match[1]))];
@@ -137,7 +137,7 @@ try {
     assert.equal(detail.status, 200, slug);
     assert.match(detail.headers.get("cache-control") ?? "", /no-store/);
     const body = await detail.text();
-    for (const section of ["Problem statement", "Examples", "Constraints", "Layered hints", "Reveal guided solutions", "Starter code", "Related problems", "Sign in to write notes", "Editor language", "Run executes the visible examples in your browser and saves nothing", process.env.CODE_RUNNER_ENABLED === "true" ? "Submit checks the full suite on the server" : "Submitting for a verified result is not available yet", "Reset to starter", "Test results", "No output yet", "Actual output: Not run", "Not measured", "Run visible tests", "Submit solution"]) assert.ok(body.includes(section), `${slug}: ${section}`);
+    for (const section of ["Problem statement", "Examples", "Constraints", "Layered hints", "Reveal guided solutions", "Starter code", "Related problems", "Sign in to write notes", "Editor language", "Run executes the visible examples in your browser and saves nothing", process.env.CODE_RUNNER_ENABLED === "true" ? "Submit checks the full suite on the server" : "Submitting for a verified result is not available yet", "Reset to starter", "Test results", "No output yet", "Test cases", "Not measured", "Run visible tests", "Submit solution"]) assert.ok(body.includes(section), `${slug}: ${section}`);
     assert.match(body, /<details(?:\s[^>]*)?>/);
     assert.ok(!/<details[^>]*\sopen(?:[\s=>])/.test(body), "Solutions start collapsed");
     for (const field of ["testCases", "seedHash", "HIDDEN"]) assert.ok(!body.includes(field), field);
