@@ -2,6 +2,7 @@ import { z } from "zod";
 import { SIGNATURES } from "../../src/features/submissions/signatures";
 import { EXPANSION } from "./reference-expansion";
 import { BATCH6 } from "./reference-batch6";
+import { BATCH7 } from "./reference-batch7";
 
 // Authored, typed reference solutions for the hand-written library problems. Each entry parses the JSON input with
 // its own schema and computes the trusted expected output. JSON code strings from seed files are NEVER evaluated.
@@ -551,6 +552,7 @@ export const LIBRARY: Record<string, Entry> = {
   "gutter-capacity": entry(gutterCapacityInput, gutterCapacity),
   ...Object.fromEntries(Object.entries(EXPANSION).map(([slug, item]) => [slug, entry(item.input, item.solve)])),
   ...Object.fromEntries(Object.entries(BATCH6).map(([slug, item]) => [slug, entry(item.input, item.solve)])),
+  ...Object.fromEntries(Object.entries(BATCH7).map(([slug, item]) => [slug, entry(item.input, item.solve)])),
 };
 
 // Positional arguments follow the runner signature, so a JSON input object is never spread by key order.

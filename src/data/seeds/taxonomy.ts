@@ -54,4 +54,5 @@ export const PATTERNS = [
   "sliding-log", "timestamp-binary-search", "partition-binary-search", "palindrome-dp", "fenwick-tree",
   "pointer-reversal", "boyer-moore", "binary-trie", "minimax-path", "state-space-bfs",
   "bit-scan", "bipartite-coloring", "fast-exponentiation", "bitmask-dp",
+  "difference-array", "gray-code", "prime-factorization", "prefix-function", "interval-dp", "meet-in-the-middle",
 ] as const;

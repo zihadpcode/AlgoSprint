@@ -121,4 +121,17 @@ export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> 
   "suffix-alarm": { entryPoint: "suffixAlarm", keys: ["words", "stream"] },
   "grove-harvest": { entryPoint: "groveHarvest", keys: ["tree"] },
   "crew-cover": { entryPoint: "crewCover", keys: ["skills", "volunteers"] },
+  // Library expansion batch 7.
+  "worn-tiles": { entryPoint: "wornTiles", keys: ["length", "passes", "limit"] },
+  "close-calls": { entryPoint: "closeCalls", keys: ["readings", "tolerance"] },
+  "dial-distance": { entryPoint: "dialDistance", keys: ["bits", "pairs"] },
+  "zero-tail": { entryPoint: "zeroTail", keys: ["numbers", "base"] },
+  "toll-slide": { entryPoint: "tollSlide", keys: ["grid"] },
+  "bay-ledger": { entryPoint: "bayLedger", keys: ["bays", "operations"] },
+  "booth-bookings": { entryPoint: "boothBookings", keys: ["gap", "operations"] },
+  "pulse-gates": { entryPoint: "pulseGates", keys: ["grid", "period"] },
+  "profit-block": { entryPoint: "profitBlock", keys: ["profits", "minLen", "maxLen"] },
+  "tile-pop": { entryPoint: "tilePop", keys: ["weights", "tolerance"] },
+  "prefix-echoes": { entryPoint: "prefixEchoes", keys: ["text", "lengths"] },
+  "scale-splits": { entryPoint: "scaleSplits", keys: ["weights", "tolerance"] },
 };

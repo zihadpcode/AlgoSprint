@@ -436,4 +436,22 @@ export const ROADMAPS = [
       { problemSlug: "crew-cover", title: "Make the covered set the state", description: "Index a table by the covered-skill bitmask and relax it once per volunteer. Explain why reusing a volunteer inside the pass cannot help." },
     ],
   },
+  {
+    slug: "capstone-mix-3", title: "Capstone Mix 3", difficulty: "HARD", estimatedMinutes: 470,
+    description: "A third mixed set built only from the newest twelve problems: difference arrays, sorted two-pointer counting, reflected-code decoding, prime-factor accounting, layered grid DP, Fenwick trees, sorted booking lists, time-dependent BFS, monotonic deques, interval DP, border arrays and meet in the middle. Problems are not grouped by pattern: name the technique you expect before each one, then check your guess against the hints.",
+    steps: [
+      { problemSlug: "worn-tiles", title: "Mark the edges, then sweep once", description: "Add one where a pass starts and subtract one just after it ends, then keep a running sum. Size the array one slot larger than the hallway." },
+      { problemSlug: "close-calls", title: "Sort so partners form one stretch", description: "After sorting, the partners within tolerance sit in an unbroken block below each reading. Slide a left pointer that never moves back." },
+      { problemSlug: "dial-distance", title: "Undo the XOR by folding the shifts", description: "Recover the click number with a prefix XOR of shifted copies, then take the shorter arc of the cycle." },
+      { problemSlug: "zero-tail", title: "Count prime factors instead of building the product", description: "Factor the base once, count each of its primes across the numbers, and take the smallest allowance floor(count / exponent)." },
+      { problemSlug: "toll-slide", title: "Add a used-or-unused layer to the grid walk", description: "Keep two costs per cell and carry the cheapest unused arrival along the row to price a free slide in constant time." },
+      { problemSlug: "bay-ledger", title: "Descend a Fenwick tree to find the target bay", description: "Update with the difference, query prefixes by lowest-bit jumps, and find the first bay reaching a target by trying power-of-two jumps." },
+      { problemSlug: "booth-bookings", title: "Check only the two neighbours in time", description: "Keep disjoint bookings sorted, binary search the insertion point, and remember that array splices cost O(n)." },
+      { problemSlug: "pulse-gates", title: "Put the clock modulo the period into the state", description: "Search over (cell, time mod period) with five moves per state, including waiting in place." },
+      { problemSlug: "profit-block", title: "Slide a window minimum over prefix totals", description: "Keep start positions in a deque with increasing prefix totals, expire the front, and use an index-based deque." },
+      { problemSlug: "tile-pop", title: "Pair the leftmost tile or leave it", description: "Popped pairs nest or sit side by side. Track both whether a stretch can be cleared and the best score inside it." },
+      { problemSlug: "prefix-echoes", title: "Push counts down the border chain", description: "Compute the border array, start every length at one, and add each total into its border from longest to shortest." },
+      { problemSlug: "scale-splits", title: "Split the crates in two halves and match sorted sums", description: "Build each half's sorted signed sums by merging, then count pairs inside the tolerance with two pointers. Use Float64Array." },
+    ],
+  },
 ] satisfies RoadmapSeed[];
