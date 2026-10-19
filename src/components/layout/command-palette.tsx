@@ -26,7 +26,7 @@ export function CommandPalette() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [hits, setHits] = useState<ProblemHit[]>([]);
+  const [hits, setHits] = useState<{ query: string; items: ProblemHit[] }>({ query: "", items: [] });
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState(0);
   const input = useRef<HTMLInputElement>(null);
@@ -34,7 +34,7 @@ export function CommandPalette() {
   const listId = useId();
 
   const show = useCallback(() => { returnFocus.current = document.activeElement as HTMLElement | null; setOpen(true); }, []);
-  const close = useCallback(() => { setOpen(false); setQuery(""); setHits([]); setActive(0); returnFocus.current?.focus?.(); }, []);
+  const close = useCallback(() => { setOpen(false); setQuery(""); setHits({ query: "", items: [] }); setActive(0); returnFocus.current?.focus?.(); }, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -60,14 +60,14 @@ export function CommandPalette() {
       setLoading(true);
       fetch(`/api/problem-search?q=${encodeURIComponent(q)}`, { signal: controller.signal })
         .then((response) => response.ok ? response.json() : { items: [] })
-        .then((data: { items?: ProblemHit[] }) => { setHits(Array.isArray(data.items) ? data.items : []); setLoading(false); })
-        .catch(() => { if (!controller.signal.aborted) { setHits([]); setLoading(false); } });
+        .then((data: { items?: ProblemHit[] }) => { if (!controller.signal.aborted) { setHits({ query: q, items: Array.isArray(data.items) ? data.items : [] }); setLoading(false); } })
+        .catch(() => { if (!controller.signal.aborted) { setHits({ query: q, items: [] }); setLoading(false); } });
     }, 140);
     return () => { controller.abort(); window.clearTimeout(timer); };
   }, [query, open]);
 
   const searching = query.trim().length >= 2;
-  const visibleHits = useMemo(() => searching ? hits : [], [searching, hits]);
+  const visibleHits = useMemo(() => searching && hits.query === query.trim() ? hits.items : [], [searching, hits, query]);
   const entries = useMemo<Entry[]>(() => {
     const q = query.trim().toLowerCase();
     const pages = PAGES.filter((page) => !q || page.label.toLowerCase().includes(q));
@@ -84,7 +84,7 @@ export function CommandPalette() {
     <div role="dialog" aria-modal="true" aria-label="Search" onMouseDown={(event) => { if (event.target !== input.current) event.preventDefault(); }} className="w-full max-w-xl animate-slide-up overflow-hidden rounded-xl border border-line bg-surface-raised shadow-pop">
       <div className="flex items-center gap-2.5 border-b border-line px-3.5">
         <Search aria-hidden="true" size={16} className="shrink-0 text-subtle" />
-        <input ref={input} value={query} onChange={(event) => { setQuery(event.target.value); setActive(0); }} placeholder="Search problems or jump to a page…"
+        <input ref={input} value={query} onChange={(event) => { setQuery(event.target.value); setHits({ query: "", items: [] }); setActive(0); }} placeholder="Search problems or jump to a page…"
           role="combobox" aria-expanded="true" aria-controls={listId} aria-activedescendant={entries[current] ? `${listId}-${current}` : undefined} aria-autocomplete="list"
           onBlur={() => window.setTimeout(() => { if (input.current && document.activeElement === document.body) input.current.focus(); })}
           onKeyDown={(event) => {
