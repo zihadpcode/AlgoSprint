@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "slug": "switch-gap",
+  "title": "Switch Gap",
+  "difficulty": "EASY",
+  "kind": "CODING",
+  "status": "PUBLISHED",
+  "pattern": "bit-scan",
+  "statement": "A control panel records which of its switches are on as the bits of a non-negative integer mask; bit 0 is the rightmost switch. Two on-switches are neighbours when no other switch between them is on. Return the largest distance, measured in bit positions, between any pair of neighbouring on-switches in mask. If fewer than two switches are on, return 0.",
+  "constraints": [
+    "0 <= mask <= 2147483647"
+  ],
+  "estimatedMinutes": 15,
+  "timeLimitMs": 2000,
+  "memoryLimitKb": 262144,
+  "categories": [
+    "bit-manipulation",
+    "math"
+  ],
+  "tags": [
+    "bitwise",
+    "linear-scan"
+  ],
+  "interviewStyles": [
+    "general-software"
+  ],
+  "relatedSlugs": [
+    "lit-panels",
+    "signal-flips"
+  ],
+  "examples": [
+    {
+      "position": 1,
+      "input": {
+        "mask": 41
+      },
+      "output": 3,
+      "explanation": "41 is 101001 in binary, so switches 0, 3 and 5 are on. The neighbour gaps are 3 and 2, and the largest is 3."
+    },
+    {
+      "position": 2,
+      "input": {
+        "mask": 4096
+      },
+      "output": 0,
+      "explanation": "4096 is 1000000000000 in binary: only switch 12 is on, so there is no pair of neighbours."
+    }
+  ],
+  "hints": [
+    {
+      "position": 1,
+      "content": "Write a few masks in binary and mark the neighbouring pairs. Only on-switches that are next to each other, with nothing on between them, matter."
+    },
+    {
+      "position": 2,
+      "content": "Each on-switch only needs to be compared with the previous on-switch you passed, so one running 'previous position' and one running best gap are enough."
+    },
+    {
+      "position": 3,
+      "content": "Scanning all 31 positions works. A faster route is to jump from one on-switch straight to the next one."
+    },
+    {
+      "position": 4,
+      "content": "mask & -mask isolates the lowest set bit, and mask & (mask - 1) clears it, so repeating both visits only the set bits."
+    },
+    {
+      "position": 5,
+      "content": "Convert the isolated bit to a position with 31 - Math.clz32(bit). From the second set bit onward, update best = max(best, position - previous), then set previous = position."
+    }
+  ],
+  "starterCode": [
+    {
+      "language": "JAVASCRIPT",
+      "entryPoint": "switchGap",
+      "code": "function switchGap(mask) {\n  // Write your solution here.\n  throw new Error(\"Not implemented\");\n}"
+    }
+  ],
+  "testCases": [
+    {
+      "position": 1,
+      "visibility": "VISIBLE",
+      "input": {
+        "mask": 41
+      },
+      "output": 3,
+      "explanation": "Switches 0, 3, 5 are on: gaps 3 and 2."
+    },
+    {
+      "position": 2,
+      "visibility": "VISIBLE",
+      "input": {
+        "mask": 4096
+      },
+      "output": 0,
+      "explanation": "A single on-switch has no neighbour."
+    },
+    {
+      "position": 3,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 0
+      },
+      "output": 0,
+      "explanation": "No switch is on."
+    },
+    {
+      "position": 4,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 1
+      },
+      "output": 0,
+      "explanation": "One switch on at position 0."
+    },
+    {
+      "position": 5,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 2147483647
+      },
+      "output": 1,
+      "explanation": "All 31 switches on: every gap is 1."
+    },
+    {
+      "position": 6,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 1073741825
+      },
+      "output": 30,
+      "explanation": "Switches 0 and 30 are on, with nothing between them: gap 30."
+    },
+    {
+      "position": 7,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 545
+      },
+      "output": 5,
+      "explanation": "Switches 0, 5 and 9: gaps 5 and 4."
+    },
+    {
+      "position": 8,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 1542
+      },
+      "output": 7,
+      "explanation": "Switches 1, 2, 9 and 10: gaps 1, 7 and 1, so the widest gap sits in the middle."
+    },
+    {
+      "position": 9,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 1073741841
+      },
+      "output": 26,
+      "explanation": "Switches 0, 4 and 30: gaps 4 and 26."
+    },
+    {
+      "position": 10,
+      "visibility": "HIDDEN",
+      "input": {
+        "mask": 1073741824
+      },
+      "output": 0,
+      "explanation": "Only the highest allowed switch is on."
+    }
+  ],
+  "solutions": [
+    {
+      "kind": "BRUTE_FORCE",
+      "language": "JAVASCRIPT",
+      "title": "Test every pair of positions",
+      "intuition": "Two switches are neighbours exactly when both are on and nothing between them is, so check every pair directly.",
+      "approach": "For each pair low < high of positions in 0..30, require both switches on and every position strictly between them off. Keep the largest high - low.",
+      "pseudocode": "best = 0\nfor low < high: if on(low) and on(high) and none of low+1..high-1 on: best = max(best, high - low)\nreturn best",
+      "code": "function switchGap(mask) {\n  const isOn = (position) => Math.floor(mask / 2 ** position) % 2 === 1;\n  let best = 0;\n  for (let low = 0; low < 31; low++) {\n    for (let high = low + 1; high < 31; high++) {\n      if (!isOn(low) || !isOn(high)) continue;\n      let neighbours = true;\n      for (let between = low + 1; between < high; between++) {\n        if (isOn(between)) neighbours = false;\n      }\n      if (neighbours) best = Math.max(best, high - low);\n    }\n  }\n  return best;\n}",
+      "timeComplexity": "O(B^3) for B = 31 bit positions, about 4,500 bit tests in the worst case",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Counting a pair even though a third switch lies between them.",
+        "Using mask >> position with a 32-bit shift on values that need all 31 bits; floor division keeps the intent obvious."
+      ],
+      "interviewExplanation": "This checks the definition literally: two switches are neighbours if both are on and nothing in between is. With a fixed 31-bit width the cubic loop is only a few thousand steps, but it hides the simple structure, which is that only consecutive set bits matter.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Pair up positions",
+          "content": "For mask 41 (switches 0, 3, 5 on), the pair (0, 5) fails because switch 3 is between them."
+        },
+        {
+          "position": 2,
+          "title": "Keep the best neighbour pair",
+          "content": "Pairs (0, 3) and (3, 5) pass with gaps 3 and 2, so the answer is 3."
+        }
+      ]
+    },
+    {
+      "kind": "ALTERNATIVE",
+      "language": "JAVASCRIPT",
+      "title": "Scan every position once",
+      "intuition": "Walk the bits from low to high remembering the last on-switch seen.",
+      "approach": "Visit positions 0..30. When a switch is on, compare its position with the previous on-switch (if any) and update the best gap, then remember it.",
+      "pseudocode": "previous = -1; best = 0\nfor position in 0..30: if on(position): if previous >= 0: best = max(best, position - previous); previous = position",
+      "code": "function switchGap(mask) {\n  let previous = -1;\n  let best = 0;\n  for (let position = 0; position < 31; position++) {\n    if (Math.floor(mask / 2 ** position) % 2 === 1) {\n      if (previous >= 0) best = Math.max(best, position - previous);\n      previous = position;\n    }\n  }\n  return best;\n}",
+      "timeComplexity": "O(B) for B = 31 positions",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Resetting previous at every off-switch, which forgets the last on-switch.",
+        "Returning the number of zeros between the switches instead of the difference of positions."
+      ],
+      "interviewExplanation": "One pass over the 31 bit positions with a running previous position. It is linear in the bit width and uses constant memory; the optimal version only improves it by skipping the zero bits.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Trace mask 41",
+          "content": "Positions 0, 3, 5 are on. At 3 the gap is 3 and at 5 the gap is 2."
+        },
+        {
+          "position": 2,
+          "title": "Return the maximum",
+          "content": "The best gap seen is 3."
+        }
+      ]
+    },
+    {
+      "kind": "OPTIMAL",
+      "language": "JAVASCRIPT",
+      "title": "Peel off the lowest set bit",
+      "intuition": "Only set bits matter, so jump from one set bit to the next instead of looking at the zeros between them.",
+      "approach": "Repeatedly isolate the lowest set bit with mask & -mask, read its position from 31 - Math.clz32(bit), compare with the previous position, then clear it with mask &= mask - 1.",
+      "pseudocode": "previous = -1; best = 0\nwhile mask > 0: bit = mask & -mask; pos = 31 - clz32(bit)\n  if previous >= 0: best = max(best, pos - previous)\n  previous = pos; mask &= mask - 1",
+      "code": "function switchGap(mask) {\n  let remaining = mask;\n  let previous = -1;\n  let best = 0;\n  while (remaining > 0) {\n    const lowest = remaining & -remaining;\n    const position = 31 - Math.clz32(lowest);\n    if (previous >= 0) best = Math.max(best, position - previous);\n    previous = position;\n    remaining &= remaining - 1;\n  }\n  return best;\n}",
+      "timeComplexity": "O(k) for k set bits, at most 31, which is O(log mask)",
+      "spaceComplexity": "O(1)",
+      "commonMistakes": [
+        "Forgetting that mask & -mask is only defined for the 32-bit range, so the 2^31 - 1 limit matters.",
+        "Initialising previous to 0, which invents an on-switch at position 0."
+      ],
+      "interviewExplanation": "The low-bit trick visits each set bit exactly once: mask & -mask isolates it, Math.clz32 turns it into a position, and mask & (mask - 1) removes it. Each visited bit is compared with the previous one, so the loop is O(popcount), at most 31 iterations, with O(1) memory. Since the input is bounded by 31 bits the scan version is equally acceptable in practice, but this is the idiomatic bit-manipulation answer.",
+      "steps": [
+        {
+          "position": 1,
+          "title": "Isolate and read bit 0",
+          "content": "For 41 the lowest set bit is 1 at position 0, so previous = 0 and mask becomes 40."
+        },
+        {
+          "position": 2,
+          "title": "Continue peeling",
+          "content": "Next bit 8 is position 3, giving gap 3; then bit 32 is position 5, giving gap 2. The answer is 3."
+        }
+      ]
+    }
+  ]
+}

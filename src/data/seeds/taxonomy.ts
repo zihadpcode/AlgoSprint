@@ -53,4 +53,5 @@ export const PATTERNS = [
   "matrix-transform", "k-way-merge", "memoized-dfs", "bridges", "wildcard-dp",
   "sliding-log", "timestamp-binary-search", "partition-binary-search", "palindrome-dp", "fenwick-tree",
   "pointer-reversal", "boyer-moore", "binary-trie", "minimax-path", "state-space-bfs",
+  "bit-scan", "bipartite-coloring", "fast-exponentiation", "bitmask-dp",
 ] as const;

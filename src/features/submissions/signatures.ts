@@ -107,4 +107,18 @@ export const SIGNATURES: Record<string, { entryPoint: string; keys: string[] }> 
   "popularity-cache": { entryPoint: "popularityCache", keys: ["capacity", "operations"] },
   "tile-shuffle": { entryPoint: "tileShuffle", keys: ["board"] },
   "nested-crates": { entryPoint: "nestedCrates", keys: ["crates"] },
+  // Library expansion batch 6.
+  "switch-gap": { entryPoint: "switchGap", keys: ["mask"] },
+  "merge-point": { entryPoint: "mergePoint", keys: ["next", "headA", "headB"] },
+  "sensor-ring": { entryPoint: "sensorRing", keys: ["capacity", "operations"] },
+  "rival-teams": { entryPoint: "rivalTeams", keys: ["campers", "rivalries"] },
+  "parallel-stages": { entryPoint: "parallelStages", keys: ["tasks", "prerequisites"] },
+  "laser-shots": { entryPoint: "laserShots", keys: ["panels"] },
+  "exact-flags": { entryPoint: "exactFlags", keys: ["readings", "k"] },
+  "digit-power": { entryPoint: "digitPower", keys: ["base", "digits", "modulus"] },
+  "ring-router": { entryPoint: "ringRouter", keys: ["operations"] },
+  "elevation-ledger": { entryPoint: "elevationLedger", keys: ["benchmarks", "statements"] },
+  "suffix-alarm": { entryPoint: "suffixAlarm", keys: ["words", "stream"] },
+  "grove-harvest": { entryPoint: "groveHarvest", keys: ["tree"] },
+  "crew-cover": { entryPoint: "crewCover", keys: ["skills", "volunteers"] },
 };
