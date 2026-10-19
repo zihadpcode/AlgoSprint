@@ -40,6 +40,7 @@
     "@prisma/client": "7.10.0",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.116.0",
+    "@vercel/sandbox": "3.8.0",
     "clsx": "2.1.1",
     "lucide-react": "1.45.0",
     "monaco-editor": "0.57.0",
