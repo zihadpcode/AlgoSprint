@@ -53,7 +53,8 @@ it("generates a Python program that reads stdin JSON, isolates print, and writes
   expect(program).toContain('compile(__as_source, "solution.py", "exec")');
   expect(program).toContain("allow_nan=False");
   expect(program).toContain("__as_solve(*__as_args)");
-  expect(program).toContain("__as_traceback.print_exc(file=__as_sys.stderr)");
+  expect(program).toContain("__as_traceback.print_exception(__as_kind, __as_value, __as_tb, file=__as_sys.stderr)");
+  expect(program).not.toContain("print_exc(");
   expect(program).toContain("raise SystemExit(__as_main())");
 });
 it("passes learner code only as a JSON string literal so it cannot break out of the harness", () => {
@@ -105,7 +106,7 @@ executable("python3: survives hostile learner source and a non-main __name__", (
 executable("python3: exits 1 with a traceback and no stdout for runtime errors, NaN and unserializable results", () => {
   for (const body of ["return 1 // 0", "return float('nan')", "return float('inf')", "return {1, 2}", "import sys\n    sys.exit(0)", "raise KeyboardInterrupt()"]) {
     const done = run(`def relay_window(loads, width):\n    ${body}`, [[1], 1]);
-    expect(done.status, body).toBe(1); expect(done.stdout, body).toBe(""); expect(done.stderr, body).toContain("Traceback");
+    expect(done.status, body).toBe(1); expect(done.stdout, body).toBe(""); expect(done.stderr, body).toMatch(/Error|Exception|Interrupt|SystemExit/);
   }
 });
 executable("python3: exits 3 for syntax errors and 1 when the entry point is missing or not callable", () => {
@@ -114,4 +115,33 @@ executable("python3: exits 3 for syntax errors and 1 when the entry point is mis
   const missing = run("def other():\n    pass", [[1], 1]);
   expect(missing).toMatchObject({ status: 1, stdout: "" }); expect(missing.stderr).toContain("Define a function named relay_window");
   expect(run("relay_window = 5", [[1], 1])).toMatchObject({ status: 1, stdout: "" });
+});
+
+executable("python3: a natural recursive solution survives a 5,000-level input, as it does in JavaScript", () => {
+  // grove-harvest has a depth-5000 tree; Python's default recursion limit of 1000 would raise RecursionError.
+  const done = run("def relay_window(depth, _):\n    def down(n):\n        return 0 if n == 0 else 1 + down(n - 1)\n    return down(depth)", [5000, 0]);
+  expect(done.status).toBe(0);
+  expect(done.stdout).toBe("5000");
+});
+executable("python3: an infinite recursion still ends as an ordinary runtime error", () => {
+  const done = run("def relay_window(a, b):\n    def down(n):\n        return down(n + 1)\n    return down(0)", [0, 0]);
+  expect(done.status).toBe(1);
+  expect(done.stderr).toContain("RecursionError");
+});
+executable("python3: tracebacks start in the learner's code, without the harness's own frames", () => {
+  const runtime = run("def relay_window(a, b):\n    return helper(a)\n\ndef helper(x):\n    return 1 // 0", [1, 2]);
+  expect(runtime.status).toBe(1);
+  expect(runtime.stderr).toContain("Traceback (most recent call last)");
+  expect(runtime.stderr).toContain('File "solution.py", line 2, in relay_window');
+  expect(runtime.stderr).toMatch(/ZeroDivisionError: .*zero/);
+  expect(runtime.stderr).not.toMatch(/__as_|program\.py/);
+  const syntax = run("def relay_window(a, b)\n    return 1", [1, 2]);
+  expect(syntax.status).toBe(3);
+  expect(syntax.stderr).toContain("SyntaxError");
+  expect(syntax.stderr).not.toMatch(/__as_|program\.py/);
+  // A failure inside the harness itself (an unserialisable result) still reports the exception, just without a harness traceback.
+  const unserialisable = run("def relay_window(a, b):\n    return {1, 2}", [1, 2]);
+  expect(unserialisable.status).toBe(1);
+  expect(unserialisable.stderr).toContain("TypeError");
+  expect(unserialisable.stderr).not.toMatch(/__as_|program\.py/);
 });
