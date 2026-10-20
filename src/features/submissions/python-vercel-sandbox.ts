@@ -14,9 +14,9 @@ import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-
 //   `timeout` is only a backstop if stop() fails.
 // The expected outputs never enter the VM; the application compares the program's stdout itself.
 //
-// What is NOT claimed: rlimits are per process. The bootstrap forbids new processes and threads (see below), which makes the
-// per-process limits the whole program's limits as far as that mechanism holds, but a live probe has to confirm it in the real
-// image. The VM itself (one vCPU, 2 GiB, 30 s TTL, no network) bounds the damage of anything that slips through.
+// What is NOT claimed: rlimits are per process. The bootstrap attempts to forbid new processes and threads (see below).
+// A trusted live probe allowed fork despite NPROC=0: do not activate this executor until an aggregate boundary is verified.
+// The VM itself (one vCPU, 2 GiB, 30 s TTL, no network) bounds the damage of anything that slips through.
 
 export const PYTHON_SANDBOX_IMAGE = "vercel/sandbox/python:3.14";
 export const PYTHON_SANDBOX_UNAVAILABLE = "Python execution is temporarily unavailable. Please try again in a moment.";
@@ -44,8 +44,8 @@ const ADDRESS_SPACE_HEADROOM_BYTES = 512 * 1024 * 1024;
 
 // Trusted bootstrap. Lowers the limits first (hard limits cannot be raised again without privilege), then runs the generated
 // program with stdin pointed at the case input. Learner code only ever reaches Python as text inside program.py.
-// Reject root and irreversibly disable privilege gains across exec before learner code. NPROC=0 forbids new tasks even
-// if a pre-existing same-user process exits; this does not depend on a racy snapshot of /proc.
+// Reject root and irreversibly disable privilege gains across exec before learner code. NPROC=0 avoids relying on a racy
+// snapshot of /proc, but the live fork-denial probe failed; it is not a verified aggregate boundary in the managed image.
 export const PYTHON_BOOTSTRAP = String.raw`
 import ctypes, os, resource, sys
 if os.getuid() == 0 or os.geteuid() == 0:
