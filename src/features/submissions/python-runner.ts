@@ -2,6 +2,7 @@ import "server-only";
 import { isDeepStrictEqual } from "node:util";
 import type { RunnerCase, RunnerOutcome } from "./judge0";
 import { PYTHON_EXIT_COMPILE_ERROR } from "./harness-python";
+import { createVercelSandboxExecutor } from "./python-vercel-sandbox";
 import { RUNNER_LIMITS } from "./limits";
 import { utf8ByteLength } from "./serialization";
 
@@ -19,6 +20,9 @@ export type PythonCaseRequest = {
   source: string; stdin: string;
   // Per-case budgets, already clamped to RUNNER_LIMITS. The executor must enforce them or report the matching kind.
   timeMs: number; memoryKb: number;
+  // Aborts when the whole run's budget (RUNNER_LIMITS.totalBudgetMs) is spent. An executor must stop everything it started
+  // by then, including environment start-up; executePython also stops waiting on its own.
+  signal?: AbortSignal;
 };
 export type PythonCaseRun =
   | { kind: "exited"; exitCode: number; stdout: string; stderr: string; runtimeMs: number | null; memoryKb: number | null }
@@ -29,6 +33,8 @@ export type PythonCaseRun =
 export interface PythonExecutor {
   // False means no interpreter is installed; the application then reports Python as unsupported instead of running it.
   readonly available: boolean;
+  // Cases run this many at a time (default 1). Only for executors that give every case its own isolated environment.
+  readonly concurrency?: number;
   // Runs one program in isolation: no host filesystem, network, environment or other processes. Resolve with
   // "unavailable" when the runtime cannot be used; reject only for unexpected infrastructure failures.
   runCase(request: PythonCaseRequest): Promise<PythonCaseRun>;
@@ -39,10 +45,17 @@ export const unavailablePythonExecutor: PythonExecutor = {
   async runCase() { return { kind: "unavailable", diagnostic: PYTHON_UNAVAILABLE_DIAGNOSTIC }; },
 };
 
-let current: PythonExecutor = unavailablePythonExecutor;
-export function getPythonExecutor(): PythonExecutor { return current; }
+let current: PythonExecutor | null = null;
+let configured: PythonExecutor | undefined;
+// An explicitly registered executor wins (tests). Otherwise Python runs only when the deployment opts in with
+// PYTHON_RUNNER=vercel-sandbox; any other value, or none, leaves Python unavailable.
+export function getPythonExecutor(): PythonExecutor {
+  if (current) return current;
+  if (process.env.PYTHON_RUNNER === "vercel-sandbox") return configured ??= createVercelSandboxExecutor();
+  return unavailablePythonExecutor;
+}
 // Called by a runtime integration when it is wired in, and by tests with a fake. Pass null to restore the default.
-export function registerPythonExecutor(executor: PythonExecutor | null) { current = executor ?? unavailablePythonExecutor; }
+export function registerPythonExecutor(executor: PythonExecutor | null) { current = executor; }
 
 export function pythonUnavailableOutcome(diagnostic = PYTHON_UNAVAILABLE_DIAGNOSTIC): RunnerOutcome {
   return { status: "INTERNAL_ERROR", stdout: "", diagnostic, runtimeMs: null, memoryKb: null };
@@ -71,15 +84,22 @@ export async function executePython(executor: PythonExecutor, source: string, ca
   if (!cases.length || cases.length > RUNNER_LIMITS.maxCases) throw new Error("Unsupported test count");
   if (!executor.available) return cases.map(() => pythonUnavailableOutcome());
   const effective = { timeMs: Math.min(limits.timeMs, RUNNER_LIMITS.maxTimeMs), memoryKb: Math.min(limits.memoryKb, RUNNER_LIMITS.maxMemoryKb) };
-  const endsAt = Date.now() + RUNNER_LIMITS.totalBudgetMs;
+  // One hard deadline for the whole run, measured on a monotonic timer from here. It covers start-up of every case.
+  const budget = AbortSignal.timeout(RUNNER_LIMITS.totalBudgetMs);
+  const exhausted: PythonCaseRun = { kind: "time-limit", stdout: "", stderr: "The submission exceeded the total execution budget.", runtimeMs: null, memoryKb: null };
+  const budgetSpent = new Promise<PythonCaseRun>((resolve) => {
+    if (budget.aborted) resolve(exhausted); else budget.addEventListener("abort", () => resolve(exhausted), { once: true });
+  });
   const outcomes: RunnerOutcome[] = [];
-  // Sequential on purpose: one interpreter at a time keeps per-case timings meaningful and memory bounded.
-  for (const test of cases) {
-    if (Date.now() >= endsAt) {
-      outcomes.push({ status: "TIME_LIMIT", stdout: "", diagnostic: "The submission exceeded the total execution budget.", runtimeMs: null, memoryKb: null });
-      continue;
-    }
-    outcomes.push(mapPythonRun(await executor.runCase({ source, stdin: test.stdin, ...effective }), test.expected, effective));
+  // Sequential unless the executor isolates every case in its own environment: one interpreter at a time keeps per-case
+  // timings meaningful and memory bounded. Outcomes stay in case order either way.
+  const width = Math.max(1, Math.min(executor.concurrency ?? 1, cases.length));
+  for (let from = 0; from < cases.length; from += width) {
+    const batch = cases.slice(from, from + width);
+    // Racing the budget means a slow or misbehaving executor cannot hold the run past its deadline.
+    outcomes.push(...await Promise.all(batch.map(async (test) => mapPythonRun(
+      budget.aborted ? exhausted : await Promise.race([executor.runCase({ source, stdin: test.stdin, ...effective, signal: budget }), budgetSpent]),
+      test.expected, effective))));
   }
   return outcomes;
 }

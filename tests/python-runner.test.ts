@@ -1,5 +1,10 @@
 import { afterEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
+// A short whole-run budget so the deadline can be tested with real timers; every other limit is unchanged.
+vi.mock("@/features/submissions/limits", async (original) => {
+  const actual = await original<typeof import("@/features/submissions/limits")>();
+  return { ...actual, RUNNER_LIMITS: { ...actual.RUNNER_LIMITS, totalBudgetMs: 150 } };
+});
 import { executePython, getPythonExecutor, mapPythonRun, PYTHON_UNAVAILABLE_DIAGNOSTIC, registerPythonExecutor, unavailablePythonExecutor,
   type PythonCaseRequest, type PythonCaseRun, type PythonExecutor } from "@/features/submissions/python-runner";
 import { supportedRunnerLanguages } from "@/features/submissions/runner-languages";
@@ -87,22 +92,35 @@ it("turns an executor-reported unavailability into an internal error that is not
 it("runs each case sequentially with the program, its stdin and clamped limits", async () => {
   const { executor, requests } = fake((request) => exited(request.stdin));
   const outcomes = await executePython(executor, "program", [{ stdin: "1", expected: 1 }, { stdin: "2", expected: 3 }], { timeMs: 99_999, memoryKb: 9_999_999 });
-  expect(requests).toEqual([{ source: "program", stdin: "1", timeMs: 2000, memoryKb: 262_144 }, { source: "program", stdin: "2", timeMs: 2000, memoryKb: 262_144 }]);
+  expect(requests).toMatchObject([{ source: "program", stdin: "1", timeMs: 2000, memoryKb: 262_144 }, { source: "program", stdin: "2", timeMs: 2000, memoryKb: 262_144 }]);
+  // Every case shares one run-wide deadline signal.
+  expect(requests[0].signal).toBeInstanceOf(AbortSignal);
+  expect(requests[1].signal).toBe(requests[0].signal);
   expect(outcomes.map((o) => o.status)).toEqual(["ACCEPTED", "WRONG_ANSWER"]);
   const small = fake([exited("1")]);
   await executePython(small.executor, "p", [{ stdin: "1", expected: 1 }], { timeMs: 500, memoryKb: 1024 });
   expect(small.requests[0]).toMatchObject({ timeMs: 500, memoryKb: 1024 });
 });
-it("rejects an unsupported case count and stops after the total budget", async () => {
+it("rejects an unsupported case count", async () => {
   const { executor } = fake([]);
   await expect(executePython(executor, "p", [], limits)).rejects.toThrow("Unsupported test count");
   await expect(executePython(executor, "p", Array.from({ length: 11 }, () => ({ stdin: "", expected: 1 })), limits)).rejects.toThrow("Unsupported test count");
-  vi.useFakeTimers();
-  try {
-    let calls = 0;
-    const slow: PythonExecutor = { available: true, async runCase() { calls++; vi.setSystemTime(Date.now() + 25_000); return exited("1"); } };
-    const outcomes = await executePython(slow, "p", [{ stdin: "", expected: 1 }, { stdin: "", expected: 1 }], limits);
-    expect(calls).toBe(1);
-    expect(outcomes.map((o) => o.status)).toEqual(["ACCEPTED", "TIME_LIMIT"]);
-  } finally { vi.useRealTimers(); }
+});
+it("holds the whole run to one deadline even when an executor ignores its signal and hangs", async () => {
+  let calls = 0;
+  const hung: PythonExecutor = { available: true, runCase() { calls++; return new Promise<PythonCaseRun>(() => undefined); } };
+  const started = Date.now();
+  const outcomes = await executePython(hung, "p", [{ stdin: "", expected: 1 }, { stdin: "", expected: 1 }], limits);
+  expect(Date.now() - started).toBeLessThan(2000);
+  // Sequential executor: the second case is never started once the first has consumed the budget.
+  expect(calls).toBe(1);
+  expect(outcomes.map((o) => o.status)).toEqual(["TIME_LIMIT", "TIME_LIMIT"]);
+  expect(outcomes[0].diagnostic).toContain("total execution budget");
+});
+it("does not start further batches once the budget is spent", async () => {
+  let calls = 0;
+  const slow: PythonExecutor & { concurrency: number } = { available: true, concurrency: 1, async runCase() { calls++; await new Promise((resolve) => setTimeout(resolve, 200)); return exited("1"); } };
+  const outcomes = await executePython(slow, "p", [{ stdin: "", expected: 1 }, { stdin: "", expected: 1 }, { stdin: "", expected: 1 }], limits);
+  expect(calls).toBe(1);
+  expect(outcomes.map((o) => o.status)).toEqual(["TIME_LIMIT", "TIME_LIMIT", "TIME_LIMIT"]);
 });
