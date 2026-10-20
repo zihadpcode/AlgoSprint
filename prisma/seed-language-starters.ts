@@ -13,6 +13,16 @@ export async function loadPythonStarters(): Promise<PythonStarter[]> {
   return pythonStarterFileSchema.parse(JSON.parse(await readFile(join(process.cwd(), PYTHON_STARTERS_PATH), "utf8")));
 }
 
+// Narrows the add-on file to the given slugs for a canary rollout. Unknown slugs are an error so a typo cannot silently seed nothing.
+export function selectStarters(entries: PythonStarter[], slugs: readonly string[]): PythonStarter[] {
+  if (!slugs.length) return entries;
+  const known = new Set(entries.map((entry) => entry.slug));
+  const unknown = slugs.filter((slug) => !known.has(slug));
+  if (unknown.length) throw new Error(`No Python starter for: ${unknown.join(", ")}`);
+  const wanted = new Set(slugs);
+  return entries.filter((entry) => wanted.has(entry.slug));
+}
+
 type Existing = { language: string; entryPoint: string; code: string };
 const same = (row: Existing, entry: PythonStarter) => row.language === entry.language && row.entryPoint === entry.entryPoint && row.code === entry.code;
 

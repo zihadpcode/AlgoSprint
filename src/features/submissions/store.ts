@@ -4,7 +4,15 @@ import type { ExecutionInput, ExecutionResult } from "./contracts";
 import { writeProgress } from "@/features/progress/write";
 import { makeProgram, makeStdin, runnerSupports } from "./harness";
 import { RUNNER_LIMITS } from "./limits";
+import { checkPythonBudget } from "./python-budget";
 import { pruneSubmissionPayloads } from "./retention";
+
+export const RUN_REFUSALS = {
+  ownActive: "You already have a run in progress. Wait for it to finish, then try again.",
+  perMinute: "You have reached the limit of 5 runs per minute. Wait a minute and try again.",
+  perHour: "You have reached the limit of 30 runs per hour. Try again later.",
+  busy: "The runner is busy right now. Wait a minute and try again.",
+} as const;
 
 const languageNames = { JAVASCRIPT: "JavaScript", PYTHON: "Python" } as const;
 
@@ -17,13 +25,13 @@ export async function reserveSubmission(db: PrismaClient, userId: string, input:
       data: { status: "INTERNAL_ERROR", completedAt: now } });
     const active = { status: { in: ["QUEUED", "RUNNING"] as ("QUEUED" | "RUNNING")[] } };
     const minute = new Date(now.getTime() - 60_000);
-    if (await tx.userSubmission.count({ where: { userId, ...active } }) ||
-        await tx.userSubmission.count({ where: { userId, createdAt: { gte: minute } } }) >= 5 ||
-        await tx.userSubmission.count({ where: { userId, createdAt: { gte: new Date(now.getTime() - 3600_000) } } }) >= 30 ||
-        await tx.userSubmission.count({ where: active }) >= 20 ||
-        await tx.userSubmission.count({ where: { createdAt: { gte: minute } } }) >= 60) {
-      return { error: "The runner is busy or your execution limit was reached. Wait a minute and try again; the hourly limit is 30 requests." } as const;
-    }
+    // One message per cap so the learner is told which limit they hit. The queries and their order are unchanged.
+    const refusal =
+      await tx.userSubmission.count({ where: { userId, ...active } }) ? RUN_REFUSALS.ownActive :
+      await tx.userSubmission.count({ where: { userId, createdAt: { gte: minute } } }) >= 5 ? RUN_REFUSALS.perMinute :
+      await tx.userSubmission.count({ where: { userId, createdAt: { gte: new Date(now.getTime() - 3600_000) } } }) >= 30 ? RUN_REFUSALS.perHour :
+      await tx.userSubmission.count({ where: active }) >= 20 || await tx.userSubmission.count({ where: { createdAt: { gte: minute } } }) >= 60 ? RUN_REFUSALS.busy : null;
+    if (refusal) return { error: refusal } as const;
     // Hold a shared row lock only while snapshotting tests and recording the reservation.
     const [locked] = await tx.$queryRaw<{ id: string }[]>`SELECT id FROM app."Problem" WHERE slug = ${input.slug} AND status = 'PUBLISHED' AND kind = 'CODING' FOR SHARE`;
     if (!locked) return { error: "This problem is no longer available for execution." } as const;
@@ -40,6 +48,11 @@ export async function reserveSubmission(db: PrismaClient, userId: string, input:
     if (!problem.testCases.length || problem.testCases.length > RUNNER_LIMITS.maxCases ||
         (input.mode === "SUBMIT" && !problem.testCases.some((t) => t.visibility === "HIDDEN"))) {
       return { error: "This problem does not have a supported test suite yet." } as const;
+    }
+    // Python starts one VM per case, so it has its own VM budgets on top of the request limits above.
+    if (input.language === "PYTHON") {
+      const refusal = await checkPythonBudget(tx, userId, now, problem.testCases.length);
+      if (refusal) return { error: refusal } as const;
     }
     const source = makeProgram(input.slug, problem.starterCode[0].entryPoint, input.code, input.language);
     const cases = problem.testCases.map((test) => ({ ...test, stdin: makeStdin(input.slug, test.input) }));

@@ -19,15 +19,26 @@ __as_entry = ${literal(entryPoint)}
 __as_source = ${literal(code)}
 
 
+def __as_report():
+    # Print the traceback from the first frame in the learner's own code, so the harness's frames do not clutter it.
+    __as_kind, __as_value, __as_tb = __as_sys.exc_info()
+    while __as_tb is not None and __as_tb.tb_frame.f_code.co_filename != "solution.py":
+        __as_tb = __as_tb.tb_next
+    __as_traceback.print_exception(__as_kind, __as_value, __as_tb, file=__as_sys.stderr)
+
+
 def __as_main():
     __as_stdout = __as_sys.stdout
     __as_args = __as_json.loads(__as_sys.stdin.read())
+    # Python's default limit (1000) is far below what the same recursive solution gets in JavaScript (about 11,000 frames), and
+    # some problems have inputs thousands of levels deep. Pure-Python frames do not use the C stack in 3.12+; memory is bounded by the sandbox.
+    __as_sys.setrecursionlimit(15000)
     # Learner print() output goes to stderr; only the JSON result is written to the real stdout.
     __as_sys.stdout = __as_sys.stderr
     try:
         __as_code = compile(__as_source, "solution.py", "exec")
     except BaseException:
-        __as_traceback.print_exc(file=__as_sys.stderr)
+        __as_report()
         return ${PYTHON_EXIT_COMPILE_ERROR}
     try:
         __as_scope = {"__name__": "solution"}
@@ -40,7 +51,7 @@ def __as_main():
         # Unicode is emitted as UTF-8, matching the JavaScript result encoding.
         __as_text = __as_text.encode("utf-8", errors="backslashreplace").decode("utf-8")
     except BaseException:
-        __as_traceback.print_exc(file=__as_sys.stderr)
+        __as_report()
         return ${PYTHON_EXIT_RUNTIME_ERROR}
     __as_stdout.write(__as_text)
     __as_stdout.flush()
