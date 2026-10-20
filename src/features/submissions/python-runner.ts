@@ -2,14 +2,12 @@ import "server-only";
 import { isDeepStrictEqual } from "node:util";
 import type { RunnerCase, RunnerOutcome } from "./judge0";
 import { PYTHON_EXIT_COMPILE_ERROR } from "./harness-python";
-import { createVercelSandboxExecutor } from "./python-vercel-sandbox";
 import { RUNNER_LIMITS } from "./limits";
 import { utf8ByteLength } from "./serialization";
 
 // Pluggable Python execution. The application owns the generated program (harness-python.ts), the per-case limits and
 // the verdict mapping below; an executor only runs one program against one stdin and reports what the process did.
-// No Python interpreter ships with the application: the default executor reports that the runtime is not installed.
-// Choosing and vendoring a runtime is a pending owner decision, see docs/PYTHON-RUNNER.md.
+// Python activation is blocked after the managed-image process-limit probe failed. See docs/PYTHON-RUNNER.md.
 
 export const PYTHON_UNAVAILABLE_DIAGNOSTIC = "The Python runtime is not installed on this server.";
 // Same bound the QuickJS sandbox applies to a program's output.
@@ -46,15 +44,13 @@ export const unavailablePythonExecutor: PythonExecutor = {
 };
 
 let current: PythonExecutor | null = null;
-let configured: PythonExecutor | undefined;
-// An explicitly registered executor wins (tests). Otherwise Python runs only when the deployment opts in with
-// PYTHON_RUNNER=vercel-sandbox; any other value, or none, leaves Python unavailable.
+// Explicit registration supports controlled tests. Deployment flags cannot activate the managed executor until its
+// aggregate resource boundary is repaired and live-verified; the October 20 probe allowed fork despite NPROC=0.
 export function getPythonExecutor(): PythonExecutor {
   if (current) return current;
-  if (process.env.PYTHON_RUNNER === "vercel-sandbox") return configured ??= createVercelSandboxExecutor();
   return unavailablePythonExecutor;
 }
-// Called by a runtime integration when it is wired in, and by tests with a fake. Pass null to restore the default.
+// Controlled test injection. Pass null to restore the unavailable default; production code must not register an executor.
 export function registerPythonExecutor(executor: PythonExecutor | null) { current = executor; }
 
 export function pythonUnavailableOutcome(diagnostic = PYTHON_UNAVAILABLE_DIAGNOSTIC): RunnerOutcome {

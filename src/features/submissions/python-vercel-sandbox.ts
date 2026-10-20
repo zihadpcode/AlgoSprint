@@ -14,9 +14,9 @@ import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-
 //   `timeout` is only a backstop if stop() fails.
 // The expected outputs never enter the VM; the application compares the program's stdout itself.
 //
-// What is NOT claimed: rlimits are per process. The bootstrap forbids new processes and threads (see below), which makes the
-// per-process limits the whole program's limits as far as that mechanism holds, but a live probe has to confirm it in the real
-// image. The VM itself (one vCPU, 2 GiB, 30 s TTL, no network) bounds the damage of anything that slips through.
+// What is NOT claimed: rlimits are per process. The bootstrap attempts to forbid new processes and threads (see below).
+// A trusted live probe allowed fork despite NPROC=0: do not activate this executor until an aggregate boundary is verified.
+// The VM itself (one vCPU, 2 GiB, 30 s TTL, no network) bounds the damage of anything that slips through.
 
 export const PYTHON_SANDBOX_IMAGE = "vercel/sandbox/python:3.14";
 export const PYTHON_SANDBOX_UNAVAILABLE = "Python execution is temporarily unavailable. Please try again in a moment.";
@@ -37,28 +37,28 @@ const START_BUDGET_MS = 12_000;
 const STARTUP_GRACE_MS = 600;
 // After the program exits, how long to wait for its last output to arrive.
 const DRAIN_MS = 1500;
+const CLEANUP_TIMEOUT_MS = 2000;
 const VM_TTL_MS = 30_000;
 const MEMORY_HEADROOM_BYTES = 32 * 1024 * 1024;
 const ADDRESS_SPACE_HEADROOM_BYTES = 512 * 1024 * 1024;
 
 // Trusted bootstrap. Lowers the limits first (hard limits cannot be raised again without privilege), then runs the generated
 // program with stdin pointed at the case input. Learner code only ever reaches Python as text inside program.py.
-// RLIMIT_NPROC is set to the number of processes the user already has, so the program cannot start another process or
-// thread: that is what makes the per-process CPU and memory limits apply to the whole program.
+// Reject root and irreversibly disable privilege gains across exec before learner code. NPROC=0 avoids relying on a racy
+// snapshot of /proc, but the live fork-denial probe failed; it is not a verified aggregate boundary in the managed image.
 export const PYTHON_BOOTSTRAP = String.raw`
-import os, resource, sys
+import ctypes, os, resource, sys
+if os.getuid() == 0 or os.geteuid() == 0:
+    raise RuntimeError("Python bootstrap requires an unprivileged user")
+libc = ctypes.CDLL(None, use_errno=True)
+PR_SET_NO_NEW_PRIVS, PR_GET_NO_NEW_PRIVS = 38, 39
+if libc.prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) != 0 or libc.prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) != 1:
+    raise RuntimeError("Python bootstrap cannot disable privilege gains")
 here = os.path.dirname(os.path.abspath(__file__))
 cpu_seconds, memory_bytes = int(sys.argv[1]), int(sys.argv[2])
 def cap(kind, soft, hard=None):
     resource.setrlimit(kind, (soft, soft if hard is None else hard))
-uid = os.getuid()
-running = 0
-for name in os.listdir("/proc"):
-    if name.isdigit():
-        try:
-            if os.stat("/proc/" + name).st_uid == uid: running += 1
-        except OSError: pass
-cap(resource.RLIMIT_NPROC, max(running, 1))
+cap(resource.RLIMIT_NPROC, 0)
 cap(resource.RLIMIT_CORE, 0)
 cap(resource.RLIMIT_FSIZE, 1 << 20)
 cap(resource.RLIMIT_NOFILE, 32)
@@ -77,7 +77,7 @@ type Log = { stream: "stdout" | "stderr"; data: string };
 export type CommandHandle = {
   logs(options?: { signal?: AbortSignal }): AsyncIterable<Log>;
   wait(options?: { signal?: AbortSignal }): Promise<{ exitCode: number | null }>;
-  kill(signal?: "SIGKILL"): Promise<void>;
+  kill(signal?: "SIGKILL", options?: { abortSignal?: AbortSignal }): Promise<void>;
 };
 export type SandboxHandle = {
   writeFiles(files: { path: string; content: Buffer }[], options?: { signal?: AbortSignal }): Promise<void>;
@@ -142,6 +142,25 @@ const budgetExhausted = (): PythonCaseRun => ({ kind: "time-limit", stdout: "", 
 const SIGXCPU_EXIT = 128 + 24;
 const SIGKILL_EXIT = 128 + 9;
 
+async function boundedCleanup(operation: (signal: AbortSignal) => Promise<unknown>) {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      new Promise<void>((resolve) => { timer = setTimeout(() => { controller.abort(); resolve(); }, CLEANUP_TIMEOUT_MS); }),
+      operation(controller.signal),
+    ]);
+  } catch { /* The provider TTL remains the backstop if cleanup fails. */ }
+  finally { clearTimeout(timer); }
+}
+
+async function drainOutput(reading: Promise<boolean>) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([reading, new Promise<false>((resolve) => { timer = setTimeout(() => resolve(false), DRAIN_MS); })]);
+  } finally { clearTimeout(timer); }
+}
+
 export function createVercelSandboxExecutor(factory: SandboxFactory = createVercelSandbox): PythonExecutor & { concurrency: number } {
   const gate = new Gate(INSTANCE_CONCURRENCY);
   return {
@@ -167,6 +186,7 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
   const sandbox = await factory(AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS)]));
   let command: CommandHandle | undefined;
   let finished = false;
+  const stop = new AbortController();
   try {
     await sandbox.writeFiles([
       { path: `${PYTHON_RUN_DIR}/boot.py`, content: Buffer.from(PYTHON_BOOTSTRAP) },
@@ -176,7 +196,6 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
 
     const limit = RUNNER_LIMITS.maxOutputBytes;
     const stdout = new BoundedText(limit), stderr = new BoundedText(limit);
-    const stop = new AbortController();
     const caseDeadline = AbortSignal.timeout(wallMs);
     const started = Date.now();
     command = await sandbox.runCommand({
@@ -188,29 +207,34 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     const settled = <T>(promise: Promise<T>) => promise.catch(() => undefined);
     let overflowed: () => void = () => undefined;
     const overflow = new Promise<"overflow">((resolve) => { overflowed = () => resolve("overflow"); });
+    let streamFailed: () => void = () => undefined;
+    const streamFailure = new Promise<"stream-failure">((resolve) => { streamFailed = () => resolve("stream-failure"); });
     // Output is read as it arrives and dropped past the cap; the loop ends on end of stream, overflow or `stop`.
-    const reading = settled((async () => {
-      for await (const log of command!.logs({ signal: stop.signal })) {
-        (log.stream === "stdout" ? stdout : stderr).add(log.data);
-        if (stdout.exceeded || stderr.exceeded) { overflowed(); return; }
-      }
-    })());
+    const reading = (async () => {
+      try {
+        for await (const log of command!.logs({ signal: stop.signal })) {
+          (log.stream === "stdout" ? stdout : stderr).add(log.data);
+          if (stdout.exceeded || stderr.exceeded) { overflowed(); return true; }
+        }
+        return true;
+      } catch { streamFailed(); return false; }
+    })();
     const exit = command.wait({ signal: stop.signal }).then((result) => ({ exitCode: result.exitCode }));
     const abortedBy = (signal: AbortSignal, label: "case" | "total") => new Promise<typeof label>((resolve) => {
       if (signal.aborted) resolve(label); else signal.addEventListener("abort", () => resolve(label), { once: true });
     });
 
-    const first = await Promise.race([exit, overflow, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]);
+    const first = await Promise.race([exit, overflow, streamFailure, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]);
+    if (first === "stream-failure") throw new Error("output transport failed");
     let exitCode: number | null = null;
     if (typeof first === "object") {
       exitCode = first.exitCode;
       finished = true;
       // The program is done; let the last output arrive, but do not wait on it indefinitely.
-      await Promise.race([reading, new Promise((resolve) => setTimeout(resolve, DRAIN_MS))]);
+      if (!await drainOutput(reading)) throw new Error("output transport incomplete");
     } else {
       // Stop reading and waiting, and kill the program. The VM is stopped below whether or not the kill worked.
       stop.abort();
-      await settled(command.kill("SIGKILL"));
     }
     stop.abort();
     void settled(exit);
@@ -223,9 +247,11 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     if (/\bMemoryError\b/.test(base.stderr.slice(-2000)) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
   } finally {
-    // The provider TTL is the backstop if this fails; never block the verdict on it. Kill first so a stuck command is not
-    // left running while the VM is torn down.
-    if (command && !finished) await command.kill("SIGKILL").catch(() => undefined);
-    await sandbox.stop({ signal: AbortSignal.timeout(5000) }).catch(() => undefined);
+    stop.abort();
+    // Start both cleanup operations so a stuck kill cannot prevent VM teardown or hold an instance slot forever.
+    await Promise.all([
+      command && !finished ? boundedCleanup((signal) => command!.kill("SIGKILL", { abortSignal: signal })) : undefined,
+      boundedCleanup((signal) => sandbox.stop({ signal })),
+    ]);
   }
 }

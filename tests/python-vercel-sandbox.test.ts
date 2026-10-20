@@ -138,6 +138,54 @@ it("caps stderr independently and keeps stdout intact", async () => {
   expect(run.kind === "exited" && Buffer.byteLength(run.stderr)).toBe(RUNNER_LIMITS.maxOutputBytes + 1);
 });
 
+it.each([0, 15])("rejects incomplete output when log transport fails after %i ms", async (delay) => {
+  const made = fakeVm({ exit: 0, logs: async function* () {
+    yield { stream: "stdout" as const, data: "1" };
+    if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
+    throw new Error("provider transport secret");
+  } });
+  const run = await executorFor(made).runCase(request);
+  expect(mapPythonRun(run, 1, request).status).toBe("INTERNAL_ERROR");
+  expect(run).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+  expect(made.vm.stopped).toBe(1);
+});
+
+it("requires the output stream to finish before judging a successful process", async () => {
+  vi.useFakeTimers();
+  try {
+    const made = fakeVm({ exit: 0, logs: async function* () {
+      yield { stream: "stdout" as const, data: "1" };
+      await new Promise<void>(() => undefined);
+    } });
+    const running = executorFor(made).runCase(request);
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(await running).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+    expect(made.vm.stopped).toBe(1);
+  } finally { vi.useRealTimers(); }
+});
+
+it("attempts VM teardown even when command kill hangs, and bounds cleanup", async () => {
+  vi.useFakeTimers();
+  try {
+    const made = fakeVm({ exit: null });
+    const kill = vi.fn<CommandHandle["kill"]>(() => new Promise<void>(() => undefined));
+    const teardown = vi.fn<SandboxHandle["stop"]>(() => new Promise<void>(() => undefined));
+    const originalRun = made.handle.runCommand;
+    made.handle.runCommand = async (options) => ({ ...await originalRun(options), kill });
+    made.handle.stop = teardown;
+    const total = new AbortController();
+    const running = executorFor(made).runCase({ ...request, signal: total.signal });
+    await vi.advanceTimersByTimeAsync(0);
+    total.abort();
+    await vi.advanceTimersByTimeAsync(2001);
+    expect(await running).toMatchObject({ kind: "time-limit" });
+    expect(kill).toHaveBeenCalledTimes(1);
+    expect(teardown).toHaveBeenCalledTimes(1);
+    expect(kill.mock.calls[0][1]?.abortSignal?.aborted).toBe(true);
+    expect(teardown.mock.calls[0][0]?.signal?.aborted).toBe(true);
+  } finally { vi.useRealTimers(); }
+});
+
 it("hides provider failures behind one generic message and never calls them a wrong answer", async () => {
   const failing = [
     async () => { throw new Error("quota exceeded for team zihadpcode-7061 token abc"); },
@@ -174,12 +222,14 @@ it("runs a submission's cases concurrently but returns outcomes in case order", 
   expect(peak).toBeGreaterThan(1); expect(peak).toBeLessThanOrEqual(5);
 });
 
-it("is selected only by the explicit PYTHON_RUNNER opt-in", () => {
+it("cannot be activated by a deployment flag after the live process-limit failure", () => {
   expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
   for (const value of ["", "true", "vercel_sandbox", "judge0"]) { vi.stubEnv("PYTHON_RUNNER", value); expect(getPythonExecutor(), value).toBe(unavailablePythonExecutor); }
   vi.stubEnv("PYTHON_RUNNER", "vercel-sandbox");
-  expect(getPythonExecutor().available).toBe(true);
-  expect(getPythonExecutor()).toBe(getPythonExecutor());
+  vi.stubEnv("CODE_RUNNER_ENABLED", "true");
+  vi.stubEnv("CODE_RUNNER_PROVIDER", "sandbox");
+  expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
+  expect(f.create).not.toHaveBeenCalled();
   const fake = { available: true, runCase: async () => ({ kind: "unavailable" as const, diagnostic: "" }) };
   registerPythonExecutor(fake);
   expect(getPythonExecutor()).toBe(fake);
