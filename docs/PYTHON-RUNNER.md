@@ -1,6 +1,6 @@
 # Python runner: architecture and the Vercel Sandbox executor
 
-**Status: the executor is implemented, reviewed once, and OFF by default. Do not enable it yet.** Python runs only when a deployment sets `PYTHON_RUNNER=vercel-sandbox` (with `CODE_RUNNER_ENABLED=true` and `CODE_RUNNER_PROVIDER=sandbox`); the flag is absent from Production and Preview. The owner chose Vercel Sandbox on October 19, 2026. **No real Sandbox VM has been started.** Unit tests use a fake VM, and the in-VM limits were exercised only in a local Linux container (see [Executor](#vercel-sandbox-executor)). Complete the [go-live checklist](#go-live-checklist) first.
+**Status: the executor is implemented, reviewed once, and OFF by default. Do not enable it yet.** Python runs only when a deployment sets `PYTHON_RUNNER=vercel-sandbox` (with `CODE_RUNNER_ENABLED=true` and `CODE_RUNNER_PROVIDER=sandbox`); the flag is absent from Production and Preview. The owner chose Vercel Sandbox on October 19, 2026. **A trusted live bootstrap probe failed on October 20, 2026; Python remains unavailable to learners.** Unit tests use a fake VM, and the local Linux checks differ from the live result (see [Executor](#vercel-sandbox-executor)). Complete the [go-live checklist](#go-live-checklist) first.
 
 ## What exists today
 
@@ -90,7 +90,7 @@ The next approved implementation must preserve the executor contract, reject uns
 
 ### What this does and does not guarantee
 
-- **Per-process, not aggregate, limits.** `RLIMIT_CPU`/`RLIMIT_DATA` apply to one process. They bound the whole program only because `RLIMIT_NPROC` stops it starting another process or thread. That relies on the kernel honouring `RLIMIT_NPROC=0` and `no_new_privs` in the real image; it has been checked only in a local container. A cgroup (v2) memory/CPU/pids limit with `cgroup.kill` would be an enforceable aggregate limit, but it needs a privileged bootstrap and live confirmation that delegation works (see `scripts/probe-python-sandbox-enforcement.ts`). If the live probe shows it unavailable, the NPROC mechanism is the only aggregate bound and should be accepted or rejected explicitly by the owner before enabling Python.
+- **Per-process, not aggregate, limits.** `RLIMIT_CPU`/`RLIMIT_DATA` apply to one process. They bound the whole program only because `RLIMIT_NPROC` stops it starting another process or thread. That relies on the kernel honouring `RLIMIT_NPROC=0` and `no_new_privs` in the real image. The October 20 live probe reached its fork-allowed failure branch, so this aggregate-bound assumption is not established and must not be used to activate the runner. A cgroup (v2) memory/CPU/pids limit with `cgroup.kill` would be an enforceable aggregate limit, but it needs a privileged bootstrap and live confirmation that delegation works (see `scripts/probe-python-sandbox-enforcement.ts`). If the live probe shows it unavailable, the NPROC mechanism is the only aggregate bound and should be accepted or rejected explicitly by the owner before enabling Python.
 - **Programs that use threads or subprocesses fail** (`can't start new thread`, `BlockingIOError`). The problem library does not need either.
 - **Blast radius.** Anything that slips past the rlimits is still confined to one throw-away VM: one vCPU, 2 GiB, no network, no secrets, 30 s TTL, wall-clock killed.
 - **Capacity.** A per-instance gate (8 VMs) and a per-run width (5) keep one server from queueing itself. They are **not** a project-wide limit: concurrency across serverless instances is bounded only by the provider's quota, and exhaustion shows learners the generic unavailable message.
@@ -108,3 +108,13 @@ Do not skip steps or reorder them. Production and Preview must keep `PYTHON_RUNN
 5. To turn Python off, remove `PYTHON_RUNNER` and redeploy. The language selector then disables Run for Python again.
 
 The optional local regression `PYTHON_BOOTSTRAP_LINUX_CHECK=1 npx vitest run tests/python-bootstrap-linux.test.ts` uses an already-installed `python:3.14-slim` Docker image with no network and bounded CPU/memory/PIDs. It confirms a root-owned setuid `id` gains root in the control, remains unprivileged when reached through the bootstrap via `os.execv`, and that root execution, failed `prctl`, and `fork` are rejected. This proves the local kernel path only; it does not establish the managed image's sudo policy or live runner enforcement.
+
+## October 20 trusted live bootstrap probe: NO GO
+
+One trusted probe ran against the AlgoSprint Hobby project, using the actual bootstrap from this change and no learner code, application credentials, expected outputs or account data. The command requested `vercel/sandbox/python:3.14`, one vCPU, deny-all networking, nonpersistent storage, a 30-second expiry and automatic stop. Vercel CLI 64.7.0 delegated to Sandbox CLI 4.4.0.
+
+The session record (`sbx_TFXNVA8iVVaWpRf8Guu6QxYw9zmC`) reports **stopped**, a 1,271 ms duration and legacy runtime label `node22`; the requested image was not independently verified. The command (`cmd_6ac5907d4e324e8689de0acb6a7d`) reports exit code **9**, used by the trusted fixture only when `os.fork()` succeeds. Before that attempt, the fixture asserted a non-root real/effective UID, `no_new_privs=1` and hard/soft `RLIMIT_NPROC=(0,0)`. Therefore the live process restriction failed despite passing locally. Thread denial and later assertions were not reached.
+
+The CLI returned status zero without the command's JSON output, so its process status alone was not a successful probe result. Reading the stopped command's logs returned 410; the session and command metadata provided the failure evidence. No second VM or automatic retry was started, and Production/Preview `PYTHON_RUNNER` remained absent.
+
+Activation remains blocked. Investigate the requested-image/runtime discrepancy and use a live-verified aggregate process/resource boundary; do not accept the current NPROC-only approach. This one probe does not establish memory, CPU, network or full learner-runner isolation.
