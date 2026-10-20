@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 import { createDatabaseClient } from "@/lib/db/client";
-import { reserveSubmission, finishSubmission } from "@/features/submissions/store";
+import { reserveSubmission, finishSubmission, RUN_REFUSALS } from "@/features/submissions/store";
+import { PYTHON_BUSY, PYTHON_DAILY_LIMIT, PYTHON_USER_LIMIT } from "@/features/submissions/python-budget";
 import { runSubmission } from "@/features/submissions/service";
 import { loadProblems } from "../../scripts/lib/load-problems";
 import { seedProblems } from "../../prisma/seed-data";
@@ -62,16 +63,18 @@ it("denies archived and absent problems without recording or executing an attemp
 it("allows one concurrent reservation per owner across database connections", async () => {
   const values = await Promise.all([reserveSubmission(db, owners[0], input), reserveSubmission(db, owners[0], input)]);
   expect(values.filter((v) => "error" in v)).toHaveLength(1);
+  expect(values.find((v) => "error" in v)).toEqual({ error: RUN_REFUSALS.ownActive });
   expect(await db.userSubmission.count({ where: { userId: owners[0] } })).toBe(1);
   expect(await reserveSubmission(db, owners[1], input)).not.toHaveProperty("error");
 });
 it("enforces persisted per-minute and per-hour quotas, including failed requests", async () => {
-  for (const [count, age] of [[5, 10000], [30, 120000]]) {
+  for (const [count, age, message] of [[5, 10000, RUN_REFUSALS.perMinute], [30, 120000, RUN_REFUSALS.perHour]] as const) {
     await db.userSubmission.deleteMany({ where: { userId: owners[0] } });
     await db.userSubmission.createMany({ data: Array.from({ length: count }, () => ({ userId: owners[0], problemId,
       problemRevision: 1, language: "JAVASCRIPT" as const, mode: "RUN" as const, code: "fixture", status: "INTERNAL_ERROR" as const,
       createdAt: new Date(Date.now() - age), completedAt: new Date() })) });
-    expect(await reserveSubmission(db, owners[0], input)).toHaveProperty("error");
+    // Each cap names itself: hitting the per-minute cap must not claim an hourly limit, and vice versa.
+    expect(await reserveSubmission(db, owners[0], input)).toEqual({ error: message });
   }
 });
 it("recovers abandoned reservations after two minutes without fabricating success", async () => {
@@ -94,7 +97,7 @@ it("enforces the deployment-wide quota across different owners", async () => {
   await db.userSubmission.createMany({ data: Array.from({ length: 60 }, () => ({ userId: owners[1], problemId,
     problemRevision: 1, language: "JAVASCRIPT" as const, mode: "RUN" as const, code: "fixture", status: "INTERNAL_ERROR" as const,
     createdAt: new Date(), completedAt: new Date() })) });
-  expect(await reserveSubmission(db, owners[0], input)).toHaveProperty("error");
+  expect(await reserveSubmission(db, owners[0], input)).toEqual({ error: RUN_REFUSALS.busy });
 });
 it("verifies a full submission end to end through the in-process sandbox and records a verified solve", async () => {
   const optimal = "function relayWindow(loads, width) { let total = 0; for (let i = 0; i < width; i++) total += loads[i]; let best = total; for (let i = width; i < loads.length; i++) { total += loads[i] - loads[i - width]; best = Math.max(best, total); } return best; }";
@@ -199,7 +202,7 @@ it("enforces the deployment-wide cap of 20 active attempts across different owne
     await db.userSubmission.updateMany({ where: { userId: owners[0] }, data: { status: "INTERNAL_ERROR", completedAt: new Date() } });
     expect(await db.userSubmission.count({ where: { status: { in: ["QUEUED", "RUNNING"] } } })).toBe(20);
     const before = await db.userSubmission.count();
-    expect(await reserveSubmission(db, owners[1], input)).toHaveProperty("error");
+    expect(await reserveSubmission(db, owners[1], input)).toEqual({ error: RUN_REFUSALS.busy });
     expect(await db.userSubmission.count()).toBe(before);
   } finally {
     await db.userSubmission.deleteMany({ where: { userId: { in: others } } });
@@ -215,4 +218,30 @@ it("rejects Submit for a problem with no HIDDEN case while Run still works", asy
     expect(await db.userSubmission.count()).toBe(0);
     expect(await reserveSubmission(db, owners[0], input)).not.toHaveProperty("error");
   } finally { await db.testCase.updateMany({ where: { id: { in: hidden.map((t) => t.id) } }, data: { visibility: "HIDDEN" } }); }
+});
+
+// Python starts one VM per case, so it has its own VM budgets on top of the request limits. JavaScript is never affected.
+const pythonRows = (userId: string, count: number, totalCount: number, extra: Record<string, unknown> = {}) => db.userSubmission.createMany({ data: Array.from({ length: count }, () => ({
+  userId, problemId, problemRevision: 1, language: "PYTHON" as const, mode: "RUN" as const, code: "fixture", status: "INTERNAL_ERROR" as const, totalCount,
+  createdAt: new Date(Date.now() - 7_200_000), completedAt: new Date(), ...extra })) });
+it("budgets Python by VMs per user per day, counting failed runs, without limiting JavaScript", async () => {
+  await seedLanguageStarters(db, await loadPythonStarters());
+  await pythonRows(owners[0], 6, 10);                       // 60 VMs used today, all of them failed runs
+  expect(await reserveSubmission(db, owners[0], pythonInput)).toEqual({ error: PYTHON_USER_LIMIT });
+  expect(await reserveSubmission(db, owners[0], input)).not.toHaveProperty("error");
+  expect(await reserveSubmission(db, owners[1], pythonInput)).not.toHaveProperty("error");
+});
+it("renews the per-user Python budget after 24 hours", async () => {
+  await seedLanguageStarters(db, await loadPythonStarters());
+  await pythonRows(owners[0], 6, 10, { createdAt: new Date(Date.now() - 90_000_000) });
+  expect(await reserveSubmission(db, owners[0], pythonInput)).not.toHaveProperty("error");
+});
+it("applies the global daily Python budget across owners and caps concurrent Python attempts", async () => {
+  await seedLanguageStarters(db, await loadPythonStarters());
+  await pythonRows(owners[1], 15, 10);                      // 150 VMs used today by someone else
+  expect(await reserveSubmission(db, owners[0], pythonInput)).toEqual({ error: PYTHON_DAILY_LIMIT });
+  await db.userSubmission.deleteMany({ where: { userId: owners[1] } });
+  await pythonRows(owners[1], 2, 1, { status: "RUNNING", createdAt: new Date() });
+  expect(await reserveSubmission(db, owners[0], pythonInput)).toEqual({ error: PYTHON_BUSY });
+  expect(await reserveSubmission(db, owners[0], input)).not.toHaveProperty("error");
 });
