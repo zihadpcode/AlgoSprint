@@ -149,3 +149,9 @@ Fill in this record only from observed results:
 If a code release fails, restore the last known-good compatible Vercel deployment. A code rollback does not undo migrations or restore data. For a schema issue, assess compatibility and use a reviewed forward fix or an explicitly planned backup restoration; do not automatically reverse migrations. If a credential is exposed, rotate it at the provider, update scoped configuration and rebuild/redeploy as needed. Redact credentials and account data from diagnostics.
 
 Phase 16 is complete only after live setup, deployment and the required verification are recorded. Repository preparation can be merged independently while those items remain clearly pending.
+
+### Optional Auth IP forwarding
+
+Server-side Auth requests otherwise share the Vercel server IP rate-limit bucket. Leave `SUPABASE_AUTH_IP_FORWARDING` unset unless forwarding is configured. To opt in on Vercel, set it to `true`, provision a server-only `SUPABASE_AUTH_FORWARDING_SECRET_KEY` (`sb_secret_…`), and enable **Authentication → Rate Limits → IP Address Forwarding** in the matching Supabase project. Invalid enabled configuration fails before a provider request. The secret is used only for the current end-user Auth endpoints; Data and Auth admin calls retain the publishable key. User bearer tokens and cookies retain their existing behavior. No production setting is changed by deploying this code.
+
+Before enabling production, verify in a preview with its own Auth project that two controlled browser networks appear with distinct visitor IPs in Auth logs and that refresh and recovery still work. Do not deliberately exhaust production limits. See [Supabase IP forwarding](https://supabase.com/docs/guides/auth/rate-limits#ip-address-forwarding) and [Vercel request headers](https://vercel.com/docs/headers/request-headers#x-vercel-forwarded-for).

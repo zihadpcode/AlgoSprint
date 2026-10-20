@@ -1,6 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { authForwardingOptions, authIpForwardingEnabled } from "./auth-forwarding";
 import { authCookieOptions, getSupabaseConfig } from "./config";
 
 export async function createAuthClient(writable = false) {
@@ -8,6 +9,7 @@ export async function createAuthClient(writable = false) {
   if (!config) throw new Error("Accounts are temporarily unavailable.");
   const jar = await cookies();
   return createServerClient(config.url, config.key, {
+    ...authForwardingOptions(config, authIpForwardingEnabled() ? await headers() : new Headers()),
     cookieOptions: authCookieOptions,
     cookies: {
       getAll: () => jar.getAll(),

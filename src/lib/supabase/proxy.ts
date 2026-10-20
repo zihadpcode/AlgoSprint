@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { authForwardingOptions } from "./auth-forwarding";
 import { authCookieOptions, getSupabaseConfig } from "./config";
 
 export async function refreshAuth(request: NextRequest) {
@@ -12,6 +13,7 @@ export async function refreshAuth(request: NextRequest) {
     return response;
   }
   const client = createServerClient(config.url, config.key, {
+    ...authForwardingOptions(config, request.headers),
     cookieOptions: authCookieOptions,
     cookies: {
       getAll: () => request.cookies.getAll(),
