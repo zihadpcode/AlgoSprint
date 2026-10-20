@@ -16,6 +16,9 @@ export async function proxy(request: NextRequest) {
   return refreshAuth(request);
 }
 
+// Every route whose server render can call Supabase getUser() must be listed. A Server Component cannot persist cookies, so
+// a refresh it triggers rotates the refresh token and throws the new one away; the next request then replays the spent
+// token and the session is lost. tests/auth-proxy-coverage.test.ts fails when a new top-level route is missing here.
 export const config = {
-  matcher: ["/login", "/register", "/forgot-password", "/reset-password", "/resend-confirmation", "/auth/:path*", "/dashboard/:path*", "/progress/:path*", "/profile/:path*", "/admin/:path*", "/problems/:path*", "/notes/:path*", "/bookmarks/:path*", "/review/:path*", "/roadmaps/:path*", "/mock-interview/:path*", "/interview-results/:path*", "/api/:path*"],
+  matcher: ["/", "/leaderboard", "/login", "/register", "/forgot-password", "/reset-password", "/resend-confirmation", "/auth/:path*", "/dashboard/:path*", "/progress/:path*", "/profile/:path*", "/admin/:path*", "/problems/:path*", "/notes/:path*", "/bookmarks/:path*", "/review/:path*", "/roadmaps/:path*", "/mock-interview/:path*", "/interview-results/:path*", "/api/:path*"],
 };

@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
       { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "no-referrer" },
       { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+      // Script and style sources are left to the framework (the editor needs workers and inline styles). These directives
+      // need no allow-list: no plugins, no <base> hijack, no form posting to another site, and no framing (X-Frame-Options
+      // covers older browsers).
+      { key: "Content-Security-Policy", value: "base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'none'" },
     ] }];
   },
 };

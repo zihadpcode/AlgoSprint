@@ -16,6 +16,23 @@ describe("auth actions", () => {
     f.signIn.mockResolvedValue({ error: { status: 400, message: "private provider detail" } }); expect((await login({}, form())).message).not.toContain("private");
     f.signIn.mockResolvedValue({ error: { status: 429 } }); expect((await login({}, form())).message).toContain("Too many attempts");
   });
+  it("keeps the email after a failed attempt but never echoes the password", async () => {
+    f.signIn.mockResolvedValue({ error: { status: 400 } });
+    const failed = await login({}, form({ email: "ada@example.com", password: "wrong password here" }));
+    expect(failed.values).toEqual({ email: "ada@example.com", displayName: "Ada" });
+    expect(JSON.stringify(failed)).not.toContain("wrong password here");
+    const invalid = await login({}, form({ email: "bad", password: "x" }));
+    expect(invalid.values?.email).toBe("bad"); expect(JSON.stringify(invalid)).not.toContain('"password"');
+    f.signUp.mockResolvedValue({ data: { session: null }, error: { status: 400 } });
+    expect((await register({}, form({ displayName: "Grace" }))).values).toEqual({ email: "a@example.com", displayName: "Grace" });
+    expect((await login({}, form({ email: "e".repeat(400) }))).values?.email).toHaveLength(254);
+  });
+  it("explains an unconfirmed account without changing the wrong-password message", async () => {
+    f.signIn.mockResolvedValue({ error: { status: 400, code: "email_not_confirmed", message: "Email not confirmed" } });
+    expect((await login({}, form())).message).toMatch(/not confirmed.*resend/i);
+    f.signIn.mockResolvedValue({ error: { status: 400, code: "invalid_credentials", message: "Invalid login credentials" } });
+    expect((await login({}, form())).message).toBe("Could not sign in. Check your email, password, and email confirmation.");
+  });
   it("writes cookies and limits post-login navigation", async () => {
     f.signIn.mockResolvedValue({ error: null }); await expect(login({}, form({ next: "//evil.test" }))).rejects.toThrow("REDIRECT:/dashboard"); expect(f.create).toHaveBeenCalledWith(true); expect(f.revalidate).toHaveBeenCalled();
   });
