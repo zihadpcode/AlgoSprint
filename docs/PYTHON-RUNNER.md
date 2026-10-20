@@ -1,6 +1,6 @@
 # Python runner: architecture and the Vercel Sandbox executor
 
-**Status: the executor is implemented, reviewed once, and OFF by default. Do not enable it yet.** Python runs only when a deployment sets `PYTHON_RUNNER=vercel-sandbox` (with `CODE_RUNNER_ENABLED=true` and `CODE_RUNNER_PROVIDER=sandbox`); the flag is absent from Production and Preview. The owner chose Vercel Sandbox on October 19, 2026. **A trusted live bootstrap probe failed on October 20, 2026; Python remains unavailable to learners.** Unit tests use a fake VM, and the local Linux checks differ from the live result (see [Executor](#vercel-sandbox-executor)). Complete the [go-live checklist](#go-live-checklist) first.
+**Status: the executor is implemented, reviewed once, and OFF by default. Do not enable it yet.** Deployment flags cannot activate the executor while the code-level hold is in place. `getPythonExecutor()` returns unavailable unless a controlled test explicitly injects an executor. `PYTHON_RUNNER` is absent from Production and Preview and deployment validation rejects it. The owner chose Vercel Sandbox on October 19, 2026. **A trusted live bootstrap probe failed on October 20, 2026; Python remains unavailable to learners.** Unit tests use a fake VM, and the local Linux checks differ from the live result (see [Executor](#vercel-sandbox-executor)). Complete the [go-live checklist](#go-live-checklist) first.
 
 ## What exists today
 
@@ -25,13 +25,13 @@ Exit codes are part of the executor contract: `0` success, `3` compile error (`S
 
 ### Writing an executor
 
-An executor runs one program against one stdin and reports what happened: `exited` (exit code, stdout, stderr, runtime, memory), `time-limit`, `memory-limit` or `unavailable`. It must give the program no host filesystem, network, environment variables or other processes, and enforce the time and memory budget it is given (already clamped to `RUNNER_LIMITS`). Install it with `registerPythonExecutor(executor)` and set `available: true`; the UI and the action then expose Python automatically. Application execution remains disabled and runner tests use a fake executor. The optional harness test may invoke an already-installed local `python3`; that test is separate from the application runtime.
+An executor runs one program against one stdin and reports what happened: `exited` (exit code, stdout, stderr, runtime, memory), `time-limit`, `memory-limit` or `unavailable`. It must give the program no host filesystem, network, environment variables or other processes, and enforce the time and memory budget it is given (already clamped to `RUNNER_LIMITS`). `registerPythonExecutor(executor)` is retained for controlled tests; production code must not use it to bypass the activation hold. Application execution remains disabled and runner tests use a fake executor. The optional harness test may invoke an already-installed local `python3`; that test is separate from the application runtime.
 
 ## Add-on Python starters
 
 `npm run starters:python` regenerates `src/data/seeds/languages/python-starters.json` from `SIGNATURES` (one short stub per slug with `pass`; names and parameters in snake_case). `npm run seed:validate` checks that every slug exists, entry points and parameters are valid non-keyword identifiers, parameters do not collide, and the file matches the generator.
 
-`seedLanguageStarters` in `prisma/seed-language-starters.ts` inserts missing `StarterCode` rows for existing problems. It never updates or deletes, never touches `Problem` rows (so insert-only problem seeding and its content-hash protection are unaffected), is idempotent, and throws a conflict error before writing anything if an existing row for the same problem and language differs. It is deliberately **not** part of `npm run db:seed`: once these rows exist the editor offers Python (with Run disabled until `PYTHON_RUNNER` is set). Run `npm run db:seed:python-starters` (`scripts/seed-python-starters.ts`) only when the runner is about to be switched on. It reuses the same insert-only, conflict-checked function and is safe to repeat.
+`seedLanguageStarters` in `prisma/seed-language-starters.ts` inserts missing `StarterCode` rows for existing problems. It never updates or deletes, never touches `Problem` rows (so insert-only problem seeding and its content-hash protection are unaffected), is idempotent, and throws a conflict error before writing anything if an existing row for the same problem and language differs. It is deliberately **not** part of `npm run db:seed`: once these rows exist the editor offers Python (with Run disabled until the reviewed activation hold is lifted and the verified runner is configured). Run `npm run db:seed:python-starters` (`scripts/seed-python-starters.ts`) only when the runner is about to be switched on. It reuses the same insert-only, conflict-checked function and is safe to repeat.
 
 ## Earlier runtime options (historical)
 
@@ -77,7 +77,7 @@ The next approved implementation must preserve the executor contract, reject uns
 
 ## Vercel Sandbox executor
 
-`src/features/submissions/python-vercel-sandbox.ts`, selected by `getPythonExecutor()` only when `PYTHON_RUNNER=vercel-sandbox` (a registered executor, used by tests, still wins).
+`src/features/submissions/python-vercel-sandbox.ts` contains the dormant executor. `getPythonExecutor()` cannot select it from environment configuration while the live process-limit failure remains unresolved. Controlled tests may still inject an executor.
 
 - **One new VM per test case.** Image `vercel/sandbox/python:3.14`, one vCPU, `networkPolicy: "deny-all"`, no ports, nothing mounted, no credentials or environment passed in, `persistent: false`, 30 s provider TTL as a backstop. The command is killed and the VM stopped in `finally`. Nothing is reused across cases or users, and expected outputs never enter a VM.
 - **Files, not arguments.** The generated program and the case input are written to the VM as files under the absolute directory `/vercel/sandbox` (`boot.py`, `program.py`, `input.json`) and the command runs with that as its working directory, so nothing depends on where the SDK starts a command. Learner text never appears on a command line.
@@ -99,12 +99,12 @@ Local container check (Python 3.14, non-root, no network, same bootstrap and arg
 
 ## Go-live checklist
 
-Do not skip steps or reorder them. Production and Preview must keep `PYTHON_RUNNER` unset until step 4.
+Do not skip steps or reorder them. Keep `PYTHON_RUNNER` unset while the activation hold remains. After the reviewed enforcement fix, use it only in the bounded Preview test at step 3 before any Production configuration at step 4.
 
 1. Confirm Sandbox is enabled for the Vercel project and check the plan quota. Hobby allows 10 concurrent sandboxes and monthly CPU and creation caps; each Python run starts up to one VM per test case (at most 10), so capacity is the practical limit.
 2. Run the saved trusted probes once (`scripts/inspect-python-sandbox.ts`, `scripts/probe-python-sandbox-enforcement.ts`) with owner approval. Confirm the image runs as a non-root user, that `/vercel/sandbox` is writable, and whether cgroup delegation works. Also exercise the actual `PYTHON_BOOTSTRAP` from the executor: verify `no_new_privs` readback, denial of privilege gain across `exec`, and that hard `RLIMIT_NPROC=0` blocks a second process. The separate cgroup probe does not exercise these bootstrap protections. The October 20 fork-denial failure must be resolved; require live-verified aggregate resource enforcement before continuing.
-3. With owner approval, run a bounded live test on a Preview deployment with the flag set only there: a correct solution, an infinite loop, a sleeping program, a memory bomb, a fork/thread attempt and an output flood. Check the verdicts, the elapsed time against the 20 s budget, that output cannot grow server memory, and in the Vercel dashboard that no VMs remain afterwards (command kill and stop, not just the TTL).
-4. Set `PYTHON_RUNNER=vercel-sandbox` in Production, redeploy, then run `npm run db:seed:python-starters` from a trusted checkout (insert-only) so the editor offers Python.
+3. After a reviewed resource-enforcement fix lifts the code-level hold, run a bounded live test on a Preview deployment with the flag set only there: a correct solution, an infinite loop, a sleeping program, a memory bomb, a fork/thread attempt and an output flood. Check the verdicts, the elapsed time against the 20 s budget, that output cannot grow server memory, and in the Vercel dashboard that no VMs remain afterwards (command kill and stop, not just the TTL).
+4. Only after the reviewed fix removes the activation hold and the prior checks pass, set `PYTHON_RUNNER=vercel-sandbox` in Production, redeploy, then run `npm run db:seed:python-starters` from a trusted checkout (insert-only) so the editor offers Python.
 5. To turn Python off, remove `PYTHON_RUNNER` and redeploy. The language selector then disables Run for Python again.
 
 The optional local regression `PYTHON_BOOTSTRAP_LINUX_CHECK=1 npx vitest run tests/python-bootstrap-linux.test.ts` uses an already-installed `python:3.14-slim` Docker image with no network and bounded CPU/memory/PIDs. It confirms a root-owned setuid `id` gains root in the control, remains unprivileged when reached through the bootstrap via `os.execv`, and that root execution, failed `prctl`, and `fork` are rejected. This proves the local kernel path only; it does not establish the managed image's sudo policy or live runner enforcement.

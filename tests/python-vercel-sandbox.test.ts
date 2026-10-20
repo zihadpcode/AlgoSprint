@@ -222,12 +222,14 @@ it("runs a submission's cases concurrently but returns outcomes in case order", 
   expect(peak).toBeGreaterThan(1); expect(peak).toBeLessThanOrEqual(5);
 });
 
-it("is selected only by the explicit PYTHON_RUNNER opt-in", () => {
+it("cannot be activated by a deployment flag after the live process-limit failure", () => {
   expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
   for (const value of ["", "true", "vercel_sandbox", "judge0"]) { vi.stubEnv("PYTHON_RUNNER", value); expect(getPythonExecutor(), value).toBe(unavailablePythonExecutor); }
   vi.stubEnv("PYTHON_RUNNER", "vercel-sandbox");
-  expect(getPythonExecutor().available).toBe(true);
-  expect(getPythonExecutor()).toBe(getPythonExecutor());
+  vi.stubEnv("CODE_RUNNER_ENABLED", "true");
+  vi.stubEnv("CODE_RUNNER_PROVIDER", "sandbox");
+  expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
+  expect(f.create).not.toHaveBeenCalled();
   const fake = { available: true, runCase: async () => ({ kind: "unavailable" as const, diagnostic: "" }) };
   registerPythonExecutor(fake);
   expect(getPythonExecutor()).toBe(fake);
