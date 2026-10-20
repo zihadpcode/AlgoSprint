@@ -22,7 +22,9 @@ import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-
 
 export const PYTHON_SANDBOX_IMAGE = "vercel/sandbox/python:3.14";
 export const PYTHON_SANDBOX_UNAVAILABLE = "Python execution is temporarily unavailable. Please try again in a moment.";
-export const PYTHON_BUDGET_EXHAUSTED = "The submission exceeded the total execution budget.";
+// Running out of the whole-run budget means the platform was slow (VM start-up, a busy instance), not that the learner's code
+// was; it is never reported as a time limit.
+export const PYTHON_BUDGET_EXHAUSTED = "Python execution did not finish within the time budget. Please try again.";
 
 // Absolute, so the bootstrap and the working directory do not depend on where the SDK starts a command.
 export const PYTHON_RUN_DIR = "/vercel/sandbox";
@@ -71,7 +73,19 @@ try:
     cap(resource.RLIMIT_CPU, cpu_seconds, cpu_seconds + 1)
     cap(resource.RLIMIT_DATA, memory_bytes)
     cap(resource.RLIMIT_AS, memory_bytes + ${ADDRESS_SPACE_HEADROOM_BYTES - MEMORY_HEADROOM_BYTES})
-    if ctypes.CDLL(None, use_errno=True).prctl(38, 1, 0, 0, 0) != 0: refuse("no_new_privs")
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(38, 1, 0, 0, 0) != 0: refuse("no_new_privs")
+    # setuid() empties the permitted, effective and ambient sets but leaves the inheritable one, so clear that explicitly
+    # (capset), and empty the bounding set so nothing can be acquired again. capget/capset numbers differ by architecture.
+    numbers = {"x86_64": (125, 126), "aarch64": (90, 91)}.get(os.uname().machine)
+    if numbers is None: refuse("architecture " + os.uname().machine)
+    class Header(ctypes.Structure): _fields_ = [("version", ctypes.c_uint32), ("pid", ctypes.c_int)]
+    class Data(ctypes.Structure): _fields_ = [("effective", ctypes.c_uint32), ("permitted", ctypes.c_uint32), ("inheritable", ctypes.c_uint32)]
+    header, data = Header(0x20080522, 0), (Data * 2)()
+    if libc.syscall(numbers[0], ctypes.byref(header), data) != 0: refuse("capget")
+    for part in data: part.inheritable = 0
+    if libc.syscall(numbers[1], ctypes.byref(header), data) != 0: refuse("capset")
+    for capability in range(64): libc.prctl(24, capability, 0, 0, 0)
     os.setgroups([]); os.setgid(${PYTHON_UNPRIVILEGED_UID}); os.setuid(${PYTHON_UNPRIVILEGED_UID})
     try:
         os.setuid(0); refuse("setuid(0) succeeded")
@@ -79,7 +93,7 @@ try:
     if (os.getuid(), os.geteuid(), os.getgid(), os.getegid(), os.getgroups()) != (${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, []): refuse("identity")
     with open("/proc/self/status") as status:
         for line in status:
-            if line.startswith(("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb")) and int(line.split()[1], 16) != 0 and not line.startswith("CapBnd"): refuse(line.strip())
+            if line.startswith(("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb")) and int(line.split()[1], 16) != 0: refuse(line.strip())
     sys.stdin = stdin_file
     program = compile(text, "program.py", "exec")
 except SystemExit: raise
@@ -154,7 +168,13 @@ class Gate {
 }
 
 const unavailable = (): PythonCaseRun => ({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
-const budgetExhausted = (): PythonCaseRun => ({ kind: "time-limit", stdout: "", stderr: PYTHON_BUDGET_EXHAUSTED, runtimeMs: null, memoryKb: null });
+const budgetExhausted = (): PythonCaseRun => ({ kind: "unavailable", diagnostic: PYTHON_BUDGET_EXHAUSTED });
+// Operators need to see why runs fail, but provider text can carry account details: log only the error type and numeric codes.
+function logFailure(error: unknown) {
+  const failure = error as { name?: unknown; status?: unknown; statusCode?: unknown; code?: unknown } | null;
+  const pick = (value: unknown) => typeof value === "string" || typeof value === "number" ? String(value).slice(0, 40) : undefined;
+  console.error("python-sandbox: run failed", { type: pick(failure?.name), status: pick(failure?.status ?? failure?.statusCode), code: pick(failure?.code) });
+}
 const SIGXCPU_EXIT = 128 + 24;
 const SIGKILL_EXIT = 128 + 9;
 
@@ -170,8 +190,9 @@ export function createVercelSandboxExecutor(factory: SandboxFactory = createVerc
       if (total.aborted) return budgetExhausted();
       try {
         return await gate.run(() => runInFreshVm(factory, request, wallMs, total), AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS + wallMs)]));
-      } catch {
+      } catch (error) {
         if (total.aborted) return budgetExhausted();
+        logFailure(error);
         // Quota, capacity, network and provider failures all look the same to the learner and are never a wrong answer.
         return unavailable();
       }
@@ -213,11 +234,18 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
       }
     })());
     const exit = command.wait({ signal: stop.signal }).then((result) => ({ exitCode: result.exitCode }));
+    // Listeners on the shared run-wide signal are removed in `finally`, or one would accumulate per case.
+    const detach: (() => void)[] = [];
     const abortedBy = (signal: AbortSignal, label: "case" | "total") => new Promise<typeof label>((resolve) => {
-      if (signal.aborted) resolve(label); else signal.addEventListener("abort", () => resolve(label), { once: true });
+      if (signal.aborted) { resolve(label); return; }
+      const listener = () => resolve(label);
+      signal.addEventListener("abort", listener, { once: true });
+      detach.push(() => signal.removeEventListener("abort", listener));
     });
 
-    const first = await Promise.race([exit, overflow, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]);
+    let first: Awaited<typeof exit> | "overflow" | "case" | "total";
+    try { first = await Promise.race([exit, overflow, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]); }
+    finally { for (const remove of detach) remove(); }
     let exitCode: number | null = null;
     if (typeof first === "object") {
       exitCode = first.exitCode;
@@ -232,7 +260,7 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     stop.abort();
     void settled(exit);
     const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs: Math.min(Date.now() - started, request.timeMs), memoryKb: null };
-    if (first === "total") return { kind: "time-limit", ...base, stderr: PYTHON_BUDGET_EXHAUSTED };
+    if (first === "total") return budgetExhausted();
     if (first === "case" || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
     if (first === "overflow") return { kind: "exited", exitCode: 1, ...base };
     if (exitCode === null) throw new Error("no exit status");
@@ -242,8 +270,8 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     if (/\bMemoryError\b/.test(base.stderr.slice(-2000)) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
   } finally {
-    // The provider TTL is the backstop if this fails; never block the verdict on it. Kill first so a stuck command is not
-    // left running while the VM is torn down.
+    // Kill first so a stuck command is not left running while the VM is torn down. stop() is awaited (a serverless instance may
+    // freeze once the response is sent) but bounded to 5 s; the provider TTL is the backstop if it fails.
     if (command && !finished) await command.kill("SIGKILL").catch(() => undefined);
     await sandbox.stop({ signal: AbortSignal.timeout(5000) }).catch(() => undefined);
   }

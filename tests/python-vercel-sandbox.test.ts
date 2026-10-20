@@ -80,12 +80,17 @@ it("never puts learner input on the command line or in the environment", async (
 it("starts as root only so the bootstrap can drop to an unprivileged identity before any learner code", () => {
   // The Sandbox image's own user holds every capability and has passwordless sudo, so limits set by it would bind nothing.
   expect(PYTHON_UNPRIVILEGED_UID).toBe(65534);
-  const order = ["program.py", "input.json", "RLIMIT_NPROC, 1", "prctl(38, 1", "os.setgroups([])", "os.setgid(65534)", "os.setuid(65534)", "os.setuid(0)", "/proc/self/status", "exec(program"];
+  // capset clears the inheritable set (setuid() leaves it set) and must happen while still root, before the identity change.
+  const order = ["program.py", "input.json", "RLIMIT_NPROC, 1", "prctl(38, 1", "libc.syscall(numbers[0]", "libc.syscall(numbers[1]", "prctl(24, capability", "os.setgroups([])", "os.setgid(65534)", "os.setuid(65534)", "os.setuid(0)", "/proc/self/status", "exec(program"];
   const positions = order.map((needle) => PYTHON_BOOTSTRAP.indexOf(needle));
   expect(positions.every((position) => position >= 0), order.filter((_, i) => positions[i] < 0).join()).toBe(true);
   expect([...positions].sort((a, b) => a - b)).toEqual(positions);
   // Files are read while still privileged, and learner code is compiled before the drop but only executed after the checks.
   expect(PYTHON_BOOTSTRAP.indexOf("exec(")).toBe(PYTHON_BOOTSTRAP.lastIndexOf("exec("));
+  // All five capability sets must be empty, the bounding set included, before learner code runs.
+  expect(PYTHON_BOOTSTRAP).toContain('("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb")');
+  expect(PYTHON_BOOTSTRAP).toContain("125, 126");
+  expect(PYTHON_BOOTSTRAP).toContain("90, 91");
   expect(PYTHON_BOOTSTRAP).toContain(PYTHON_SETUP_MARKER);
   expect(PYTHON_BOOTSTRAP).toContain(`os._exit(${PYTHON_EXIT_SANDBOX_SETUP})`);
 });
@@ -118,17 +123,17 @@ it("honours the run-wide deadline while the program is running", async () => {
   const made = fakeVm({ exit: null });
   const total = AbortSignal.timeout(40);
   const run = await executorFor(made).runCase({ ...request, signal: total });
-  expect(run).toMatchObject({ kind: "time-limit", stderr: PYTHON_BUDGET_EXHAUSTED });
+  expect(run).toEqual({ kind: "unavailable", diagnostic: PYTHON_BUDGET_EXHAUSTED });
   expect(made.vm.killed).toBeGreaterThan(0);
   expect(made.vm.stopped).toBe(1);
 });
 
 it("honours the run-wide deadline while the VM is still starting, and never starts one when it is already spent", async () => {
   const slowStart = createVercelSandboxExecutor((signal) => new Promise((_resolve, reject) => signal.addEventListener("abort", () => reject(new Error("aborted")), { once: true })));
-  expect(await slowStart.runCase({ ...request, signal: AbortSignal.timeout(40) })).toMatchObject({ kind: "time-limit", stderr: PYTHON_BUDGET_EXHAUSTED });
+  expect(await slowStart.runCase({ ...request, signal: AbortSignal.timeout(40) })).toEqual({ kind: "unavailable", diagnostic: PYTHON_BUDGET_EXHAUSTED });
   const factory = vi.fn(async () => fakeVm().handle);
   const spent = AbortSignal.abort();
-  expect(await createVercelSandboxExecutor(factory).runCase({ ...request, signal: spent })).toMatchObject({ kind: "time-limit" });
+  expect(await createVercelSandboxExecutor(factory).runCase({ ...request, signal: spent })).toEqual({ kind: "unavailable", diagnostic: PYTHON_BUDGET_EXHAUSTED });
   expect(factory).not.toHaveBeenCalled();
 });
 
@@ -157,6 +162,26 @@ it("caps stderr independently and keeps stdout intact", async () => {
   const run = await executorFor(made).runCase(request);
   expect(run.kind === "exited" && run.stdout).toBe("7");
   expect(run.kind === "exited" && Buffer.byteLength(run.stderr)).toBe(RUNNER_LIMITS.maxOutputBytes + 1);
+});
+
+it("logs why a run failed without leaking provider text, and keeps the learner message generic", async () => {
+  const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  try {
+    const error = Object.assign(new Error("quota exceeded for team zihadpcode-7061 token abc123"), { name: "APIError", status: 429 });
+    await createVercelSandboxExecutor(async () => { throw error; }).runCase(request);
+    expect(spy).toHaveBeenCalledTimes(1);
+    const logged = JSON.stringify(spy.mock.calls);
+    expect(logged).toContain("APIError"); expect(logged).toContain("429");
+    expect(logged).not.toMatch(/zihadpcode|abc123|quota exceeded/);
+  } finally { spy.mockRestore(); }
+});
+
+it("does not leave listeners behind on the shared run-wide signal", async () => {
+  const { EventEmitter } = await import("node:events");
+  const total = new AbortController();
+  const executor = createVercelSandboxExecutor(async () => fakeVm({ out: ["1"], exit: 0 }).handle);
+  for (let i = 0; i < 12; i++) await executor.runCase({ ...request, signal: total.signal });
+  expect(EventEmitter.getEventListeners(total.signal, "abort").length).toBeLessThanOrEqual(1);
 });
 
 it("hides provider failures behind one generic message and never calls them a wrong answer", async () => {

@@ -2,7 +2,7 @@ import "server-only";
 import { isDeepStrictEqual } from "node:util";
 import type { RunnerCase, RunnerOutcome } from "./judge0";
 import { PYTHON_EXIT_COMPILE_ERROR } from "./harness-python";
-import { createVercelSandboxExecutor } from "./python-vercel-sandbox";
+import { createVercelSandboxExecutor, PYTHON_BUDGET_EXHAUSTED } from "./python-vercel-sandbox";
 import { RUNNER_LIMITS } from "./limits";
 import { utf8ByteLength } from "./serialization";
 
@@ -63,12 +63,23 @@ export function pythonUnavailableOutcome(diagnostic = PYTHON_UNAVAILABLE_DIAGNOS
 
 // The traceback ends with the exception line, so keep the end of stderr when it has to be shortened.
 const tail = (text: string) => text.length > DISPLAY_CHARS ? text.slice(text.length - DISPLAY_CHARS) : text;
+// Learner output is stored in a jsonb column, which rejects NUL characters and lone surrogates (slicing can split a pair).
+const storable = (text: string) => text.replace(/\0/g, "").toWellFormed();
+
+// Python's json.dumps writes -0.0 as "-0.0", which Node parses to -0, and isDeepStrictEqual(-0, 0) is false; JavaScript's
+// JSON.stringify writes 0 for it. Compare the way a JavaScript solution would have been compared.
+function withoutNegativeZero(value: unknown): unknown {
+  if (Object.is(value, -0)) return 0;
+  if (Array.isArray(value)) return value.map(withoutNegativeZero);
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, withoutNegativeZero(item)]));
+  return value;
+}
 
 export function mapPythonRun(run: PythonCaseRun, expected: unknown, limits: { timeMs: number; memoryKb: number }): RunnerOutcome {
   if (run.kind === "unavailable") return pythonUnavailableOutcome(run.diagnostic.slice(0, DISPLAY_CHARS) || PYTHON_UNAVAILABLE_DIAGNOSTIC);
-  const base = { stdout: run.stdout.slice(0, DISPLAY_CHARS), diagnostic: tail(run.stderr), runtimeMs: run.runtimeMs, memoryKb: run.memoryKb };
-  if (run.kind === "time-limit") return { ...base, status: "TIME_LIMIT", diagnostic: tail(run.stderr) || `Execution exceeded ${limits.timeMs} ms.` };
-  if (run.kind === "memory-limit") return { ...base, status: "MEMORY_LIMIT", diagnostic: tail(run.stderr) || `Execution exceeded ${limits.memoryKb} KB.` };
+  const base = { stdout: storable(run.stdout.slice(0, DISPLAY_CHARS)), diagnostic: storable(tail(run.stderr)), runtimeMs: run.runtimeMs, memoryKb: run.memoryKb };
+  if (run.kind === "time-limit") return { ...base, status: "TIME_LIMIT", diagnostic: base.diagnostic || `Execution exceeded ${limits.timeMs} ms.` };
+  if (run.kind === "memory-limit") return { ...base, status: "MEMORY_LIMIT", diagnostic: base.diagnostic || `Execution exceeded ${limits.memoryKb} KB.` };
   if (utf8ByteLength(run.stdout) > PYTHON_OUTPUT_BYTES || utf8ByteLength(run.stderr) > PYTHON_OUTPUT_BYTES) {
     return { ...base, status: "RUNTIME_ERROR", diagnostic: "Output exceeds the sandbox limit." };
   }
@@ -76,7 +87,7 @@ export function mapPythonRun(run: PythonCaseRun, expected: unknown, limits: { ti
   if (run.exitCode !== 0) return { ...base, status: "RUNTIME_ERROR", diagnostic: base.diagnostic || `The program exited with code ${run.exitCode}.` };
   // The complete bounded stdout is compared; truncation above is only for display and storage.
   let status: RunnerOutcome["status"] = "WRONG_ANSWER";
-  try { if (isDeepStrictEqual(JSON.parse(run.stdout), expected)) status = "ACCEPTED"; } catch { /* Non-JSON output is a wrong answer. */ }
+  try { if (isDeepStrictEqual(withoutNegativeZero(JSON.parse(run.stdout)), expected)) status = "ACCEPTED"; } catch { /* Non-JSON output is a wrong answer. */ }
   return { ...base, status };
 }
 
@@ -86,7 +97,8 @@ export async function executePython(executor: PythonExecutor, source: string, ca
   const effective = { timeMs: Math.min(limits.timeMs, RUNNER_LIMITS.maxTimeMs), memoryKb: Math.min(limits.memoryKb, RUNNER_LIMITS.maxMemoryKb) };
   // One hard deadline for the whole run, measured on a monotonic timer from here. It covers start-up of every case.
   const budget = AbortSignal.timeout(RUNNER_LIMITS.totalBudgetMs);
-  const exhausted: PythonCaseRun = { kind: "time-limit", stdout: "", stderr: "The submission exceeded the total execution budget.", runtimeMs: null, memoryKb: null };
+  // Running out of the run budget is the platform being slow, so it is an infrastructure outcome, not a time limit.
+  const exhausted: PythonCaseRun = { kind: "unavailable", diagnostic: PYTHON_BUDGET_EXHAUSTED };
   const budgetSpent = new Promise<PythonCaseRun>((resolve) => {
     if (budget.aborted) resolve(exhausted); else budget.addEventListener("abort", () => resolve(exhausted), { once: true });
   });
@@ -95,6 +107,9 @@ export async function executePython(executor: PythonExecutor, source: string, ca
   // timings meaningful and memory bounded. Outcomes stay in case order either way.
   const width = Math.max(1, Math.min(executor.concurrency ?? 1, cases.length));
   for (let from = 0; from < cases.length; from += width) {
+    // After an infrastructure failure (quota, provider down, budget) more VMs would only fail too: stop spending them.
+    const failed = outcomes.find((outcome) => outcome.status === "INTERNAL_ERROR");
+    if (failed) { while (outcomes.length < cases.length) outcomes.push({ ...failed }); break; }
     const batch = cases.slice(from, from + width);
     // Racing the budget means a slow or misbehaving executor cannot hold the run past its deadline.
     outcomes.push(...await Promise.all(batch.map(async (test) => mapPythonRun(

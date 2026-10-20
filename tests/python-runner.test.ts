@@ -114,13 +114,38 @@ it("holds the whole run to one deadline even when an executor ignores its signal
   expect(Date.now() - started).toBeLessThan(2000);
   // Sequential executor: the second case is never started once the first has consumed the budget.
   expect(calls).toBe(1);
-  expect(outcomes.map((o) => o.status)).toEqual(["TIME_LIMIT", "TIME_LIMIT"]);
-  expect(outcomes[0].diagnostic).toContain("total execution budget");
+  // The platform being slow is an infrastructure outcome, never a time limit on the learner's code.
+  expect(outcomes.map((o) => o.status)).toEqual(["INTERNAL_ERROR", "INTERNAL_ERROR"]);
+  expect(outcomes[0].diagnostic).toContain("time budget");
 });
 it("does not start further batches once the budget is spent", async () => {
   let calls = 0;
   const slow: PythonExecutor & { concurrency: number } = { available: true, concurrency: 1, async runCase() { calls++; await new Promise((resolve) => setTimeout(resolve, 200)); return exited("1"); } };
   const outcomes = await executePython(slow, "p", [{ stdin: "", expected: 1 }, { stdin: "", expected: 1 }, { stdin: "", expected: 1 }], limits);
   expect(calls).toBe(1);
-  expect(outcomes.map((o) => o.status)).toEqual(["TIME_LIMIT", "TIME_LIMIT", "TIME_LIMIT"]);
+  expect(outcomes.map((o) => o.status)).toEqual(["INTERNAL_ERROR", "INTERNAL_ERROR", "INTERNAL_ERROR"]);
+});
+it("stops starting environments after an infrastructure failure", async () => {
+  let calls = 0;
+  const flaky: PythonExecutor & { concurrency: number } = { available: true, concurrency: 2, async runCase() { calls++; return { kind: "unavailable", diagnostic: "quota" }; } };
+  const outcomes = await executePython(flaky, "p", Array.from({ length: 10 }, () => ({ stdin: "", expected: 1 })), limits);
+  expect(calls).toBe(2);
+  expect(outcomes).toHaveLength(10);
+  expect(outcomes.every((o) => o.status === "INTERNAL_ERROR" && o.diagnostic === "quota")).toBe(true);
+});
+it("makes learner output safe for the jsonb column: no NUL characters, no lone surrogates", () => {
+  const long = "x".repeat(3999) + "😀tail";
+  const out = mapPythonRun(exited("a\u0000b" + long, { stderr: "e\u0000" + "y".repeat(3998) + "😀" }), 1, limits);
+  expect(out.stdout).not.toContain("\u0000");
+  expect(out.diagnostic).not.toContain("\u0000");
+  for (const text of [out.stdout, out.diagnostic]) expect(text.isWellFormed()).toBe(true);
+  // Truncation can split a surrogate pair; the result must still serialise to JSON that Postgres accepts.
+  expect(JSON.stringify(out)).not.toMatch(/\\ud[89ab][0-9a-f]{2}(?!\\ud[c-f])/i);
+});
+it("treats Python's -0.0 as 0, the way JavaScript's JSON.stringify would have written it", () => {
+  expect(mapPythonRun(exited("-0.0"), 0, limits).status).toBe("ACCEPTED");
+  expect(mapPythonRun(exited("[1,-0.0,{\"a\":[-0.0]}]"), [1, 0, { a: [0] }], limits).status).toBe("ACCEPTED");
+  expect(mapPythonRun(exited("-1.0"), 0, limits).status).toBe("WRONG_ANSWER");
+  expect(mapPythonRun(exited("0.5"), 0, limits).status).toBe("WRONG_ANSWER");
+  expect(mapPythonRun(exited("[0,1]"), [0, 1], limits).status).toBe("ACCEPTED");
 });
