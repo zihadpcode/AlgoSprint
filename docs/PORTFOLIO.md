@@ -2,7 +2,7 @@
 
 ## 🟦 Project description
 
-AlgoSprint is a deployed full-stack coding interview preparation project built with Next.js, React, TypeScript, PostgreSQL, Prisma and Supabase Auth. Its repository contains 113 original problem fixtures, 19 learning paths and 105 noncoding interview prompts; all 113 problems and 19 paths were seeded and verified in production on October 19. It includes private notes and bookmarks, learning roadmaps, progress tracking, JavaScript execution and timed mock interviews with saved explanations and transparent self-assessment reports. Visible examples run in browser workers; verified submissions run in a QuickJS WebAssembly sandbox or a configured external Judge0 service. Server-side authorization protects account data, while structured validation, database constraints and transactional workflows handle conflicting edits and repeated requests.
+AlgoSprint is a deployed full-stack coding interview preparation project built with Next.js, React, TypeScript, PostgreSQL, Prisma and Supabase Auth. Its repository contains 125 original problem fixtures, 20 learning paths and 105 noncoding interview prompts; all 125 problems and 20 paths were seeded and verified in production on October 20. It includes private notes and bookmarks, learning roadmaps, progress tracking, JavaScript execution and timed mock interviews with saved explanations and transparent self-assessment reports. Visible examples run in browser workers; verified submissions run in a QuickJS WebAssembly sandbox or a configured external Judge0 service. Server-side authorization protects account data, while structured validation, database constraints and transactional workflows handle conflicting edits and repeated requests.
 
 ## 🟩 Resume bullet options
 
