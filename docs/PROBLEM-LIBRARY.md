@@ -1,6 +1,6 @@
 # Problem library guide
 
-The curated seed library contains 125 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and one hundred twenty hand-authored problems in `src/data/seeds/problems/library/` (31 easy, 61 medium, 33 hard across all 125). The first 100 met the brief's 100-problem milestone (25 easy, 50 medium, 25 hard); batch 6 added thirteen more, batch 7 prepares twelve more for publication, and the next milestone is 1,000. Production counts change only after the reviewed seed rollout. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
+The curated seed library contains 125 original coding problems: the five foundation problems in `src/data/seeds/problems/foundation/` and one hundred twenty hand-authored problems in `src/data/seeds/problems/library/` (31 easy, 61 medium, 33 hard across all 125). The first 100 met the brief's 100-problem milestone (25 easy, 50 medium, 25 hard); batch 6 added thirteen more, batch 7 added twelve more, and the next milestone is 1,000. All 125 problems and 20 roadmaps were seeded and verified in production on October 20. Every problem is a JSON seed file validated by `src/lib/validators/problem.ts`, and the seed refuses any problem whose expected outputs cannot be recomputed by trusted TypeScript code in the repository. JSON code strings are never evaluated.
 
 ## 🟦 Coverage
 
