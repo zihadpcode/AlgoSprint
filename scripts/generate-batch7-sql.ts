@@ -44,6 +44,7 @@ const projectProblem = `SELECT jsonb_build_object('schemaVersion',1,'slug',p.slu
  'relatedSlugs',(SELECT COALESCE(jsonb_agg(x.slug ORDER BY x.slug),'[]'::jsonb) FROM app."Problem" x JOIN app."ProblemRelation" j ON j."relatedId"=x.id WHERE j."problemId"=p.id)) FROM app."Problem" p WHERE p.slug=target_slug`;
 
 export async function generateBatch7Sql(baselinePath: string, outputPath: string, expectedBaselineSha256: string) {
+  if (expectedBaselineSha256 !== PRODUCTION_BASELINE_SHA256) throw new Error("Expected baseline hash is not the pinned production baseline.");
   execFileSync("git", ["diff", "--exit-code", BATCH7_SOURCE, "--", "src/data/seeds/problems", "src/data/seeds/roadmaps.ts"]);
   if (execFileSync("git", ["ls-files", "--others", "--exclude-standard", "--", "src/data/seeds/problems"], { encoding: "utf8" }).trim()) throw new Error("Unexpected untracked problem source.");
   const baselineText = await readFile(baselinePath, "utf8");
