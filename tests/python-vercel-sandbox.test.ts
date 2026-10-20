@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const f = vi.hoisted(() => ({ create: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("@vercel/sandbox", () => ({ Sandbox: { create: f.create } }));
-import { createVercelSandbox, createVercelSandboxExecutor, PYTHON_BOOTSTRAP, PYTHON_BUDGET_EXHAUSTED, PYTHON_RUN_DIR, PYTHON_SANDBOX_UNAVAILABLE,
+import { createVercelSandbox, createVercelSandboxExecutor, PYTHON_BOOTSTRAP, PYTHON_BUDGET_EXHAUSTED, PYTHON_EXIT_SANDBOX_SETUP, PYTHON_RUN_DIR, PYTHON_SANDBOX_UNAVAILABLE, PYTHON_SETUP_MARKER, PYTHON_UNPRIVILEGED_UID,
   type CommandHandle, type SandboxHandle } from "@/features/submissions/python-vercel-sandbox";
 import { executePython, getPythonExecutor, mapPythonRun, registerPythonExecutor, unavailablePythonExecutor, type PythonCaseRequest } from "@/features/submissions/python-runner";
 import { RUNNER_LIMITS } from "@/features/submissions/limits";
@@ -64,18 +64,39 @@ it("runs each case in its own fresh VM, from absolute paths, and stops it", asyn
     expect(vm.files.map((file) => file.path)).toEqual([`${PYTHON_RUN_DIR}/boot.py`, `${PYTHON_RUN_DIR}/program.py`, `${PYTHON_RUN_DIR}/input.json`]);
     expect(vm.files[0].content.toString()).toBe(PYTHON_BOOTSTRAP);
     expect(vm.files[1].content.toString()).toBe("print('program')");
-    expect(vm.commands[0]).toMatchObject({ cmd: "python3", cwd: PYTHON_RUN_DIR, detached: true,
+    expect(vm.commands[0]).toMatchObject({ cmd: "python3", cwd: PYTHON_RUN_DIR, detached: true, sudo: true,
       args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, "2", String(262_144 * 1024 + 32 * 1024 * 1024)] });
   }
   expect(vms[0].vm.files[2].content.toString()).not.toBe(vms[1].vm.files[2].content.toString());
 });
 
-it("never puts learner input on the command line or in the environment, and runs without sudo", async () => {
+it("never puts learner input on the command line or in the environment", async () => {
   const made = fakeVm();
   await executorFor(made).runCase({ ...request, stdin: "[\"secret-hidden-input\"]" });
   expect(JSON.stringify(made.vm.commands)).not.toContain("secret-hidden-input");
   expect(made.vm.commands[0]).not.toHaveProperty("env");
-  expect(made.vm.commands[0]).not.toHaveProperty("sudo");
+});
+
+it("starts as root only so the bootstrap can drop to an unprivileged identity before any learner code", () => {
+  // The Sandbox image's own user holds every capability and has passwordless sudo, so limits set by it would bind nothing.
+  expect(PYTHON_UNPRIVILEGED_UID).toBe(65534);
+  const order = ["program.py", "input.json", "RLIMIT_NPROC, 1", "prctl(38, 1", "os.setgroups([])", "os.setgid(65534)", "os.setuid(65534)", "os.setuid(0)", "/proc/self/status", "exec(program"];
+  const positions = order.map((needle) => PYTHON_BOOTSTRAP.indexOf(needle));
+  expect(positions.every((position) => position >= 0), order.filter((_, i) => positions[i] < 0).join()).toBe(true);
+  expect([...positions].sort((a, b) => a - b)).toEqual(positions);
+  // Files are read while still privileged, and learner code is compiled before the drop but only executed after the checks.
+  expect(PYTHON_BOOTSTRAP.indexOf("exec(")).toBe(PYTHON_BOOTSTRAP.lastIndexOf("exec("));
+  expect(PYTHON_BOOTSTRAP).toContain(PYTHON_SETUP_MARKER);
+  expect(PYTHON_BOOTSTRAP).toContain(`os._exit(${PYTHON_EXIT_SANDBOX_SETUP})`);
+});
+
+it("treats a failed privilege drop as an infrastructure failure, never the learner's verdict", async () => {
+  const setupFailed = fakeVm({ exit: PYTHON_EXIT_SANDBOX_SETUP, err: [`${PYTHON_SETUP_MARKER} setuid(0) succeeded\n`] });
+  const run = await executorFor(setupFailed).runCase(request);
+  expect(run).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+  expect(mapPythonRun(run, 1, request).status).toBe("INTERNAL_ERROR");
+  // A learner exiting with the same code, without the marker the bootstrap writes, is just a runtime error.
+  expect((await executorFor(fakeVm({ exit: PYTHON_EXIT_SANDBOX_SETUP })).runCase(request)).kind).toBe("exited");
 });
 
 it("does not hand the SDK output streams, which would accumulate every byte", async () => {

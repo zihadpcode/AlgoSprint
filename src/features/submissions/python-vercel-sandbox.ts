@@ -8,15 +8,17 @@ import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-
 // Isolation choices (see docs/PYTHON-RUNNER.md):
 // - One brand-new VM per test case, never reused: nothing a program leaves behind can reach another case or another user.
 // - networkPolicy "deny-all", no ports, nothing mounted, no credentials or environment passed in, persistent: false.
-// - The program runs as the VM's unprivileged user (no sudo), under rlimits set by a trusted bootstrap before any learner code.
+// - The learner's program runs as uid/gid 65534 with no capabilities, no supplementary groups, no_new_privs and rlimits set
+//   by a trusted bootstrap that runs as root and proves the drop before any learner code (see PYTHON_BOOTSTRAP). The image's
+//   own default user is NOT a boundary: it has every capability and passwordless sudo.
 // - Host side: one hard deadline for the whole run, a wall-clock deadline per case, output consumed through a bounded
 //   collector (never through SDK-accumulated streams), the command killed and the VM stopped in `finally`. The provider-side
 //   `timeout` is only a backstop if stop() fails.
 // The expected outputs never enter the VM; the application compares the program's stdout itself.
 //
-// What is NOT claimed: rlimits are per process. The bootstrap forbids new processes and threads (see below), which makes the
-// per-process limits the whole program's limits as far as that mechanism holds, but a live probe has to confirm it in the real
-// image. The VM itself (one vCPU, 2 GiB, 30 s TTL, no network) bounds the damage of anything that slips through.
+// What is NOT claimed: peak memory is not measured, and nothing here stops a program that does something the VM allows an
+// ordinary user to do (burn its CPU and memory budget, fill its own writable directory). The VM (one vCPU, 2 GiB, no network,
+// no secrets, 30 s TTL, killed from the host) bounds all of that. Re-verify live whenever the image or the bootstrap changes.
 
 export const PYTHON_SANDBOX_IMAGE = "vercel/sandbox/python:3.14";
 export const PYTHON_SANDBOX_UNAVAILABLE = "Python execution is temporarily unavailable. Please try again in a moment.";
@@ -41,34 +43,48 @@ const VM_TTL_MS = 30_000;
 const MEMORY_HEADROOM_BYTES = 32 * 1024 * 1024;
 const ADDRESS_SPACE_HEADROOM_BYTES = 512 * 1024 * 1024;
 
-// Trusted bootstrap. Lowers the limits first (hard limits cannot be raised again without privilege), then runs the generated
-// program with stdin pointed at the case input. Learner code only ever reaches Python as text inside program.py.
-// RLIMIT_NPROC is set to the number of processes the user already has, so the program cannot start another process or
-// thread: that is what makes the per-process CPU and memory limits apply to the whole program.
+// Trusted bootstrap. In the Sandbox image the "vercel-sandbox" user is not a privilege boundary: it holds every Linux
+// capability (so it is exempt from RLIMIT_NPROC and can raise any rlimit) and has passwordless sudo. Limits set by that user
+// would therefore bind nothing. So the bootstrap runs as root (the command is started with sudo), reads the files it needs,
+// sets the limits, sets no_new_privs, and then becomes uid/gid 65534 with no supplementary groups and no capabilities. It
+// proves the drop worked (setuid(0) must fail, every capability set must be empty) and exits with
+// PYTHON_EXIT_SANDBOX_SETUP before running any learner code if anything is off; learner code never runs as root. As an
+// ordinary user the program cannot raise its limits, start a process (RLIMIT_NPROC is 1) or become root again.
+export const PYTHON_EXIT_SANDBOX_SETUP = 70;
+export const PYTHON_SETUP_MARKER = "AS_SANDBOX_SETUP_FAILED";
+export const PYTHON_UNPRIVILEGED_UID = 65534;
 export const PYTHON_BOOTSTRAP = String.raw`
-import os, resource, sys
-here = os.path.dirname(os.path.abspath(__file__))
-cpu_seconds, memory_bytes = int(sys.argv[1]), int(sys.argv[2])
-def cap(kind, soft, hard=None):
-    resource.setrlimit(kind, (soft, soft if hard is None else hard))
-uid = os.getuid()
-running = 0
-for name in os.listdir("/proc"):
-    if name.isdigit():
-        try:
-            if os.stat("/proc/" + name).st_uid == uid: running += 1
-        except OSError: pass
-cap(resource.RLIMIT_NPROC, max(running, 1))
-cap(resource.RLIMIT_CORE, 0)
-cap(resource.RLIMIT_FSIZE, 1 << 20)
-cap(resource.RLIMIT_NOFILE, 32)
-cap(resource.RLIMIT_CPU, cpu_seconds, cpu_seconds + 1)
-cap(resource.RLIMIT_DATA, memory_bytes)
-cap(resource.RLIMIT_AS, memory_bytes + ${ADDRESS_SPACE_HEADROOM_BYTES - MEMORY_HEADROOM_BYTES})
-sys.stdin = open(os.path.join(here, "input.json"), "r", encoding="utf-8")
-with open(os.path.join(here, "program.py"), "r", encoding="utf-8") as handle:
-    text = handle.read()
-exec(compile(text, "program.py", "exec"), {"__name__": "__main__"})
+import ctypes, os, resource, sys
+def refuse(why):
+    sys.stderr.write("${PYTHON_SETUP_MARKER} " + why + "\n"); sys.stderr.flush(); os._exit(${PYTHON_EXIT_SANDBOX_SETUP})
+try:
+    here = os.path.dirname(os.path.abspath(__file__))
+    cpu_seconds, memory_bytes = int(sys.argv[1]), int(sys.argv[2])
+    if os.getuid() != 0: refuse("not started as root")
+    with open(os.path.join(here, "program.py"), "r", encoding="utf-8") as handle: text = handle.read()
+    stdin_file = open(os.path.join(here, "input.json"), "r", encoding="utf-8")
+    def cap(kind, soft, hard=None): resource.setrlimit(kind, (soft, soft if hard is None else hard))
+    cap(resource.RLIMIT_NPROC, 1)
+    cap(resource.RLIMIT_CORE, 0)
+    cap(resource.RLIMIT_FSIZE, 1 << 20)
+    cap(resource.RLIMIT_NOFILE, 32)
+    cap(resource.RLIMIT_CPU, cpu_seconds, cpu_seconds + 1)
+    cap(resource.RLIMIT_DATA, memory_bytes)
+    cap(resource.RLIMIT_AS, memory_bytes + ${ADDRESS_SPACE_HEADROOM_BYTES - MEMORY_HEADROOM_BYTES})
+    if ctypes.CDLL(None, use_errno=True).prctl(38, 1, 0, 0, 0) != 0: refuse("no_new_privs")
+    os.setgroups([]); os.setgid(${PYTHON_UNPRIVILEGED_UID}); os.setuid(${PYTHON_UNPRIVILEGED_UID})
+    try:
+        os.setuid(0); refuse("setuid(0) succeeded")
+    except PermissionError: pass
+    if (os.getuid(), os.geteuid(), os.getgid(), os.getegid(), os.getgroups()) != (${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, []): refuse("identity")
+    with open("/proc/self/status") as status:
+        for line in status:
+            if line.startswith(("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb")) and int(line.split()[1], 16) != 0 and not line.startswith("CapBnd"): refuse(line.strip())
+    sys.stdin = stdin_file
+    program = compile(text, "program.py", "exec")
+except SystemExit: raise
+except BaseException as error: refuse(type(error).__name__)
+exec(program, {"__name__": "__main__"})
 `;
 
 type Log = { stream: "stdout" | "stderr"; data: string };
@@ -81,7 +97,7 @@ export type CommandHandle = {
 };
 export type SandboxHandle = {
   writeFiles(files: { path: string; content: Buffer }[], options?: { signal?: AbortSignal }): Promise<void>;
-  runCommand(options: { cmd: string; args: string[]; cwd: string; detached: true; timeoutMs: number; signal?: AbortSignal }): Promise<CommandHandle>;
+  runCommand(options: { cmd: string; args: string[]; cwd: string; sudo: true; detached: true; timeoutMs: number; signal?: AbortSignal }): Promise<CommandHandle>;
   stop(options?: { signal?: AbortSignal }): Promise<unknown>;
 };
 export type SandboxFactory = (signal: AbortSignal) => Promise<SandboxHandle>;
@@ -182,7 +198,8 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     command = await sandbox.runCommand({
       // -I: ignore the environment and user site; -X utf8: the program's stdout is UTF-8 regardless of the VM locale.
       cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000))), String(request.memoryKb * 1024 + MEMORY_HEADROOM_BYTES)],
-      cwd: PYTHON_RUN_DIR, detached: true, timeoutMs: wallMs + 2000, signal: total,
+      // sudo: only so the bootstrap can drop to an unprivileged identity; see PYTHON_BOOTSTRAP.
+      cwd: PYTHON_RUN_DIR, sudo: true, detached: true, timeoutMs: wallMs + 2000, signal: total,
     });
 
     const settled = <T>(promise: Promise<T>) => promise.catch(() => undefined);
@@ -219,6 +236,8 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     if (first === "case" || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
     if (first === "overflow") return { kind: "exited", exitCode: 1, ...base };
     if (exitCode === null) throw new Error("no exit status");
+    // The bootstrap could not prove it had dropped privileges, so no learner code ran. Never the learner's fault.
+    if (exitCode === PYTHON_EXIT_SANDBOX_SETUP && base.stderr.includes(PYTHON_SETUP_MARKER)) throw new Error("sandbox setup failed");
     // MemoryError is the learner's own exception (exit 1); a kill without a deadline is the kernel enforcing the data limit.
     if (/\bMemoryError\b/.test(base.stderr.slice(-2000)) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
