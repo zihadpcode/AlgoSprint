@@ -30,10 +30,11 @@ export const PYTHON_BUDGET_EXHAUSTED = "Python execution did not finish within t
 export const PYTHON_RUN_DIR = "/vercel/sandbox";
 
 // How many VMs one submission starts at once, and how many this server instance runs at once across submissions. The
-// instance gate is a courtesy that keeps one busy server from queueing itself; it is NOT a project-wide limit. Total
+// instance gate (the provider's 10 concurrent sandboxes, which is also two full-width runs) is a courtesy that keeps one busy server
+// from queueing itself; it is NOT a project-wide limit. Total
 // concurrency across serverless instances is bounded only by the provider's own quota.
 const PER_RUN_CONCURRENCY = 5;
-const INSTANCE_CONCURRENCY = 8;
+const INSTANCE_CONCURRENCY = 10;
 // Time allowed for the VM to start and receive its files. Not charged against the learner's per-case time, but always
 // bounded by the run's total budget.
 const START_BUDGET_MS = 12_000;
@@ -41,6 +42,8 @@ const START_BUDGET_MS = 12_000;
 const STARTUP_GRACE_MS = 600;
 // After the program exits, how long to wait for its last output to arrive.
 const DRAIN_MS = 1500;
+// A kill call that never returns must not hold a slot forever.
+const KILL_BOUND_MS = 3000;
 const VM_TTL_MS = 30_000;
 const MEMORY_HEADROOM_BYTES = 32 * 1024 * 1024;
 const ADDRESS_SPACE_HEADROOM_BYTES = 512 * 1024 * 1024;
@@ -147,7 +150,7 @@ class BoundedText {
   text() { return Buffer.concat(this.chunks).toString("utf8"); }
 }
 
-class Gate {
+export class Gate {
   private active = 0;
   private waiting: (() => void)[] = [];
   constructor(private readonly size: number) {}
@@ -178,8 +181,9 @@ function logFailure(error: unknown) {
 const SIGXCPU_EXIT = 128 + 24;
 const SIGKILL_EXIT = 128 + 9;
 
-export function createVercelSandboxExecutor(factory: SandboxFactory = createVercelSandbox): PythonExecutor & { concurrency: number } {
+export function createVercelSandboxExecutor(factory: SandboxFactory = createVercelSandbox, options: { killBoundMs?: number } = {}): PythonExecutor & { concurrency: number } {
   const gate = new Gate(INSTANCE_CONCURRENCY);
+  const killBoundMs = options.killBoundMs ?? KILL_BOUND_MS;
   return {
     available: true,
     concurrency: PER_RUN_CONCURRENCY,
@@ -189,7 +193,7 @@ export function createVercelSandboxExecutor(factory: SandboxFactory = createVerc
       const wallMs = request.timeMs + STARTUP_GRACE_MS;
       if (total.aborted) return budgetExhausted();
       try {
-        return await gate.run(() => runInFreshVm(factory, request, wallMs, total), AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS + wallMs)]));
+        return await gate.run(() => runInFreshVm(factory, request, wallMs, total, killBoundMs), AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS + wallMs)]));
       } catch (error) {
         if (total.aborted) return budgetExhausted();
         logFailure(error);
@@ -200,7 +204,15 @@ export function createVercelSandboxExecutor(factory: SandboxFactory = createVerc
   };
 }
 
-async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest, wallMs: number, total: AbortSignal): Promise<PythonCaseRun> {
+// Kill the command, but never wait longer than `bound` for the provider to answer.
+async function boundedKill(command: CommandHandle, bound: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try { await Promise.race([command.kill("SIGKILL"), new Promise((resolve) => { timer = setTimeout(resolve, bound); })]); }
+  catch { /* The VM is stopped next whether or not the kill worked. */ }
+  finally { clearTimeout(timer); }
+}
+
+async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest, wallMs: number, total: AbortSignal, killBoundMs: number): Promise<PythonCaseRun> {
   const sandbox = await factory(AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS)]));
   let command: CommandHandle | undefined;
   let finished = false;
@@ -214,24 +226,29 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     const limit = RUNNER_LIMITS.maxOutputBytes;
     const stdout = new BoundedText(limit), stderr = new BoundedText(limit);
     const stop = new AbortController();
-    const caseDeadline = AbortSignal.timeout(wallMs);
-    const started = Date.now();
     command = await sandbox.runCommand({
       // -I: ignore the environment and user site; -X utf8: the program's stdout is UTF-8 regardless of the VM locale.
       cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000))), String(request.memoryKb * 1024 + MEMORY_HEADROOM_BYTES)],
       // sudo: only so the bootstrap can drop to an unprivileged identity; see PYTHON_BOOTSTRAP.
       cwd: PYTHON_RUN_DIR, sudo: true, detached: true, timeoutMs: wallMs + 2000, signal: total,
     });
+    // Started only once the command exists: the time it took the provider to create it (and sudo and the interpreter to start,
+    // covered by the grace) is the platform's, not the learner's, and must not count against the case limit.
+    const caseDeadline = AbortSignal.timeout(wallMs);
+    const started = Date.now();
 
     const settled = <T>(promise: Promise<T>) => promise.catch(() => undefined);
     let overflowed: () => void = () => undefined;
     const overflow = new Promise<"overflow">((resolve) => { overflowed = () => resolve("overflow"); });
     // Output is read as it arrives and dropped past the cap; the loop ends on end of stream, overflow or `stop`.
+    // `readComplete` is true only when the stream really ended; a stream that failed or lagged must not look like empty output.
+    let readComplete = false;
     const reading = settled((async () => {
       for await (const log of command!.logs({ signal: stop.signal })) {
         (log.stream === "stdout" ? stdout : stderr).add(log.data);
         if (stdout.exceeded || stderr.exceeded) { overflowed(); return; }
       }
+      readComplete = true;
     })());
     const exit = command.wait({ signal: stop.signal }).then((result) => ({ exitCode: result.exitCode }));
     // Listeners on the shared run-wide signal are removed in `finally`, or one would accumulate per case.
@@ -246,6 +263,8 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     let first: Awaited<typeof exit> | "overflow" | "case" | "total";
     try { first = await Promise.race([exit, overflow, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]); }
     finally { for (const remove of detach) remove(); }
+    // The program's own run time, taken when it stopped rather than after the output drain and the kill.
+    const runtimeMs = Math.min(Date.now() - started, request.timeMs);
     let exitCode: number | null = null;
     if (typeof first === "object") {
       exitCode = first.exitCode;
@@ -255,24 +274,30 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     } else {
       // Stop reading and waiting, and kill the program. The VM is stopped below whether or not the kill worked.
       stop.abort();
-      await settled(command.kill("SIGKILL"));
+      await boundedKill(command, killBoundMs);
     }
     stop.abort();
     void settled(exit);
-    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs: Math.min(Date.now() - started, request.timeMs), memoryKb: null };
+    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs, memoryKb: null };
     if (first === "total") return budgetExhausted();
     if (first === "case" || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
     if (first === "overflow") return { kind: "exited", exitCode: 1, ...base };
     if (exitCode === null) throw new Error("no exit status");
     // The bootstrap could not prove it had dropped privileges, so no learner code ran. Never the learner's fault.
     if (exitCode === PYTHON_EXIT_SANDBOX_SETUP && base.stderr.includes(PYTHON_SETUP_MARKER)) throw new Error("sandbox setup failed");
-    // MemoryError is the learner's own exception (exit 1); a kill without a deadline is the kernel enforcing the data limit.
-    if (/\bMemoryError\b/.test(base.stderr.slice(-2000)) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
+    // A program that exited 0 produced its answer on stdout; if that stream failed or lagged, "no output" would be a false
+    // wrong answer, so report the run as unavailable instead.
+    if (exitCode === 0 && !readComplete) throw new Error("output stream did not complete");
+    // An uncaught MemoryError ends the run with exit 1 and the exception on stderr. The word alone proves nothing: learner
+    // print() output goes to stderr too, so a correct run (exit 0) that prints it, or catches the exception, is not a memory failure.
+    // A kill without a deadline is the kernel enforcing the data limit.
+    if ((exitCode === 1 && /\bMemoryError\b/.test(base.stderr.slice(-2000))) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
   } finally {
     // Kill first so a stuck command is not left running while the VM is torn down. stop() is awaited (a serverless instance may
     // freeze once the response is sent) but bounded to 5 s; the provider TTL is the backstop if it fails.
-    if (command && !finished) await command.kill("SIGKILL").catch(() => undefined);
-    await sandbox.stop({ signal: AbortSignal.timeout(5000) }).catch(() => undefined);
+    if (command && !finished) await boundedKill(command, killBoundMs);
+    // A VM that could not be stopped keeps costing until its TTL, so make that visible to operators.
+    await sandbox.stop({ signal: AbortSignal.timeout(5000) }).catch(logFailure);
   }
 }

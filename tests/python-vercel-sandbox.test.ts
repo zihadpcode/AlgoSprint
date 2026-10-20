@@ -1,8 +1,9 @@
+import { spawnSync } from "node:child_process";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const f = vi.hoisted(() => ({ create: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("@vercel/sandbox", () => ({ Sandbox: { create: f.create } }));
-import { createVercelSandbox, createVercelSandboxExecutor, PYTHON_BOOTSTRAP, PYTHON_BUDGET_EXHAUSTED, PYTHON_EXIT_SANDBOX_SETUP, PYTHON_RUN_DIR, PYTHON_SANDBOX_UNAVAILABLE, PYTHON_SETUP_MARKER, PYTHON_UNPRIVILEGED_UID,
+import { createVercelSandbox, createVercelSandboxExecutor, Gate, PYTHON_BOOTSTRAP, PYTHON_BUDGET_EXHAUSTED, PYTHON_EXIT_SANDBOX_SETUP, PYTHON_RUN_DIR, PYTHON_SANDBOX_UNAVAILABLE, PYTHON_SETUP_MARKER, PYTHON_UNPRIVILEGED_UID,
   type CommandHandle, type SandboxHandle } from "@/features/submissions/python-vercel-sandbox";
 import { executePython, getPythonExecutor, mapPythonRun, registerPythonExecutor, unavailablePythonExecutor, type PythonCaseRequest } from "@/features/submissions/python-runner";
 import { RUNNER_LIMITS } from "@/features/submissions/limits";
@@ -85,7 +86,7 @@ it("starts as root only so the bootstrap can drop to an unprivileged identity be
   const positions = order.map((needle) => PYTHON_BOOTSTRAP.indexOf(needle));
   expect(positions.every((position) => position >= 0), order.filter((_, i) => positions[i] < 0).join()).toBe(true);
   expect([...positions].sort((a, b) => a - b)).toEqual(positions);
-  // Files are read while still privileged, and learner code is compiled before the drop but only executed after the checks.
+  // Files are read while still privileged, and learner code is compiled and executed only after the checks have passed.
   expect(PYTHON_BOOTSTRAP.indexOf("exec(")).toBe(PYTHON_BOOTSTRAP.lastIndexOf("exec("));
   // All five capability sets must be empty, the bounding set included, before learner code runs.
   expect(PYTHON_BOOTSTRAP).toContain('("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb")');
@@ -229,4 +230,81 @@ it("is selected only by the explicit PYTHON_RUNNER opt-in", () => {
   const fake = { available: true, runCase: async () => ({ kind: "unavailable" as const, diagnostic: "" }) };
   registerPythonExecutor(fake);
   expect(getPythonExecutor()).toBe(fake);
+});
+
+it("does not call a correct run a memory failure because the word MemoryError appears on stderr", async () => {
+  // Learner print() output goes to stderr, and a program may also catch the exception; only an uncaught one ends with exit 1.
+  const printed = await executorFor(fakeVm({ exit: 0, out: ["7"], err: ["debug: caught MemoryError, retrying smaller\n"] })).runCase(request);
+  expect(printed).toMatchObject({ kind: "exited", exitCode: 0, stdout: "7" });
+  expect((await executorFor(fakeVm({ exit: 1, err: ["Traceback (most recent call last):\nMemoryError\n"] })).runCase(request)).kind).toBe("memory-limit");
+});
+
+it("reports a failed or lagging output stream as unavailable, never as an empty (wrong) answer", async () => {
+  const broken = fakeVm({ exit: 0, logs: async function* () { yield { stream: "stdout" as const, data: "[7" }; throw new Error("stream reset"); } });
+  expect(await executorFor(broken).runCase(request)).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+  // The stream never ends although the program has exited: after the drain wait the run is unavailable, not WRONG_ANSWER.
+  const lagging = fakeVm({ exit: 0, logs: async function* () { await new Promise(() => undefined); yield { stream: "stdout" as const, data: "" }; } });
+  expect(await executorFor(lagging).runCase(request)).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+}, 10_000);
+
+it("does not charge the time the provider took to create the command against the learner's case limit", async () => {
+  // timeMs 50 gives a 650 ms wall deadline; creating the command takes 800 ms. Measured from before creation this would be a false TIME_LIMIT.
+  const made = fakeVm({ out: ["1"], exit: 0 });
+  const create = made.handle.runCommand;
+  made.handle.runCommand = async (options) => { await new Promise((resolve) => setTimeout(resolve, 800)); return create(options); };
+  const run = await executorFor(made).runCase({ ...request, timeMs: 50 });
+  expect(run).toMatchObject({ kind: "exited", exitCode: 0, stdout: "1" });
+  expect(run.kind === "exited" && run.runtimeMs).toBeLessThan(400);
+}, 10_000);
+
+it("never lets a kill call that does not return hold the run, and still stops the VM", async () => {
+  const made = fakeVm({ exit: null });
+  const create = made.handle.runCommand;
+  made.handle.runCommand = async (options) => ({ ...(await create(options)), kill: () => new Promise<void>(() => undefined) });
+  const started = Date.now();
+  const run = await createVercelSandboxExecutor(async () => made.handle, { killBoundMs: 60 }).runCase({ ...request, timeMs: 30 });
+  expect(run.kind).toBe("time-limit");
+  expect(Date.now() - started).toBeLessThan(3000);
+  expect(made.vm.stopped).toBe(1);
+});
+
+it("logs a VM that could not be stopped, since it keeps costing until its TTL", async () => {
+  const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  try {
+    const made = fakeVm({ out: ["1"], exit: 0 });
+    made.handle.stop = async () => { throw Object.assign(new Error("secret account detail"), { name: "StopError", status: 503 }); };
+    expect((await executorFor(made).runCase(request)).kind).toBe("exited");
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(spy.mock.calls)).toContain("StopError");
+    expect(JSON.stringify(spy.mock.calls)).not.toContain("secret account detail");
+  } finally { spy.mockRestore(); }
+});
+
+it("bounds concurrency with a queue: later tasks wait for a slot and are released in order", async () => {
+  const gate = new Gate(1); const live = new AbortController().signal; const order: string[] = []; let release!: () => void;
+  const first = gate.run(async () => { order.push("first:start"); await new Promise<void>((resolve) => { release = resolve; }); order.push("first:end"); }, live);
+  const second = gate.run(async () => { order.push("second"); }, live);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  expect(order).toEqual(["first:start"]);
+  release(); await Promise.all([first, second]);
+  expect(order).toEqual(["first:start", "first:end", "second"]);
+});
+
+it("lets a waiting task give up when its signal aborts, without leaking the slot", async () => {
+  const gate = new Gate(1); const live = new AbortController().signal; let release!: () => void;
+  const holder = gate.run(() => new Promise<void>((resolve) => { release = resolve; }), live);
+  const giveUp = new AbortController();
+  const waiting = gate.run(async () => "never", giveUp.signal);
+  giveUp.abort();
+  await expect(waiting).rejects.toThrow("queue timeout");
+  release(); await holder;
+  expect(await gate.run(async () => "slot is free again", live)).toBe("slot is free again");
+  await expect(gate.run(async () => "x", AbortSignal.abort())).resolves.toBe("x");
+});
+
+const hasPython = spawnSync("python3", ["--version"]).status === 0;
+it.skipIf(!hasPython)("the bootstrap is valid Python (it only runs inside the VM, so nothing else would catch a syntax error)", () => {
+  const done = spawnSync("python3", ["-c", "import ast, sys; ast.parse(sys.stdin.read())"], { input: PYTHON_BOOTSTRAP, encoding: "utf8" });
+  expect(done.stderr).toBe("");
+  expect(done.status).toBe(0);
 });
