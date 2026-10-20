@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:seed:python-starters": "node --import tsx scripts/seed-python-starters.ts",
     "db:studio": "prisma studio",
     "db:local": "prisma dev --name algosprint",
     "seed:validate": "node --import tsx scripts/validate-seeds.ts",

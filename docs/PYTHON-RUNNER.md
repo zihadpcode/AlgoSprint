@@ -1,6 +1,6 @@
 # Python runner: architecture and the Vercel Sandbox executor
 
-**Status: the executor is implemented and OFF by default.** Python runs only when a deployment sets `PYTHON_RUNNER=vercel-sandbox` (with `CODE_RUNNER_ENABLED=true` and `CODE_RUNNER_PROVIDER=sandbox`). The owner chose Vercel Sandbox on October 19, 2026. Nothing has been run in a live Sandbox VM yet: the unit tests use a fake VM, and the in-VM limits were exercised in a local Linux container (see [Executor](#vercel-sandbox-executor)). Complete the [go-live checklist](#go-live-checklist) before turning it on.
+**Status: the executor is implemented, reviewed once, and OFF by default. Do not enable it yet.** Python runs only when a deployment sets `PYTHON_RUNNER=vercel-sandbox` (with `CODE_RUNNER_ENABLED=true` and `CODE_RUNNER_PROVIDER=sandbox`); the flag is absent from Production and Preview. The owner chose Vercel Sandbox on October 19, 2026. **No real Sandbox VM has been started.** Unit tests use a fake VM, and the in-VM limits were exercised only in a local Linux container (see [Executor](#vercel-sandbox-executor)). Complete the [go-live checklist](#go-live-checklist) first.
 
 ## What exists today
 
@@ -31,13 +31,7 @@ An executor runs one program against one stdin and reports what happened: `exite
 
 `npm run starters:python` regenerates `src/data/seeds/languages/python-starters.json` from `SIGNATURES` (one short stub per slug with `pass`; names and parameters in snake_case). `npm run seed:validate` checks that every slug exists, entry points and parameters are valid non-keyword identifiers, parameters do not collide, and the file matches the generator.
 
-`seedLanguageStarters` in `prisma/seed-language-starters.ts` inserts missing `StarterCode` rows for existing problems. It never updates or deletes, never touches `Problem` rows (so insert-only problem seeding and its content-hash protection are unaffected), is idempotent, and throws a conflict error before writing anything if an existing row for the same problem and language differs. It is wired into `prisma/seed.ts`, right after `seedProblems`:
-
-```ts
-console.log("Language starters:", await seedLanguageStarters(db, await loadPythonStarters()));
-```
-
-(plus importing both functions from `./seed-language-starters`). Until Python starters are seeded and an executor is installed, Python is neither offered nor runnable in production.
+`seedLanguageStarters` in `prisma/seed-language-starters.ts` inserts missing `StarterCode` rows for existing problems. It never updates or deletes, never touches `Problem` rows (so insert-only problem seeding and its content-hash protection are unaffected), is idempotent, and throws a conflict error before writing anything if an existing row for the same problem and language differs. It is deliberately **not** part of `npm run db:seed`: once these rows exist the editor offers Python (with Run disabled until `PYTHON_RUNNER` is set). Run `npm run db:seed:python-starters` (`scripts/seed-python-starters.ts`) only when the runner is about to be switched on. It reuses the same insert-only, conflict-checked function and is safe to repeat.
 
 ## Earlier runtime options (historical)
 
@@ -85,19 +79,29 @@ The next approved implementation must preserve the executor contract, reject uns
 
 `src/features/submissions/python-vercel-sandbox.ts`, selected by `getPythonExecutor()` only when `PYTHON_RUNNER=vercel-sandbox` (a registered executor, used by tests, still wins).
 
-- **One new VM per test case.** Image `vercel/sandbox/python:3.14`, one vCPU, `networkPolicy: "deny-all"`, no ports, nothing mounted, no credentials or environment passed in, `persistent: false`, 30 s provider TTL as a backstop. The VM is stopped in `finally`. Nothing is reused across cases or users, and expected outputs never enter a VM.
-- **Files, not arguments.** The generated program and the case input are written to the VM as files (`program.py`, `input.json`); a trusted bootstrap (`boot.py`) runs them. Learner text never appears on a command line.
-- **Limits inside the VM**, set by the bootstrap before any learner code runs and applied to the unprivileged VM user (no `sudo`): CPU seconds, data segment (case memory limit plus 32 MiB for the interpreter), address space, at most 32 processes, 32 open files, 1 MiB per written file, no core files. Hard limits are lowered together with soft ones, so the program cannot raise them.
-- **Limits on the host:** wall-clock deadline (case time limit plus 600 ms start-up) that aborts the command, stdout and stderr capped while streaming at the shared 256 KiB policy, and at most 4 VMs per submission and 8 per server instance.
+- **One new VM per test case.** Image `vercel/sandbox/python:3.14`, one vCPU, `networkPolicy: "deny-all"`, no ports, nothing mounted, no credentials or environment passed in, `persistent: false`, 30 s provider TTL as a backstop. The command is killed and the VM stopped in `finally`. Nothing is reused across cases or users, and expected outputs never enter a VM.
+- **Files, not arguments.** The generated program and the case input are written to the VM as files under the absolute directory `/vercel/sandbox` (`boot.py`, `program.py`, `input.json`) and the command runs with that as its working directory, so nothing depends on where the SDK starts a command. Learner text never appears on a command line.
+- **One hard deadline.** `executePython` creates a single `AbortSignal.timeout(totalBudgetMs)` (20 s, monotonic) and passes it to every case. It covers waiting for a free slot, VM start-up, file upload and the run; when it fires the executor kills the command and stops the VM, and `executePython` also stops waiting on its own, so an executor that ignores the signal still cannot hold the run past the deadline. Cases not finished by then get `TIME_LIMIT` ("The submission exceeded the total execution budget"). Each case also has its own wall-clock deadline (case time limit plus 600 ms start-up).
+- **Bounded output on the host.** The command runs detached and **without** `stdout`/`stderr` options, because @vercel/sandbox 3.8.0 accumulates every byte of output in memory when those are given, whatever cap the caller applies. Output is instead read from `Command.logs()` into a collector that keeps at most 256 KiB + 1 byte per stream and stops reading, kills the command and reports "output too large" as soon as either stream passes that. Host memory per case is therefore about the cap plus one chunk.
+- **Limits inside the VM**, set by the bootstrap before any learner code runs, for the VM's unprivileged user (no `sudo`): CPU seconds, data segment (case memory limit plus 32 MiB for the interpreter), address space, 32 open files, 1 MiB per written file, no core files, and `RLIMIT_NPROC` set to the number of processes the user already has, which blocks `fork`, `subprocess` and threads. Hard limits are lowered together with soft ones, so the program cannot raise them.
 - **Verdicts:** deadline or SIGXCPU is `TIME_LIMIT`; `MemoryError` or a kernel kill is `MEMORY_LIMIT`; exit 3 is a compile error; anything else non-zero is a runtime error. Quota, capacity and provider failures become one generic `INTERNAL_ERROR` message ("Python execution is temporarily unavailable"), never a wrong answer, and provider text is never shown.
 - **Not measured:** peak memory is reported as unknown, and runtime is host-observed wall time (it includes a round trip to the VM).
 
-Local container check (Python 3.14, non-root, no network, same bootstrap and arguments): normal run correct; infinite loop killed by the CPU limit at about 2 s; memory bomb raised `MemoryError`; fork bomb stopped by the process limit; a 10 MB write failed with `EFBIG`; network unreachable; raising a limit refused; syntax and runtime errors mapped. This approximates, and does not replace, a live Sandbox check.
+### What this does and does not guarantee
+
+- **Per-process, not aggregate, limits.** `RLIMIT_CPU`/`RLIMIT_DATA` apply to one process. They bound the whole program only because `RLIMIT_NPROC` stops it starting another process or thread. That relies on the user's process count at start-up being accurate and on the kernel honouring the limit in the real image; it has been checked only in a local container. A cgroup (v2) memory/CPU/pids limit with `cgroup.kill` would be an enforceable aggregate limit, but it needs a privileged bootstrap and live confirmation that delegation works (see `scripts/probe-python-sandbox-enforcement.ts`). If the live probe shows it unavailable, the NPROC mechanism is the only aggregate bound and should be accepted or rejected explicitly by the owner before enabling Python.
+- **Programs that use threads or subprocesses fail** (`can't start new thread`, `BlockingIOError`). The problem library does not need either.
+- **Blast radius.** Anything that slips past the rlimits is still confined to one throw-away VM: one vCPU, 2 GiB, no network, no secrets, 30 s TTL, wall-clock killed.
+- **Capacity.** A per-instance gate (8 VMs) and a per-run width (5) keep one server from queueing itself. They are **not** a project-wide limit: concurrency across serverless instances is bounded only by the provider's quota, and exhaustion shows learners the generic unavailable message.
+
+Local container check (Python 3.14, non-root, no network, same bootstrap and arguments): normal run correct; infinite loop killed by the CPU limit at about 2 s; memory bomb raised `MemoryError`; fork bomb got 0 processes (30 before NPROC was tightened); `threading` and `subprocess` refused; a 10 MB write failed with `EFBIG`; network unreachable; raising a limit refused; syntax and runtime errors mapped. This approximates, and does not replace, a live Sandbox check.
 
 ## Go-live checklist
 
-1. Confirm Sandbox is enabled for the Vercel project and check the plan quota. Hobby allows 10 concurrent sandboxes and monthly CPU and creation caps; each Python run starts up to one VM per test case (at most 10), so capacity is the practical limit. Exhaustion shows learners the generic unavailable message.
-2. Run the saved trusted probes once (`scripts/inspect-python-sandbox.ts`, `scripts/probe-python-sandbox-enforcement.ts`) and confirm the image runs the bootstrap as a non-root user with working rlimits.
-3. With the flag still off in production, run a preview deployment with the flag on and submit: a correct solution, an infinite loop, a memory bomb, a fork bomb and an output flood. Check the verdicts, the elapsed time against the 20 s budget, and in the Vercel dashboard that no VMs remain.
-4. Set `PYTHON_RUNNER=vercel-sandbox` in Production, redeploy, then run `npm run db:seed` from a trusted checkout to insert the Python starters (insert-only; nothing existing changes).
+Do not skip steps or reorder them. Production and Preview must keep `PYTHON_RUNNER` unset until step 4.
+
+1. Confirm Sandbox is enabled for the Vercel project and check the plan quota. Hobby allows 10 concurrent sandboxes and monthly CPU and creation caps; each Python run starts up to one VM per test case (at most 10), so capacity is the practical limit.
+2. Run the saved trusted probes once (`scripts/inspect-python-sandbox.ts`, `scripts/probe-python-sandbox-enforcement.ts`) with owner approval. Confirm the image runs as a non-root user, that `/vercel/sandbox` is writable, that `RLIMIT_NPROC` blocks a second process, and whether cgroup delegation works. Decide explicitly whether the NPROC mechanism alone is acceptable as the aggregate limit.
+3. With owner approval, run a bounded live test on a Preview deployment with the flag set only there: a correct solution, an infinite loop, a sleeping program, a memory bomb, a fork/thread attempt and an output flood. Check the verdicts, the elapsed time against the 20 s budget, that output cannot grow server memory, and in the Vercel dashboard that no VMs remain afterwards (command kill and stop, not just the TTL).
+4. Set `PYTHON_RUNNER=vercel-sandbox` in Production, redeploy, then run `npm run db:seed:python-starters` from a trusted checkout (insert-only) so the editor offers Python.
 5. To turn Python off, remove `PYTHON_RUNNER` and redeploy. The language selector then disables Run for Python again.

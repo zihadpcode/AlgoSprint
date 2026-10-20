@@ -1,5 +1,4 @@
 import "server-only";
-import { Writable } from "node:stream";
 import { Sandbox } from "@vercel/sandbox";
 import { RUNNER_LIMITS } from "./limits";
 import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-runner";
@@ -10,37 +9,59 @@ import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-
 // - One brand-new VM per test case, never reused: nothing a program leaves behind can reach another case or another user.
 // - networkPolicy "deny-all", no ports, nothing mounted, no credentials or environment passed in, persistent: false.
 // - The program runs as the VM's unprivileged user (no sudo), under rlimits set by a trusted bootstrap before any learner code.
-// - Host side: wall-clock deadline, output capped while it streams, the VM stopped in `finally`. The provider-side `timeout`
-//   is only a backstop if stop() fails.
+// - Host side: one hard deadline for the whole run, a wall-clock deadline per case, output consumed through a bounded
+//   collector (never through SDK-accumulated streams), the command killed and the VM stopped in `finally`. The provider-side
+//   `timeout` is only a backstop if stop() fails.
 // The expected outputs never enter the VM; the application compares the program's stdout itself.
+//
+// What is NOT claimed: rlimits are per process. The bootstrap forbids new processes and threads (see below), which makes the
+// per-process limits the whole program's limits as far as that mechanism holds, but a live probe has to confirm it in the real
+// image. The VM itself (one vCPU, 2 GiB, 30 s TTL, no network) bounds the damage of anything that slips through.
 
 export const PYTHON_SANDBOX_IMAGE = "vercel/sandbox/python:3.14";
 export const PYTHON_SANDBOX_UNAVAILABLE = "Python execution is temporarily unavailable. Please try again in a moment.";
+export const PYTHON_BUDGET_EXHAUSTED = "The submission exceeded the total execution budget.";
 
-// How many VMs one submission starts at once, and how many this server instance runs at once across submissions.
-// The cases of a run must finish inside RUNNER_LIMITS.totalBudgetMs, and VM start-up is the slow part.
-const PER_RUN_CONCURRENCY = 4;
+// Absolute, so the bootstrap and the working directory do not depend on where the SDK starts a command.
+export const PYTHON_RUN_DIR = "/vercel/sandbox";
+
+// How many VMs one submission starts at once, and how many this server instance runs at once across submissions. The
+// instance gate is a courtesy that keeps one busy server from queueing itself; it is NOT a project-wide limit. Total
+// concurrency across serverless instances is bounded only by the provider's own quota.
+const PER_RUN_CONCURRENCY = 5;
 const INSTANCE_CONCURRENCY = 8;
-// Time allowed for the VM to start and receive its files. Not charged against the learner's per-case time.
+// Time allowed for the VM to start and receive its files. Not charged against the learner's per-case time, but always
+// bounded by the run's total budget.
 const START_BUDGET_MS = 12_000;
 // Process start-up inside the VM. Added to the wall deadline so a program that uses its whole budget is not cut short.
 const STARTUP_GRACE_MS = 600;
+// After the program exits, how long to wait for its last output to arrive.
+const DRAIN_MS = 1500;
 const VM_TTL_MS = 30_000;
 const MEMORY_HEADROOM_BYTES = 32 * 1024 * 1024;
 const ADDRESS_SPACE_HEADROOM_BYTES = 512 * 1024 * 1024;
 
-// Trusted bootstrap. Lowers the limits first (the hard limits cannot be raised again without privilege), then runs the generated
+// Trusted bootstrap. Lowers the limits first (hard limits cannot be raised again without privilege), then runs the generated
 // program with stdin pointed at the case input. Learner code only ever reaches Python as text inside program.py.
+// RLIMIT_NPROC is set to the number of processes the user already has, so the program cannot start another process or
+// thread: that is what makes the per-process CPU and memory limits apply to the whole program.
 export const PYTHON_BOOTSTRAP = String.raw`
 import os, resource, sys
 here = os.path.dirname(os.path.abspath(__file__))
 cpu_seconds, memory_bytes = int(sys.argv[1]), int(sys.argv[2])
 def cap(kind, soft, hard=None):
     resource.setrlimit(kind, (soft, soft if hard is None else hard))
+uid = os.getuid()
+running = 0
+for name in os.listdir("/proc"):
+    if name.isdigit():
+        try:
+            if os.stat("/proc/" + name).st_uid == uid: running += 1
+        except OSError: pass
+cap(resource.RLIMIT_NPROC, max(running, 1))
 cap(resource.RLIMIT_CORE, 0)
 cap(resource.RLIMIT_FSIZE, 1 << 20)
 cap(resource.RLIMIT_NOFILE, 32)
-cap(resource.RLIMIT_NPROC, 32)
 cap(resource.RLIMIT_CPU, cpu_seconds, cpu_seconds + 1)
 cap(resource.RLIMIT_DATA, memory_bytes)
 cap(resource.RLIMIT_AS, memory_bytes + ${ADDRESS_SPACE_HEADROOM_BYTES - MEMORY_HEADROOM_BYTES})
@@ -50,35 +71,50 @@ with open(os.path.join(here, "program.py"), "r", encoding="utf-8") as handle:
 exec(compile(text, "program.py", "exec"), {"__name__": "__main__"})
 `;
 
-// Minimal structural view of the SDK so tests can supply a fake VM.
+type Log = { stream: "stdout" | "stderr"; data: string };
+// Minimal structural view of the SDK so tests can supply a fake VM. The command is run detached and WITHOUT stdout/stderr
+// options: with those, the SDK accumulates every byte of output in memory regardless of any cap the caller applies.
+export type CommandHandle = {
+  logs(options?: { signal?: AbortSignal }): AsyncIterable<Log>;
+  wait(options?: { signal?: AbortSignal }): Promise<{ exitCode: number | null }>;
+  kill(signal?: "SIGKILL"): Promise<void>;
+};
 export type SandboxHandle = {
   writeFiles(files: { path: string; content: Buffer }[], options?: { signal?: AbortSignal }): Promise<void>;
-  runCommand(options: { cmd: string; args: string[]; stdout: Writable; stderr: Writable; timeoutMs: number; signal: AbortSignal }): Promise<{ exitCode: number | null }>;
+  runCommand(options: { cmd: string; args: string[]; cwd: string; detached: true; timeoutMs: number; signal?: AbortSignal }): Promise<CommandHandle>;
   stop(options?: { signal?: AbortSignal }): Promise<unknown>;
 };
 export type SandboxFactory = (signal: AbortSignal) => Promise<SandboxHandle>;
 
-export const createVercelSandbox: SandboxFactory = (signal) => Sandbox.create({
+// Typed adapter rather than a cast: the compiler checks every SDK call made on the learner's behalf.
+function adapt(sandbox: Sandbox): SandboxHandle {
+  return {
+    writeFiles: (files, options) => sandbox.writeFiles(files, options),
+    runCommand: (options) => sandbox.runCommand({ ...options, detached: true }),
+    stop: (options) => sandbox.stop(options),
+  };
+}
+
+export const createVercelSandbox: SandboxFactory = async (signal) => adapt(await Sandbox.create({
   image: PYTHON_SANDBOX_IMAGE, resources: { vcpus: 1 }, timeout: VM_TTL_MS,
   persistent: false, networkPolicy: "deny-all", ports: [], signal,
-}) as Promise<SandboxHandle>;
+}));
 
-// Collects at most limit + 1 bytes: one byte over is enough for the outcome mapper to report "output too large".
-function boundedOutput(limit: number, onExceeded: () => void) {
-  const chunks: Buffer[] = [];
-  let bytes = 0, exceeded = false;
-  const stream = new Writable({
-    write(chunk: Buffer, _encoding, callback) {
-      if (!exceeded) {
-        const room = limit + 1 - bytes;
-        chunks.push(room >= chunk.length ? Buffer.from(chunk) : Buffer.from(chunk.subarray(0, room)));
-        bytes += Math.min(room, chunk.length);
-        if (bytes > limit) { exceeded = true; onExceeded(); }
-      }
-      callback();
-    },
-  });
-  return { stream, text: () => Buffer.concat(chunks).toString("utf8") };
+// Keeps at most limit + 1 bytes: one byte over is enough for the outcome mapper to report "output too large".
+class BoundedText {
+  private chunks: Buffer[] = [];
+  private bytes = 0;
+  exceeded = false;
+  constructor(private readonly limit: number) {}
+  add(text: string) {
+    if (this.exceeded) return;
+    const chunk = Buffer.from(text);
+    const room = this.limit + 1 - this.bytes;
+    this.chunks.push(room >= chunk.length ? chunk : chunk.subarray(0, room));
+    this.bytes += Math.min(room, chunk.length);
+    if (this.bytes > this.limit) this.exceeded = true;
+  }
+  text() { return Buffer.concat(this.chunks).toString("utf8"); }
 }
 
 class Gate {
@@ -102,6 +138,7 @@ class Gate {
 }
 
 const unavailable = (): PythonCaseRun => ({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+const budgetExhausted = (): PythonCaseRun => ({ kind: "time-limit", stdout: "", stderr: PYTHON_BUDGET_EXHAUSTED, runtimeMs: null, memoryKb: null });
 const SIGXCPU_EXIT = 128 + 24;
 const SIGKILL_EXIT = 128 + 9;
 
@@ -111,11 +148,14 @@ export function createVercelSandboxExecutor(factory: SandboxFactory = createVerc
     available: true,
     concurrency: PER_RUN_CONCURRENCY,
     async runCase(request: PythonCaseRequest): Promise<PythonCaseRun> {
+      // The run's own deadline always applies, including while waiting for a free slot and while the VM starts.
+      const total = request.signal ?? AbortSignal.timeout(RUNNER_LIMITS.totalBudgetMs);
       const wallMs = request.timeMs + STARTUP_GRACE_MS;
-      const startSignal = AbortSignal.timeout(START_BUDGET_MS + wallMs);
+      if (total.aborted) return budgetExhausted();
       try {
-        return await gate.run(() => runInFreshVm(factory, request, wallMs), startSignal);
+        return await gate.run(() => runInFreshVm(factory, request, wallMs, total), AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS + wallMs)]));
       } catch {
+        if (total.aborted) return budgetExhausted();
         // Quota, capacity, network and provider failures all look the same to the learner and are never a wrong answer.
         return unavailable();
       }
@@ -123,44 +163,69 @@ export function createVercelSandboxExecutor(factory: SandboxFactory = createVerc
   };
 }
 
-async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest, wallMs: number): Promise<PythonCaseRun> {
-  const sandbox = await factory(AbortSignal.timeout(START_BUDGET_MS));
+async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest, wallMs: number, total: AbortSignal): Promise<PythonCaseRun> {
+  const sandbox = await factory(AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS)]));
+  let command: CommandHandle | undefined;
+  let finished = false;
   try {
-    const limit = RUNNER_LIMITS.maxOutputBytes;
-    const overflow = new AbortController();
-    const stdout = boundedOutput(limit, () => overflow.abort());
-    const stderr = boundedOutput(limit, () => overflow.abort());
     await sandbox.writeFiles([
-      { path: "boot.py", content: Buffer.from(PYTHON_BOOTSTRAP) },
-      { path: "program.py", content: Buffer.from(request.source) },
-      { path: "input.json", content: Buffer.from(request.stdin) },
-    ], { signal: AbortSignal.timeout(START_BUDGET_MS) });
-    const deadline = new AbortController();
-    const timer = setTimeout(() => deadline.abort(), wallMs);
+      { path: `${PYTHON_RUN_DIR}/boot.py`, content: Buffer.from(PYTHON_BOOTSTRAP) },
+      { path: `${PYTHON_RUN_DIR}/program.py`, content: Buffer.from(request.source) },
+      { path: `${PYTHON_RUN_DIR}/input.json`, content: Buffer.from(request.stdin) },
+    ], { signal: AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS)]) });
+
+    const limit = RUNNER_LIMITS.maxOutputBytes;
+    const stdout = new BoundedText(limit), stderr = new BoundedText(limit);
+    const stop = new AbortController();
+    const caseDeadline = AbortSignal.timeout(wallMs);
     const started = Date.now();
+    command = await sandbox.runCommand({
+      // -I: ignore the environment and user site; -X utf8: the program's stdout is UTF-8 regardless of the VM locale.
+      cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000))), String(request.memoryKb * 1024 + MEMORY_HEADROOM_BYTES)],
+      cwd: PYTHON_RUN_DIR, detached: true, timeoutMs: wallMs + 2000, signal: total,
+    });
+
+    const settled = <T>(promise: Promise<T>) => promise.catch(() => undefined);
+    let overflowed: () => void = () => undefined;
+    const overflow = new Promise<"overflow">((resolve) => { overflowed = () => resolve("overflow"); });
+    // Output is read as it arrives and dropped past the cap; the loop ends on end of stream, overflow or `stop`.
+    const reading = settled((async () => {
+      for await (const log of command!.logs({ signal: stop.signal })) {
+        (log.stream === "stdout" ? stdout : stderr).add(log.data);
+        if (stdout.exceeded || stderr.exceeded) { overflowed(); return; }
+      }
+    })());
+    const exit = command.wait({ signal: stop.signal }).then((result) => ({ exitCode: result.exitCode }));
+    const abortedBy = (signal: AbortSignal, label: "case" | "total") => new Promise<typeof label>((resolve) => {
+      if (signal.aborted) resolve(label); else signal.addEventListener("abort", () => resolve(label), { once: true });
+    });
+
+    const first = await Promise.race([exit, overflow, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]);
     let exitCode: number | null = null;
-    try {
-      const command = await sandbox.runCommand({
-        // -I: ignore the environment and user site; -X utf8: the program's stdout is UTF-8 regardless of the VM locale.
-        cmd: "python3", args: ["-I", "-X", "utf8", "boot.py", String(Math.max(1, Math.ceil(request.timeMs / 1000))), String(request.memoryKb * 1024 + MEMORY_HEADROOM_BYTES)],
-        stdout: stdout.stream, stderr: stderr.stream,
-        timeoutMs: wallMs + 2000, signal: AbortSignal.any([deadline.signal, overflow.signal]),
-      });
-      exitCode = command.exitCode;
-    } catch (error) {
-      // An abort is an expected stop (deadline or output cap); anything else is an infrastructure failure.
-      if (!deadline.signal.aborted && !overflow.signal.aborted) throw error;
-    } finally { clearTimeout(timer); }
-    const runtimeMs = Math.min(Date.now() - started, request.timeMs);
-    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs, memoryKb: null };
-    if (overflow.signal.aborted) return { kind: "exited", exitCode: exitCode ?? 1, ...base };
-    if (deadline.signal.aborted || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
+    if (typeof first === "object") {
+      exitCode = first.exitCode;
+      finished = true;
+      // The program is done; let the last output arrive, but do not wait on it indefinitely.
+      await Promise.race([reading, new Promise((resolve) => setTimeout(resolve, DRAIN_MS))]);
+    } else {
+      // Stop reading and waiting, and kill the program. The VM is stopped below whether or not the kill worked.
+      stop.abort();
+      await settled(command.kill("SIGKILL"));
+    }
+    stop.abort();
+    void settled(exit);
+    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs: Math.min(Date.now() - started, request.timeMs), memoryKb: null };
+    if (first === "total") return { kind: "time-limit", ...base, stderr: PYTHON_BUDGET_EXHAUSTED };
+    if (first === "case" || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
+    if (first === "overflow") return { kind: "exited", exitCode: 1, ...base };
     if (exitCode === null) throw new Error("no exit status");
     // MemoryError is the learner's own exception (exit 1); a kill without a deadline is the kernel enforcing the data limit.
     if (/\bMemoryError\b/.test(base.stderr.slice(-2000)) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
   } finally {
-    // The provider TTL is the backstop if this fails; never block the verdict on it.
+    // The provider TTL is the backstop if this fails; never block the verdict on it. Kill first so a stuck command is not
+    // left running while the VM is torn down.
+    if (command && !finished) await command.kill("SIGKILL").catch(() => undefined);
     await sandbox.stop({ signal: AbortSignal.timeout(5000) }).catch(() => undefined);
   }
 }

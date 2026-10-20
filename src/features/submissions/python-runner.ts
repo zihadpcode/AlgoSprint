@@ -20,6 +20,9 @@ export type PythonCaseRequest = {
   source: string; stdin: string;
   // Per-case budgets, already clamped to RUNNER_LIMITS. The executor must enforce them or report the matching kind.
   timeMs: number; memoryKb: number;
+  // Aborts when the whole run's budget (RUNNER_LIMITS.totalBudgetMs) is spent. An executor must stop everything it started
+  // by then, including environment start-up; executePython also stops waiting on its own.
+  signal?: AbortSignal;
 };
 export type PythonCaseRun =
   | { kind: "exited"; exitCode: number; stdout: string; stderr: string; runtimeMs: number | null; memoryKb: number | null }
@@ -81,18 +84,22 @@ export async function executePython(executor: PythonExecutor, source: string, ca
   if (!cases.length || cases.length > RUNNER_LIMITS.maxCases) throw new Error("Unsupported test count");
   if (!executor.available) return cases.map(() => pythonUnavailableOutcome());
   const effective = { timeMs: Math.min(limits.timeMs, RUNNER_LIMITS.maxTimeMs), memoryKb: Math.min(limits.memoryKb, RUNNER_LIMITS.maxMemoryKb) };
-  const endsAt = Date.now() + RUNNER_LIMITS.totalBudgetMs;
+  // One hard deadline for the whole run, measured on a monotonic timer from here. It covers start-up of every case.
+  const budget = AbortSignal.timeout(RUNNER_LIMITS.totalBudgetMs);
+  const exhausted: PythonCaseRun = { kind: "time-limit", stdout: "", stderr: "The submission exceeded the total execution budget.", runtimeMs: null, memoryKb: null };
+  const budgetSpent = new Promise<PythonCaseRun>((resolve) => {
+    if (budget.aborted) resolve(exhausted); else budget.addEventListener("abort", () => resolve(exhausted), { once: true });
+  });
   const outcomes: RunnerOutcome[] = [];
   // Sequential unless the executor isolates every case in its own environment: one interpreter at a time keeps per-case
   // timings meaningful and memory bounded. Outcomes stay in case order either way.
   const width = Math.max(1, Math.min(executor.concurrency ?? 1, cases.length));
   for (let from = 0; from < cases.length; from += width) {
-    if (Date.now() >= endsAt) {
-      for (let i = from; i < cases.length; i++) outcomes.push({ status: "TIME_LIMIT", stdout: "", diagnostic: "The submission exceeded the total execution budget.", runtimeMs: null, memoryKb: null });
-      break;
-    }
     const batch = cases.slice(from, from + width);
-    outcomes.push(...await Promise.all(batch.map(async (test) => mapPythonRun(await executor.runCase({ source, stdin: test.stdin, ...effective }), test.expected, effective))));
+    // Racing the budget means a slow or misbehaving executor cannot hold the run past its deadline.
+    outcomes.push(...await Promise.all(batch.map(async (test) => mapPythonRun(
+      budget.aborted ? exhausted : await Promise.race([executor.runCase({ source, stdin: test.stdin, ...effective, signal: budget }), budgetSpent]),
+      test.expected, effective))));
   }
   return outcomes;
 }
