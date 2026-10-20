@@ -44,22 +44,21 @@ const ADDRESS_SPACE_HEADROOM_BYTES = 512 * 1024 * 1024;
 
 // Trusted bootstrap. Lowers the limits first (hard limits cannot be raised again without privilege), then runs the generated
 // program with stdin pointed at the case input. Learner code only ever reaches Python as text inside program.py.
-// RLIMIT_NPROC is set to the number of processes the user already has, so the program cannot start another process or
-// thread: that is what makes the per-process CPU and memory limits apply to the whole program.
+// Reject root and irreversibly disable privilege gains across exec before learner code. NPROC=0 forbids new tasks even
+// if a pre-existing same-user process exits; this does not depend on a racy snapshot of /proc.
 export const PYTHON_BOOTSTRAP = String.raw`
-import os, resource, sys
+import ctypes, os, resource, sys
+if os.getuid() == 0 or os.geteuid() == 0:
+    raise RuntimeError("Python bootstrap requires an unprivileged user")
+libc = ctypes.CDLL(None, use_errno=True)
+PR_SET_NO_NEW_PRIVS, PR_GET_NO_NEW_PRIVS = 38, 39
+if libc.prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) != 0 or libc.prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) != 1:
+    raise RuntimeError("Python bootstrap cannot disable privilege gains")
 here = os.path.dirname(os.path.abspath(__file__))
 cpu_seconds, memory_bytes = int(sys.argv[1]), int(sys.argv[2])
 def cap(kind, soft, hard=None):
     resource.setrlimit(kind, (soft, soft if hard is None else hard))
-uid = os.getuid()
-running = 0
-for name in os.listdir("/proc"):
-    if name.isdigit():
-        try:
-            if os.stat("/proc/" + name).st_uid == uid: running += 1
-        except OSError: pass
-cap(resource.RLIMIT_NPROC, max(running, 1))
+cap(resource.RLIMIT_NPROC, 0)
 cap(resource.RLIMIT_CORE, 0)
 cap(resource.RLIMIT_FSIZE, 1 << 20)
 cap(resource.RLIMIT_NOFILE, 32)
