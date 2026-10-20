@@ -27,6 +27,9 @@ describe("authentication input and configuration boundaries", () => {
     for (const value of ["https://evil.test", "//evil.test", "/\\evil.test", "/%2f%2fevil.test", "/admin/../auth/callback", "/login", "/dashboard\nLocation: evil", ["/profile"], null]) expect(safeReturnTo(value)).toBe("/dashboard");
     expect(safeReturnTo("/profile")).toBe("/profile");
     expect(safeReturnTo("/problems/relay-window?from=library")).toBe("/problems/relay-window?from=library");
+    // Protected pages a guest can be bounced from must return there after sign-in, not fall back to the dashboard.
+    for (const value of ["/interview-results", "/interview-results/abc-123", "/mock-interview/abc-123", "/leaderboard", "/review", "/notes", "/bookmarks"]) expect(safeReturnTo(value), value).toBe(value);
+    expect(safeReturnTo("/interview-results/../admin")).toBe("/dashboard");
   });
   it("does not use the request host for redirects or accept secret Supabase keys", () => {
     vi.stubEnv("NODE_ENV", "production"); vi.stubEnv("APP_URL", "https://learn.example.com");

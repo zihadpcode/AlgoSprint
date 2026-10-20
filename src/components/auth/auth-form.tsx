@@ -14,8 +14,8 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
   return (
     <form action={action} className="mt-6 space-y-4" aria-busy={pending}>
       <input type="hidden" name="next" value={returnTo} />
-      {registering && <Field name="displayName" label="Display name" minLength={2} autoComplete="nickname" errors={state.errors?.displayName} maxLength={80} />}
-      <Field name="email" label="Email" type="email" autoComplete="email" errors={state.errors?.email} maxLength={254} />
+      {registering && <Field name="displayName" label="Display name" minLength={2} autoComplete="nickname" errors={state.errors?.displayName} maxLength={80} defaultValue={state.values?.displayName} />}
+      <Field name="email" label="Email" type="email" autoComplete="email" errors={state.errors?.email} maxLength={254} defaultValue={state.values?.email} />
       <Field name="password" label="Password" type="password" autoComplete={registering ? "new-password" : "current-password"} errors={state.errors?.password} maxLength={128} minLength={registering ? 12 : 1} />
       {registering && <p className="-mt-2 text-xs leading-5 text-subtle">Use 12–128 characters. A long, unique passphrase works well.</p>}
       <div aria-live="polite" aria-atomic="true">
@@ -36,7 +36,7 @@ export function AuthForm({ mode, returnTo = "/dashboard" }: { mode: "login" | "r
 }
 
 function Field({ name, label, errors, ...props }: {
-  name: string; label: string; errors?: string[]; type?: string; autoComplete: string; maxLength: number; minLength?: number;
+  name: string; label: string; errors?: string[]; type?: string; autoComplete: string; maxLength: number; minLength?: number; defaultValue?: string;
 }) {
   return <div>
     <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>{label}</label>

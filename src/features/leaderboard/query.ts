@@ -23,7 +23,7 @@ function rankedRows(db: PrismaClient, filter: Prisma.Sql) {
         (count(*) FILTER (WHERE up."solvedAt" >= now() - interval '7 days'))::int AS week,
         row_number() OVER (ORDER BY count(*) DESC, max(up."solvedAt") ASC, lower(u."displayName") ASC, u.id ASC)::int AS rank
       FROM app."User" u
-      JOIN app."UserProgress" up ON up."userId" = u.id AND up.status = 'SOLVED' AND NOT up."selfMarked" AND up."solvedAt" IS NOT NULL
+      JOIN app."UserProgress" up ON up."userId" = u.id AND up.status = 'SOLVED' AND NOT up."selfMarked" AND up."verifiedRevision" IS NOT NULL AND up."solvedAt" IS NOT NULL
       JOIN app."Problem" pr ON pr.id = up."problemId" AND pr.status = 'PUBLISHED'
       WHERE u."leaderboardOptIn" AND u."displayName" IS NOT NULL
       GROUP BY u.id

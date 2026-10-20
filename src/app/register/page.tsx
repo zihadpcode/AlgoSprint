@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Create account", robots: { index: fa
 export const dynamic = "force-dynamic";
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const next = safeReturnTo((await searchParams).next);
-  if (await getViewer()) redirect(next);
+  if (await getViewer().catch(() => null)) redirect(next);
   return <AuthPage title="Make room for progress" description="Create your AlgoSprint account and build a practice habit you can keep.">
     {accountsConfigured() ? <AuthForm mode="register" returnTo={next} /> : <AccountsUnavailable />}
   </AuthPage>;

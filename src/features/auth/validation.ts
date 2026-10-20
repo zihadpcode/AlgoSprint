@@ -18,12 +18,15 @@ export const registerSchema = z.object({
 export function safeReturnTo(value: unknown): string {
   if (typeof value !== "string" || value.length > 1000) return "/dashboard";
   // Only known application roots and simple path segments. Query values stay local.
-  if (!/^\/(?:dashboard|progress|bookmarks|profile|problems|roadmaps|notes|review|admin|mock-interview)(?:\/[a-zA-Z0-9_-]+)*(?:\?[^#\\\u0000-\u001f\u007f]*)?$/.test(value)) return "/dashboard";
+  if (!/^\/(?:dashboard|progress|bookmarks|profile|problems|roadmaps|notes|review|admin|mock-interview|interview-results|leaderboard)(?:\/[a-zA-Z0-9_-]+)*(?:\?[^#\\\u0000-\u001f\u007f]*)?$/.test(value)) return "/dashboard";
   return value;
 }
 
 export type AuthFormState = {
   message?: string;
+  // Non-secret fields echoed back after a failed attempt: React resets an uncontrolled form once its action finishes,
+  // which would otherwise wipe the email the person just typed. A password is never echoed.
+  values?: { email?: string; displayName?: string };
   success?: boolean;
   retryAt?: number;
   errors?: Partial<Record<"email" | "password" | "confirmPassword" | "displayName", string[]>>;
