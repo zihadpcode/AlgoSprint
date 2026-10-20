@@ -27,4 +27,11 @@ describe("redacted deployment readiness checks", () => {
     expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "sandbox" })).toEqual([]);
     expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "other" }).join()).toContain("judge0 or sandbox");
   });
+  it("accepts the Python sandbox opt-in only with the in-process runner", () => {
+    const runner = { ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "sandbox" };
+    expect(deploymentIssues({ ...runner, PYTHON_RUNNER: "vercel-sandbox" })).toEqual([]);
+    expect(deploymentIssues({ ...valid, PYTHON_RUNNER: "vercel-sandbox" }).join()).toContain("requires CODE_RUNNER_ENABLED");
+    expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "judge0", JUDGE0_API_URL: "https://runner.example", JUDGE0_API_KEY: "k", JUDGE0_JAVASCRIPT_LANGUAGE_ID: "102", PYTHON_RUNNER: "vercel-sandbox" }).join()).toContain("requires CODE_RUNNER_ENABLED");
+    for (const PYTHON_RUNNER of ["true", "Vercel-Sandbox", "judge0"]) expect(deploymentIssues({ ...runner, PYTHON_RUNNER }).join()).toContain("PYTHON_RUNNER");
+  });
 });

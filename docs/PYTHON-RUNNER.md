@@ -1,6 +1,6 @@
-# Python runner: architecture and the pending runtime decision
+# Python runner: architecture and the Vercel Sandbox executor
 
-**Status: plumbing only. No Python interpreter is installed, vendored or downloaded, and no dependency was added.** The only shipped Python executor reports `INTERNAL_ERROR` with the diagnostic "The Python runtime is not installed on this server." Choosing and vendoring a runtime is a decision for the project owner (see [Pending decision](#pending-decision)).
+**Status: the executor is implemented and OFF by default.** Python runs only when a deployment sets `PYTHON_RUNNER=vercel-sandbox` (with `CODE_RUNNER_ENABLED=true` and `CODE_RUNNER_PROVIDER=sandbox`). The owner chose Vercel Sandbox on October 19, 2026. Nothing has been run in a live Sandbox VM yet: the unit tests use a fake VM, and the in-VM limits were exercised in a local Linux container (see [Executor](#vercel-sandbox-executor)). Complete the [go-live checklist](#go-live-checklist) before turning it on.
 
 ## What exists today
 
@@ -31,7 +31,7 @@ An executor runs one program against one stdin and reports what happened: `exite
 
 `npm run starters:python` regenerates `src/data/seeds/languages/python-starters.json` from `SIGNATURES` (one short stub per slug with `pass`; names and parameters in snake_case). `npm run seed:validate` checks that every slug exists, entry points and parameters are valid non-keyword identifiers, parameters do not collide, and the file matches the generator.
 
-`seedLanguageStarters` in `prisma/seed-language-starters.ts` inserts missing `StarterCode` rows for existing problems. It never updates or deletes, never touches `Problem` rows (so insert-only problem seeding and its content-hash protection are unaffected), is idempotent, and throws a conflict error before writing anything if an existing row for the same problem and language differs. It is **not yet wired into `prisma/seed.ts`**. The wiring is one line after `seedProblems`:
+`seedLanguageStarters` in `prisma/seed-language-starters.ts` inserts missing `StarterCode` rows for existing problems. It never updates or deletes, never touches `Problem` rows (so insert-only problem seeding and its content-hash protection are unaffected), is idempotent, and throws a conflict error before writing anything if an existing row for the same problem and language differs. It is wired into `prisma/seed.ts`, right after `seedProblems`:
 
 ```ts
 console.log("Language starters:", await seedLanguageStarters(db, await loadPythonStarters()));
@@ -39,9 +39,9 @@ console.log("Language starters:", await seedLanguageStarters(db, await loadPytho
 
 (plus importing both functions from `./seed-language-starters`). Until Python starters are seeded and an executor is installed, Python is neither offered nor runnable in production.
 
-## Pending decision
+## Earlier runtime options (historical)
 
-**Nothing is installed until the owner approves vendoring an interpreter and a WASI host dependency.** A previous attempt to add both was denied by the permission system as untrusted code integration, and that decision belongs to the owner.
+The owner selected Vercel Sandbox, so the WASI and in-process directions below were not pursued. They are kept as the evidence behind that choice.
 
 The earlier prototype used **CPython 3.12 compiled to WASI**, release `python/3.12.0+20231211-040d5a6` of `vmware-labs/webassembly-language-runtimes`, file `python-3.12.0.wasm` with sha256 `e5dc5a398b07b54ea8fdb503bf68fb583d533f10ec3f930963e02b9505f7a763`, run through a **pure-JavaScript WASI host with an in-memory, read-only filesystem**, inside a worker that can be terminated.
 
@@ -80,3 +80,24 @@ Even a successful live result would not prove the final learner runner: it does 
 [Hobby quotas](https://vercel.com/docs/sandbox/pricing) currently include 5 active-CPU hours, 420 GB-hours and 5,000 creations per month; exhaustion pauses creation rather than charging overages. Pro usage is metered. AlgoSprint currently admits up to 20 active server executions while Hobby allows 10 concurrent sandboxes, so provider-specific admission/capacity handling is needed. Confirm the actual team plan, remaining quota and budget before a live pilot; no service was activated during this review.
 
 The next approved implementation must preserve the executor contract, reject unsupported execution before reservation, and pass escape/resource/cancellation/cleanup checks in the intended environment. Wire and verify the insert-only starter seed only after that runtime is ready. The existing `test:trace` checks packaging and selected QuickJS behavior; it does not prove Python or a remote judge secure.
+
+## Vercel Sandbox executor
+
+`src/features/submissions/python-vercel-sandbox.ts`, selected by `getPythonExecutor()` only when `PYTHON_RUNNER=vercel-sandbox` (a registered executor, used by tests, still wins).
+
+- **One new VM per test case.** Image `vercel/sandbox/python:3.14`, one vCPU, `networkPolicy: "deny-all"`, no ports, nothing mounted, no credentials or environment passed in, `persistent: false`, 30 s provider TTL as a backstop. The VM is stopped in `finally`. Nothing is reused across cases or users, and expected outputs never enter a VM.
+- **Files, not arguments.** The generated program and the case input are written to the VM as files (`program.py`, `input.json`); a trusted bootstrap (`boot.py`) runs them. Learner text never appears on a command line.
+- **Limits inside the VM**, set by the bootstrap before any learner code runs and applied to the unprivileged VM user (no `sudo`): CPU seconds, data segment (case memory limit plus 32 MiB for the interpreter), address space, at most 32 processes, 32 open files, 1 MiB per written file, no core files. Hard limits are lowered together with soft ones, so the program cannot raise them.
+- **Limits on the host:** wall-clock deadline (case time limit plus 600 ms start-up) that aborts the command, stdout and stderr capped while streaming at the shared 256 KiB policy, and at most 4 VMs per submission and 8 per server instance.
+- **Verdicts:** deadline or SIGXCPU is `TIME_LIMIT`; `MemoryError` or a kernel kill is `MEMORY_LIMIT`; exit 3 is a compile error; anything else non-zero is a runtime error. Quota, capacity and provider failures become one generic `INTERNAL_ERROR` message ("Python execution is temporarily unavailable"), never a wrong answer, and provider text is never shown.
+- **Not measured:** peak memory is reported as unknown, and runtime is host-observed wall time (it includes a round trip to the VM).
+
+Local container check (Python 3.14, non-root, no network, same bootstrap and arguments): normal run correct; infinite loop killed by the CPU limit at about 2 s; memory bomb raised `MemoryError`; fork bomb stopped by the process limit; a 10 MB write failed with `EFBIG`; network unreachable; raising a limit refused; syntax and runtime errors mapped. This approximates, and does not replace, a live Sandbox check.
+
+## Go-live checklist
+
+1. Confirm Sandbox is enabled for the Vercel project and check the plan quota. Hobby allows 10 concurrent sandboxes and monthly CPU and creation caps; each Python run starts up to one VM per test case (at most 10), so capacity is the practical limit. Exhaustion shows learners the generic unavailable message.
+2. Run the saved trusted probes once (`scripts/inspect-python-sandbox.ts`, `scripts/probe-python-sandbox-enforcement.ts`) and confirm the image runs the bootstrap as a non-root user with working rlimits.
+3. With the flag still off in production, run a preview deployment with the flag on and submit: a correct solution, an infinite loop, a memory bomb, a fork bomb and an output flood. Check the verdicts, the elapsed time against the 20 s budget, and in the Vercel dashboard that no VMs remain.
+4. Set `PYTHON_RUNNER=vercel-sandbox` in Production, redeploy, then run `npm run db:seed` from a trusted checkout to insert the Python starters (insert-only; nothing existing changes).
+5. To turn Python off, remove `PYTHON_RUNNER` and redeploy. The language selector then disables Run for Python again.

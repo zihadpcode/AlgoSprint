@@ -26,5 +26,7 @@ export function deploymentIssues(env: Record<string, string | undefined>, migrat
     const id = Number(env.JUDGE0_JAVASCRIPT_LANGUAGE_ID);
     if (!Number.isInteger(id) || id < 1 || id > 10000) issues.push("JUDGE0_JAVASCRIPT_LANGUAGE_ID: use your provider's verified JavaScript language ID.");
   }
+  if (env.PYTHON_RUNNER && env.PYTHON_RUNNER !== "vercel-sandbox") issues.push("PYTHON_RUNNER: leave unset or use exactly vercel-sandbox.");
+  if (env.PYTHON_RUNNER === "vercel-sandbox" && (env.CODE_RUNNER_ENABLED !== "true" || env.CODE_RUNNER_PROVIDER !== "sandbox")) issues.push("PYTHON_RUNNER=vercel-sandbox requires CODE_RUNNER_ENABLED=true and CODE_RUNNER_PROVIDER=sandbox.");
   return issues;
 }
