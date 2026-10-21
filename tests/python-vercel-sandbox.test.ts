@@ -341,15 +341,45 @@ it("runs a submission's cases concurrently but returns outcomes in case order", 
   expect(peak).toBeGreaterThan(1); expect(peak).toBeLessThanOrEqual(5);
 });
 
-it("cannot be activated by a deployment flag after the live process-limit failure", () => {
-  expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
-  for (const value of ["", "true", "vercel_sandbox", "judge0"]) { vi.stubEnv("PYTHON_RUNNER", value); expect(getPythonExecutor(), value).toBe(unavailablePythonExecutor); }
+it("requires all three exact activation flags without starting a VM on inspection", () => {
+  const enabled = { PYTHON_RUNNER: "vercel-sandbox", CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "sandbox" };
+  const unavailableConfigs = [
+    {},
+    ...[undefined, "", "true", "Vercel-Sandbox", "vercel_sandbox", "judge0", "vercel-sandbox "].map((PYTHON_RUNNER) => ({ ...enabled, PYTHON_RUNNER })),
+    ...[undefined, "", "false", "TRUE"].map((CODE_RUNNER_ENABLED) => ({ ...enabled, CODE_RUNNER_ENABLED })),
+    ...[undefined, "", "judge0", "Sandbox"].map((CODE_RUNNER_PROVIDER) => ({ ...enabled, CODE_RUNNER_PROVIDER })),
+  ];
+  for (const config of unavailableConfigs) {
+    for (const key of ["PYTHON_RUNNER", "CODE_RUNNER_ENABLED", "CODE_RUNNER_PROVIDER"] as const) vi.stubEnv(key, config[key as keyof typeof config]);
+    expect(getPythonExecutor(), JSON.stringify(config)).toBe(unavailablePythonExecutor);
+  }
+  for (const [key, value] of Object.entries(enabled)) vi.stubEnv(key, value);
+  const managed = getPythonExecutor();
+  expect(managed.available).toBe(true);
+  expect(managed.concurrency).toBe(5);
+  expect(getPythonExecutor()).toBe(managed);
+  expect(f.create).not.toHaveBeenCalled();
+});
+
+it("rechecks flags before returning its cached executor and gives controlled injection priority", () => {
   vi.stubEnv("PYTHON_RUNNER", "vercel-sandbox");
   vi.stubEnv("CODE_RUNNER_ENABLED", "true");
   vi.stubEnv("CODE_RUNNER_PROVIDER", "sandbox");
-  expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
-  expect(f.create).not.toHaveBeenCalled();
+  const managed = getPythonExecutor();
+  for (const [key, disabled] of [["PYTHON_RUNNER", undefined], ["CODE_RUNNER_ENABLED", "false"], ["CODE_RUNNER_PROVIDER", "judge0"]] as const) {
+    vi.stubEnv(key, disabled);
+    expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
+    vi.stubEnv(key, key === "PYTHON_RUNNER" ? "vercel-sandbox" : key === "CODE_RUNNER_ENABLED" ? "true" : "sandbox");
+    expect(getPythonExecutor()).toBe(managed);
+  }
   const fake = { available: true, runCase: async () => ({ kind: "unavailable" as const, diagnostic: "" }) };
   registerPythonExecutor(fake);
   expect(getPythonExecutor()).toBe(fake);
+  vi.stubEnv("PYTHON_RUNNER", undefined);
+  expect(getPythonExecutor()).toBe(fake);
+  registerPythonExecutor(null);
+  expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
+  vi.stubEnv("PYTHON_RUNNER", "vercel-sandbox");
+  expect(getPythonExecutor()).toBe(managed);
+  expect(f.create).not.toHaveBeenCalled();
 });

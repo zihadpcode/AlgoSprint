@@ -27,8 +27,8 @@ it("ships only an executor that reports the runtime as not installed", async () 
   expect(getPythonExecutor()).toBe(unavailablePythonExecutor);
   expect(getPythonExecutor().available).toBe(false);
   expect(await executePython(getPythonExecutor(), "src", [{ stdin: "[]", expected: 1 }, { stdin: "[]", expected: 2 }], limits)).toEqual(
-    Array.from({ length: 2 }, () => ({ status: "INTERNAL_ERROR", stdout: "", diagnostic: "The Python runtime is not installed on this server.", runtimeMs: null, memoryKb: null })));
-  expect(PYTHON_UNAVAILABLE_DIAGNOSTIC).toBe("The Python runtime is not installed on this server.");
+    Array.from({ length: 2 }, () => ({ status: "INTERNAL_ERROR", stdout: "", diagnostic: "Python execution is not enabled on this server.", runtimeMs: null, memoryKb: null })));
+  expect(PYTHON_UNAVAILABLE_DIAGNOSTIC).toBe("Python execution is not enabled on this server.");
   expect(await unavailablePythonExecutor.runCase({ source: "", stdin: "", ...limits })).toEqual({ kind: "unavailable", diagnostic: PYTHON_UNAVAILABLE_DIAGNOSTIC });
 });
 it("registers and resets the executor", () => {

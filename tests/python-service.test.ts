@@ -44,14 +44,14 @@ it("returns the unavailable outcome for Python on Judge0 without calling the pro
   f.reserve.mockResolvedValue({ id: "own-attempt", revision: 1, source: "s", limits: { timeMs: 1, memoryKb: 1 }, cases: [{ position: 1, input: [1], output: 1, stdin: "[1]" }] });
   const result = await runSubmission(db, "owner", { ...input, mode: "RUN" }, judge0);
   expect(f.judge0).not.toHaveBeenCalled(); expect(requests).toHaveLength(0);
-  expect(result).toMatchObject({ success: true, result: { status: "INTERNAL_ERROR", passedCount: 0, cases: [{ status: "INTERNAL_ERROR", diagnostic: "The Python runtime is not installed on this server." }] } });
+  expect(result).toMatchObject({ success: true, result: { status: "INTERNAL_ERROR", passedCount: 0, cases: [{ status: "INTERNAL_ERROR", diagnostic: "Python execution is not enabled on this server." }] } });
 });
 it("reports INTERNAL_ERROR with the install diagnostic when no executor is installed", async () => {
   registerPythonExecutor(null);
   const run = await runSubmission(db, "owner", { ...input, mode: "RUN" }, sandbox);
   expect(run).toMatchObject({ success: true, result: { status: "INTERNAL_ERROR", passedCount: 0, runtimeMs: null } });
   if (!run.success) throw new Error("unreachable");
-  expect(run.result.cases.map((c) => c.diagnostic)).toEqual(Array(2).fill("The Python runtime is not installed on this server."));
+  expect(run.result.cases.map((c) => c.diagnostic)).toEqual(Array(2).fill("Python execution is not enabled on this server."));
 });
 it("maps wrong answers, runtime errors and time limits into the overall verdict", async () => {
   script = (request) => request.stdin === "visible-stdin" ? exited("2") : exited("", { exitCode: 1, stderr: "Traceback...\nValueError: bad" });
