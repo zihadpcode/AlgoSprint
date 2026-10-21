@@ -1,0 +1,288 @@
+{
+  "image": "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa",
+  "supervisorSha256": "4a10ba29ffcdcb844161ecfe3ca9fb001fb598f266aec8fb9135cefaff2de6b9",
+  "bootstrapSha256": "aecd162c3da1250625b9f3ecc32d79a1eba70b3ecedddb3edabf580b3c7362a6",
+  "executorSha256": "f24832929fb5f6a7fcfcbbe1ad6ad304a2b44bf5c7b5f3153d9850fa6ce773d3",
+  "ids": [
+    "tan-mere-mouse-3vCQ8G",
+    "teal-clumsy-wolverine-G7fkbY",
+    "white-criminal-primate-Cg4K1e",
+    "salmon-shaky-herring-2Xx9E2",
+    "lime-retail-weasel-2DG4Ft",
+    "brown-blind-walrus-UkYftJ",
+    "blush-tricky-kangaroo-NHFMJm",
+    "white-vivacious-swift-RzhaPL",
+    "plum-feminist-otter-t1Lqjf",
+    "black-minimum-meadowlark-sKca3N",
+    "silver-coherent-meadowlark-GcYobQ",
+    "lime-convincing-wildcat-UC4WXF",
+    "ivory-absent-mouse-LrC6yu"
+  ],
+  "results": [
+    {
+      "name": "ten-full-cpu-cases",
+      "elapsedMs": 9840,
+      "outcomes": [
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1848,
+          "memoryKb": 15036,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1864,
+          "memoryKb": 14888,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1872,
+          "memoryKb": 14964,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1846,
+          "memoryKb": 14892,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1849,
+          "memoryKb": 15044,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1846,
+          "memoryKb": 14904,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1849,
+          "memoryKb": 14948,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1873,
+          "memoryKb": 15032,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1849,
+          "memoryKb": 15012,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "42",
+          "diagnostic": "",
+          "runtimeMs": 1844,
+          "memoryKb": 15024,
+          "status": "ACCEPTED"
+        }
+      ]
+    },
+    {
+      "name": "fresh-case-isolation",
+      "outcomes": [
+        {
+          "stdout": "7",
+          "diagnostic": "",
+          "runtimeMs": 57,
+          "memoryKb": 14944,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "7",
+          "diagnostic": "",
+          "runtimeMs": 82,
+          "memoryKb": 15008,
+          "status": "ACCEPTED"
+        }
+      ]
+    },
+    {
+      "name": "host-cancel",
+      "elapsedMs": 2233,
+      "commandCreated": true,
+      "learnerStarted": true,
+      "run": {
+        "kind": "unavailable",
+        "diagnostic": "Python execution did not finish within the time budget. Please try again."
+      }
+    }
+  ],
+  "providerPhases": [
+    {
+      "name": "tan-mere-mouse-3vCQ8G",
+      "createMs": 167,
+      "writeMs": 125,
+      "commandCreateMs": 114,
+      "waitAfterHandleMs": 2648,
+      "stopMs": 1240
+    },
+    {
+      "name": "teal-clumsy-wolverine-G7fkbY",
+      "createMs": 204,
+      "writeMs": 85,
+      "commandCreateMs": 106,
+      "waitAfterHandleMs": 2655,
+      "stopMs": 1247
+    },
+    {
+      "name": "white-criminal-primate-Cg4K1e",
+      "createMs": 243,
+      "writeMs": 107,
+      "commandCreateMs": 80,
+      "waitAfterHandleMs": 2884,
+      "stopMs": 1137
+    },
+    {
+      "name": "salmon-shaky-herring-2Xx9E2",
+      "createMs": 256,
+      "writeMs": 110,
+      "commandCreateMs": 88,
+      "waitAfterHandleMs": 3190,
+      "stopMs": 1151
+    },
+    {
+      "name": "lime-retail-weasel-2DG4Ft",
+      "createMs": 524,
+      "writeMs": 208,
+      "commandCreateMs": 75,
+      "waitAfterHandleMs": 2574,
+      "stopMs": 1170
+    },
+    {
+      "name": "brown-blind-walrus-UkYftJ",
+      "createMs": 131,
+      "writeMs": 160,
+      "commandCreateMs": 112,
+      "waitAfterHandleMs": 3310,
+      "stopMs": 1126
+    },
+    {
+      "name": "blush-tricky-kangaroo-NHFMJm",
+      "createMs": 139,
+      "writeMs": 184,
+      "commandCreateMs": 79,
+      "waitAfterHandleMs": 2577,
+      "stopMs": 1156
+    },
+    {
+      "name": "white-vivacious-swift-RzhaPL",
+      "createMs": 173,
+      "writeMs": 115,
+      "commandCreateMs": 96,
+      "waitAfterHandleMs": 2631,
+      "stopMs": 1169
+    },
+    {
+      "name": "plum-feminist-otter-t1Lqjf",
+      "createMs": 612,
+      "writeMs": 139,
+      "commandCreateMs": 143,
+      "waitAfterHandleMs": 2719,
+      "stopMs": 1189
+    },
+    {
+      "name": "black-minimum-meadowlark-sKca3N",
+      "createMs": 634,
+      "writeMs": 132,
+      "commandCreateMs": 184,
+      "waitAfterHandleMs": 2665,
+      "stopMs": 1247
+    },
+    {
+      "name": "silver-coherent-meadowlark-GcYobQ",
+      "createMs": 136,
+      "writeMs": 120,
+      "commandCreateMs": 108,
+      "waitAfterHandleMs": 245,
+      "stopMs": 1126
+    },
+    {
+      "name": "lime-convincing-wildcat-UC4WXF",
+      "createMs": 440,
+      "writeMs": 188,
+      "commandCreateMs": 71,
+      "waitAfterHandleMs": 1173,
+      "stopMs": 1199
+    },
+    {
+      "name": "ivory-absent-mouse-LrC6yu",
+      "createMs": 488,
+      "writeMs": 99,
+      "commandCreateMs": 99,
+      "waitAfterHandleMs": 378,
+      "stopMs": 1169
+    }
+  ],
+  "states": [
+    {
+      "name": "tan-mere-mouse-3vCQ8G",
+      "status": "stopped"
+    },
+    {
+      "name": "teal-clumsy-wolverine-G7fkbY",
+      "status": "stopped"
+    },
+    {
+      "name": "white-criminal-primate-Cg4K1e",
+      "status": "stopped"
+    },
+    {
+      "name": "salmon-shaky-herring-2Xx9E2",
+      "status": "stopped"
+    },
+    {
+      "name": "lime-retail-weasel-2DG4Ft",
+      "status": "stopped"
+    },
+    {
+      "name": "brown-blind-walrus-UkYftJ",
+      "status": "stopped"
+    },
+    {
+      "name": "blush-tricky-kangaroo-NHFMJm",
+      "status": "stopped"
+    },
+    {
+      "name": "white-vivacious-swift-RzhaPL",
+      "status": "stopped"
+    },
+    {
+      "name": "plum-feminist-otter-t1Lqjf",
+      "status": "stopped"
+    },
+    {
+      "name": "black-minimum-meadowlark-sKca3N",
+      "status": "stopped"
+    },
+    {
+      "name": "silver-coherent-meadowlark-GcYobQ",
+      "status": "stopped"
+    },
+    {
+      "name": "lime-convincing-wildcat-UC4WXF",
+      "status": "stopped"
+    },
+    {
+      "name": "ivory-absent-mouse-LrC6yu",
+      "status": "stopped"
+    }
+  ]
+}

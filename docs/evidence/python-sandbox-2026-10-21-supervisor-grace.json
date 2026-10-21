@@ -1,0 +1,113 @@
+{
+  "image": "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa",
+  "supervisorSha256": "4a10ba29ffcdcb844161ecfe3ca9fb001fb598f266aec8fb9135cefaff2de6b9",
+  "bootstrapSha256": "aecd162c3da1250625b9f3ecc32d79a1eba70b3ecedddb3edabf580b3c7362a6",
+  "executorSha256": "f24832929fb5f6a7fcfcbbe1ad6ad304a2b44bf5c7b5f3153d9850fa6ce773d3",
+  "ids": [
+    "peach-jittery-sheep-CUni6k",
+    "magenta-indirect-stork-CTz4ou",
+    "emerald-cognitive-cockroach-pNiHib"
+  ],
+  "phases": [
+    {
+      "name": "peach-jittery-sheep-CUni6k",
+      "createMs": 213.22541599999977,
+      "writeMs": 181.58833300000015,
+      "commandCreateMs": 144.62020900000016,
+      "providerExitCode": 0,
+      "waitAfterHandleMs": 343.95737499999996,
+      "accounting": {
+        "version": 1,
+        "exitCode": 0,
+        "signal": null,
+        "cpuMs": 43.101,
+        "maxRssKb": 13248
+      },
+      "stopMs": 2010.453375
+    },
+    {
+      "name": "magenta-indirect-stork-CTz4ou",
+      "createMs": 582.0983749999996,
+      "writeMs": 393.9421250000005,
+      "commandCreateMs": 105.41412500000024,
+      "providerExitCode": 0,
+      "waitAfterHandleMs": 1387.3792500000009,
+      "accounting": {
+        "version": 1,
+        "exitCode": 0,
+        "signal": null,
+        "cpuMs": 827.6429999999999,
+        "maxRssKb": 13212
+      },
+      "stopMs": 1174.6372500000007
+    },
+    {
+      "name": "emerald-cognitive-cockroach-pNiHib",
+      "createMs": 179.85112500000105,
+      "writeMs": 105.08137499999975,
+      "commandCreateMs": 105.33233300000029,
+      "providerExitCode": 0,
+      "waitAfterHandleMs": 3101.751791999999,
+      "accounting": {
+        "version": 1,
+        "exitCode": 0,
+        "signal": null,
+        "cpuMs": 1840.516,
+        "maxRssKb": 13112
+      },
+      "stopMs": 1380.6849169999987
+    }
+  ],
+  "results": [
+    {
+      "targetCpuSeconds": 0,
+      "elapsedMs": 3006.3451660000005,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "42\n",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.034611893, \"monotonic\": 11.597229855, \"target\": 0}\n{\"stage\": \"done\", \"cpuDelta\": 0.0013244260000000035, \"wallDelta\": 0.0009192440000003188}\n",
+        "runtimeMs": 44,
+        "memoryKb": 13248
+      }
+    },
+    {
+      "targetCpuSeconds": 0.8,
+      "elapsedMs": 3730.1108330000006,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "42\n",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.02035299, \"monotonic\": 9.26287667, \"target\": 0.8}\n{\"stage\": \"done\", \"cpuDelta\": 0.801089227, \"wallDelta\": 1.261137955999999}\n",
+        "runtimeMs": 828,
+        "memoryKb": 13212
+      }
+    },
+    {
+      "targetCpuSeconds": 1.8,
+      "elapsedMs": 4946.575709000001,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "42\n",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.028355043, \"monotonic\": 10.251406523, \"target\": 1.8}\n{\"stage\": \"done\", \"cpuDelta\": 1.8020010560000002, \"wallDelta\": 2.8686737289999993}\n",
+        "runtimeMs": 1841,
+        "memoryKb": 13112
+      }
+    }
+  ],
+  "finalStates": [
+    {
+      "name": "peach-jittery-sheep-CUni6k",
+      "status": "stopped"
+    },
+    {
+      "name": "magenta-indirect-stork-CTz4ou",
+      "status": "stopped"
+    },
+    {
+      "name": "emerald-cognitive-cockroach-pNiHib",
+      "status": "stopped"
+    }
+  ]
+}

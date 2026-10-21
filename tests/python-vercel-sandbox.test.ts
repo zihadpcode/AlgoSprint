@@ -5,20 +5,28 @@ vi.mock("@vercel/sandbox", () => ({ Sandbox: { create: f.create } }));
 import { createVercelSandbox, createVercelSandboxExecutor, PYTHON_BOOTSTRAP, PYTHON_BUDGET_EXHAUSTED, PYTHON_EXIT_SANDBOX_SETUP, PYTHON_RUN_DIR, PYTHON_SANDBOX_UNAVAILABLE, PYTHON_SETUP_MARKER, PYTHON_UNPRIVILEGED_UID,
   type CommandHandle, type SandboxHandle } from "@/features/submissions/python-vercel-sandbox";
 import { executePython, getPythonExecutor, mapPythonRun, registerPythonExecutor, unavailablePythonExecutor, type PythonCaseRequest } from "@/features/submissions/python-runner";
+import { PYTHON_SUPERVISOR, PYTHON_USAGE_PATH } from "@/features/submissions/python-supervisor";
 import { RUNNER_LIMITS } from "@/features/submissions/limits";
 
 const request: PythonCaseRequest = { source: "print('program')", stdin: "[1,2]", timeMs: 2000, memoryKb: 262_144 };
 type Options = Parameters<SandboxHandle["runCommand"]>[0];
 // A scripted command. `out`/`err` are log chunks; `exit` is the exit code (null = never exits on its own, like a hang).
-type Script = { out?: string[]; err?: string[]; exit?: number | null; logs?: () => AsyncIterable<{ stream: "stdout" | "stderr"; data: string }> };
+type Script = { usage?: unknown; out?: string[]; err?: string[]; exit?: number | null; logs?: () => AsyncIterable<{ stream: "stdout" | "stderr"; data: string }> };
 
 function fakeVm(script: Script | ((options: Options) => Script) = { exit: 0 }) {
   const vm = { files: [] as { path: string; content: Buffer }[], commands: [] as Options[], stopped: 0, killed: 0, logsRead: 0 };
+  let lastPlan: Script = {};
   const handle: SandboxHandle = {
+    async readFileToBuffer({ path }) {
+      expect(path).toBe(PYTHON_USAGE_PATH);
+      if (Object.hasOwn(lastPlan, "usage")) return lastPlan.usage === undefined ? null : Buffer.from(typeof lastPlan.usage === "string" ? lastPlan.usage : JSON.stringify(lastPlan.usage));
+      return Buffer.from(JSON.stringify({ version: 1, exitCode: lastPlan.exit ?? 0, signal: null, cpuMs: 5, maxRssKb: 128 }));
+    },
     async writeFiles(files) { vm.files.push(...files); },
     async runCommand(options) {
       vm.commands.push(options);
       const plan = typeof script === "function" ? script(options) : script;
+      lastPlan = plan;
       const command: CommandHandle = {
         async *logs({ signal } = {}) {
           if (plan.logs) { for await (const log of plan.logs()) { vm.logsRead++; yield log; } return; }
@@ -44,7 +52,7 @@ beforeEach(() => f.create.mockReset());
 
 it("starts a deny-all, nonpersistent, portless VM with no credentials or environment", async () => {
   const created = fakeVm();
-  f.create.mockResolvedValue({ writeFiles: created.handle.writeFiles, runCommand: created.handle.runCommand, stop: created.handle.stop });
+  f.create.mockResolvedValue({ writeFiles: created.handle.writeFiles, runCommand: created.handle.runCommand, readFileToBuffer: created.handle.readFileToBuffer, stop: created.handle.stop });
   const signal = new AbortController().signal;
   await createVercelSandbox(signal);
   expect(f.create).toHaveBeenCalledWith({ image: "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa", resources: { vcpus: 1 }, timeout: 30_000, persistent: false, networkPolicy: "deny-all", ports: [], signal });
@@ -61,13 +69,15 @@ it("runs each case in its own fresh VM, from absolute paths, and stops it", asyn
   for (const { vm } of vms) {
     expect(vm.stopped).toBe(1);
     expect(vm.killed).toBe(0);
-    expect(vm.files.map((file) => file.path)).toEqual([`${PYTHON_RUN_DIR}/boot.py`, `${PYTHON_RUN_DIR}/program.py`, `${PYTHON_RUN_DIR}/input.json`]);
+    expect(vm.files.map((file) => file.path)).toEqual([`${PYTHON_RUN_DIR}/boot.py`, `${PYTHON_RUN_DIR}/supervisor.py`, `${PYTHON_RUN_DIR}/program.py`, `${PYTHON_RUN_DIR}/input.json`]);
     expect(vm.files[0].content.toString()).toBe(PYTHON_BOOTSTRAP);
-    expect(vm.files[1].content.toString()).toBe("print('program')");
+    expect(vm.files[1].content.toString()).toBe(PYTHON_SUPERVISOR);
+    expect(vm.files[2].content.toString()).toBe("print('program')");
+    // The nominal CPU budget stays 2 seconds; a 3-second kernel guard avoids premature rounded-tick kills.
     expect(vm.commands[0]).toMatchObject({ cmd: "python3", cwd: PYTHON_RUN_DIR, detached: true, sudo: true,
-      args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, "2", String(262_144 * 1024)] });
+      args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/supervisor.py`, `${PYTHON_RUN_DIR}/boot.py`, "3", String(262_144 * 1024)] });
   }
-  expect(vms[0].vm.files[2].content.toString()).not.toBe(vms[1].vm.files[2].content.toString());
+  expect(vms[0].vm.files[3].content.toString()).not.toBe(vms[1].vm.files[3].content.toString());
 });
 
 it("never puts learner input on the command line or in the environment", async () => {
@@ -137,13 +147,39 @@ it("honours the run-wide deadline while the VM is still starting, and never star
   expect(factory).not.toHaveBeenCalled();
 });
 
-it("maps CPU-limit kills, MemoryError and kernel kills to the right verdicts", async () => {
+it("keeps ordinary signal-shaped exit codes as runtime errors and maps MemoryError", async () => {
   const kind = async (exit: number, err: string[] = []) => (await executorFor(fakeVm({ exit, err })).runCase(request)).kind;
-  expect(await kind(152)).toBe("time-limit");
+  expect(await kind(152)).toBe("exited");
   expect(await kind(1, ["Traceback...\nMemoryError"])).toBe("memory-limit");
-  expect(await kind(137)).toBe("memory-limit");
+  expect(await kind(137)).toBe("exited");
   expect(await kind(1, ["ValueError: nope"])).toBe("exited");
   expect(await kind(3, ["SyntaxError"])).toBe("exited");
+});
+
+
+it("charges successful completion against the exact CPU budget rather than its rounded kernel seconds", async () => {
+  const made = fakeVm({ exit: 0, out: ["7"], usage: { version: 1, exitCode: 0, signal: null, cpuMs: 501, maxRssKb: 128 } });
+  expect((await executorFor(made).runCase({ ...request, timeMs: 500 })).kind).toBe("time-limit");
+});
+
+it("uses kernel signals and CPU usage to distinguish CPU kills from ambiguous SIGKILL", async () => {
+  const signaled = (signal: number, cpuMs: number) => fakeVm({ exit: 128 + signal, usage: { version: 1, exitCode: null, signal, cpuMs, maxRssKb: 128 } });
+  expect((await executorFor(signaled(9, 2000)).runCase(request)).kind).toBe("time-limit");
+  expect((await executorFor(signaled(24, 2000)).runCase(request)).kind).toBe("time-limit");
+  expect(await executorFor(signaled(9, 5)).runCase(request)).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+});
+
+it.each([undefined, "{bad json", " ".repeat(4097), {}, { version: 1, exitCode: 0, signal: null, cpuMs: -1, maxRssKb: 128 }, { version: 1, exitCode: 1, signal: null, cpuMs: 5, maxRssKb: 128 }])("rejects missing, malformed or inconsistent trusted execution accounting %j", async (usage) => {
+  const made = fakeVm({ exit: 0, out: ["7"], usage });
+  expect(await executorFor(made).runCase(request)).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+  expect(made.vm.stopped).toBe(1);
+});
+
+it("fails closed when the trusted accounting transport fails", async () => {
+  const made = fakeVm({ exit: 0, out: ["7"] });
+  made.handle.readFileToBuffer = async () => { throw new Error("private provider failure"); };
+  expect(await executorFor(made).runCase(request)).toEqual({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
+  expect(made.vm.stopped).toBe(1);
 });
 
 it("does not charge provider command creation against the learner's case deadline", async () => {

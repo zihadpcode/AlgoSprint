@@ -1,3 +1,4 @@
+import { PYTHON_SUPERVISOR } from '../../src/features/submissions/python-supervisor';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
@@ -107,7 +108,7 @@ const cases = [
  {name:'setup-nonroot',source:"print('LEARNER_RAN')",expected:0,status:'INTERNAL_ERROR',nonroot:true},
 ] as const;
 
-function save(extra: object={}) { writeFileSync(report,JSON.stringify({image:PYTHON_SANDBOX_IMAGE,bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),executorSha256:createHash('sha256').update(readFileSync(new URL('../../src/features/submissions/python-vercel-sandbox.ts',import.meta.url))).digest('hex'),ids,results,providerPhases,...extra},null,2)); }
+function save(extra: object={}) { writeFileSync(report,JSON.stringify({image:PYTHON_SANDBOX_IMAGE,supervisorSha256:createHash('sha256').update(PYTHON_SUPERVISOR).digest('hex'),bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),executorSha256:createHash('sha256').update(readFileSync(new URL('../../src/features/submissions/python-vercel-sandbox.ts',import.meta.url))).digest('hex'),ids,results,providerPhases,...extra},null,2)); }
 function factory(mode?:{control?:boolean;nonroot?:boolean;mapping?:boolean;onCommand?:()=>void;onLearnerStarted?:()=>void}): SandboxFactory {
  return async signal=>{
   const creationStarted=Date.now();
@@ -125,11 +126,11 @@ function factory(mode?:{control?:boolean;nonroot?:boolean;mapping?:boolean;onCom
     assert.equal(control.exitCode,0); assert.equal((await control.stdout()).trim(),'0');
    }
   } catch(e) { await vm.stop(); throw e; }
-  return {writeFiles:async(f,o)=>{const t=Date.now();try{await vm.writeFiles(f,o);}finally{phase.writeMs=Date.now()-t;}},runCommand:async o=>{const t=Date.now();const cmd=await vm.runCommand({...o,sudo:mode?.nonroot?false:true,detached:true});phase.commandCreateMs=Date.now()-t;mode?.onCommand?.();return {logs:async function*(o){let text='',seen=false;for await(const log of cmd.logs(o)){if(log.stream==='stdout'){text=(text+log.data).slice(-128);if(!seen&&text.includes('PROBE_STARTED')){seen=true;mode?.onLearnerStarted?.();}}yield log;}},kill:(s,o)=>cmd.kill(s,o),wait:async o=>{const t=Date.now();try{return await cmd.wait(o);}finally{phase.waitAfterHandleMs=Date.now()-t;}}};},stop:async o=>{const t=Date.now();try{return await vm.stop(o);}finally{phase.stopMs=Date.now()-t;}}};
+  return {readFileToBuffer:(f,o)=>vm.readFileToBuffer(f,o),writeFiles:async(f,o)=>{const t=Date.now();try{await vm.writeFiles(f,o);}finally{phase.writeMs=Date.now()-t;}},runCommand:async o=>{const t=Date.now();const cmd=await vm.runCommand({...o,sudo:mode?.nonroot?false:true,detached:true});phase.commandCreateMs=Date.now()-t;mode?.onCommand?.();return {logs:async function*(o){let text='',seen=false;for await(const log of cmd.logs(o)){if(log.stream==='stdout'){text=(text+log.data).slice(-128);if(!seen&&text.includes('PROBE_STARTED')){seen=true;mode?.onLearnerStarted?.();}}yield log;}},kill:(s,o)=>cmd.kill(s,o),wait:async o=>{const t=Date.now();try{return await cmd.wait(o);}finally{phase.waitAfterHandleMs=Date.now()-t;}}};},stop:async o=>{const t=Date.now();try{return await vm.stop(o);}finally{phase.stopMs=Date.now()-t;}}};
  };
 }
 if(!process.argv.includes('--run')) {
- console.log(JSON.stringify({image:PYTHON_SANDBOX_IMAGE,bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),cases:(timingOnly||lifecycleOnly?[]:cases).map(c=>({name:c.name,source:c.source,status:c.status})),additional:[...(!lifecycleOnly?['10 full-CPU cases in width5 under20s']:[]),'2 fresh-VM isolation cases','host abort after learner stdout marker'],maxVMs:lifecycleOnly?3:timingOnly?13:25}));
+ console.log(JSON.stringify({image:PYTHON_SANDBOX_IMAGE,supervisorSha256:createHash('sha256').update(PYTHON_SUPERVISOR).digest('hex'),bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),cases:(timingOnly||lifecycleOnly?[]:cases).map(c=>({name:c.name,source:c.source,status:c.status})),additional:[...(!lifecycleOnly?['10 full-CPU cases in width5 under20s']:[]),'2 fresh-VM isolation cases','host abort after learner stdout marker'],maxVMs:lifecycleOnly?3:timingOnly?13:25}));
 } else {
  assert(process.env.VERCEL_OIDC_TOKEN,'Load current development OIDC credentials through the provider workflow before --run');
  const claims=JSON.parse(Buffer.from(process.env.VERCEL_OIDC_TOKEN!.split('.')[1],'base64url').toString());

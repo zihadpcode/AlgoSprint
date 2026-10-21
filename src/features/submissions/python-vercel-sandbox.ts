@@ -1,6 +1,7 @@
 import "server-only";
 import { Sandbox } from "@vercel/sandbox";
 import { RUNNER_LIMITS } from "./limits";
+import { PYTHON_SUPERVISOR, PYTHON_USAGE_PATH, parsePythonUsage, type PythonUsage } from "./python-supervisor";
 import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-runner";
 
 // Runs learner Python in Vercel Sandbox, a managed Firecracker microVM, instead of anything inside the Next.js process.
@@ -69,7 +70,7 @@ try:
     cap(resource.RLIMIT_CORE, 0)
     cap(resource.RLIMIT_FSIZE, 1 << 20)
     cap(resource.RLIMIT_NOFILE, 32)
-    cap(resource.RLIMIT_CPU, cpu_seconds, cpu_seconds + 1)
+    cap(resource.RLIMIT_CPU, cpu_seconds)
     cap(resource.RLIMIT_DATA, memory_bytes)
     cap(resource.RLIMIT_AS, memory_bytes)
     libc = ctypes.CDLL(None, use_errno=True)
@@ -131,6 +132,7 @@ export type CommandHandle = {
 };
 export type SandboxHandle = {
   writeFiles(files: { path: string; content: Buffer }[], options?: { signal?: AbortSignal }): Promise<void>;
+  readFileToBuffer(file: { path: string }, options?: { signal?: AbortSignal }): Promise<Buffer | null>;
   runCommand(options: { cmd: string; args: string[]; cwd: string; sudo: true; detached: true; timeoutMs: number; signal?: AbortSignal }): Promise<CommandHandle>;
   stop(options?: { signal?: AbortSignal }): Promise<unknown>;
 };
@@ -140,6 +142,7 @@ export type SandboxFactory = (signal: AbortSignal) => Promise<SandboxHandle>;
 function adapt(sandbox: Sandbox): SandboxHandle {
   return {
     writeFiles: (files, options) => sandbox.writeFiles(files, options),
+    readFileToBuffer: (file, options) => sandbox.readFileToBuffer(file, options),
     runCommand: (options) => sandbox.runCommand({ ...options, detached: true }),
     stop: (options) => sandbox.stop(options),
   };
@@ -195,8 +198,6 @@ function logFailure(error: unknown) {
   const pick = (value: unknown) => typeof value === "string" || typeof value === "number" ? String(value).slice(0, 40) : undefined;
   console.error("python-sandbox: run failed", { type: pick(failure?.name), status: pick(failure?.status ?? failure?.statusCode), code: pick(failure?.code) });
 }
-const SIGXCPU_EXIT = 128 + 24;
-const SIGKILL_EXIT = 128 + 9;
 
 async function boundedCleanup(operation: (signal: AbortSignal) => Promise<unknown>) {
   const controller = new AbortController();
@@ -225,7 +226,7 @@ export function createVercelSandboxExecutor(factory: SandboxFactory = createVerc
     async runCase(request: PythonCaseRequest): Promise<PythonCaseRun> {
       // The run's own deadline always applies, including while waiting for a free slot and while the VM starts.
       const total = request.signal ?? AbortSignal.timeout(RUNNER_LIMITS.totalBudgetMs);
-      const wallMs = request.timeMs + STARTUP_GRACE_MS;
+      const wallMs = request.timeMs * 2 + STARTUP_GRACE_MS;
       if (total.aborted) return budgetExhausted();
       try {
         return await gate.run(() => runInFreshVm(factory, request, wallMs, total), AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS + wallMs)]));
@@ -247,6 +248,7 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
   try {
     await sandbox.writeFiles([
       { path: `${PYTHON_RUN_DIR}/boot.py`, content: Buffer.from(PYTHON_BOOTSTRAP) },
+      { path: `${PYTHON_RUN_DIR}/supervisor.py`, content: Buffer.from(PYTHON_SUPERVISOR) },
       { path: `${PYTHON_RUN_DIR}/program.py`, content: Buffer.from(request.source) },
       { path: `${PYTHON_RUN_DIR}/input.json`, content: Buffer.from(request.stdin) },
     ], { signal: AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS)]) });
@@ -255,7 +257,9 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     const stdout = new BoundedText(limit), stderr = new BoundedText(limit);
     command = await sandbox.runCommand({
       // -I: ignore the environment and user site; -X utf8: the program's stdout is UTF-8 regardless of the VM locale.
-      cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000))), String(request.memoryKb * 1024)],
+      // The whole-second kernel limit is a containment guard with one second of grace. Verdicts use trusted wait4 CPU
+      // accounting against the original millisecond budget, including programs that return normally after exceeding it.
+      cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/supervisor.py`, `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000)) + 1), String(request.memoryKb * 1024)],
       // sudo: only so the bootstrap can drop to an unprivileged identity; see PYTHON_BOOTSTRAP.
       cwd: PYTHON_RUN_DIR, sudo: true, detached: true, timeoutMs: wallMs + 2000, signal: total,
     });
@@ -295,26 +299,36 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     const runtimeMs = Math.min(Date.now() - started, request.timeMs);
     if (first === "stream-failure") throw new Error("output transport failed");
     let exitCode: number | null = null;
+    let usage: PythonUsage | null = null;
     if (typeof first === "object") {
       exitCode = first.exitCode;
       finished = true;
       // The program is done; let the last output arrive, but do not wait on it indefinitely.
       if (!await drainOutput(reading)) throw new Error("output transport incomplete");
+      const raw = await sandbox.readFileToBuffer({ path: PYTHON_USAGE_PATH }, { signal: AbortSignal.any([total, AbortSignal.timeout(DRAIN_MS)]) });
+      if (!raw || raw.length > 4096) throw new Error("missing execution accounting");
+      usage = parsePythonUsage(JSON.parse(raw.toString("utf8")));
+      if (!usage || (usage.signal === null ? usage.exitCode : 128 + usage.signal) !== exitCode) throw new Error("invalid execution accounting");
     } else {
       // Stop reading and waiting, and kill the program. The VM is stopped below whether or not the kill worked.
       stop.abort();
     }
     stop.abort();
     void settled(exit);
-    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs, memoryKb: null };
+    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs: usage ? Math.ceil(usage.cpuMs) : runtimeMs, memoryKb: usage?.maxRssKb ?? null };
     if (first === "total") return budgetExhausted();
-    if (first === "case" || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
+    if (first === "case" || usage?.signal === 24 || (usage && usage.cpuMs > request.timeMs)) return { kind: "time-limit", ...base };
     if (first === "overflow") return { kind: "exited", exitCode: 1, ...base };
     if (exitCode === null) throw new Error("no exit status");
     // The bootstrap could not prove it had dropped privileges, so no learner code ran. Never the learner's fault.
     if (exitCode === PYTHON_EXIT_SANDBOX_SETUP && base.stderr.includes(PYTHON_SETUP_MARKER)) throw new Error("sandbox setup failed");
-    // MemoryError is the learner's own exception (exit 1); a kill without a deadline is the kernel enforcing the data limit.
-    if ((exitCode === 1 && /\bMemoryError\b/.test(base.stderr.slice(-2000))) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
+    // Only the trusted parent's wait4 data distinguishes a normal exit(137) from a kernel signal. A low-CPU SIGKILL is
+    // ambiguous (including explicit self-termination), so never guess that it was a memory failure.
+    if (usage?.signal === 9) {
+      if (usage.cpuMs >= Math.max(1, Math.ceil(request.timeMs / 1000)) * 1000 - 50) return { kind: "time-limit", ...base };
+      return unavailable();
+    }
+    if (exitCode === 1 && /\bMemoryError\b/.test(base.stderr.slice(-2000))) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
   } finally {
     stop.abort();
