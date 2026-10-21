@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 
 export function LeaderboardSettingsForm({ optedIn, initialName }: { optedIn: boolean; initialName: string }) {
   const [state, action] = useActionState<LeaderboardFormState, FormData>(saveLeaderboardSettings, {});
+  // The switch is uncontrolled and `defaultChecked` follows the state: React resets a form after its action finishes, and a reset
+  // restores `defaultChecked`. A controlled `checked` would snap back to the initial value and silently flip what is saved next.
   const [checked, setChecked] = useState(optedIn);
   const id = useId();
   const [name, setName] = useState(initialName);
@@ -22,7 +24,7 @@ export function LeaderboardSettingsForm({ optedIn, initialName }: { optedIn: boo
       </div>
       <label className="relative mt-0.5 inline-flex shrink-0 cursor-pointer items-center">
         <span className="sr-only">Show me on the leaderboard</span>
-        <input type="checkbox" role="switch" name="optIn" checked={checked} onChange={(event) => setChecked(event.target.checked)} aria-describedby={`${id}-copy`} className="peer sr-only" />
+        <input type="checkbox" role="switch" name="optIn" defaultChecked={checked} onChange={(event) => setChecked(event.target.checked)} aria-describedby={`${id}-copy`} className="peer sr-only" />
         <span aria-hidden="true" className="h-6 w-11 rounded-full border border-line-strong bg-surface-raised transition-colors peer-checked:border-transparent peer-checked:bg-accent-solid peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent" />
         <span aria-hidden="true" className="pointer-events-none absolute left-0.5 size-5 rounded-full bg-zinc-300 transition-transform peer-checked:translate-x-5 peer-checked:bg-white" />
       </label>
