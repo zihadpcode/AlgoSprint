@@ -8,6 +8,7 @@ import { VIDEOS } from "../src/data/seeds/videos";
 import { validateVideoReferences } from "../src/lib/validators/video";
 import { CATEGORIES, CATEGORY_GROUPS } from "../src/data/seeds/taxonomy";
 import { validateCategoryGroups } from "../src/lib/validators/category-groups";
+import { loadPythonSolutions } from "./lib/python-solutions";
 
 async function main() {
   const problems = await loadProblems();
@@ -17,6 +18,8 @@ async function main() {
   console.log(`Validated ${problems.length} original problems, their examples, and all expected outputs.`);
   const starters = validatePythonStarters(JSON.parse(await readFile(join(process.cwd(), PYTHON_STARTERS_PATH), "utf8")), new Set(problems.map((p) => p.slug)));
   console.log(`Validated ${starters.length} Python starter stubs against the runner signatures and existing problems.`);
+  const solutions = await loadPythonSolutions();
+  console.log(`Validated ${solutions.length} Python guided approaches against the published JavaScript approach coverage.`);
   console.log(`Validated ${roadmaps.length} original roadmaps and their ordered problem references.`);
   const videos = validateVideoReferences(VIDEOS, new Set(problems.filter((p) => p.status === "PUBLISHED").map((p) => p.slug)));
   const groups = validateCategoryGroups(CATEGORY_GROUPS, CATEGORIES);

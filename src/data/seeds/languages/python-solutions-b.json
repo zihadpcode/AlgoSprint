@@ -1,0 +1,714 @@
+[
+  {
+    "slug": "kth-badge",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def kth_badge(tree, k):\n    return sorted(value for value in tree if value is not None)[k - 1]\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def build_tree(values):\n    if not values or values[0] is None:\n        return None\n    root = [values[0], None, None]\n    queue = [root]\n    index = 1\n    for node in queue:\n        for side in (1, 2):\n            if index < len(values):\n                value = values[index]\n                index += 1\n                if value is not None:\n                    child = [value, None, None]\n                    node[side] = child\n                    queue.append(child)\n    return root\n\ndef kth_badge(tree, k):\n    node = build_tree(tree)\n    stack = []\n    while node is not None or stack:\n        while node is not None:\n            stack.append(node)\n            node = node[1]\n        node = stack.pop()\n        k -= 1\n        if k == 0:\n            return node[0]\n        node = node[2]\n    return -1\n"
+      }
+    ]
+  },
+  {
+    "slug": "lane-merge",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def lane_merge(lanes):\n    return sorted(value for lane in lanes for value in lane)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "import heapq\n\n\ndef lane_merge(lanes):\n    heap = [(lane[0], index, 0) for index, lane in enumerate(lanes) if lane]\n    heapq.heapify(heap)\n    merged = []\n    while heap:\n        value, lane, index = heapq.heappop(heap)\n        merged.append(value)\n        if index + 1 < len(lanes[lane]):\n            heapq.heappush(heap, (lanes[lane][index + 1], lane, index + 1))\n    return merged\n",
+        "pseudocode": "heap = fronts of non-empty lanes\nwhile heap: (v, k, i) = pop; out.append(v); if i + 1 < len(lane k): push(lane k[i+1], k, i+1)\nreturn out"
+      }
+    ]
+  },
+  {
+    "slug": "lantern-steps",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def lantern_steps(costs):\n    def visit(step):\n        if step >= len(costs):\n            return 0\n        return costs[step] + min(visit(step + 1), visit(step + 2))\n\n    return min(visit(0), visit(1))\n",
+        "commonMistakes": [
+          "Reading costs[n] at the exit; visit must return zero for any position at or beyond len(costs).",
+          "Starting only from platform zero and forgetting that platform one is also a free starting choice."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def lantern_steps(costs):\n    two_back = one_back = 0\n    for step in range(2, len(costs) + 1):\n        current = min(one_back + costs[step - 1], two_back + costs[step - 2])\n        two_back, one_back = one_back, current\n    return one_back\n"
+      }
+    ]
+  },
+  {
+    "slug": "laser-shots",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "from itertools import combinations\n\n\ndef laser_shots(panels):\n    candidates = sorted({point for panel in panels for point in panel})\n    for shots in range(len(candidates) + 1):\n        for chosen in combinations(candidates, shots):\n            if all(any(left <= point <= right for point in chosen)\n                   for left, right in panels):\n                return shots\n    return -1\n"
+      },
+      {
+        "kind": "BETTER",
+        "code": "def laser_shots(panels):\n    ordered = sorted(panels, key=lambda panel: panel[1])\n    chain = [1] * len(ordered)\n    best = 0\n    for i, (left, right) in enumerate(ordered):\n        for j in range(i):\n            if ordered[j][1] < left:\n                chain[i] = max(chain[i], chain[j] + 1)\n        best = max(best, chain[i])\n    return best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def laser_shots(panels):\n    shots = 0\n    last_shot = float('-inf')\n    for left, right in sorted(panels, key=lambda panel: panel[1]):\n        if left > last_shot:\n            shots += 1\n            last_shot = right\n    return shots\n"
+      }
+    ]
+  },
+  {
+    "slug": "later-lower",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def later_lower(values):\n    result = []\n    for i, value in enumerate(values):\n        count = 0\n        for j in range(i + 1, len(values)):\n            if values[j] < value:\n                count += 1\n        result.append(count)\n    return result\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def later_lower(values):\n    offset, size = 10001, 20002\n    tree = [0] * (size + 1)\n    result = [0] * len(values)\n    for position in range(len(values) - 1, -1, -1):\n        index = values[position] + offset - 1\n        while index > 0:\n            result[position] += tree[index]\n            index -= index & -index\n        index = values[position] + offset\n        while index <= size:\n            tree[index] += 1\n            index += index & -index\n    return result\n"
+      }
+    ]
+  },
+  {
+    "slug": "ledger-equalities",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def ledger_equalities(equations):\n    same = [[i == j for j in range(26)] for i in range(26)]\n    for equation in equations:\n        if equation[1] == '=':\n            a, b = ord(equation[0]) - 97, ord(equation[3]) - 97\n            same[a][b] = same[b][a] = True\n    for k in range(26):\n        for i in range(26):\n            for j in range(26):\n                if same[i][k] and same[k][j]:\n                    same[i][j] = True\n    return all(equation[1] == '=' or not same[ord(equation[0]) - 97][ord(equation[3]) - 97]\n               for equation in equations)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def ledger_equalities(equations):\n    parent = list(range(26))\n\n    def find(node):\n        while parent[node] != node:\n            parent[node] = parent[parent[node]]\n            node = parent[node]\n        return node\n\n    for equation in equations:\n        if equation[1] == '=':\n            parent[find(ord(equation[0]) - 97)] = find(ord(equation[3]) - 97)\n    return all(equation[1] == '=' or find(ord(equation[0]) - 97) != find(ord(equation[3]) - 97)\n               for equation in equations)\n"
+      }
+    ]
+  },
+  {
+    "slug": "ledger-tree-check",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def build_tree(values):\n    if not values or values[0] is None:\n        return None\n    root = [values[0], None, None]\n    queue = [root]\n    index = 1\n    for node in queue:\n        for side in (1, 2):\n            if index < len(values):\n                value = values[index]\n                index += 1\n                if value is not None:\n                    child = [value, None, None]\n                    node[side] = child\n                    queue.append(child)\n    return root\n\ndef ledger_tree_check(tree):\n    def all_satisfy(node, test):\n        return node is None or (test(node[0]) and all_satisfy(node[1], test)\n                               and all_satisfy(node[2], test))\n\n    def valid(node):\n        if node is None:\n            return True\n        return (all_satisfy(node[1], lambda value: value < node[0])\n                and all_satisfy(node[2], lambda value: value > node[0])\n                and valid(node[1]) and valid(node[2]))\n\n    return valid(build_tree(tree))\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def build_tree(values):\n    if not values or values[0] is None:\n        return None\n    root = [values[0], None, None]\n    queue = [root]\n    index = 1\n    for node in queue:\n        for side in (1, 2):\n            if index < len(values):\n                value = values[index]\n                index += 1\n                if value is not None:\n                    child = [value, None, None]\n                    node[side] = child\n                    queue.append(child)\n    return root\n\ndef ledger_tree_check(tree):\n    def within(node, low, high):\n        if node is None:\n            return True\n        return (low < node[0] < high and within(node[1], low, node[0])\n                and within(node[2], node[0], high))\n\n    return within(build_tree(tree), float('-inf'), float('inf'))\n",
+        "timeComplexity": "O(n): linear tree construction and one bounds check per node",
+        "approach": "Rebuild the level-order tree using an append-only queue and a moving iteration position. Recursively pass strict lower and upper bounds to each child; reject any value outside its allowed range."
+      }
+    ]
+  },
+  {
+    "slug": "lineup-orders",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "from itertools import permutations\n\n\ndef lineup_orders(players):\n    return [list(order) for order in sorted(permutations(players))]\n",
+        "commonMistakes": [
+          "Sorting only the input without sorting the generated orderings when generation order is arbitrary.",
+          "Returning tuples from itertools.permutations instead of JSON-compatible lists."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def lineup_orders(players):\n    ordered = sorted(players)\n    used = [False] * len(ordered)\n    current, result = [], []\n\n    def place():\n        if len(current) == len(ordered):\n            result.append(current.copy())\n            return\n        for i, value in enumerate(ordered):\n            if not used[i]:\n                used[i] = True\n                current.append(value)\n                place()\n                current.pop()\n                used[i] = False\n\n    place()\n    return result\n",
+        "pseudocode": "sort players; place(): if |cur| == n: record copy; return\n  for i: if not used[i]: used[i] = true; cur.append(p[i]); place(); cur.pop(); used[i] = false"
+      }
+    ]
+  },
+  {
+    "slug": "lit-panels",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def lit_panels(count):\n    result = []\n    for value in range(count + 1):\n        lit = 0\n        while value:\n            lit += value & 1\n            value >>= 1\n        result.append(lit)\n    return result\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def lit_panels(count):\n    bits = [0] * (count + 1)\n    for value in range(1, count + 1):\n        bits[value] = bits[value >> 1] + (value & 1)\n    return bits\n"
+      }
+    ]
+  },
+  {
+    "slug": "lone-sensor",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def lone_sensor(readings):\n    for value in readings:\n        if sum(other == value for other in readings) == 1:\n            return value\n    return readings[0]\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def lone_sensor(readings):\n    lone = 0\n    for value in readings:\n        lone ^= value\n    return lone\n"
+      }
+    ]
+  },
+  {
+    "slug": "longest-clean-streak",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def longest_clean_streak(log):\n    best = 0\n    for start in range(len(log)):\n        seen = set()\n        for end in range(start, len(log)):\n            if log[end] in seen:\n                break\n            seen.add(log[end])\n            best = max(best, end - start + 1)\n    return best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def longest_clean_streak(log):\n    last_seen = {}\n    best = start = 0\n    for i, letter in enumerate(log):\n        start = max(start, last_seen.get(letter, -1) + 1)\n        last_seen[letter] = i\n        best = max(best, i - start + 1)\n    return best\n"
+      }
+    ]
+  },
+  {
+    "slug": "lru-results",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def lru_results(capacity, operations):\n    entries, results = [], []\n    for operation in operations:\n        key = operation[1]\n        index = next((i for i, entry in enumerate(entries) if entry[0] == key), -1)\n        if operation[0] == 'get':\n            if index == -1:\n                results.append(-1)\n            else:\n                entry = entries.pop(index)\n                entries.append(entry)\n                results.append(entry[1])\n        else:\n            if index != -1:\n                entries.pop(index)\n            entries.append((key, operation[2]))\n            if len(entries) > capacity:\n                entries.pop(0)\n    return results\n",
+        "interviewExplanation": "A recency-ordered list is easy to reason about, but every operation may scan and shift entries. An OrderedDict combines hash lookup with linked recency order and supports O(1) average operations."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import OrderedDict\n\n\ndef lru_results(capacity, operations):\n    cache = OrderedDict()\n    results = []\n    for operation in operations:\n        key = operation[1]\n        if operation[0] == 'get':\n            if key not in cache:\n                results.append(-1)\n            else:\n                cache.move_to_end(key)\n                results.append(cache[key])\n        else:\n            cache[key] = operation[2]\n            cache.move_to_end(key)\n            if len(cache) > capacity:\n                cache.popitem(last=False)\n    return results\n",
+        "title": "Ordered dictionary by recency",
+        "approach": "Use collections.OrderedDict with the least recently used key first. On a successful get or any put, move the key to the end. When capacity is exceeded, remove the first item with popitem(last=False).",
+        "timeComplexity": "O(1) average per operation",
+        "commonMistakes": [
+          "Failing to refresh recency on a successful get or an update.",
+          "Using a plain list for recency, whose removal from the middle costs O(capacity)."
+        ],
+        "interviewExplanation": "An OrderedDict stores lookup entries in a linked order. Every access moves its key to the most recent end; eviction removes the least recent key from the other end, using O(1) average time per operation and O(capacity) space.",
+        "intuition": "An OrderedDict retains an explicit order and can move an accessed key to the most recent end in constant average time. The first key is always the eviction candidate.",
+        "pseudocode": "cache = OrderedDict; get: if absent return -1; move key to end; return value. put: assign value; move key to end; if over capacity, pop the first item.",
+        "steps": [
+          {
+            "position": 1,
+            "title": "Refresh recency",
+            "content": "After putting 1 and 2, the order is [1, 2]. Getting 1 moves it to the end: [2, 1]."
+          },
+          {
+            "position": 2,
+            "title": "Evict the oldest",
+            "content": "Putting 3 creates [2, 1, 3]. Capacity is 2, so popitem(last=False) removes key 2."
+          },
+          {
+            "position": 3,
+            "title": "Read the results",
+            "content": "get 2 returns -1 and get 3 returns 30, giving [10, -1, 30]."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "merge-point",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def merge_point(next, head_a, head_b):\n    a = head_a\n    while a != -1:\n        b = head_b\n        while b != -1:\n            if a == b:\n                return a\n            b = next[b]\n        a = next[a]\n    return -1\n"
+      },
+      {
+        "kind": "ALTERNATIVE",
+        "code": "def merge_point(next, head_a, head_b):\n    on_a = set()\n    node = head_a\n    while node != -1:\n        on_a.add(node)\n        node = next[node]\n    node = head_b\n    while node != -1:\n        if node in on_a:\n            return node\n        node = next[node]\n    return -1\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def merge_point(next, head_a, head_b):\n    a, b = head_a, head_b\n    while a != b:\n        a = head_b if a == -1 else next[a]\n        b = head_a if b == -1 else next[b]\n    return a\n",
+        "approach": "Start a at head_a and b at head_b. Step both forward. When one reaches -1, move it to the head of the other route. Stop when a == b: that index is the merge point, or -1 when the routes do not join.",
+        "pseudocode": "a, b = head_a, head_b\nwhile a != b:\n    a = head_b if a == -1 else next[a]\n    b = head_a if b == -1 else next[b]\nreturn a"
+      }
+    ]
+  },
+  {
+    "slug": "merge-shifts",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def merge_shifts(shifts):\n    blocks = [list(block) for block in shifts]\n    while True:\n        found = False\n        for i in range(len(blocks)):\n            for j in range(i + 1, len(blocks)):\n                if blocks[i][0] <= blocks[j][1] and blocks[j][0] <= blocks[i][1]:\n                    blocks[i] = [min(blocks[i][0], blocks[j][0]),\n                                 max(blocks[i][1], blocks[j][1])]\n                    blocks.pop(j)\n                    found = True\n                    break\n            if found:\n                break\n        if not found:\n            return sorted(blocks)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def merge_shifts(shifts):\n    merged = []\n    for start, end in sorted(shifts):\n        if merged and start <= merged[-1][1]:\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged\n"
+      }
+    ]
+  },
+  {
+    "slug": "middle-car",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def middle_car(next, head):\n    order = []\n    while head != -1:\n        order.append(head)\n        head = next[head]\n    return order[len(order) // 2]\n",
+        "pseudocode": "order = []\nnode = head\nwhile node != -1:\n    order.append(node)\n    node = next[node]\nreturn order[len(order) // 2]"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def middle_car(next, head):\n    slow = fast = head\n    while fast != -1 and next[fast] != -1:\n        slow = next[slow]\n        fast = next[next[fast]]\n    return slow\n"
+      }
+    ]
+  },
+  {
+    "slug": "mirror-callsign",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def mirror_callsign(text):\n    cleaned = ''.join(symbol.lower() for symbol in text\n                      if 'a' <= symbol.lower() <= 'z' or '0' <= symbol <= '9')\n    return cleaned == cleaned[::-1]\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def mirror_callsign(text):\n    def counts(symbol):\n        return 'a' <= symbol.lower() <= 'z' or '0' <= symbol <= '9'\n\n    left, right = 0, len(text) - 1\n    while left < right:\n        if not counts(text[left]):\n            left += 1\n        elif not counts(text[right]):\n            right -= 1\n        else:\n            if text[left].lower() != text[right].lower():\n                return False\n            left += 1\n            right -= 1\n    return True\n"
+      }
+    ]
+  },
+  {
+    "slug": "mirror-cuts",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def mirror_cuts(text):\n    def palindrome(start, end):\n        while start < end:\n            if text[start] != text[end]:\n                return False\n            start += 1\n            end -= 1\n        return True\n\n    def visit(start):\n        if palindrome(start, len(text) - 1):\n            return 0\n        best = len(text)\n        for end in range(start + 1, len(text)):\n            if palindrome(start, end - 1):\n                best = min(best, 1 + visit(end))\n        return best\n\n    return visit(0)\n",
+        "approach": "Try every possible first palindrome piece. Check palindromes with two indices into the original string, then recursively minimize the remaining cuts without memoization.",
+        "pseudocode": "visit(start): if text[start:] is a palindrome, return 0; otherwise try every palindrome text[start:end] and minimize 1 + visit(end). Palindrome checks use indices without copying substrings."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def mirror_cuts(text):\n    cuts = [i - 1 for i in range(len(text) + 1)]\n    for center in range(len(text)):\n        for left, right in ((center, center), (center, center + 1)):\n            while left >= 0 and right < len(text) and text[left] == text[right]:\n                cuts[right + 1] = min(cuts[right + 1], cuts[left] + 1)\n                left -= 1\n                right += 1\n    return cuts[len(text)]\n"
+      }
+    ]
+  },
+  {
+    "slug": "module-plan",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def module_plan(modules, prerequisites):\n    done = set()\n    progress = True\n    while progress:\n        progress = False\n        for module in range(modules):\n            if module not in done and all(current != module or needed in done\n                                         for current, needed in prerequisites):\n                done.add(module)\n                progress = True\n    return len(done) == modules\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def module_plan(modules, prerequisites):\n    indegree = [0] * modules\n    unlocks = [[] for _ in range(modules)]\n    for module, needed in prerequisites:\n        unlocks[needed].append(module)\n        indegree[module] += 1\n    ready = [module for module in range(modules) if indegree[module] == 0]\n    done = 0\n    while ready:\n        module = ready.pop()\n        done += 1\n        for following in unlocks[module]:\n            indegree[following] -= 1\n            if indegree[following] == 0:\n                ready.append(following)\n    return done == modules\n"
+      }
+    ]
+  },
+  {
+    "slug": "mold-spread",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def mold_spread(grid):\n    state = [list(row) for row in grid]\n    rows, cols = len(state), len(state[0])\n    directions = ((1, 0), (-1, 0), (0, 1), (0, -1))\n    minute = 0\n    while True:\n        if not any('F' in row for row in state):\n            return minute\n        after = [row.copy() for row in state]\n        changed = False\n        for r in range(rows):\n            for c in range(cols):\n                if state[r][c] == 'F' and any(\n                    0 <= r + dr < rows and 0 <= c + dc < cols and state[r + dr][c + dc] == 'S'\n                    for dr, dc in directions\n                ):\n                    after[r][c] = 'S'\n                    changed = True\n        if not changed:\n            return -1\n        state = after\n        minute += 1\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def mold_spread(grid):\n    state = [list(row) for row in grid]\n    rows, cols = len(state), len(state[0])\n    queue, fresh = [], 0\n    for r in range(rows):\n        for c in range(cols):\n            if state[r][c] == 'S':\n                queue.append((r, c))\n            elif state[r][c] == 'F':\n                fresh += 1\n    minutes = 0\n    while queue and fresh:\n        after = []\n        for r, c in queue:\n            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < rows and 0 <= nc < cols and state[nr][nc] == 'F':\n                    state[nr][nc] = 'S'\n                    fresh -= 1\n                    after.append((nr, nc))\n        queue = after\n        minutes += 1\n    return -1 if fresh else minutes\n",
+        "pseudocode": "queue = all spoiled cells; fresh = count of fresh cells; minutes = 0\nwhile queue and fresh:\n    following = []\n    For each cell in queue, mark each fresh neighbor spoiled, decrement fresh, and append it to following.\n    queue = following\n    minutes += 1\nreturn -1 if fresh else minutes"
+      }
+    ]
+  },
+  {
+    "slug": "nearest-beacons",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def nearest_beacons(beacons, k):\n    return [list(point) for point in sorted(beacons, key=lambda point:\n            (point[0] ** 2 + point[1] ** 2, point[0], point[1]))[:k]]\n",
+        "commonMistakes": [
+          "Using floating-point distances instead of exact squared distances for ordering.",
+          "Forgetting the x and y tie-breakers, which leaves equal-distance points in input order."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "import heapq\n\n\ndef nearest_beacons(beacons, k):\n    heap = []\n    for x, y in beacons:\n        entry = (-(x * x + y * y), -x, -y)\n        if len(heap) < k:\n            heapq.heappush(heap, entry)\n        elif entry > heap[0]:\n            heapq.heapreplace(heap, entry)\n    selected = [[-x, -y] for _, x, y in heap]\n    return sorted(selected, key=lambda point: (point[0] ** 2 + point[1] ** 2, point[0], point[1]))\n",
+        "approach": "Use heapq with negated (squared distance, x, y) tuples so the minimum tuple represents the worst selected beacon. Fill the heap to k, then replace its root only when a new negated tuple is larger. Convert the survivors back to coordinates and sort by the positive distance-and-coordinate key.",
+        "commonMistakes": [
+          "Building a heap of all n beacons uses O(n) storage rather than the bounded O(k) storage.",
+          "Negating only the distance and forgetting to reverse both coordinate tie-breakers."
+        ],
+        "interviewExplanation": "Maintain the k best beacons in a max-heap ordered by (distance², x, y). Since heapq is a min-heap, negate every component of that tuple; its root then represents the worst selected beacon. New better beacons replace the root. Selection costs O(n log k), final ordering costs O(k log k), and the heap uses O(k) space."
+      }
+    ]
+  },
+  {
+    "slug": "nested-crates",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def nested_crates(crates):\n    ordered = sorted(crates)\n    chain = [1] * len(ordered)\n    best = 1\n    for i, (width, height) in enumerate(ordered):\n        for j in range(i):\n            if ordered[j][0] < width and ordered[j][1] < height:\n                chain[i] = max(chain[i], chain[j] + 1)\n        best = max(best, chain[i])\n    return best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from bisect import bisect_left\n\n\ndef nested_crates(crates):\n    tails = []\n    for width, height in sorted(crates, key=lambda crate: (crate[0], -crate[1])):\n        position = bisect_left(tails, height)\n        if position == len(tails):\n            tails.append(height)\n        else:\n            tails[position] = height\n    return len(tails)\n"
+      }
+    ]
+  },
+  {
+    "slug": "one-slip-mirror",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def one_slip_mirror(text):\n    if text == text[::-1]:\n        return True\n    for index in range(len(text)):\n        candidate = text[:index] + text[index + 1:]\n        if candidate == candidate[::-1]:\n            return True\n    return False\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def one_slip_mirror(text):\n    def palindrome(left, right):\n        while left < right:\n            if text[left] != text[right]:\n                return False\n            left += 1\n            right -= 1\n        return True\n\n    left, right = 0, len(text) - 1\n    while left < right:\n        if text[left] != text[right]:\n            return palindrome(left + 1, right) or palindrome(left, right - 1)\n        left += 1\n        right -= 1\n    return True\n"
+      }
+    ]
+  },
+  {
+    "slug": "orchard-plots",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def orchard_plots(grid):\n    rows = len(grid)\n    cols = len(grid[0]) if rows else 0\n    label = [[r * cols + c if cell == 'T' else -1 for c, cell in enumerate(row)]\n             for r, row in enumerate(grid)]\n    changed = True\n    while changed:\n        changed = False\n        for r in range(rows):\n            for c in range(cols):\n                if label[r][c] == -1:\n                    continue\n                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nr, nc = r + dr, c + dc\n                    if (0 <= nr < rows and 0 <= nc < cols and label[nr][nc] != -1\n                            and label[nr][nc] < label[r][c]):\n                        label[r][c] = label[nr][nc]\n                        changed = True\n    return len({value for row in label for value in row if value != -1})\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def orchard_plots(grid):\n    rows = len(grid)\n    cols = len(grid[0]) if rows else 0\n    seen = set()\n    plots = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] != 'T' or (r, c) in seen:\n                continue\n            plots += 1\n            stack = [(r, c)]\n            seen.add((r, c))\n            while stack:\n                cr, cc = stack.pop()\n                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nr, nc = cr + dr, cc + dc\n                    if (0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 'T'\n                            and (nr, nc) not in seen):\n                        seen.add((nr, nc))\n                        stack.append((nr, nc))\n    return plots\n"
+      }
+    ]
+  },
+  {
+    "slug": "pace-median",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def pace_median(paces):\n    result = []\n    for end in range(1, len(paces) + 1):\n        ordered = sorted(paces[:end])\n        middle = end // 2\n        result.append(ordered[middle] if end % 2 else (ordered[middle - 1] + ordered[middle]) / 2)\n    return result\n",
+        "pseudocode": "result = []\nfor end in range(1, len(paces) + 1):\n    ordered = sorted(paces[:end])\n    middle = end // 2\n    median = ordered[middle] if end % 2 else (ordered[middle - 1] + ordered[middle]) / 2\n    result.append(median)\nreturn result"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "import heapq\n\n\ndef pace_median(paces):\n    lower, upper, result = [], [], []\n    for pace in paces:\n        if lower and pace > -lower[0]:\n            heapq.heappush(upper, pace)\n        else:\n            heapq.heappush(lower, -pace)\n        if len(lower) > len(upper) + 1:\n            heapq.heappush(upper, -heapq.heappop(lower))\n        elif len(upper) > len(lower):\n            heapq.heappush(lower, -heapq.heappop(upper))\n        result.append(-lower[0] if len(lower) > len(upper) else (-lower[0] + upper[0]) / 2)\n    return result\n",
+        "interviewExplanation": "Keep the lower half in a max-heap represented by negated values and the upper half in a min-heap. Python heapq provides the min-heap operations. Rebalance so the lower heap has either the same number of values or one more; its top, or the average of both tops, gives the median. Each arrival costs O(log n).",
+        "pseudocode": "Insert pace into upper with heappush if pace > -lower[0]; otherwise heappush(lower, -pace).\nMove one heap top if needed so len(lower) == len(upper) or len(lower) == len(upper) + 1.\nAppend -lower[0] if the count is odd; otherwise append (-lower[0] + upper[0]) / 2."
+      }
+    ]
+  },
+  {
+    "slug": "parallel-stages",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def parallel_stages(tasks, prerequisites):\n    done = [False] * tasks\n    finished = stages = 0\n    while finished < tasks:\n        blocked = [False] * tasks\n        for before, after in prerequisites:\n            if not done[before]:\n                blocked[after] = True\n        batch = [task for task in range(tasks) if not done[task] and not blocked[task]]\n        if not batch:\n            return -1\n        for task in batch:\n            done[task] = True\n        finished += len(batch)\n        stages += 1\n    return stages\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def parallel_stages(tasks, prerequisites):\n    unlocks = [[] for _ in range(tasks)]\n    waiting = [0] * tasks\n    for before, after in prerequisites:\n        unlocks[before].append(after)\n        waiting[after] += 1\n    ready = [task for task in range(tasks) if waiting[task] == 0]\n    stages = finished = 0\n    while ready:\n        stages += 1\n        finished += len(ready)\n        following = []\n        for task in ready:\n            for after in unlocks[task]:\n                waiting[after] -= 1\n                if waiting[after] == 0:\n                    following.append(after)\n        ready = following\n    return stages if finished == tasks else -1\n",
+        "pseudocode": "waiting[b] += 1 and unlocks[a].append(b) for each (a, b)\nready = tasks with waiting == 0; stages = 0; finished = 0\nwhile ready: stages += 1; finished += |ready|\n  next = []\n  for t in ready: for b in unlocks[t]: waiting[b] -= 1; if 0: next.append(b)\n  ready = next\nreturn stages if finished == tasks else -1"
+      }
+    ]
+  },
+  {
+    "slug": "parcel-checkpoints",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def parcel_checkpoints(parcels, ranges):\n    result = []\n    for start, end in ranges:\n        total = 0\n        for index in range(start, end):\n            total += parcels[index]\n        result.append(total)\n    return result\n",
+        "commonMistakes": [
+          "Treating end as inclusive adds parcels[end] and, when end == len(parcels), reads past the end of the list.",
+          "Not returning zero for a range with start == end; iterate with range(start, end) so an empty range adds nothing."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def parcel_checkpoints(parcels, ranges):\n    prefix = [0]\n    for count in parcels:\n        prefix.append(prefix[-1] + count)\n    return [prefix[end] - prefix[start] for start, end in ranges]\n"
+      }
+    ]
+  },
+  {
+    "slug": "pattern-gate",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def pattern_gate(text, pattern):\n    def visit(i, j):\n        if j == len(pattern):\n            return i == len(text)\n        if pattern[j] == '*':\n            return any(visit(k, j + 1) for k in range(i, len(text) + 1))\n        return (i < len(text) and (pattern[j] == '?' or pattern[j] == text[i])\n                and visit(i + 1, j + 1))\n\n    return visit(0, 0)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def pattern_gate(text, pattern):\n    ok = [False] * (len(pattern) + 1)\n    ok[0] = True\n    for j in range(1, len(pattern) + 1):\n        ok[j] = ok[j - 1] and pattern[j - 1] == '*'\n    for letter in text:\n        following = [False] * (len(pattern) + 1)\n        for j in range(1, len(pattern) + 1):\n            token = pattern[j - 1]\n            if token == '*':\n                following[j] = following[j - 1] or ok[j]\n            else:\n                following[j] = (token == '?' or token == letter) and ok[j - 1]\n        ok = following\n    return ok[-1]\n",
+        "pseudocode": "Initialize ok[0] = True; extend the empty-text matches through leading '*'.\nFor each letter in text, allocate following with all False.\nFor each pattern position j, if token == '*', set following[j] = following[j - 1] or ok[j].\nOtherwise set following[j] = (token == '?' or token == letter) and ok[j - 1].\nReplace ok with following and return ok[-1] after all letters."
+      }
+    ]
+  },
+  {
+    "slug": "peak-watch",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def peak_watch(readings, k):\n    result = []\n    for start in range(len(readings) - k + 1):\n        best = readings[start]\n        for index in range(start + 1, start + k):\n            best = max(best, readings[index])\n        result.append(best)\n    return result\n",
+        "pseudocode": "For start in range(len(readings) - k + 1), scan indices start through start + k - 1 and append the largest reading."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import deque\n\n\ndef peak_watch(readings, k):\n    candidates = deque()\n    result = []\n    for index, value in enumerate(readings):\n        while candidates and readings[candidates[-1]] <= value:\n            candidates.pop()\n        candidates.append(index)\n        while candidates[0] <= index - k:\n            candidates.popleft()\n        if index >= k - 1:\n            result.append(readings[candidates[0]])\n    return result\n",
+        "spaceComplexity": "O(k) beyond the output",
+        "approach": "Keep indices in a collections.deque in decreasing order of their readings. Remove smaller or equal values from the back, append the new index, and remove expired indices from the front. The front is the maximum of each complete window.",
+        "commonMistakes": [
+          "Keeping an expired index at the front.",
+          "Using a list with pop(0), which shifts remaining entries and can make the loop quadratic."
+        ],
+        "interviewExplanation": "Maintain a collections.deque of indices whose readings strictly decrease. A new reading removes smaller or equal readings from the back; expired indices leave from the front with popleft(). Every index is appended and removed at most once, giving O(n) total time and O(k) working space.",
+        "pseudocode": "candidates = deque()\nfor index, value in enumerate(readings):\n    while candidates and readings[candidates[-1]] <= value: candidates.pop()\n    candidates.append(index)\n    while candidates[0] <= index - k: candidates.popleft()\n    if index >= k - 1: result.append(readings[candidates[0]])\nreturn result"
+      }
+    ]
+  },
+  {
+    "slug": "popularity-cache",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def popularity_cache(capacity, operations):\n    entries, results = {}, []\n    for tick, operation in enumerate(operations):\n        key = operation[1]\n        if operation[0] == 'get':\n            if key not in entries:\n                results.append(-1)\n            else:\n                entry = entries[key]\n                entry[1] += 1\n                entry[2] = tick\n                results.append(entry[0])\n        elif key in entries:\n            entries[key][0] = operation[2]\n            entries[key][1] += 1\n            entries[key][2] = tick\n        else:\n            if len(entries) == capacity:\n                victim = min(entries, key=lambda other: (entries[other][1], entries[other][2]))\n                del entries[victim]\n            entries[key] = [operation[2], 1, tick]\n    return results\n",
+        "approach": "Keep a dictionary from key to [value, frequency, last-use tick]. On eviction, scan its keys for the minimum (frequency, last-use tick)."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import OrderedDict\n\n\ndef popularity_cache(capacity, operations):\n    values, frequencies, buckets = {}, {}, {}\n    minimum = 0\n    results = []\n\n    def touch(key):\n        nonlocal minimum\n        frequency = frequencies[key]\n        del buckets[frequency][key]\n        if not buckets[frequency]:\n            del buckets[frequency]\n            if minimum == frequency:\n                minimum = frequency + 1\n        frequencies[key] = frequency + 1\n        buckets.setdefault(frequency + 1, OrderedDict())[key] = None\n\n    for operation in operations:\n        key = operation[1]\n        if operation[0] == 'get':\n            if key not in values:\n                results.append(-1)\n            else:\n                touch(key)\n                results.append(values[key])\n        elif key in values:\n            values[key] = operation[2]\n            touch(key)\n        else:\n            if len(values) == capacity:\n                victim, _ = buckets[minimum].popitem(last=False)\n                if not buckets[minimum]:\n                    del buckets[minimum]\n                del values[victim]\n                del frequencies[victim]\n            values[key] = operation[2]\n            frequencies[key] = 1\n            buckets.setdefault(1, OrderedDict())[key] = None\n            minimum = 1\n    return results\n",
+        "timeComplexity": "O(1) average per operation",
+        "approach": "Track each key's value and frequency, plus an OrderedDict for each frequency. Within a bucket, keys are ordered from least to most recent. A touch moves the key into the next frequency bucket; eviction pops the oldest key from the minimum-frequency bucket.",
+        "commonMistakes": [
+          "Evicting by frequency without breaking ties by recency.",
+          "Leaving the minimum-frequency pointer on an empty bucket.",
+          "Forgetting that updating an existing key also increases its frequency."
+        ],
+        "interviewExplanation": "Frequency buckets let us find the least-used keys directly. OrderedDict provides constant average time removal and insertion while retaining recency within a frequency. A minimum-frequency pointer identifies the eviction bucket, so each cache operation uses O(1) average time and storage stays O(capacity)."
+      }
+    ]
+  },
+  {
+    "slug": "postfix-ledger",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def apply_operator(a, b, operator):\n    if operator == '+':\n        return a + b\n    if operator == '-':\n        return a - b\n    if operator == '*':\n        return a * b\n    quotient = abs(a) // abs(b)\n    return -quotient if (a < 0) != (b < 0) else quotient\n\ndef postfix_ledger(tokens):\n    items = [token if token in ('+', '-', '*', '/') else int(token) for token in tokens]\n    while len(items) > 1:\n        index = next(i for i, item in enumerate(items) if isinstance(item, str))\n        value = apply_operator(items[index - 2], items[index - 1], items[index])\n        items[index - 2:index + 1] = [value]\n    return items[0]\n",
+        "commonMistakes": [
+          "Treating '-7' as an operator because it starts with '-'.",
+          "Using a // b directly for negative values: it floors instead of truncating toward zero.",
+          "Converting division through a float can lose precision; divide absolute integers and restore the sign."
+        ],
+        "approach": "Convert numeric tokens to integers. Find the first operator, compute it with the two preceding operands, and replace those three list entries with the result using slice assignment. Repeat until one value remains.",
+        "interviewExplanation": "The first operator always has its two operands immediately before it. Collapsing those entries preserves the postfix expression. Finding each operator and replacing a list slice both require up to linear work, giving O(n²) total time and O(n) space."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def apply_operator(a, b, operator):\n    if operator == '+':\n        return a + b\n    if operator == '-':\n        return a - b\n    if operator == '*':\n        return a * b\n    quotient = abs(a) // abs(b)\n    return -quotient if (a < 0) != (b < 0) else quotient\n\ndef postfix_ledger(tokens):\n    stack = []\n    for token in tokens:\n        if token in ('+', '-', '*', '/'):\n            b, a = stack.pop(), stack.pop()\n            stack.append(apply_operator(a, b, token))\n        else:\n            stack.append(int(token))\n    return stack.pop()\n",
+        "interviewExplanation": "Push numbers onto a stack. Each operator pops its right operand first and then its left, applies the operation, and pushes the result. For division, divide absolute integers with // and restore the sign to truncate toward zero without floating-point rounding. One pass takes O(n) time and O(n) stack space.",
+        "commonMistakes": [
+          "Reversing operands for subtraction or division.",
+          "Using // directly on signed operands, which floors negative quotients instead of truncating toward zero."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "prefix-counts",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def prefix_counts(words, queries):\n    return [sum(word.startswith(query) for word in words) for query in queries]\n",
+        "pseudocode": "For each query, count every word satisfying word.startswith(query); append that count to the result.",
+        "commonMistakes": [
+          "Using query in word instead of word.startswith(query), which also counts matches in the middle.",
+          "Deduplicating words, which loses repeated occurrences that should count separately."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def prefix_counts(words, queries):\n    root = {'count': 0, 'children': {}}\n    for word in words:\n        node = root\n        node['count'] += 1\n        for letter in word:\n            node = node['children'].setdefault(letter, {'count': 0, 'children': {}})\n            node['count'] += 1\n    result = []\n    for query in queries:\n        node = root\n        for letter in query:\n            node = node['children'].get(letter)\n            if node is None:\n                break\n        result.append(node['count'] if node is not None else 0)\n    return result\n"
+      }
+    ]
+  },
+  {
+    "slug": "prefix-echoes",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def prefix_echoes(text, lengths):\n    result = []\n    for length in lengths:\n        count = 0\n        for start in range(len(text) - length + 1):\n            offset = 0\n            while offset < length and text[start + offset] == text[offset]:\n                offset += 1\n            if offset == length:\n                count += 1\n        result.append(count)\n    return result\n"
+      },
+      {
+        "kind": "ALTERNATIVE",
+        "code": "def prefix_echoes(text, lengths):\n    n = len(text)\n    z = [0] * n\n    z[0] = n\n    left = right = 0\n    for i in range(1, n):\n        if i < right:\n            z[i] = min(right - i, z[i - left])\n        while i + z[i] < n and text[z[i]] == text[i + z[i]]:\n            z[i] += 1\n        if i + z[i] > right:\n            left, right = i, i + z[i]\n    at_least = [0] * (n + 2)\n    for value in z:\n        at_least[value] += 1\n    for length in range(n - 1, 0, -1):\n        at_least[length] += at_least[length + 1]\n    return [at_least[length] for length in lengths]\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def prefix_echoes(text, lengths):\n    n = len(text)\n    border = [0] * n\n    matched = 0\n    for i in range(1, n):\n        while matched and text[i] != text[matched]:\n            matched = border[matched - 1]\n        if text[i] == text[matched]:\n            matched += 1\n        border[i] = matched\n    echoes = [1] * (n + 1)\n    for length in range(n, 0, -1):\n        if border[length - 1] > 0:\n            echoes[border[length - 1]] += echoes[length]\n    return [echoes[length] for length in lengths]\n"
+      }
+    ]
+  },
+  {
+    "slug": "prefix-suggestions",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def prefix_suggestions(words, typed):\n    result = []\n    for length in range(1, len(typed) + 1):\n        prefix = typed[:length]\n        result.append(sorted(word for word in words if word.startswith(prefix))[:3])\n    return result\n",
+        "pseudocode": "result = []\nfor length in range(1, len(typed) + 1):\n    prefix = typed[:length]\n    result.append(sorted(word for word in words if word.startswith(prefix))[:3])\nreturn result",
+        "approach": "For each length from 1 through len(typed), filter words using word.startswith(typed[:length]), sort the matches, and keep the first three.",
+        "commonMistakes": [
+          "Using prefix in word instead of word.startswith(prefix), which admits matches in the middle.",
+          "Returning more than three suggestions."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def prefix_suggestions(words, typed):\n    root = {'children': {}, 'top': []}\n    for word in sorted(words):\n        node = root\n        for letter in word:\n            node = node['children'].setdefault(letter, {'children': {}, 'top': []})\n            if len(node['top']) < 3:\n                node['top'].append(word)\n    result = []\n    node = root\n    for letter in typed:\n        node = node['children'].get(letter) if node is not None else None\n        result.append(node['top'].copy() if node is not None else [])\n    return result\n",
+        "commonMistakes": [
+          "Inserting unsorted words and keeping the first three, which keeps arbitrary words instead of the lexicographically smallest.",
+          "Trying to read children after a prefix has no matching trie node; keep returning empty lists for subsequent prefixes."
+        ],
+        "pseudocode": "For each word in sorted(words), walk or create its trie path. At each node, append word to its top list only if len(top) < 3.\nWalk the typed letters from the root; append a copy of the current node's top list, or [] if the path is missing."
+      },
+      {
+        "kind": "ALTERNATIVE",
+        "code": "from bisect import bisect_left\n\n\ndef prefix_suggestions(words, typed):\n    ordered = sorted(words)\n    result = []\n    low = 0\n    for length in range(1, len(typed) + 1):\n        prefix = typed[:length]\n        low = bisect_left(ordered, prefix, low)\n        picks = []\n        for index in range(low, min(low + 3, len(ordered))):\n            if ordered[index].startswith(prefix):\n                picks.append(ordered[index])\n            else:\n                break\n        result.append(picks)\n    return result\n"
+      }
+    ]
+  },
+  {
+    "slug": "prime-tally",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def prime_tally(limit):\n    count = 0\n    for value in range(2, limit):\n        divisor = 2\n        while divisor * divisor <= value:\n            if value % divisor == 0:\n                break\n            divisor += 1\n        else:\n            count += 1\n    return count\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def prime_tally(limit):\n    composite = bytearray(limit)\n    count = 0\n    for value in range(2, limit):\n        if composite[value]:\n            continue\n        count += 1\n        for multiple in range(value * value, limit, value):\n            composite[multiple] = 1\n    return count\n"
+      }
+    ]
+  },
+  {
+    "slug": "profit-block",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def profit_block(profits, min_len, max_len):\n    best = float('-inf')\n    for start in range(len(profits)):\n        total = 0\n        for length in range(1, min(max_len, len(profits) - start) + 1):\n            total += profits[start + length - 1]\n            if length >= min_len:\n                best = max(best, total)\n    return best\n"
+      },
+      {
+        "kind": "BETTER",
+        "code": "def profit_block(profits, min_len, max_len):\n    prefix = [0]\n    for profit in profits:\n        prefix.append(prefix[-1] + profit)\n    levels = [prefix]\n    span = 1\n    while span * 2 <= len(prefix):\n        previous = levels[-1]\n        levels.append([min(previous[i], previous[i + span])\n                       for i in range(len(prefix) - span * 2 + 1)])\n        span *= 2\n\n    def cheapest(low, high):\n        level = (high - low + 1).bit_length() - 1\n        return min(levels[level][low], levels[level][high - (1 << level) + 1])\n\n    best = float('-inf')\n    for end in range(min_len, len(prefix)):\n        best = max(best, prefix[end] - cheapest(max(0, end - max_len), end - min_len))\n    return best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import deque\n\n\ndef profit_block(profits, min_len, max_len):\n    prefix = [0]\n    for profit in profits:\n        prefix.append(prefix[-1] + profit)\n    candidates = deque()\n    best = float('-inf')\n    for end in range(min_len, len(prefix)):\n        entering = end - min_len\n        while candidates and prefix[candidates[-1]] >= prefix[entering]:\n            candidates.pop()\n        candidates.append(entering)\n        while candidates[0] < end - max_len:\n            candidates.popleft()\n        best = max(best, prefix[end] - prefix[candidates[0]])\n    return best\n",
+        "commonMistakes": [
+          "Leaving entries older than end - max_len at the front, so a stale minimum is used.",
+          "Using list.pop(0) instead of deque.popleft(), which shifts the remaining entries.",
+          "Starting best at zero when all eligible blocks may have negative totals."
+        ],
+        "interviewExplanation": "Each end needs the smallest prefix total among starts in [end - max_len, end - min_len]. A monotonic collections.deque tracks that moving minimum. If a later start has a prefix total no larger than an earlier start, it is at least as good and expires later, so the earlier start can be removed. Every index enters and leaves once, giving O(n) time."
+      }
+    ]
+  },
+  {
+    "slug": "pulse-gates",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def pulse_gates(grid, period):\n    rows, cols = len(grid), len(grid[0])\n    here = {(r, c) for r in range(rows) for c in range(cols) if grid[r][c] == 'S'}\n    goal = next((r, c) for r in range(rows) for c in range(cols) if grid[r][c] == 'E')\n    moves = ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))\n    for time in range(1, rows * cols * period + 1):\n        after = set()\n        for r, c in here:\n            for dr, dc in moves:\n                nr, nc = r + dr, c + dc\n                if not (0 <= nr < rows and 0 <= nc < cols):\n                    continue\n                cell = grid[nr][nc]\n                if cell == '#' or ('0' <= cell <= '9' and int(cell) != time % period):\n                    continue\n                after.add((nr, nc))\n        if goal in after:\n            return time\n        here = after\n    return -1\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import deque\n\n\ndef pulse_gates(grid, period):\n    rows, cols = len(grid), len(grid[0])\n    flat = ''.join(grid)\n    start, goal = flat.index('S'), flat.index('E')\n    seen = bytearray(rows * cols * period)\n    seen[start * period] = 1\n    queue = deque([(start, 0)])\n    moves = ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))\n    while queue:\n        cell, time = queue.popleft()\n        if cell == goal:\n            return time\n        r, c = divmod(cell, cols)\n        next_time = time + 1\n        beat = next_time % period\n        for dr, dc in moves:\n            nr, nc = r + dr, c + dc\n            if not (0 <= nr < rows and 0 <= nc < cols):\n                continue\n            following = nr * cols + nc\n            symbol = flat[following]\n            if symbol == '#' or ('0' <= symbol <= '9' and int(symbol) != beat):\n                continue\n            state = following * period + beat\n            if not seen[state]:\n                seen[state] = 1\n                queue.append((following, next_time))\n    return -1\n",
+        "commonMistakes": [
+          "Keying visited states by cell alone, which prevents useful later arrivals.",
+          "Comparing a gate digit with the departure time instead of the arrival time.",
+          "Using list.pop(0) for the queue instead of collections.deque.popleft()."
+        ],
+        "interviewExplanation": "Only time modulo the period matters, so the finite state space is rows × columns × period. Every move costs one tick. Breadth-first search therefore visits states in arrival-time order, and the first visit to E is optimal. A bytearray tracks visited states compactly, and deque provides constant-time queue operations."
+      }
+    ]
+  },
+  {
+    "slug": "quiet-badge",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def quiet_badge(badges):\n    for index, badge in enumerate(badges):\n        if sum(other == badge for other in badges) == 1:\n            return index\n    return -1\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import Counter\n\n\ndef quiet_badge(badges):\n    counts = Counter(badges)\n    for index, badge in enumerate(badges):\n        if counts[badge] == 1:\n            return index\n    return -1\n"
+      }
+    ]
+  },
+  {
+    "slug": "quiet-heist",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def quiet_heist(houses):\n    if len(houses) == 1:\n        return houses[0]\n\n    def visit(index, previous_taken, first_taken):\n        if index == len(houses):\n            return 0\n        best = visit(index + 1, False, first_taken)\n        if not previous_taken and not (index == len(houses) - 1 and first_taken):\n            best = max(best, houses[index] + visit(index + 1, True, first_taken or index == 0))\n        return best\n\n    return visit(0, False, False)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def quiet_heist(houses):\n    if len(houses) == 1:\n        return houses[0]\n\n    def line(start, end):\n        take = skip = 0\n        for index in range(start, end + 1):\n            take, skip = skip + houses[index], max(take, skip)\n        return max(take, skip)\n\n    return max(line(0, len(houses) - 2), line(1, len(houses) - 1))\n",
+        "pseudocode": "line(start, end): take = skip = 0; for each index in the inclusive range, update take, skip = skip + houses[index], max(take, skip); return max(take, skip).\nIf len(houses) == 1, return houses[0]. Otherwise return max(line(0, n - 2), line(1, n - 1))."
+      }
+    ]
+  },
+  {
+    "slug": "quiet-hours",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def quiet_hours(busy):\n    points = sorted({point for interval in busy for point in interval})\n    gaps = []\n    for i in range(len(points) - 1):\n        point = points[i]\n        if any(start <= point < end for start, end in busy):\n            continue\n        if gaps and gaps[-1][1] == point:\n            gaps[-1][1] = points[i + 1]\n        else:\n            gaps.append([point, points[i + 1]])\n    return gaps\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def quiet_hours(busy):\n    ordered = sorted(busy)\n    end = ordered[0][1]\n    gaps = []\n    for start, finish in ordered:\n        if start > end:\n            gaps.append([end, start])\n        end = max(end, finish)\n    return gaps\n",
+        "pseudocode": "sort by start; end = first.end\nfor (s, e): if s > end: gaps.append([end, s]); end = max(end, e)\nreturn gaps"
+      }
+    ]
+  },
+  {
+    "slug": "radio-clusters",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def radio_clusters(towers, links):\n    label = list(range(towers))\n    changed = True\n    while changed:\n        changed = False\n        for a, b in links:\n            low = min(label[a], label[b])\n            if label[a] != low or label[b] != low:\n                label[a] = label[b] = low\n                changed = True\n    return len(set(label))\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def radio_clusters(towers, links):\n    parent = list(range(towers))\n    size = [1] * towers\n\n    def find(node):\n        while parent[node] != node:\n            parent[node] = parent[parent[node]]\n            node = parent[node]\n        return node\n\n    groups = towers\n    for a, b in links:\n        ra, rb = find(a), find(b)\n        if ra == rb:\n            continue\n        if size[ra] < size[rb]:\n            ra, rb = rb, ra\n        parent[rb] = ra\n        size[ra] += size[rb]\n        groups -= 1\n    return groups\n"
+      }
+    ]
+  },
+  {
+    "slug": "rank-tags",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "from functools import cmp_to_key\n\n\ndef rank_tags(tags):\n    distinct = []\n    for tag in tags:\n        if tag not in distinct:\n            distinct.append(tag)\n\n    def compare(a, b):\n        difference = tags.count(b) - tags.count(a)\n        if difference:\n            return difference\n        return (a > b) - (a < b)\n\n    return sorted(distinct, key=cmp_to_key(compare))\n",
+        "approach": "Build a list of distinct tags using linear membership checks. Sort it with cmp_to_key; each comparison rescans the original input to count both tags, ordering by descending frequency and then ascending tag.",
+        "commonMistakes": [
+          "Recounting inside the comparator repeats work on every comparison.",
+          "Subtracting strings raises TypeError; compare strings lexicographically for the alphabetical tie-break."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import Counter\n\n\ndef rank_tags(tags):\n    counts = Counter(tags)\n    return sorted(counts, key=lambda tag: (-counts[tag], tag))\n",
+        "approach": "Count tags with collections.Counter. Sort the distinct keys using the tuple key (-count, tag), giving descending frequency and ascending alphabetical order.",
+        "commonMistakes": [
+          "Sorting by count alone leaves ties in input order rather than alphabetical order.",
+          "Reversing the frequency key and returning the least frequent tags first."
+        ],
+        "interviewExplanation": "Counter counts every tag in one pass. Sorting the distinct tags with key (-counts[tag], tag) expresses both ordering rules directly. Counting costs O(n) and sorting costs O(d log d), so the total is O(n + d log d), using O(d) space."
+      }
+    ]
+  },
+  {
+    "slug": "rate-gate",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def rate_gate(limit, window, requests):\n    accepted, result = [], []\n    for client, time in requests:\n        recent = sum(other == client and previous > time - window for other, previous in accepted)\n        if recent >= limit:\n            result.append(False)\n        else:\n            accepted.append((client, time))\n            result.append(True)\n    return result\n",
+        "pseudocode": "accepted = []; result = []\nFor each (client, time), count accepted entries with the same client and timestamp > time - window.\nIf count >= limit, append False. Otherwise append (client, time) to accepted and append True.\nreturn result"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import deque\n\n\ndef rate_gate(limit, window, requests):\n    logs, result = {}, []\n    for client, time in requests:\n        queue = logs.setdefault(client, deque())\n        while queue and queue[0] <= time - window:\n            queue.popleft()\n        if len(queue) >= limit:\n            result.append(False)\n        else:\n            queue.append(time)\n            result.append(True)\n    return result\n",
+        "approach": "Map each client to a collections.deque of accepted times. Remove expired times from the left, reject if the remaining count reaches the limit, and otherwise append the new time.",
+        "spaceComplexity": "O(clients × limit): each client retains at most limit accepted timestamps",
+        "commonMistakes": [
+          "Counting rejected requests, which keeps a busy client blocked indefinitely.",
+          "Keeping timestamps equal to time - window instead of expiring them.",
+          "Using a list with pop(0), which shifts the remaining items."
+        ],
+        "interviewExplanation": "Each client has its own queue of accepted timestamps. Times only move forward, so expired entries never return and every accepted request is added and removed once. That gives O(1) amortized time per request and O(limit) retained timestamps per client using deque.",
+        "pseudocode": "logs = {}; result = []\nFor each (client, time), get or create that client's deque.\nWhile the deque is nonempty and its first timestamp <= time - window, remove it with popleft().\nIf len(queue) >= limit, append False; otherwise queue.append(time) and append True.\nreturn result"
+      }
+    ]
+  }
+]
