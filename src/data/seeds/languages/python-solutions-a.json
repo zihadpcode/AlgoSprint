@@ -1,0 +1,653 @@
+[
+  {
+    "slug": "badge-majority",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def badge_majority(badges):\n    counts = {}\n    for badge in badges:\n        counts[badge] = counts.get(badge, 0) + 1\n    for team, count in counts.items():\n        if count * 2 > len(badges):\n            return team\n",
+        "approach": "Count occurrences in a dictionary and return the value whose count exceeds n / 2."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def badge_majority(badges):\n    candidate, votes = badges[0], 0\n    for badge in badges:\n        if votes == 0:\n            candidate = badge\n        votes += 1 if badge == candidate else -1\n    return candidate\n"
+      }
+    ]
+  },
+  {
+    "slug": "badge-subsets",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def badge_subsets(badges):\n    selections = []\n    for mask in range(1 << len(badges)):\n        selections.append(sorted(badges[i] for i in range(len(badges)) if mask & (1 << i)))\n    return sorted(selections, key=lambda selection: (len(selection), selection))\n",
+        "pseudocode": "for mask in 0 .. 2^n - 1: append the sorted badges whose bits are set\nsort selections by (length, elements)"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def badge_subsets(badges):\n    values = sorted(badges)\n    result, picked = [], []\n    def choose(start, size):\n        if len(picked) == size:\n            result.append(picked.copy())\n            return\n        for i in range(start, len(values) - (size - len(picked)) + 1):\n            picked.append(values[i])\n            choose(i + 1, size)\n            picked.pop()\n    for size in range(len(values) + 1):\n        choose(0, size)\n    return result\n"
+      }
+    ]
+  },
+  {
+    "slug": "bake-batches",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def bake_batches(trays, days):\n\n    def days_needed(capacity):\n        count, load = 1, 0\n        for tray in trays:\n            if load + tray > capacity:\n                count += 1\n                load = 0\n            load += tray\n        return count\n\n    capacity = max(trays)\n    while days_needed(capacity) > days:\n        capacity += 1\n    return capacity\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def bake_batches(trays, days):\n\n    def days_needed(capacity):\n        count, load = 1, 0\n        for tray in trays:\n            if load + tray > capacity:\n                count += 1\n                load = 0\n            load += tray\n        return count\n\n    low, high = max(trays), sum(trays)\n    while low < high:\n        middle = (low + high) // 2\n        if days_needed(middle) <= days:\n            high = middle\n        else:\n            low = middle + 1\n    return low\n"
+      }
+    ]
+  },
+  {
+    "slug": "balance-runs",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def balance_runs(changes, target):\n    count = 0\n    for start in range(len(changes)):\n        total = 0\n        for end in range(start, len(changes)):\n            total += changes[end]\n            if total == target:\n                count += 1\n    return count\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def balance_runs(changes, target):\n    seen = {0: 1}\n    prefix = count = 0\n    for change in changes:\n        prefix += change\n        count += seen.get(prefix - target, 0)\n        seen[prefix] = seen.get(prefix, 0) + 1\n    return count\n"
+      }
+    ]
+  },
+  {
+    "slug": "balanced-blueprint",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def balanced_blueprint(plan):\n    while True:\n        shorter = plan.replace('()', '').replace('[]', '').replace('{}', '')\n        if shorter == plan:\n            return not plan\n        plan = shorter\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def balanced_blueprint(plan):\n    closer_for = {'(': ')', '[': ']', '{': '}'}\n    expected = []\n    for symbol in plan:\n        if symbol in closer_for:\n            expected.append(closer_for[symbol])\n        elif not expected or expected.pop() != symbol:\n            return False\n    return not expected\n",
+        "pseudocode": "expected = []\nfor symbol in plan:\n  if symbol is an opener: append its closer\n  else if expected is empty or expected.pop() != symbol: return false\nreturn expected is empty",
+        "approach": "Append the matching closer whenever an opener appears. On a closing bracket, first reject an empty stack, then pop the expected closer and require equality. Finish by checking that no expected closers remain."
+      }
+    ]
+  },
+  {
+    "slug": "balanced-canopy",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def balanced_canopy(tree):\n\n    if not tree:\n        return True\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    def height(node):\n        if node == -1:\n            return 0\n        return 1 + max(height(left[node]), height(right[node]))\n    def balanced(node):\n        if node == -1:\n            return True\n        if abs(height(left[node]) - height(right[node])) > 1:\n            return False\n        return balanced(left[node]) and balanced(right[node])\n    return balanced(0)\n",
+        "spaceComplexity": "O(n) for the decoded value and child arrays, plus an O(h) recursion stack"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def balanced_canopy(tree):\n\n    if not tree:\n        return True\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    def checked_height(node):\n        if node == -1:\n            return 0\n        a = checked_height(left[node])\n        if a < 0:\n            return -1\n        b = checked_height(right[node])\n        if b < 0 or abs(a - b) > 1:\n            return -1\n        return 1 + max(a, b)\n    return checked_height(0) >= 0\n",
+        "timeComplexity": "O(n), including the compact level-order decoder",
+        "interviewExplanation": "I decode the compact level-order input with an index rather than removing entries from the front of a queue. Then I traverse bottom-up, returning each subtree height and using -1 as an imbalance signal. Every junction combines its two children in constant time, so decoding and checking both take O(n). The decoded arrays use O(n) space and the recursion uses O(h) stack frames, where h is the tree height.",
+        "spaceComplexity": "O(n) for the decoded value and child arrays, plus an O(h) recursion stack"
+      }
+    ]
+  },
+  {
+    "slug": "bay-ledger",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def bay_ledger(bays, operations):\n    counts = [0] * (bays + 1)\n    reports = []\n    for op in operations:\n        if op[0] == 'set':\n            counts[op[1]] = op[2]\n        elif op[0] == 'total':\n            total = 0\n            for bay in range(1, op[1] + 1):\n                total += counts[bay]\n            reports.append(total)\n        else:\n            total, found = 0, -1\n            for bay in range(1, bays + 1):\n                total += counts[bay]\n                if total >= op[1]:\n                    found = bay\n                    break\n            reports.append(found)\n    return reports\n"
+      },
+      {
+        "kind": "ALTERNATIVE",
+        "code": "from math import isqrt\n\ndef bay_ledger(bays, operations):\n    size = max(1, isqrt(bays - 1) + 1)\n    counts = [0] * (bays + 1)\n    block_sum = [0] * (bays // size + 1)\n    reports = []\n    for op in operations:\n        if op[0] == 'set':\n            block_sum[(op[1] - 1) // size] += op[2] - counts[op[1]]\n            counts[op[1]] = op[2]\n        elif op[0] == 'total':\n            full_blocks = op[1] // size\n            total = 0\n            for block in range(full_blocks):\n                total += block_sum[block]\n            for bay in range(full_blocks * size + 1, op[1] + 1):\n                total += counts[bay]\n            reports.append(total)\n        else:\n            remaining, block = op[1], 0\n            while block * size < bays and block_sum[block] < remaining:\n                remaining -= block_sum[block]\n                block += 1\n            found = -1\n            for bay in range(block * size + 1, min(bays, (block + 1) * size) + 1):\n                remaining -= counts[bay]\n                if remaining <= 0:\n                    found = bay\n                    break\n            reports.append(found)\n    return reports\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def bay_ledger(bays, operations):\n    tree, held = [0] * (bays + 1), [0] * (bays + 1)\n    top = 1 << (bays.bit_length() - 1)\n    reports = []\n    for op in operations:\n        if op[0] == 'set':\n            change = op[2] - held[op[1]]\n            held[op[1]] = op[2]\n            at = op[1]\n            while at <= bays:\n                tree[at] += change\n                at += at & -at\n        elif op[0] == 'total':\n            total, at = 0, op[1]\n            while at > 0:\n                total += tree[at]\n                at -= at & -at\n            reports.append(total)\n        else:\n            at, remaining, step = 0, op[1], top\n            while step:\n                if at + step <= bays and tree[at + step] < remaining:\n                    at += step\n                    remaining -= tree[at]\n                step >>= 1\n            reports.append(at + 1 if at + 1 <= bays else -1)\n    return reports\n"
+      }
+    ]
+  },
+  {
+    "slug": "billboard-space",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def billboard_space(heights):\n    best = 0\n    for start in range(len(heights)):\n        low = float('inf')\n        for end in range(start, len(heights)):\n            low = min(low, heights[end])\n            best = max(best, low * (end - start + 1))\n    return best\n",
+        "approach": "For each start index, initialize the minimum height to positive infinity. Extend the end index, updating the minimum and the best area minimum_height * (end - start + 1)."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def billboard_space(heights):\n    stack = []\n    best = 0\n    for i in range(len(heights) + 1):\n        height = 0 if i == len(heights) else heights[i]\n        while stack and heights[stack[-1]] >= height:\n            removed = heights[stack.pop()]\n            left = stack[-1] if stack else -1\n            best = max(best, removed * (i - left - 1))\n        stack.append(i)\n    return best\n"
+      }
+    ]
+  },
+  {
+    "slug": "booth-bookings",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "from array import array\n\ndef booth_bookings(gap, operations):\n    horizon = 1000000\n    owner = array('i', [0]) * (horizon + 1)\n    is_start = bytearray(horizon + 1)\n    spans, results = {}, []\n    issued = 0\n    for op in operations:\n        if op[0] == 'book':\n            start, end = op[1:]\n            clash = False\n            for minute in range(max(0, start - gap), min(horizon, end + gap)):\n                if owner[minute]:\n                    clash = True\n                    break\n            if clash:\n                results.append(-1)\n            else:\n                issued += 1\n                for minute in range(start, end):\n                    owner[minute] = issued\n                is_start[start] = 1\n                spans[issued] = (start, end)\n                results.append(issued)\n        elif op[0] == 'cancel':\n            span = spans.pop(op[1], None)\n            if span is None:\n                results.append(False)\n            else:\n                for minute in range(span[0], span[1]):\n                    owner[minute] = 0\n                is_start[span[0]] = 0\n                results.append(True)\n        else:\n            minute = op[1]\n            while minute <= horizon and not is_start[minute]:\n                minute += 1\n            results.append(minute if minute <= horizon else -1)\n    return results\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from bisect import bisect_left\n\ndef booth_bookings(gap, operations):\n    starts, ends = [], []\n    start_of_id, results = {}, []\n    issued = 0\n    for op in operations:\n        if op[0] == 'book':\n            start, end = op[1:]\n            at = bisect_left(starts, start)\n            clear_before = at == 0 or ends[at - 1] + gap <= start\n            clear_after = at == len(starts) or end + gap <= starts[at]\n            if clear_before and clear_after:\n                starts.insert(at, start)\n                ends.insert(at, end)\n                issued += 1\n                start_of_id[issued] = start\n                results.append(issued)\n            else:\n                results.append(-1)\n        elif op[0] == 'cancel':\n            start = start_of_id.pop(op[1], None)\n            if start is None:\n                results.append(False)\n            else:\n                at = bisect_left(starts, start)\n                starts.pop(at)\n                ends.pop(at)\n                results.append(True)\n        else:\n            at = bisect_left(starts, op[1])\n            results.append(starts[at] if at < len(starts) else -1)\n    return results\n",
+        "timeComplexity": "O(log n) per binary search plus O(n) per list insertion or removal, with n active bookings",
+        "approach": "Keep parallel starts and ends lists in sorted order, and a dictionary from id to start. For book, bisect_left finds the insertion position; check the predecessor and successor for the cleaning gap, then insert into both lists. For cancel, look up its start and remove the corresponding entries. For next, return the first start at least the requested time.",
+        "interviewExplanation": "Non-overlapping intervals form a total order, so only the predecessor and successor can conflict with a new booking. Binary search finds their position in O(log n). Python list insertion and removal shift elements and therefore take O(n) in the worst case. The active-booking bound makes this practical; a balanced search tree could make updates logarithmic."
+      }
+    ]
+  },
+  {
+    "slug": "bracket-run",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def bracket_run(text):\n    def valid(start, end):\n        depth = 0\n        for i in range(start, end):\n            depth += 1 if text[i] == '(' else -1\n            if depth < 0:\n                return False\n        return depth == 0\n    best = 0\n    for start in range(len(text)):\n        for end in range(start + 2, len(text) + 1, 2):\n            if end - start > best and valid(start, end):\n                best = end - start\n    return best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def bracket_run(text):\n    stack, best = [-1], 0\n    for i, symbol in enumerate(text):\n        if symbol == '(':\n            stack.append(i)\n        else:\n            stack.pop()\n            if not stack:\n                stack.append(i)\n            else:\n                best = max(best, i - stack[-1])\n    return best\n"
+      }
+    ]
+  },
+  {
+    "slug": "canopy-gain",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def canopy_gain(tree):\n\n    if not tree:\n        return 0\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    adjacent = [[] for _ in values]\n    for node in range(len(values)):\n        for child in (left[node], right[node]):\n            if child != -1:\n                adjacent[node].append(child)\n                adjacent[child].append(node)\n    best = float('-inf')\n    for start in range(len(values)):\n        stack = [(start, -1, values[start])]\n        while stack:\n            node, parent, total = stack.pop()\n            best = max(best, total)\n            for child in adjacent[node]:\n                if child != parent:\n                    stack.append((child, node, total + values[child]))\n    return best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def canopy_gain(tree):\n\n    if not tree:\n        return 0\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    best = float('-inf')\n    def gain(node):\n        nonlocal best\n        if node == -1:\n            return 0\n        a = max(0, gain(left[node]))\n        b = max(0, gain(right[node]))\n        best = max(best, values[node] + a + b)\n        return values[node] + max(a, b)\n    gain(0)\n    return best\n",
+        "spaceComplexity": "O(n) for the decoded arrays, plus an O(h) recursion stack"
+      }
+    ]
+  },
+  {
+    "slug": "canopy-layers",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def canopy_layers(tree):\n\n    if not tree:\n        return []\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    def height(node):\n        return 0 if node == -1 else 1 + max(height(left[node]), height(right[node]))\n    def sum_at(node, depth):\n        if node == -1:\n            return 0\n        if depth == 0:\n            return values[node]\n        return sum_at(left[node], depth - 1) + sum_at(right[node], depth - 1)\n    return [sum_at(0, depth) for depth in range(height(0))]\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def canopy_layers(tree):\n\n    if not tree:\n        return []\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    sums, layer = [], [0]\n    while layer:\n        total, following = 0, []\n        for node in layer:\n            total += values[node]\n            for child in (left[node], right[node]):\n                if child != -1:\n                    following.append(child)\n        sums.append(total)\n        layer = following\n    return sums\n",
+        "pseudocode": "layer = [root] if the tree is non-empty else []\nwhile layer:\n  append the sum of its node values\n  layer = all non-missing children in the current layer\nreturn sums",
+        "spaceComplexity": "O(n) for the decoded arrays, plus O(w) for the current and following layers"
+      }
+    ]
+  },
+  {
+    "slug": "chain-loop-start",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def chain_loop_start(next, head):\n    visited = set()\n    while head != -1:\n        if head in visited:\n            return head\n        visited.add(head)\n        head = next[head]\n    return -1\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def chain_loop_start(next, head):\n    slow = fast = head\n    while True:\n        if fast == -1 or next[fast] == -1:\n            return -1\n        slow = next[slow]\n        fast = next[next[fast]]\n        if slow == fast:\n            break\n    entry = head\n    while entry != slow:\n        entry = next[entry]\n        slow = next[slow]\n    return entry\n"
+      }
+    ]
+  },
+  {
+    "slug": "charging-hops",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def charging_hops(ranges):\n    def reachable(station):\n        if station >= len(ranges) - 1:\n            return True\n        for hop in range(1, ranges[station] + 1):\n            if reachable(station + hop):\n                return True\n        return False\n    return reachable(0)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def charging_hops(ranges):\n    farthest = 0\n    for station, reach in enumerate(ranges):\n        if station > farthest:\n            break\n        farthest = max(farthest, station + reach)\n    return farthest >= len(ranges) - 1\n"
+      }
+    ]
+  },
+  {
+    "slug": "charging-loop",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def charging_loop(gain, cost):\n    for start in range(len(gain)):\n        tank = 0\n        for step in range(len(gain)):\n            i = (start + step) % len(gain)\n            tank += gain[i] - cost[i]\n            if tank < 0:\n                break\n        else:\n            return start\n    return -1\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def charging_loop(gain, cost):\n    total = tank = start = 0\n    for i in range(len(gain)):\n        delta = gain[i] - cost[i]\n        total += delta\n        tank += delta\n        if tank < 0:\n            start, tank = i + 1, 0\n    return -1 if total < 0 else start\n"
+      }
+    ]
+  },
+  {
+    "slug": "cheapest-route",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def cheapest_route(stops, roads, start, target):\n    best = [float('inf')] * stops\n    best[start] = 0\n    for _ in range(stops - 1):\n        changed = False\n        for a, b, toll in roads:\n            if best[a] + toll < best[b]:\n                best[b] = best[a] + toll\n                changed = True\n            if best[b] + toll < best[a]:\n                best[a] = best[b] + toll\n                changed = True\n        if not changed:\n            break\n    return -1 if best[target] == float('inf') else best[target]\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from heapq import heappop, heappush\n\ndef cheapest_route(stops, roads, start, target):\n    adjacent = [[] for _ in range(stops)]\n    for a, b, toll in roads:\n        adjacent[a].append((b, toll))\n        adjacent[b].append((a, toll))\n    best = [float('inf')] * stops\n    best[start] = 0\n    heap = [(0, start)]\n    while heap:\n        toll, stop = heappop(heap)\n        if toll > best[stop]:\n            continue\n        if stop == target:\n            return toll\n        for neighbor, extra in adjacent[stop]:\n            candidate = toll + extra\n            if candidate < best[neighbor]:\n                best[neighbor] = candidate\n                heappush(heap, (candidate, neighbor))\n    return -1\n"
+      }
+    ]
+  },
+  {
+    "slug": "cipher-window",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def cipher_window(text, pattern):\n    def covers(start, length):\n        counts = [0] * 26\n        for i in range(start, start + length):\n            counts[ord(text[i]) - 97] += 1\n        for symbol in pattern:\n            at = ord(symbol) - 97\n            counts[at] -= 1\n            if counts[at] < 0:\n                return False\n        return True\n    for length in range(len(pattern), len(text) + 1):\n        for start in range(len(text) - length + 1):\n            if covers(start, length):\n                return text[start:start + length]\n    return ''\n",
+        "spaceComplexity": "O(1) auxiliary space for 26 counters, excluding the returned substring",
+        "approach": "Try substring lengths from the pattern length upward and starts from left to right. Count the letters directly over each candidate interval, then subtract the pattern letters. The first candidate with enough of every letter is the leftmost shortest answer."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def cipher_window(text, pattern):\n    if not pattern:\n        return ''\n    need = [0] * 26\n    for symbol in pattern:\n        need[ord(symbol) - 97] += 1\n    missing, left = len(pattern), 0\n    best_start, best_length = 0, float('inf')\n    for right, symbol in enumerate(text):\n        at = ord(symbol) - 97\n        if need[at] > 0:\n            missing -= 1\n        need[at] -= 1\n        while missing == 0:\n            if right - left + 1 < best_length:\n                best_start, best_length = left, right - left + 1\n            at = ord(text[left]) - 97\n            need[at] += 1\n            if need[at] > 0:\n                missing += 1\n            left += 1\n    return '' if best_length == float('inf') else text[best_start:best_start + best_length]\n",
+        "approach": "Initialize need from the pattern letter counts and missing = len(pattern). For each right index, decrement need for that letter and reduce missing if its previous need was positive. While missing is zero, save a strictly shorter window, then remove the leftmost letter by incrementing its need and increasing missing if that need becomes positive."
+      }
+    ]
+  },
+  {
+    "slug": "city-skyline",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def city_skyline(buildings):\n    coordinates = sorted({x for left, right, height in buildings for x in (left, right)})\n    points = []\n    for x in coordinates:\n        height = 0\n        for left, right, top in buildings:\n            if left <= x < right:\n                height = max(height, top)\n        if not points or points[-1][1] != height:\n            points.append([x, height])\n    return points\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from heapq import heappop, heappush\n\ndef city_skyline(buildings):\n    coordinates = sorted({x for left, right, height in buildings for x in (left, right)})\n    by_left = sorted(buildings)\n    heap, points = [], []\n    i = 0\n    for x in coordinates:\n        while i < len(by_left) and by_left[i][0] <= x:\n            left, right, height = by_left[i]\n            heappush(heap, (-height, right))\n            i += 1\n        while heap and heap[0][1] <= x:\n            heappop(heap)\n        height = -heap[0][0] if heap else 0\n        if not points or points[-1][1] != height:\n            points.append([x, height])\n    return points\n"
+      }
+    ]
+  },
+  {
+    "slug": "close-calls",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def close_calls(readings, tolerance):\n    pairs = 0\n    for i in range(len(readings)):\n        for j in range(i + 1, len(readings)):\n            if abs(readings[i] - readings[j]) <= tolerance:\n                pairs += 1\n    return pairs\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def close_calls(readings, tolerance):\n    values = sorted(readings)\n    low, pairs = 0, 0\n    for high in range(len(values)):\n        while values[high] - values[low] > tolerance:\n            low += 1\n        pairs += high - low\n    return pairs\n",
+        "commonMistakes": [
+          "Converting readings to strings before sorting, which orders 100 before 99. Python sorted() already orders integer values numerically.",
+          "Adding right - left + 1, which counts a reading paired with itself.",
+          "Moving left back after it has advanced."
+        ],
+        "interviewExplanation": "Sorting integer readings with sorted() makes the eligible partners for each right endpoint a contiguous range. Its left boundary only moves forward, so the sweep is linear after the O(n log n) sort. Python sorting uses numeric order for integers. Since the readings have a small bounded range, a counting array with prefix sums is another option; this sorted sweep also works without relying on that range."
+      }
+    ]
+  },
+  {
+    "slug": "crate-combinations",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def crate_combinations(weights, target):\n    values = sorted(weights)\n    results = []\n    for mask in range(1 << len(values)):\n        chosen = [values[i] for i in range(len(values)) if mask & (1 << i)]\n        if sum(chosen) == target:\n            results.append(chosen)\n    return sorted(results)\n",
+        "spaceComplexity": "O(n + K) auxiliary space beyond the stored output, including the sorted weights, a current subset, and Python sorting workspace for K matching subsets"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def crate_combinations(weights, target):\n    values = sorted(weights)\n    results, chosen = [], []\n    def extend(start, remaining):\n        if remaining == 0:\n            results.append(chosen.copy())\n            return\n        for i in range(start, len(values)):\n            if values[i] > remaining:\n                break\n            chosen.append(values[i])\n            extend(i + 1, remaining - values[i])\n            chosen.pop()\n    extend(0, target)\n    return results\n"
+      }
+    ]
+  },
+  {
+    "slug": "crew-cover",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def crew_cover(skills, volunteers):\n    full, best = (1 << skills) - 1, float('inf')\n    def choose(index, covered, count):\n        nonlocal best\n        if count >= best:\n            return\n        if covered == full:\n            best = count\n            return\n        if index == len(volunteers):\n            return\n        choose(index + 1, covered | volunteers[index], count + 1)\n        choose(index + 1, covered, count)\n    choose(0, 0, 0)\n    return -1 if best == float('inf') else best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def crew_cover(skills, volunteers):\n    full = (1 << skills) - 1\n    unreachable = len(volunteers) + 1\n    fewest = [unreachable] * (full + 1)\n    fewest[0] = 0\n    for mask in volunteers:\n        if mask == 0:\n            continue\n        for covered in range(full + 1):\n            merged = covered | mask\n            fewest[merged] = min(fewest[merged], fewest[covered] + 1)\n    return -1 if fewest[full] == unreachable else fewest[full]\n",
+        "commonMistakes": [
+          "Forgetting that fewest[0] = 0 is the only starting state.",
+          "Worrying that an in-place update can use a volunteer twice: repeating the same mask cannot cover additional skills and only increases its count, so it cannot improve the minimum.",
+          "Failing to initialize unreachable masks with a sentinel larger than the number of volunteers."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "crossword-trace",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def crossword_trace(grid, word):\n    rows, cols = len(grid), len(grid[0])\n    def extend(path):\n        if len(path) == len(word):\n            return ''.join(grid[r][c] for r, c in path) == word\n        r, c = path[-1]\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in path:\n                if extend(path + [(nr, nc)]):\n                    return True\n        return False\n    return any(extend([(r, c)]) for r in range(rows) for c in range(cols))\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def crossword_trace(grid, word):\n    rows, cols = len(grid), len(grid[0])\n    used = [[False] * cols for _ in range(rows)]\n    def walk(r, c, i):\n        if not (0 <= r < rows and 0 <= c < cols) or used[r][c] or grid[r][c] != word[i]:\n            return False\n        if i == len(word) - 1:\n            return True\n        used[r][c] = True\n        found = (walk(r + 1, c, i + 1) or walk(r - 1, c, i + 1)\n                 or walk(r, c + 1, i + 1) or walk(r, c - 1, i + 1))\n        used[r][c] = False\n        return found\n    return any(walk(r, c, 0) for r in range(rows) for c in range(cols))\n"
+      }
+    ]
+  },
+  {
+    "slug": "dial-distance",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def dial_distance(bits, pairs):\n    total, results = 1 << bits, []\n    for a, b in pairs:\n        click_a = click_b = -1\n        for click in range(total):\n            shown = click ^ (click >> 1)\n            if shown == a:\n                click_a = click\n            if shown == b:\n                click_b = click\n            if click_a >= 0 and click_b >= 0:\n                break\n        forward = (click_b - click_a) % total\n        results.append(min(forward, total - forward))\n    return results\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def dial_distance(bits, pairs):\n    total = 1 << bits\n    def click_of(setting):\n        click = setting\n        for shift in (1, 2, 4, 8, 16):\n            click ^= click >> shift\n        return click\n    results = []\n    for a, b in pairs:\n        apart = abs(click_of(a) - click_of(b))\n        results.append(min(apart, total - apart))\n    return results\n"
+      }
+    ]
+  },
+  {
+    "slug": "dial-lookup",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def dial_lookup(dial, target):\n    for i, value in enumerate(dial):\n        if value == target:\n            return i\n    return -1\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def dial_lookup(dial, target):\n    low, high = 0, len(dial) - 1\n    while low <= high:\n        middle = (low + high) // 2\n        if dial[middle] == target:\n            return middle\n        if dial[low] <= dial[middle]:\n            if dial[low] <= target < dial[middle]:\n                high = middle - 1\n            else:\n                low = middle + 1\n        elif dial[middle] < target <= dial[high]:\n            low = middle + 1\n        else:\n            high = middle - 1\n    return -1\n"
+      }
+    ]
+  },
+  {
+    "slug": "digit-power",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def digit_power(base, digits, modulus):\n    exponent = 0\n    for digit in digits:\n        exponent = exponent * 10 + digit\n    factor, result = base % modulus, 1 % modulus\n    for _ in range(exponent):\n        result = result * factor % modulus\n    return result\n",
+        "spaceComplexity": "O(D) for the arbitrary-precision exponent with D decimal digits",
+        "commonMistakes": [
+          "Skipping modular reduction, which creates needlessly large Python integers.",
+          "Starting the result at 1 when modulus is 1; use 1 % modulus.",
+          "Expecting arbitrary-precision integers to make the repeated-multiplication loop practical: its iteration count is the exponent itself."
+        ],
+        "approach": "Accumulate the decimal digits into a Python integer exponent. Starting from 1 % modulus, multiply by base % modulus exactly exponent times and reduce after every multiplication.",
+        "interviewExplanation": "Repeated multiplication implements exponentiation directly, and reducing after each step keeps the modular accumulator small. Python represents the exponent exactly, but this algorithm still performs e iterations. With up to 2000 exponent digits, it is useful only for tiny exponents; the issue is exponential running time rather than loss of integer precision."
+      },
+      {
+        "kind": "ALTERNATIVE",
+        "code": "def digit_power(base, digits, modulus):\n    exponent = 0\n    for digit in digits:\n        exponent = exponent * 10 + digit\n    factor, result = base % modulus, 1 % modulus\n    while exponent:\n        if exponent & 1:\n            result = result * factor % modulus\n        factor = factor * factor % modulus\n        exponent //= 2\n    return result\n",
+        "intuition": "Binary exponentiation needs only about log2(e) squarings. Python integers can hold the whole exponent exactly, although processing such a large integer still has a cost.",
+        "approach": "Accumulate the digits into an arbitrary-precision Python integer exponent. Repeatedly multiply the result by the current factor when the exponent is odd, square the factor, and halve the exponent with integer division.",
+        "pseudocode": "e = 0\nfor digit in digits: e = 10 * e + digit\nfactor = base % m; result = 1 % m\nwhile e > 0:\n  if e is odd: result = result * factor % m\n  factor = factor * factor % m\n  e //= 2",
+        "timeComplexity": "O(D²) in the exponent digit count: O(D) binary-exponentiation iterations each manipulate an integer with up to O(D) digits; decimal accumulation also fits this bound",
+        "spaceComplexity": "O(D) for the arbitrary-precision exponent",
+        "commonMistakes": [
+          "Converting the exponent through float, which loses exact integer digits.",
+          "Using / rather than // when halving the exponent.",
+          "Ignoring the cost of manipulating a large exponent even though the number of modular multiplications is logarithmic in its value."
+        ],
+        "interviewExplanation": "Python can represent the full exponent exactly, so square-and-multiply is correct: an odd exponent contributes the current factor, then I square the factor and halve the exponent. This uses O(D) space for a D-digit exponent and O(D²) work on that exponent. Processing decimal digits directly avoids building and repeatedly halving this large integer."
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def digit_power(base, digits, modulus):\n    def small_power(value, exponent):\n        result, factor = 1 % modulus, value % modulus\n        while exponent:\n            if exponent & 1:\n                result = result * factor % modulus\n            factor = factor * factor % modulus\n            exponent >>= 1\n        return result\n    result = 1 % modulus\n    for digit in digits:\n        result = small_power(result, 10) * small_power(base, digit) % modulus\n    return result\n",
+        "commonMistakes": [
+          "Converting the whole digit list to an integer first, which is unnecessary and introduces large-integer work.",
+          "Raising the base to the digit but forgetting to raise the previous result to the tenth power.",
+          "Skipping modular reduction, which creates unnecessarily large intermediate integers."
+        ],
+        "interviewExplanation": "Read the exponent left to right using x -> 10x + d. The identity base^(10x + d) = (base^x)^10 * base^d lets the accumulator represent the modular power for the digits read so far. Both small exponents are at most 10, so each digit needs only a constant number of modular multiplications. This takes O(D) time and O(1) auxiliary space for D digits, without constructing the full exponent. Reducing products modulo modulus keeps the intermediate values small."
+      }
+    ]
+  },
+  {
+    "slug": "dock-threshold",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def dock_threshold(capacities, load):\n    for i, capacity in enumerate(capacities):\n        if capacity >= load:\n            return i\n    return -1\n",
+        "commonMistakes": [
+          "Using capacity > load rather than capacity >= load, which skips an exact match.",
+          "Returning 0 or len(capacities) when no dock qualifies instead of -1."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def dock_threshold(capacities, load):\n    left, right = 0, len(capacities)\n    while left < right:\n        middle = (left + right) // 2\n        if capacities[middle] >= load:\n            right = middle\n        else:\n            left = middle + 1\n    return -1 if left == len(capacities) else left\n"
+      }
+    ]
+  },
+  {
+    "slug": "drop-nth-car",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def drop_nth_car(next, head, k):\n    order = []\n    while head != -1:\n        order.append(head)\n        head = next[head]\n    order.pop(len(order) - k)\n    return order\n",
+        "title": "List the order and remove the selected car"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def drop_nth_car(next, head, k):\n    links = next.copy()\n    lead = head\n    for _ in range(k):\n        lead = links[lead]\n    if lead == -1:\n        head = links[head]\n    else:\n        trail = head\n        while links[lead] != -1:\n            lead, trail = links[lead], links[trail]\n        links[trail] = links[links[trail]]\n    order = []\n    while head != -1:\n        order.append(head)\n        head = links[head]\n    return order\n"
+      }
+    ]
+  },
+  {
+    "slug": "dual-median",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def dual_median(first, second):\n    merged, i, j = [], 0, 0\n    while i < len(first) or j < len(second):\n        if j == len(second) or (i < len(first) and first[i] <= second[j]):\n            merged.append(first[i])\n            i += 1\n        else:\n            merged.append(second[j])\n            j += 1\n    middle = len(merged) // 2\n    return merged[middle] if len(merged) % 2 else (merged[middle - 1] + merged[middle]) / 2\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def dual_median(first, second):\n    a, b = (first, second) if len(first) <= len(second) else (second, first)\n    m, n = len(a), len(b)\n    half, low, high = (m + n + 1) // 2, 0, m\n    while low <= high:\n        i = (low + high) // 2\n        j = half - i\n        a_left = a[i - 1] if i else float('-inf')\n        a_right = a[i] if i < m else float('inf')\n        b_left = b[j - 1] if j else float('-inf')\n        b_right = b[j] if j < n else float('inf')\n        if a_left <= b_right and b_left <= a_right:\n            left_max = max(a_left, b_left)\n            return left_max if (m + n) % 2 else (left_max + min(a_right, b_right)) / 2\n        if a_left > b_right:\n            high = i - 1\n        else:\n            low = i + 1\n",
+        "commonMistakes": [
+          "Searching over the longer list, which can make the other partition index negative.",
+          "Forgetting float(\"inf\") and float(\"-inf\") boundary sentinels when a partition is at a list edge."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "elevation-ledger",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def elevation_ledger(benchmarks, statements):\n    links = [[] for _ in range(benchmarks)]\n    results = []\n    for a, b, difference in statements:\n        height_from_a, stack = {a: 0}, [a]\n        while stack:\n            at = stack.pop()\n            for other, delta in links[at]:\n                if other not in height_from_a:\n                    height_from_a[other] = height_from_a[at] + delta\n                    stack.append(other)\n        if b not in height_from_a:\n            links[a].append((b, -difference))\n            links[b].append((a, difference))\n            results.append('new')\n        else:\n            results.append('known' if height_from_a[b] == -difference else 'conflict')\n    return results\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def elevation_ledger(benchmarks, statements):\n    parent = list(range(benchmarks))\n    size, offset = [1] * benchmarks, [0] * benchmarks\n    def find(x):\n        path, root = [], x\n        while parent[root] != root:\n            path.append(root)\n            root = parent[root]\n        total = 0\n        for node in reversed(path):\n            total += offset[node]\n            offset[node], parent[node] = total, root\n        return root, offset[x] if x != root else 0\n    results = []\n    for a, b, difference in statements:\n        root_a, rise_a = find(a)\n        root_b, rise_b = find(b)\n        if root_a == root_b:\n            results.append('known' if rise_a - rise_b == difference else 'conflict')\n            continue\n        root_gap = difference - rise_a + rise_b\n        if size[root_a] <= size[root_b]:\n            parent[root_a], offset[root_a] = root_b, root_gap\n            size[root_b] += size[root_a]\n        else:\n            parent[root_b], offset[root_b] = root_a, -root_gap\n            size[root_a] += size[root_b]\n        results.append('new')\n    return results\n"
+      }
+    ]
+  },
+  {
+    "slug": "exact-flags",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def exact_flags(readings, k):\n    total = 0\n    for start in range(len(readings)):\n        flagged = 0\n        for end in range(start, len(readings)):\n            flagged += readings[end] % 2\n            if flagged == k:\n                total += 1\n    return total\n",
+        "commonMistakes": [
+          "Resetting the flagged count inside the end-index loop instead of once for each start.",
+          "Assuming Python remainder has the sign of the dividend: with the positive divisor 2, negative odd integers also satisfy value % 2 == 1."
+        ]
+      },
+      {
+        "kind": "ALTERNATIVE",
+        "code": "def exact_flags(readings, k):\n    seen = [0] * (len(readings) + 1)\n    seen[0] = 1\n    flagged = total = 0\n    for reading in readings:\n        flagged += reading % 2\n        if flagged >= k:\n            total += seen[flagged - k]\n        seen[flagged] += 1\n    return total\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def exact_flags(readings, k):\n    def at_most(limit):\n        if limit < 0:\n            return 0\n        left = flagged = stretches = 0\n        for right, reading in enumerate(readings):\n            flagged += reading % 2\n            while flagged > limit:\n                flagged -= readings[left] % 2\n                left += 1\n            stretches += right - left + 1\n        return stretches\n    return at_most(k) - at_most(k - 1)\n",
+        "commonMistakes": [
+          "Calling at_most(k - 1) when k is 0 without immediately returning 0 for a negative limit.",
+          "Counting only the longest window per right endpoint instead of all valid left endpoints.",
+          "Treating negative odd readings as unflagged. In Python, value % 2 is 1 for every odd integer, including negative values."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "fare-combinations",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def fare_combinations(coins, amount):\n    modulus = 1000000007\n    def count(index, remaining):\n        if remaining == 0:\n            return 1\n        if index == len(coins):\n            return 0\n        total = 0\n        for quantity in range(remaining // coins[index] + 1):\n            total = (total + count(index + 1, remaining - quantity * coins[index])) % modulus\n        return total\n    return count(0, amount)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def fare_combinations(coins, amount):\n    modulus = 1000000007\n    ways = [0] * (amount + 1)\n    ways[0] = 1\n    for coin in coins:\n        for total in range(coin, amount + 1):\n            ways[total] = (ways[total] + ways[total - coin]) % modulus\n    return ways[amount]\n"
+      }
+    ]
+  },
+  {
+    "slug": "fewest-tokens",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def fewest_tokens(tokens, amount):\n    def fewest(remaining):\n        if remaining == 0:\n            return 0\n        best = float('inf')\n        for token in tokens:\n            if token <= remaining:\n                best = min(best, 1 + fewest(remaining - token))\n        return best\n    result = fewest(amount)\n    return -1 if result == float('inf') else result\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def fewest_tokens(tokens, amount):\n    fewest = [float('inf')] * (amount + 1)\n    fewest[0] = 0\n    for value in range(1, amount + 1):\n        for token in tokens:\n            if token <= value:\n                fewest[value] = min(fewest[value], fewest[value - token] + 1)\n    return -1 if fewest[amount] == float('inf') else fewest[amount]\n"
+      }
+    ]
+  },
+  {
+    "slug": "first-redundant-link",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def first_redundant_link(stations, links):\n    adjacent = [[] for _ in range(stations)]\n    for a, b in links:\n        seen, stack = {a}, [a]\n        while stack:\n            station = stack.pop()\n            for neighbor in adjacent[station]:\n                if neighbor not in seen:\n                    seen.add(neighbor)\n                    stack.append(neighbor)\n        if b in seen:\n            return [a, b]\n        adjacent[a].append(b)\n        adjacent[b].append(a)\n    return []\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def first_redundant_link(stations, links):\n    parent, size = list(range(stations)), [1] * stations\n    def find(station):\n        while parent[station] != station:\n            parent[station] = parent[parent[station]]\n            station = parent[station]\n        return station\n    for a, b in links:\n        root_a, root_b = find(a), find(b)\n        if root_a == root_b:\n            return [a, b]\n        if size[root_a] < size[root_b]:\n            root_a, root_b = root_b, root_a\n        parent[root_b] = root_a\n        size[root_a] += size[root_b]\n    return []\n"
+      }
+    ]
+  },
+  {
+    "slug": "floodgate-path",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "from collections import deque\n\ndef floodgate_path(grid):\n    rows, cols = len(grid), len(grid[0])\n    levels = sorted({height for row in grid for height in row})\n    for level in levels:\n        if grid[0][0] > level:\n            continue\n        seen, queue = {(0, 0)}, deque([(0, 0)])\n        while queue:\n            r, c = queue.popleft()\n            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nr, nc = r + dr, c + dc\n                if (0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] <= level\n                        and (nr, nc) not in seen):\n                    seen.add((nr, nc))\n                    queue.append((nr, nc))\n        if (rows - 1, cols - 1) in seen:\n            return level\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from heapq import heappop, heappush\n\ndef floodgate_path(grid):\n    rows, cols = len(grid), len(grid[0])\n    best = [[float('inf')] * cols for _ in range(rows)]\n    best[0][0] = grid[0][0]\n    heap = [(grid[0][0], 0, 0)]\n    while heap:\n        level, r, c = heappop(heap)\n        if level > best[r][c]:\n            continue\n        if r == rows - 1 and c == cols - 1:\n            return level\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols:\n                candidate = max(level, grid[nr][nc])\n                if candidate < best[nr][nc]:\n                    best[nr][nc] = candidate\n                    heappush(heap, (candidate, nr, nc))\n"
+      }
+    ]
+  },
+  {
+    "slug": "floor-tracker",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def floor_tracker(operations):\n    stack, results = [], []\n    for op in operations:\n        if op[0] == 'push':\n            stack.append(op[1])\n        elif op[0] == 'pop':\n            results.append(stack.pop())\n        elif op[0] == 'top':\n            results.append(stack[-1])\n        else:\n            results.append(min(stack))\n    return results\n",
+        "approach": "Keep a Python list as the stack. For min, scan its current values with min(stack).",
+        "commonMistakes": [
+          "Producing an entry for push operations; only pop, top and min produce results.",
+          "Sorting the stack to find its minimum, which destroys stack order."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def floor_tracker(operations):\n    values, minimums, results = [], [], []\n    for op in operations:\n        if op[0] == 'push':\n            value = op[1]\n            values.append(value)\n            minimums.append(min(minimums[-1], value) if minimums else value)\n        elif op[0] == 'pop':\n            minimums.pop()\n            results.append(values.pop())\n        elif op[0] == 'top':\n            results.append(values[-1])\n        else:\n            results.append(minimums[-1])\n    return results\n",
+        "pseudocode": "push x: append x to values; append min(x, previous minimum) to minimums\npop: pop minimums; output values.pop()\ntop: output values[-1]\nmin: output minimums[-1]",
+        "interviewExplanation": "I keep a second list whose entry at each height is the minimum of everything at or below that height. Push appends min(x, previous minimum), pop removes from both lists, and min reads the last stored minimum. Each operation is O(1) amortized with Python lists. A more compact minimum stack can store only values at or below the current minimum; duplicates must be retained so popping one minimum does not lose the next equal minimum.",
+        "timeComplexity": "O(1) amortized per operation with Python lists"
+      }
+    ]
+  },
+  {
+    "slug": "fragile-links",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def fragile_links(hubs, links):\n    def clusters(skip):\n        parent, size = list(range(hubs)), [1] * hubs\n        count = hubs\n        def find(node):\n            while parent[node] != node:\n                parent[node] = parent[parent[node]]\n                node = parent[node]\n            return node\n        for edge, (a, b) in enumerate(links):\n            if edge == skip:\n                continue\n            ra, rb = find(a), find(b)\n            if ra != rb:\n                if size[ra] < size[rb]:\n                    ra, rb = rb, ra\n                parent[rb] = ra\n                size[ra] += size[rb]\n                count -= 1\n        return count\n    base = clusters(-1)\n    return sorted([min(a, b), max(a, b)] for edge, (a, b) in enumerate(links)\n                  if clusters(edge) > base)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def fragile_links(hubs, links):\n    adjacent = [[] for _ in range(hubs)]\n    for edge, (a, b) in enumerate(links):\n        adjacent[a].append((b, edge))\n        adjacent[b].append((a, edge))\n    order, low = [-1] * hubs, [0] * hubs\n    bridges, clock = [], 0\n    def dfs(node, via):\n        nonlocal clock\n        order[node] = low[node] = clock\n        clock += 1\n        for other, edge in adjacent[node]:\n            if edge == via:\n                continue\n            if order[other] == -1:\n                dfs(other, edge)\n                low[node] = min(low[node], low[other])\n                if low[other] > order[node]:\n                    bridges.append([min(node, other), max(node, other)])\n            else:\n                low[node] = min(low[node], order[other])\n    for hub in range(hubs):\n        if order[hub] == -1:\n            dfs(hub, -1)\n    return sorted(bridges)\n"
+      }
+    ]
+  },
+  {
+    "slug": "fuel-stretch",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def fuel_stretch(fuel, target):\n    best = 0\n    for start in range(len(fuel)):\n        total = 0\n        for end in range(start, len(fuel)):\n            total += fuel[end]\n            if total >= target:\n                if best == 0 or end - start + 1 < best:\n                    best = end - start + 1\n                break\n    return best\n",
+        "commonMistakes": [
+          "Not breaking after the first success, which wastes time without changing the answer.",
+          "Initializing best to 0 and always taking min(best, length), which leaves the answer at 0. Treat 0 as a special no-answer sentinel."
+        ]
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def fuel_stretch(fuel, target):\n    best, total, left = float('inf'), 0, 0\n    for right, value in enumerate(fuel):\n        total += value\n        while total >= target:\n            best = min(best, right - left + 1)\n            total -= fuel[left]\n            left += 1\n    return 0 if best == float('inf') else best\n"
+      }
+    ]
+  },
+  {
+    "slug": "glyph-order",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def glyph_order(words):\n    before = []\n    for x in range(len(words)):\n        for y in range(x + 1, len(words)):\n            a, b = words[x], words[y]\n            i = 0\n            while i < min(len(a), len(b)) and a[i] == b[i]:\n                i += 1\n            if i == min(len(a), len(b)):\n                if len(a) > len(b):\n                    return ''\n            else:\n                before.append((a[i], b[i]))\n    remaining = set(''.join(words))\n    order = []\n    while remaining:\n        free = sorted(g for g in remaining\n                      if not any(q == g and p in remaining for p, q in before))\n        if not free:\n            return ''\n        order.append(free[0])\n        remaining.remove(free[0])\n    return ''.join(order)\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def glyph_order(words):\n    glyphs = set(''.join(words))\n    after = {glyph: set() for glyph in glyphs}\n    indegree = {glyph: 0 for glyph in glyphs}\n    for a, b in zip(words, words[1:]):\n        i = 0\n        while i < min(len(a), len(b)) and a[i] == b[i]:\n            i += 1\n        if i == min(len(a), len(b)):\n            if len(a) > len(b):\n                return ''\n        elif b[i] not in after[a[i]]:\n            after[a[i]].add(b[i])\n            indegree[b[i]] += 1\n    ready = sorted(glyph for glyph in glyphs if indegree[glyph] == 0)\n    order = []\n    while ready:\n        glyph = ready.pop(0)\n        order.append(glyph)\n        for following in after[glyph]:\n            indegree[following] -= 1\n            if indegree[following] == 0:\n                ready.append(following)\n                ready.sort()\n    return ''.join(order) if len(order) == len(glyphs) else ''\n"
+      }
+    ]
+  },
+  {
+    "slug": "grid-rescue-hops",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def grid_rescue_hops(grid):\n    rows, cols = len(grid), len(grid[0])\n    distance = [[float('inf')] * cols for _ in range(rows)]\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 'S':\n                distance[r][c] = 0\n            elif grid[r][c] == 'T':\n                target = (r, c)\n    changed = True\n    while changed:\n        changed = False\n        for r in range(rows):\n            for c in range(cols):\n                if grid[r][c] == '#':\n                    continue\n                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nr, nc = r + dr, c + dc\n                    if 0 <= nr < rows and 0 <= nc < cols and distance[nr][nc] + 1 < distance[r][c]:\n                        distance[r][c] = distance[nr][nc] + 1\n                        changed = True\n    best = distance[target[0]][target[1]]\n    return -1 if best == float('inf') else best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "from collections import deque\n\ndef grid_rescue_hops(grid):\n    rows, cols = len(grid), len(grid[0])\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 'S':\n                start = (r, c)\n    distance, queue = {start: 0}, deque([start])\n    while queue:\n        r, c = queue.popleft()\n        if grid[r][c] == 'T':\n            return distance[(r, c)]\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] != '#' and (nr, nc) not in distance:\n                distance[(nr, nc)] = distance[(r, c)] + 1\n                queue.append((nr, nc))\n    return -1\n"
+      }
+    ]
+  },
+  {
+    "slug": "grid-turn",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def grid_turn(matrix):\n    n = len(matrix)\n    return [[matrix[n - 1 - c][r] for c in range(n)] for r in range(n)]\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def grid_turn(matrix):\n    result = [row.copy() for row in matrix]\n    for r in range(len(result)):\n        for c in range(r + 1, len(result)):\n            result[r][c], result[c][r] = result[c][r], result[r][c]\n    for row in result:\n        row.reverse()\n    return result\n"
+      }
+    ]
+  },
+  {
+    "slug": "grove-harvest",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def grove_harvest(tree):\n\n    if not tree:\n        return 0\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    best = 0\n    for root in range(len(values)):\n        walked, stack, at = [], [], root\n        while at != -1 or stack:\n            while at != -1:\n                stack.append(at)\n                at = left[at]\n            at = stack.pop()\n            walked.append(values[at])\n            at = right[at]\n        if all(walked[i - 1] < walked[i] for i in range(1, len(walked))):\n            best = max(best, sum(walked))\n    return best\n"
+      },
+      {
+        "kind": "ALTERNATIVE",
+        "code": "def grove_harvest(tree):\n\n    if not tree:\n        return 0\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    n = len(values)\n    ordered, total, low, high = [False] * n, [0] * n, [0] * n, [0] * n\n    best = 0\n    for node in range(n - 1, -1, -1):\n        a, b = left[node], right[node]\n        left_ok = a == -1 or (ordered[a] and high[a] < values[node])\n        right_ok = b == -1 or (ordered[b] and low[b] > values[node])\n        if not left_ok or not right_ok:\n            continue\n        ordered[node] = True\n        total[node] = values[node] + (total[a] if a != -1 else 0) + (total[b] if b != -1 else 0)\n        low[node] = low[a] if a != -1 else values[node]\n        high[node] = high[b] if b != -1 else values[node]\n        best = max(best, total[node])\n    return best\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def grove_harvest(tree):\n\n    if not tree:\n        return 0\n    values, left, right = [tree[0]], [-1], [-1]\n    index = 1\n    node = 0\n    while node < len(values) and index < len(tree):\n        for children in (left, right):\n            if index < len(tree):\n                entry = tree[index]\n                index += 1\n                if entry is not None:\n                    children[node] = len(values)\n                    values.append(entry)\n                    left.append(-1)\n                    right.append(-1)\n        node += 1\n\n    best = 0\n    def visit(node):\n        nonlocal best\n        if node == -1:\n            return True, 0, float('inf'), float('-inf')\n        a_ok, a_total, a_low, a_high = visit(left[node])\n        b_ok, b_total, b_low, b_high = visit(right[node])\n        if not a_ok or not b_ok or a_high >= values[node] or b_low <= values[node]:\n            return False, 0, float('-inf'), float('inf')\n        total = a_total + b_total + values[node]\n        best = max(best, total)\n        return True, total, min(a_low, values[node]), max(b_high, values[node])\n    visit(0)\n    return best\n"
+      }
+    ]
+  },
+  {
+    "slug": "gutter-capacity",
+    "solutions": [
+      {
+        "kind": "BRUTE_FORCE",
+        "code": "def gutter_capacity(heights):\n    water = 0\n    for i in range(len(heights)):\n        left_wall = right_wall = 0\n        for j in range(i + 1):\n            left_wall = max(left_wall, heights[j])\n        for j in range(i, len(heights)):\n            right_wall = max(right_wall, heights[j])\n        water += min(left_wall, right_wall) - heights[i]\n    return water\n"
+      },
+      {
+        "kind": "BETTER",
+        "code": "def gutter_capacity(heights):\n    n = len(heights)\n    left_wall, right_wall = [0] * n, [0] * n\n    for i in range(n):\n        left_wall[i] = max(left_wall[i - 1] if i else 0, heights[i])\n    for i in range(n - 1, -1, -1):\n        right_wall[i] = max(right_wall[i + 1] if i + 1 < n else 0, heights[i])\n    return sum(min(left_wall[i], right_wall[i]) - heights[i] for i in range(n))\n"
+      },
+      {
+        "kind": "OPTIMAL",
+        "code": "def gutter_capacity(heights):\n    left, right = 0, len(heights) - 1\n    left_wall = right_wall = water = 0\n    while left < right:\n        if heights[left] < heights[right]:\n            left_wall = max(left_wall, heights[left])\n            water += left_wall - heights[left]\n            left += 1\n        else:\n            right_wall = max(right_wall, heights[right])\n            water += right_wall - heights[right]\n            right -= 1\n    return water\n"
+      }
+    ]
+  }
+]
