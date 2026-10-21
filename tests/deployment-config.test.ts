@@ -27,10 +27,21 @@ describe("redacted deployment readiness checks", () => {
     expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "sandbox" })).toEqual([]);
     expect(deploymentIssues({ ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "other" }).join()).toContain("judge0 or sandbox");
   });
-  it("rejects Python activation until the live process-limit failure is repaired", () => {
+  it("accepts only the explicit Python provider with the enabled sandbox runner", () => {
     const runner = { ...valid, CODE_RUNNER_ENABLED: "true", CODE_RUNNER_PROVIDER: "sandbox" };
-    expect(deploymentIssues({ ...runner, PYTHON_RUNNER: "vercel-sandbox" }).join()).toContain("live process-limit probe failed");
-    expect(deploymentIssues({ ...valid, PYTHON_RUNNER: "vercel-sandbox" }).join()).toContain("leave unset");
-    for (const PYTHON_RUNNER of ["true", "Vercel-Sandbox", "judge0"]) expect(deploymentIssues({ ...runner, PYTHON_RUNNER }).join()).toContain("PYTHON_RUNNER");
+    expect(deploymentIssues({ ...runner, PYTHON_RUNNER: "vercel-sandbox" })).toEqual([]);
+    expect(deploymentIssues({ ...runner, PYTHON_RUNNER: "" })).toEqual([]);
+    for (const PYTHON_RUNNER of ["true", "Vercel-Sandbox", "vercel_sandbox", "judge0", "vercel-sandbox "]) {
+      expect(deploymentIssues({ ...runner, PYTHON_RUNNER }).join()).toContain("PYTHON_RUNNER");
+    }
+    for (const config of [
+      valid,
+      { ...runner, CODE_RUNNER_ENABLED: undefined },
+      { ...runner, CODE_RUNNER_ENABLED: "false" },
+      { ...runner, CODE_RUNNER_ENABLED: "TRUE" },
+      { ...runner, CODE_RUNNER_PROVIDER: undefined },
+      { ...runner, CODE_RUNNER_PROVIDER: "judge0" },
+      { ...runner, CODE_RUNNER_PROVIDER: "Sandbox" },
+    ]) expect(deploymentIssues({ ...config, PYTHON_RUNNER: "vercel-sandbox" }).join()).toContain("requires CODE_RUNNER_ENABLED=true and CODE_RUNNER_PROVIDER=sandbox");
   });
 });

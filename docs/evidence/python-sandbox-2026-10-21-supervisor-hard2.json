@@ -1,0 +1,109 @@
+{
+  "image": "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa",
+  "supervisorSha256": "4a10ba29ffcdcb844161ecfe3ca9fb001fb598f266aec8fb9135cefaff2de6b9",
+  "bootstrapSha256": "aecd162c3da1250625b9f3ecc32d79a1eba70b3ecedddb3edabf580b3c7362a6",
+  "executorSha256": "b2f72d6d7def8000a3d064b404192527a7132c00d298e635170f97b613a9af45",
+  "ids": [
+    "apricot-happy-skunk-DnvfJU",
+    "green-noisy-buzzard-mwCX93",
+    "pink-abundant-gull-z2MhRy"
+  ],
+  "phases": [
+    {
+      "name": "apricot-happy-skunk-DnvfJU",
+      "createMs": 736.7434589999998,
+      "writeMs": 130.0610829999996,
+      "commandCreateMs": 180.1125830000001,
+      "providerExitCode": 0,
+      "waitAfterHandleMs": 196.8615830000008,
+      "accounting": {
+        "version": 1,
+        "exitCode": 0,
+        "signal": null,
+        "cpuMs": 39.703,
+        "maxRssKb": 13184
+      },
+      "stopMs": 1153.5380410000007
+    },
+    {
+      "name": "green-noisy-buzzard-mwCX93",
+      "createMs": 191.8558750000002,
+      "writeMs": 133.15487500000017,
+      "commandCreateMs": 199.78062499999942,
+      "providerExitCode": 0,
+      "waitAfterHandleMs": 1500.3016249999991,
+      "accounting": {
+        "version": 1,
+        "exitCode": 0,
+        "signal": null,
+        "cpuMs": 828.0039999999999,
+        "maxRssKb": 13204
+      },
+      "stopMs": 1143.1747919999998
+    },
+    {
+      "name": "pink-abundant-gull-z2MhRy",
+      "createMs": 168.06654200000048,
+      "writeMs": 127.07587499999863,
+      "commandCreateMs": 96.56483300000036,
+      "providerExitCode": 137,
+      "waitAfterHandleMs": 2547.851333999999,
+      "accounting": {
+        "version": 1,
+        "exitCode": null,
+        "signal": 9,
+        "cpuMs": 1666.211,
+        "maxRssKb": 12992
+      },
+      "stopMs": 1136.6863750000011
+    }
+  ],
+  "results": [
+    {
+      "targetCpuSeconds": 0,
+      "elapsedMs": 2483.781417,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "42\n",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.029396397, \"monotonic\": 8.471561669, \"target\": 0}\n{\"stage\": \"done\", \"cpuDelta\": 0.003561749999999999, \"wallDelta\": 0.0034026980000003704}\n",
+        "runtimeMs": 40,
+        "memoryKb": 13184
+      }
+    },
+    {
+      "targetCpuSeconds": 0.8,
+      "elapsedMs": 3244.1299580000004,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "42\n",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.022506837, \"monotonic\": 9.541648737, \"target\": 0.8}\n{\"stage\": \"done\", \"cpuDelta\": 0.800251425, \"wallDelta\": 1.3703607710000014}\n",
+        "runtimeMs": 829,
+        "memoryKb": 13204
+      }
+    },
+    {
+      "targetCpuSeconds": 1.8,
+      "elapsedMs": 4166.455917000001,
+      "run": {
+        "kind": "unavailable",
+        "diagnostic": "Python execution is temporarily unavailable. Please try again in a moment."
+      }
+    }
+  ],
+  "finalStates": [
+    {
+      "name": "apricot-happy-skunk-DnvfJU",
+      "status": "stopped"
+    },
+    {
+      "name": "green-noisy-buzzard-mwCX93",
+      "status": "stopped"
+    },
+    {
+      "name": "pink-abundant-gull-z2MhRy",
+      "status": "stopped"
+    }
+  ]
+}

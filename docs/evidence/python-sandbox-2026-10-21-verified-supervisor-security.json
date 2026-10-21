@@ -1,0 +1,179 @@
+{
+  "image": "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa",
+  "supervisorSha256": "4a10ba29ffcdcb844161ecfe3ca9fb001fb598f266aec8fb9135cefaff2de6b9",
+  "bootstrapSha256": "aecd162c3da1250625b9f3ecc32d79a1eba70b3ecedddb3edabf580b3c7362a6",
+  "executorSha256": "f24832929fb5f6a7fcfcbbe1ad6ad304a2b44bf5c7b5f3153d9850fa6ce773d3",
+  "ids": [
+    "beige-informal-swordfish-LLSxrG",
+    "gold-positive-eagle-wSxqeK",
+    "maroon-full-tern-wRivgH",
+    "coral-stiff-eel-ACf1Qb",
+    "tomato-accessible-turkey-TKWjRt"
+  ],
+  "results": [
+    {
+      "name": "ignore-sigxcpu",
+      "elapsedMs": 5222,
+      "run": {
+        "kind": "time-limit",
+        "stdout": "",
+        "stderr": "",
+        "runtimeMs": 2764,
+        "memoryKb": 11900
+      },
+      "outcome": {
+        "stdout": "",
+        "diagnostic": "Execution exceeded 2000 ms.",
+        "runtimeMs": 2764,
+        "memoryKb": 11900,
+        "status": "TIME_LIMIT"
+      }
+    },
+    {
+      "name": "overbudget-normal-return",
+      "elapsedMs": 4552,
+      "run": {
+        "kind": "time-limit",
+        "stdout": "true\n",
+        "stderr": "",
+        "runtimeMs": 2229,
+        "memoryKb": 13116
+      },
+      "outcome": {
+        "stdout": "true\n",
+        "diagnostic": "Execution exceeded 2000 ms.",
+        "runtimeMs": 2229,
+        "memoryKb": 13116,
+        "status": "TIME_LIMIT"
+      }
+    },
+    {
+      "name": "normal-exit137",
+      "elapsedMs": 1798,
+      "run": {
+        "kind": "exited",
+        "exitCode": 137,
+        "stdout": "",
+        "stderr": "",
+        "runtimeMs": 22,
+        "memoryKb": 11612
+      },
+      "outcome": {
+        "stdout": "",
+        "diagnostic": "The program exited with code 137.",
+        "runtimeMs": 22,
+        "memoryKb": 11612,
+        "status": "RUNTIME_ERROR"
+      }
+    },
+    {
+      "name": "self-sigkill-low-cpu",
+      "elapsedMs": 1807,
+      "run": {
+        "kind": "unavailable",
+        "diagnostic": "Python execution is temporarily unavailable. Please try again in a moment."
+      },
+      "outcome": {
+        "status": "INTERNAL_ERROR",
+        "stdout": "",
+        "diagnostic": "Python execution is temporarily unavailable. Please try again in a moment.",
+        "runtimeMs": null,
+        "memoryKb": null
+      }
+    },
+    {
+      "name": "root-parent-metadata-protection",
+      "elapsedMs": 2063,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "true\n",
+        "stderr": "",
+        "runtimeMs": 33,
+        "memoryKb": 13256
+      },
+      "outcome": {
+        "stdout": "true\n",
+        "diagnostic": "",
+        "runtimeMs": 33,
+        "memoryKb": 13256,
+        "status": "ACCEPTED"
+      }
+    }
+  ],
+  "metadata": [
+    {
+      "name": "beige-informal-swordfish-LLSxrG",
+      "usage": {
+        "version": 1,
+        "exitCode": null,
+        "signal": 9,
+        "cpuMs": 2763.3179999999998,
+        "maxRssKb": 11900
+      }
+    },
+    {
+      "name": "gold-positive-eagle-wSxqeK",
+      "usage": {
+        "version": 1,
+        "exitCode": 0,
+        "signal": null,
+        "cpuMs": 2228.8949999999995,
+        "maxRssKb": 13116
+      }
+    },
+    {
+      "name": "maroon-full-tern-wRivgH",
+      "usage": {
+        "version": 1,
+        "exitCode": 137,
+        "signal": null,
+        "cpuMs": 21.613,
+        "maxRssKb": 11612
+      }
+    },
+    {
+      "name": "coral-stiff-eel-ACf1Qb",
+      "usage": {
+        "version": 1,
+        "exitCode": null,
+        "signal": 9,
+        "cpuMs": 20.819999999999997,
+        "maxRssKb": 11972
+      }
+    },
+    {
+      "name": "tomato-accessible-turkey-TKWjRt",
+      "usage": {
+        "version": 1,
+        "exitCode": 0,
+        "signal": null,
+        "cpuMs": 32.782,
+        "maxRssKb": 13256
+      }
+    }
+  ],
+  "states": [
+    {
+      "name": "beige-informal-swordfish-LLSxrG",
+      "status": "stopped"
+    },
+    {
+      "name": "gold-positive-eagle-wSxqeK",
+      "status": "stopped"
+    },
+    {
+      "name": "maroon-full-tern-wRivgH",
+      "status": "stopped"
+    },
+    {
+      "name": "coral-stiff-eel-ACf1Qb",
+      "status": "stopped"
+    },
+    {
+      "name": "tomato-accessible-turkey-TKWjRt",
+      "status": "stopped"
+    }
+  ],
+  "cleanupVerified": true
+}

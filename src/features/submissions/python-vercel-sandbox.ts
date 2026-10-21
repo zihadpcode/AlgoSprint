@@ -1,6 +1,7 @@
 import "server-only";
 import { Sandbox } from "@vercel/sandbox";
 import { RUNNER_LIMITS } from "./limits";
+import { PYTHON_SUPERVISOR, PYTHON_USAGE_PATH, parsePythonUsage, type PythonUsage } from "./python-supervisor";
 import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-runner";
 
 // Runs learner Python in Vercel Sandbox, a managed Firecracker microVM, instead of anything inside the Next.js process.
@@ -8,19 +9,23 @@ import type { PythonCaseRequest, PythonCaseRun, PythonExecutor } from "./python-
 // Isolation choices (see docs/PYTHON-RUNNER.md):
 // - One brand-new VM per test case, never reused: nothing a program leaves behind can reach another case or another user.
 // - networkPolicy "deny-all", no ports, nothing mounted, no credentials or environment passed in, persistent: false.
-// - The program runs as the VM's unprivileged user (no sudo), under rlimits set by a trusted bootstrap before any learner code.
+// - The learner's program runs as uid/gid 65534 with no capabilities, no supplementary groups, no_new_privs and rlimits set
+//   by a trusted bootstrap that runs as root and proves the drop before any learner code (see PYTHON_BOOTSTRAP). The image's
+//   own default user is NOT a boundary: it has every capability and passwordless sudo.
 // - Host side: one hard deadline for the whole run, a wall-clock deadline per case, output consumed through a bounded
 //   collector (never through SDK-accumulated streams), the command killed and the VM stopped in `finally`. The provider-side
 //   `timeout` is only a backstop if stop() fails.
 // The expected outputs never enter the VM; the application compares the program's stdout itself.
 //
-// What is NOT claimed: rlimits are per process. The bootstrap attempts to forbid new processes and threads (see below).
-// A trusted live probe allowed fork despite NPROC=0: do not activate this executor until an aggregate boundary is verified.
-// The VM itself (one vCPU, 2 GiB, 30 s TTL, no network) bounds the damage of anything that slips through.
+// What is NOT claimed: peak memory is not measured, and nothing here stops a program that does something the VM allows an
+// ordinary user to do (burn its CPU and memory budget, fill its own writable directory). The VM (one vCPU, 2 GiB, no network,
+// no secrets, 30 s TTL, killed from the host) bounds all of that. Re-verify live whenever the image or the bootstrap changes.
 
-export const PYTHON_SANDBOX_IMAGE = "vercel/sandbox/python:3.14";
+export const PYTHON_SANDBOX_IMAGE = "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa";
 export const PYTHON_SANDBOX_UNAVAILABLE = "Python execution is temporarily unavailable. Please try again in a moment.";
-export const PYTHON_BUDGET_EXHAUSTED = "The submission exceeded the total execution budget.";
+// Running out of the whole-run budget means the platform was slow (VM start-up, a busy instance), not that the learner's code
+// was; it is never reported as a time limit.
+export const PYTHON_BUDGET_EXHAUSTED = "Python execution did not finish within the time budget. Please try again.";
 
 // Absolute, so the bootstrap and the working directory do not depend on where the SDK starts a command.
 export const PYTHON_RUN_DIR = "/vercel/sandbox";
@@ -39,36 +44,82 @@ const STARTUP_GRACE_MS = 600;
 const DRAIN_MS = 1500;
 const CLEANUP_TIMEOUT_MS = 2000;
 const VM_TTL_MS = 30_000;
-const MEMORY_HEADROOM_BYTES = 32 * 1024 * 1024;
-const ADDRESS_SPACE_HEADROOM_BYTES = 512 * 1024 * 1024;
 
-// Trusted bootstrap. Lowers the limits first (hard limits cannot be raised again without privilege), then runs the generated
-// program with stdin pointed at the case input. Learner code only ever reaches Python as text inside program.py.
-// Reject root and irreversibly disable privilege gains across exec before learner code. NPROC=0 avoids relying on a racy
-// snapshot of /proc, but the live fork-denial probe failed; it is not a verified aggregate boundary in the managed image.
+// Trusted bootstrap. In the Sandbox image the "vercel-sandbox" user is not a privilege boundary: it holds every Linux
+// capability (so it is exempt from RLIMIT_NPROC and can raise any rlimit) and has passwordless sudo. Limits set by that user
+// would therefore bind nothing. So the bootstrap runs as root (the command is started with sudo), reads the files it needs,
+// sets the limits, sets no_new_privs, and then becomes uid/gid 65534 with no supplementary groups and no capabilities. It
+// proves the drop worked (setuid(0) must fail, every capability set must be empty) and exits with
+// PYTHON_EXIT_SANDBOX_SETUP before running any learner code if anything is off; learner code never runs as root. As an
+// ordinary user the program cannot raise its limits, start a process (RLIMIT_NPROC is 1) or become root again.
+export const PYTHON_EXIT_SANDBOX_SETUP = 70;
+export const PYTHON_SETUP_MARKER = "AS_SANDBOX_SETUP_FAILED";
+export const PYTHON_UNPRIVILEGED_UID = 65534;
 export const PYTHON_BOOTSTRAP = String.raw`
 import ctypes, os, resource, sys
-if os.getuid() == 0 or os.geteuid() == 0:
-    raise RuntimeError("Python bootstrap requires an unprivileged user")
-libc = ctypes.CDLL(None, use_errno=True)
-PR_SET_NO_NEW_PRIVS, PR_GET_NO_NEW_PRIVS = 38, 39
-if libc.prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) != 0 or libc.prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) != 1:
-    raise RuntimeError("Python bootstrap cannot disable privilege gains")
-here = os.path.dirname(os.path.abspath(__file__))
-cpu_seconds, memory_bytes = int(sys.argv[1]), int(sys.argv[2])
-def cap(kind, soft, hard=None):
-    resource.setrlimit(kind, (soft, soft if hard is None else hard))
-cap(resource.RLIMIT_NPROC, 0)
-cap(resource.RLIMIT_CORE, 0)
-cap(resource.RLIMIT_FSIZE, 1 << 20)
-cap(resource.RLIMIT_NOFILE, 32)
-cap(resource.RLIMIT_CPU, cpu_seconds, cpu_seconds + 1)
-cap(resource.RLIMIT_DATA, memory_bytes)
-cap(resource.RLIMIT_AS, memory_bytes + ${ADDRESS_SPACE_HEADROOM_BYTES - MEMORY_HEADROOM_BYTES})
-sys.stdin = open(os.path.join(here, "input.json"), "r", encoding="utf-8")
-with open(os.path.join(here, "program.py"), "r", encoding="utf-8") as handle:
-    text = handle.read()
-exec(compile(text, "program.py", "exec"), {"__name__": "__main__"})
+def refuse(why):
+    sys.stderr.write("${PYTHON_SETUP_MARKER} " + why + "\n"); sys.stderr.flush(); os._exit(${PYTHON_EXIT_SANDBOX_SETUP})
+try:
+    here = os.path.dirname(os.path.abspath(__file__))
+    cpu_seconds, memory_bytes = int(sys.argv[1]), int(sys.argv[2])
+    if os.getuid() != 0: refuse("not started as root")
+    with open(os.path.join(here, "program.py"), "r", encoding="utf-8") as handle: text = handle.read()
+    stdin_file = open(os.path.join(here, "input.json"), "r", encoding="utf-8")
+    def cap(kind, soft, hard=None): resource.setrlimit(kind, (soft, soft if hard is None else hard))
+    cap(resource.RLIMIT_NPROC, 1)
+    cap(resource.RLIMIT_CORE, 0)
+    cap(resource.RLIMIT_FSIZE, 1 << 20)
+    cap(resource.RLIMIT_NOFILE, 32)
+    cap(resource.RLIMIT_CPU, cpu_seconds)
+    cap(resource.RLIMIT_DATA, memory_bytes)
+    cap(resource.RLIMIT_AS, memory_bytes)
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(38, 1, 0, 0, 0) != 0 or libc.prctl(39, 0, 0, 0, 0) != 1: refuse("no_new_privs")
+    # setuid() empties the permitted, effective and ambient sets but leaves the inheritable one, so clear that explicitly
+    # (capset), and empty the bounding set so nothing can be acquired again. capget/capset numbers differ by architecture.
+    numbers = {"x86_64": (125, 126), "aarch64": (90, 91)}.get(os.uname().machine)
+    if numbers is None: refuse("architecture " + os.uname().machine)
+    # The kernel, not NPROC/user-namespace accounting, enforces a single process/thread. Filters persist across exec and
+    # can only be made stricter. Check the syscall ABI first: compat int80 and x32 must not bypass native syscall numbers.
+    audit_arch, denied = {"x86_64": (0xc000003e, (56, 57, 58, 272, 308, 435)),
+                          "aarch64": (0xc00000b7, (220, 97, 268, 435))}[os.uname().machine]
+    class Filter(ctypes.Structure): _fields_ = [("code", ctypes.c_ushort), ("jt", ctypes.c_ubyte), ("jf", ctypes.c_ubyte), ("k", ctypes.c_uint32)]
+    class Policy(ctypes.Structure): _fields_ = [("len", ctypes.c_ushort), ("filter", ctypes.POINTER(Filter))]
+    def filter_count():
+        with open("/proc/self/status") as status:
+            return int(dict(line.split(":", 1) for line in status)["Seccomp_filters"].strip())
+    before_filters = filter_count()
+    rules = [(0x20, 0, 0, 4), (0x15, 1, 0, audit_arch), (0x06, 0, 0, 0x80000000),
+             (0x20, 0, 0, 0), (0x35, 0, 1, 0x40000000), (0x06, 0, 0, 0x00050001)]
+    for number in denied: rules.extend(((0x15, 0, 1, number), (0x06, 0, 0, 0x00050001)))
+    rules.append((0x06, 0, 0, 0x7fff0000))
+    instructions = (Filter * len(rules))(*(Filter(*rule) for rule in rules))
+    policy = Policy(len(rules), instructions)
+    if libc.prctl(22, 2, ctypes.byref(policy), 0, 0) != 0: refuse("seccomp install")
+    if libc.prctl(21, 0, 0, 0, 0) != 2 or filter_count() <= before_filters: refuse("seccomp readback")
+    class Header(ctypes.Structure): _fields_ = [("version", ctypes.c_uint32), ("pid", ctypes.c_int)]
+    class Data(ctypes.Structure): _fields_ = [("effective", ctypes.c_uint32), ("permitted", ctypes.c_uint32), ("inheritable", ctypes.c_uint32)]
+    header, data = Header(0x20080522, 0), (Data * 2)()
+    if libc.syscall(numbers[0], ctypes.byref(header), data) != 0: refuse("capget")
+    for part in data: part.inheritable = 0
+    if libc.syscall(numbers[1], ctypes.byref(header), data) != 0: refuse("capset")
+    for capability in range(64): libc.prctl(24, capability, 0, 0, 0)
+    os.setgroups([]); os.setgid(${PYTHON_UNPRIVILEGED_UID}); os.setuid(${PYTHON_UNPRIVILEGED_UID})
+    try:
+        os.setuid(0); refuse("setuid(0) succeeded")
+    except PermissionError: pass
+    if (os.getuid(), os.geteuid(), os.getgid(), os.getegid(), os.getgroups()) != (${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, ${PYTHON_UNPRIVILEGED_UID}, []): refuse("identity")
+    if os.getresuid() != (${PYTHON_UNPRIVILEGED_UID},) * 3 or os.getresgid() != (${PYTHON_UNPRIVILEGED_UID},) * 3: refuse("saved identity")
+    if libc.prctl(39, 0, 0, 0, 0) != 1: refuse("no_new_privs readback")
+    if libc.prctl(21, 0, 0, 0, 0) != 2 or filter_count() <= before_filters: refuse("seccomp readback")
+    with open("/proc/self/status") as status:
+        for line in status:
+            if line.startswith(("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb")) and int(line.split()[1], 16) != 0: refuse(line.strip())
+    sys.stdin = stdin_file
+    program = compile(text, "program.py", "exec")
+except SystemExit: raise
+except BaseException as error: refuse(type(error).__name__)
+exec(program, {"__name__": "__main__"})
 `;
 
 type Log = { stream: "stdout" | "stderr"; data: string };
@@ -81,7 +132,8 @@ export type CommandHandle = {
 };
 export type SandboxHandle = {
   writeFiles(files: { path: string; content: Buffer }[], options?: { signal?: AbortSignal }): Promise<void>;
-  runCommand(options: { cmd: string; args: string[]; cwd: string; detached: true; timeoutMs: number; signal?: AbortSignal }): Promise<CommandHandle>;
+  readFileToBuffer(file: { path: string }, options?: { signal?: AbortSignal }): Promise<Buffer | null>;
+  runCommand(options: { cmd: string; args: string[]; cwd: string; sudo: true; detached: true; timeoutMs: number; signal?: AbortSignal }): Promise<CommandHandle>;
   stop(options?: { signal?: AbortSignal }): Promise<unknown>;
 };
 export type SandboxFactory = (signal: AbortSignal) => Promise<SandboxHandle>;
@@ -90,6 +142,7 @@ export type SandboxFactory = (signal: AbortSignal) => Promise<SandboxHandle>;
 function adapt(sandbox: Sandbox): SandboxHandle {
   return {
     writeFiles: (files, options) => sandbox.writeFiles(files, options),
+    readFileToBuffer: (file, options) => sandbox.readFileToBuffer(file, options),
     runCommand: (options) => sandbox.runCommand({ ...options, detached: true }),
     stop: (options) => sandbox.stop(options),
   };
@@ -138,9 +191,13 @@ class Gate {
 }
 
 const unavailable = (): PythonCaseRun => ({ kind: "unavailable", diagnostic: PYTHON_SANDBOX_UNAVAILABLE });
-const budgetExhausted = (): PythonCaseRun => ({ kind: "time-limit", stdout: "", stderr: PYTHON_BUDGET_EXHAUSTED, runtimeMs: null, memoryKb: null });
-const SIGXCPU_EXIT = 128 + 24;
-const SIGKILL_EXIT = 128 + 9;
+const budgetExhausted = (): PythonCaseRun => ({ kind: "unavailable", diagnostic: PYTHON_BUDGET_EXHAUSTED });
+// Operators need to see why runs fail, but provider text can carry account details: log only the error type and numeric codes.
+function logFailure(error: unknown) {
+  const failure = error as { name?: unknown; status?: unknown; statusCode?: unknown; code?: unknown } | null;
+  const pick = (value: unknown) => typeof value === "string" || typeof value === "number" ? String(value).slice(0, 40) : undefined;
+  console.error("python-sandbox: run failed", { type: pick(failure?.name), status: pick(failure?.status ?? failure?.statusCode), code: pick(failure?.code) });
+}
 
 async function boundedCleanup(operation: (signal: AbortSignal) => Promise<unknown>) {
   const controller = new AbortController();
@@ -169,12 +226,13 @@ export function createVercelSandboxExecutor(factory: SandboxFactory = createVerc
     async runCase(request: PythonCaseRequest): Promise<PythonCaseRun> {
       // The run's own deadline always applies, including while waiting for a free slot and while the VM starts.
       const total = request.signal ?? AbortSignal.timeout(RUNNER_LIMITS.totalBudgetMs);
-      const wallMs = request.timeMs + STARTUP_GRACE_MS;
+      const wallMs = request.timeMs * 2 + STARTUP_GRACE_MS;
       if (total.aborted) return budgetExhausted();
       try {
         return await gate.run(() => runInFreshVm(factory, request, wallMs, total), AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS + wallMs)]));
-      } catch {
+      } catch (error) {
         if (total.aborted) return budgetExhausted();
+        logFailure(error);
         // Quota, capacity, network and provider failures all look the same to the learner and are never a wrong answer.
         return unavailable();
       }
@@ -190,19 +248,25 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
   try {
     await sandbox.writeFiles([
       { path: `${PYTHON_RUN_DIR}/boot.py`, content: Buffer.from(PYTHON_BOOTSTRAP) },
+      { path: `${PYTHON_RUN_DIR}/supervisor.py`, content: Buffer.from(PYTHON_SUPERVISOR) },
       { path: `${PYTHON_RUN_DIR}/program.py`, content: Buffer.from(request.source) },
       { path: `${PYTHON_RUN_DIR}/input.json`, content: Buffer.from(request.stdin) },
     ], { signal: AbortSignal.any([total, AbortSignal.timeout(START_BUDGET_MS)]) });
 
     const limit = RUNNER_LIMITS.maxOutputBytes;
     const stdout = new BoundedText(limit), stderr = new BoundedText(limit);
-    const caseDeadline = AbortSignal.timeout(wallMs);
-    const started = Date.now();
     command = await sandbox.runCommand({
       // -I: ignore the environment and user site; -X utf8: the program's stdout is UTF-8 regardless of the VM locale.
-      cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000))), String(request.memoryKb * 1024 + MEMORY_HEADROOM_BYTES)],
-      cwd: PYTHON_RUN_DIR, detached: true, timeoutMs: wallMs + 2000, signal: total,
+      // The whole-second kernel limit is a containment guard with one second of grace. Verdicts use trusted wait4 CPU
+      // accounting against the original millisecond budget, including programs that return normally after exceeding it.
+      cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/supervisor.py`, `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000)) + 1), String(request.memoryKb * 1024)],
+      // sudo: only so the bootstrap can drop to an unprivileged identity; see PYTHON_BOOTSTRAP.
+      cwd: PYTHON_RUN_DIR, sudo: true, detached: true, timeoutMs: wallMs + 2000, signal: total,
     });
+    // Creating the provider command is infrastructure time. Charge the case only after a command handle exists;
+    // the independent run-wide signal still bounds creation, upload and execution together.
+    const caseDeadline = AbortSignal.timeout(wallMs);
+    const started = Date.now();
 
     const settled = <T>(promise: Promise<T>) => promise.catch(() => undefined);
     let overflowed: () => void = () => undefined;
@@ -220,31 +284,51 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
       } catch { streamFailed(); return false; }
     })();
     const exit = command.wait({ signal: stop.signal }).then((result) => ({ exitCode: result.exitCode }));
+    // Listeners on the shared run-wide signal are removed in `finally`, or one would accumulate per case.
+    const detach: (() => void)[] = [];
     const abortedBy = (signal: AbortSignal, label: "case" | "total") => new Promise<typeof label>((resolve) => {
-      if (signal.aborted) resolve(label); else signal.addEventListener("abort", () => resolve(label), { once: true });
+      if (signal.aborted) { resolve(label); return; }
+      const listener = () => resolve(label);
+      signal.addEventListener("abort", listener, { once: true });
+      detach.push(() => signal.removeEventListener("abort", listener));
     });
 
-    const first = await Promise.race([exit, overflow, streamFailure, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]);
+    let first: Awaited<typeof exit> | "overflow" | "stream-failure" | "case" | "total";
+    try { first = await Promise.race([exit, overflow, streamFailure, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]); }
+    finally { for (const remove of detach) remove(); }
+    const runtimeMs = Math.min(Date.now() - started, request.timeMs);
     if (first === "stream-failure") throw new Error("output transport failed");
     let exitCode: number | null = null;
+    let usage: PythonUsage | null = null;
     if (typeof first === "object") {
       exitCode = first.exitCode;
       finished = true;
       // The program is done; let the last output arrive, but do not wait on it indefinitely.
       if (!await drainOutput(reading)) throw new Error("output transport incomplete");
+      const raw = await sandbox.readFileToBuffer({ path: PYTHON_USAGE_PATH }, { signal: AbortSignal.any([total, AbortSignal.timeout(DRAIN_MS)]) });
+      if (!raw || raw.length > 4096) throw new Error("missing execution accounting");
+      usage = parsePythonUsage(JSON.parse(raw.toString("utf8")));
+      if (!usage || (usage.signal === null ? usage.exitCode : 128 + usage.signal) !== exitCode) throw new Error("invalid execution accounting");
     } else {
       // Stop reading and waiting, and kill the program. The VM is stopped below whether or not the kill worked.
       stop.abort();
     }
     stop.abort();
     void settled(exit);
-    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs: Math.min(Date.now() - started, request.timeMs), memoryKb: null };
-    if (first === "total") return { kind: "time-limit", ...base, stderr: PYTHON_BUDGET_EXHAUSTED };
-    if (first === "case" || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
+    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs: usage ? Math.ceil(usage.cpuMs) : runtimeMs, memoryKb: usage?.maxRssKb ?? null };
+    if (first === "total") return budgetExhausted();
+    if (first === "case" || usage?.signal === 24 || (usage && usage.cpuMs > request.timeMs)) return { kind: "time-limit", ...base };
     if (first === "overflow") return { kind: "exited", exitCode: 1, ...base };
     if (exitCode === null) throw new Error("no exit status");
-    // MemoryError is the learner's own exception (exit 1); a kill without a deadline is the kernel enforcing the data limit.
-    if (/\bMemoryError\b/.test(base.stderr.slice(-2000)) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
+    // The bootstrap could not prove it had dropped privileges, so no learner code ran. Never the learner's fault.
+    if (exitCode === PYTHON_EXIT_SANDBOX_SETUP && base.stderr.includes(PYTHON_SETUP_MARKER)) throw new Error("sandbox setup failed");
+    // Only the trusted parent's wait4 data distinguishes a normal exit(137) from a kernel signal. A low-CPU SIGKILL is
+    // ambiguous (including explicit self-termination), so never guess that it was a memory failure.
+    if (usage?.signal === 9) {
+      if (usage.cpuMs >= Math.max(1, Math.ceil(request.timeMs / 1000)) * 1000 - 50) return { kind: "time-limit", ...base };
+      return unavailable();
+    }
+    if (exitCode === 1 && /\bMemoryError\b/.test(base.stderr.slice(-2000))) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
   } finally {
     stop.abort();

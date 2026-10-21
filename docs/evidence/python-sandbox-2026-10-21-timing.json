@@ -1,0 +1,222 @@
+{
+  "image": "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa",
+  "bootstrapSha256": "1714150c46fff99cb3c88416be407367ba768674131c512ccb8857895dee0966",
+  "executorSha256": "4da405d160d9e1e056cb4883578f3b675992fc449b44a2eeb0b4063ded354d77",
+  "ids": [
+    "salmon-main-rhinoceros-6ksf5t",
+    "lavender-fat-salmon-Gp5m89",
+    "bronze-digital-spider-WwRB3x",
+    "ivory-ideological-koi-E7gJ7b",
+    "indigo-guilty-spider-Ejs1aH",
+    "lime-just-cobra-XbFd69",
+    "blush-progressive-grasshopper-7BQvgP",
+    "violet-defensive-cicada-9LHSmi",
+    "harlequin-logical-mockingbird-6Ac3uW",
+    "beige-growing-porcupine-AgPh1s"
+  ],
+  "results": [
+    {
+      "name": "ten-full-cpu-cases",
+      "elapsedMs": 8920,
+      "outcomes": [
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        },
+        {
+          "stdout": "",
+          "diagnostic": "Execution exceeded 2000 ms.",
+          "runtimeMs": 2000,
+          "memoryKb": null,
+          "status": "TIME_LIMIT"
+        }
+      ]
+    }
+  ],
+  "providerPhases": [
+    {
+      "name": "salmon-main-rhinoceros-6ksf5t",
+      "createMs": 206,
+      "writeMs": 264,
+      "commandCreateMs": 98,
+      "waitAfterHandleMs": 2603,
+      "stopMs": 1150
+    },
+    {
+      "name": "lavender-fat-salmon-Gp5m89",
+      "createMs": 237,
+      "writeMs": 198,
+      "commandCreateMs": 130,
+      "waitAfterHandleMs": 2473,
+      "stopMs": 1149
+    },
+    {
+      "name": "bronze-digital-spider-WwRB3x",
+      "createMs": 579,
+      "writeMs": 152,
+      "commandCreateMs": 115,
+      "waitAfterHandleMs": 2432,
+      "stopMs": 1192
+    },
+    {
+      "name": "ivory-ideological-koi-E7gJ7b",
+      "createMs": 657,
+      "writeMs": 92,
+      "commandCreateMs": 83,
+      "waitAfterHandleMs": 2571,
+      "stopMs": 1176
+    },
+    {
+      "name": "indigo-guilty-spider-Ejs1aH",
+      "createMs": 725,
+      "writeMs": 103,
+      "commandCreateMs": 94,
+      "waitAfterHandleMs": 2425,
+      "stopMs": 1130
+    },
+    {
+      "name": "lime-just-cobra-XbFd69",
+      "createMs": 174,
+      "writeMs": 92,
+      "commandCreateMs": 59,
+      "waitAfterHandleMs": 2602,
+      "stopMs": 1233
+    },
+    {
+      "name": "blush-progressive-grasshopper-7BQvgP",
+      "createMs": 239,
+      "writeMs": 91,
+      "commandCreateMs": 81,
+      "waitAfterHandleMs": 2523,
+      "stopMs": 1174
+    },
+    {
+      "name": "violet-defensive-cicada-9LHSmi",
+      "createMs": 259,
+      "writeMs": 116,
+      "commandCreateMs": 86,
+      "waitAfterHandleMs": 2602,
+      "stopMs": 1152
+    },
+    {
+      "name": "harlequin-logical-mockingbird-6Ac3uW",
+      "createMs": 431,
+      "writeMs": 109,
+      "commandCreateMs": 92,
+      "waitAfterHandleMs": 2496,
+      "stopMs": 1198
+    },
+    {
+      "name": "beige-growing-porcupine-AgPh1s",
+      "createMs": 484,
+      "writeMs": 101,
+      "commandCreateMs": 88,
+      "waitAfterHandleMs": 2496,
+      "stopMs": 1149
+    }
+  ],
+  "failed": true,
+  "error": "The expression evaluated to a falsy value:\n\n  assert(outcomes.every(o=>o.status==='ACCEPTED'))\n",
+  "states": [
+    {
+      "name": "salmon-main-rhinoceros-6ksf5t",
+      "status": "stopped"
+    },
+    {
+      "name": "lavender-fat-salmon-Gp5m89",
+      "status": "stopped"
+    },
+    {
+      "name": "bronze-digital-spider-WwRB3x",
+      "status": "stopped"
+    },
+    {
+      "name": "ivory-ideological-koi-E7gJ7b",
+      "status": "stopped"
+    },
+    {
+      "name": "indigo-guilty-spider-Ejs1aH",
+      "status": "stopped"
+    },
+    {
+      "name": "lime-just-cobra-XbFd69",
+      "status": "stopped"
+    },
+    {
+      "name": "blush-progressive-grasshopper-7BQvgP",
+      "status": "stopped"
+    },
+    {
+      "name": "violet-defensive-cicada-9LHSmi",
+      "status": "stopped"
+    },
+    {
+      "name": "harlequin-logical-mockingbird-6Ac3uW",
+      "status": "stopped"
+    },
+    {
+      "name": "beige-growing-porcupine-AgPh1s",
+      "status": "stopped"
+    }
+  ],
+  "otherActive": []
+}
