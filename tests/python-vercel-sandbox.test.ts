@@ -146,6 +146,43 @@ it("maps CPU-limit kills, MemoryError and kernel kills to the right verdicts", a
   expect(await kind(3, ["SyntaxError"])).toBe("exited");
 });
 
+it("does not charge provider command creation against the learner's case deadline", async () => {
+  // Creation exceeds the 50 ms budget plus its 600 ms wall grace; the program itself exits promptly afterwards.
+  const made = fakeVm({ exit: 0, out: ["7"] });
+  const originalRun = made.handle.runCommand;
+  made.handle.runCommand = async (options) => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    return originalRun(options);
+  };
+  const run = await executorFor(made).runCase({ ...request, timeMs: 50 });
+  expect(mapPythonRun(run, 7, request).status).toBe("ACCEPTED");
+  expect(run.kind === "exited" && run.runtimeMs).toBeLessThan(400);
+  expect(made.vm.stopped).toBe(1);
+});
+
+it("accepts a successful program whose debug output mentions MemoryError", async () => {
+  const run = await executorFor(fakeVm({ exit: 0, out: ["7"], err: ["caught MemoryError; retried with less memory\n"] })).runCase(request);
+  expect(run).toMatchObject({ kind: "exited", exitCode: 0, stdout: "7" });
+  expect(mapPythonRun(run, 7, request).status).toBe("ACCEPTED");
+});
+
+it("records runtime at command completion while still waiting for complete output", async () => {
+  vi.useFakeTimers();
+  try {
+    const made = fakeVm({ exit: 0, logs: async function* () {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      yield { stream: "stdout" as const, data: "7" };
+    } });
+    const running = executorFor(made).runCase(request);
+    // The command exits at 5 ms; its stdout arrives later and must still be judged in full.
+    await vi.advanceTimersByTimeAsync(101);
+    const run = await running;
+    expect(run).toMatchObject({ kind: "exited", exitCode: 0, runtimeMs: 5, stdout: "7" });
+    expect(mapPythonRun(run, 7, request).status).toBe("ACCEPTED");
+    expect(made.vm.stopped).toBe(1);
+  } finally { vi.useRealTimers(); }
+});
+
 it("keeps host memory bounded: output past the cap is never read, and the command is killed", async () => {
   const chunk = "x".repeat(64 * 1024);
   const made = fakeVm({ exit: null, logs: async function* () { for (let i = 0; i < 100_000; i++) yield { stream: "stdout" as const, data: chunk }; } });

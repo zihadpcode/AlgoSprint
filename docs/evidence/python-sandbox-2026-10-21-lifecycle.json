@@ -1,0 +1,81 @@
+{
+  "image": "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa",
+  "bootstrapSha256": "1714150c46fff99cb3c88416be407367ba768674131c512ccb8857895dee0966",
+  "executorSha256": "4da405d160d9e1e056cb4883578f3b675992fc449b44a2eeb0b4063ded354d77",
+  "ids": [
+    "harlequin-lovely-dragonfly-bpYojv",
+    "aqua-equivalent-planarian-CD9Fns",
+    "pink-enormous-cheetah-TXu6Fy"
+  ],
+  "results": [
+    {
+      "name": "fresh-case-isolation",
+      "outcomes": [
+        {
+          "stdout": "7",
+          "diagnostic": "",
+          "runtimeMs": 157,
+          "memoryKb": null,
+          "status": "ACCEPTED"
+        },
+        {
+          "stdout": "7",
+          "diagnostic": "",
+          "runtimeMs": 200,
+          "memoryKb": null,
+          "status": "ACCEPTED"
+        }
+      ]
+    },
+    {
+      "name": "host-cancel",
+      "elapsedMs": 1852,
+      "commandCreated": true,
+      "learnerStarted": true,
+      "run": {
+        "kind": "unavailable",
+        "diagnostic": "Python execution did not finish within the time budget. Please try again."
+      }
+    }
+  ],
+  "providerPhases": [
+    {
+      "name": "harlequin-lovely-dragonfly-bpYojv",
+      "createMs": 183,
+      "writeMs": 122,
+      "commandCreateMs": 116,
+      "waitAfterHandleMs": 157,
+      "stopMs": 1146
+    },
+    {
+      "name": "aqua-equivalent-planarian-CD9Fns",
+      "createMs": 658,
+      "writeMs": 124,
+      "commandCreateMs": 91,
+      "waitAfterHandleMs": 199,
+      "stopMs": 1139
+    },
+    {
+      "name": "pink-enormous-cheetah-TXu6Fy",
+      "createMs": 133,
+      "writeMs": 138,
+      "commandCreateMs": 93,
+      "waitAfterHandleMs": 338,
+      "stopMs": 1151
+    }
+  ],
+  "states": [
+    {
+      "name": "harlequin-lovely-dragonfly-bpYojv",
+      "status": "stopped"
+    },
+    {
+      "name": "aqua-equivalent-planarian-CD9Fns",
+      "status": "stopped"
+    },
+    {
+      "name": "pink-enormous-cheetah-TXu6Fy",
+      "status": "stopped"
+    }
+  ]
+}

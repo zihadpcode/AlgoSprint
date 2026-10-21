@@ -1,0 +1,90 @@
+{
+  "image": "vercel/sandbox/python@sha256:5db625121b2172bb6af2c08d9d0df094eb7229e5e284a3f4dee673f6408968aa",
+  "bootstrapSha256": "1714150c46fff99cb3c88416be407367ba768674131c512ccb8857895dee0966",
+  "executorSha256": "4da405d160d9e1e056cb4883578f3b675992fc449b44a2eeb0b4063ded354d77",
+  "ids": [
+    "salmon-polite-antlion-Kr74kT",
+    "amaranth-nice-donkey-DNc52b",
+    "crimson-unacceptable-anglerfish-cMV79D"
+  ],
+  "phases": [
+    {
+      "name": "salmon-polite-antlion-Kr74kT",
+      "createMs": 144.43233400000008,
+      "writeMs": 110.81583300000011,
+      "commandCreateMs": 130.24258400000008,
+      "providerExitCode": 0,
+      "waitAfterHandleMs": 114.98370799999975,
+      "stopMs": 1284.9046670000002
+    },
+    {
+      "name": "amaranth-nice-donkey-DNc52b",
+      "createMs": 610.3306249999996,
+      "writeMs": 88.96970800000054,
+      "commandCreateMs": 118.72925000000032,
+      "providerExitCode": 0,
+      "waitAfterHandleMs": 1840.0317920000007,
+      "stopMs": 1192.4269169999998
+    },
+    {
+      "name": "crimson-unacceptable-anglerfish-cMV79D",
+      "createMs": 231.65999999999985,
+      "writeMs": 111.38095799999974,
+      "commandCreateMs": 95.6104579999992,
+      "waitError": "AbortError",
+      "waitAfterHandleMs": 2608.8931250000005,
+      "stopMs": 1286.5650420000002
+    }
+  ],
+  "results": [
+    {
+      "targetCpuSeconds": 0,
+      "elapsedMs": 1788.6040000000003,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "42\n",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.027903859, \"monotonic\": 13.17976593, \"target\": 0}\n{\"stage\": \"done\", \"cpuDelta\": 0.0004862810000000016, \"wallDelta\": 0.0024630269999992294}\n",
+        "runtimeMs": 116,
+        "memoryKb": null
+      }
+    },
+    {
+      "targetCpuSeconds": 0.8,
+      "elapsedMs": 3853.1079579999996,
+      "run": {
+        "kind": "exited",
+        "exitCode": 0,
+        "stdout": "42\n",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.039726448, \"monotonic\": 8.934977131, \"target\": 0.8}\n{\"stage\": \"done\", \"cpuDelta\": 0.801414619, \"wallDelta\": 1.689034380999999}\n",
+        "runtimeMs": 1841,
+        "memoryKb": null
+      }
+    },
+    {
+      "targetCpuSeconds": 1.8,
+      "elapsedMs": 4335.094957999999,
+      "run": {
+        "kind": "time-limit",
+        "stdout": "",
+        "stderr": "{\"stage\": \"entry\", \"processCpu\": 0.037392158, \"monotonic\": 16.706814961, \"target\": 1.8}\n",
+        "runtimeMs": 2000,
+        "memoryKb": null
+      }
+    }
+  ],
+  "finalStates": [
+    {
+      "name": "salmon-polite-antlion-Kr74kT",
+      "status": "stopped"
+    },
+    {
+      "name": "amaranth-nice-donkey-DNc52b",
+      "status": "stopped"
+    },
+    {
+      "name": "crimson-unacceptable-anglerfish-cMV79D",
+      "status": "stopped"
+    }
+  ]
+}

@@ -253,14 +253,16 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
 
     const limit = RUNNER_LIMITS.maxOutputBytes;
     const stdout = new BoundedText(limit), stderr = new BoundedText(limit);
-    const caseDeadline = AbortSignal.timeout(wallMs);
-    const started = Date.now();
     command = await sandbox.runCommand({
       // -I: ignore the environment and user site; -X utf8: the program's stdout is UTF-8 regardless of the VM locale.
       cmd: "python3", args: ["-I", "-X", "utf8", `${PYTHON_RUN_DIR}/boot.py`, String(Math.max(1, Math.ceil(request.timeMs / 1000))), String(request.memoryKb * 1024)],
       // sudo: only so the bootstrap can drop to an unprivileged identity; see PYTHON_BOOTSTRAP.
       cwd: PYTHON_RUN_DIR, sudo: true, detached: true, timeoutMs: wallMs + 2000, signal: total,
     });
+    // Creating the provider command is infrastructure time. Charge the case only after a command handle exists;
+    // the independent run-wide signal still bounds creation, upload and execution together.
+    const caseDeadline = AbortSignal.timeout(wallMs);
+    const started = Date.now();
 
     const settled = <T>(promise: Promise<T>) => promise.catch(() => undefined);
     let overflowed: () => void = () => undefined;
@@ -290,6 +292,7 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     let first: Awaited<typeof exit> | "overflow" | "stream-failure" | "case" | "total";
     try { first = await Promise.race([exit, overflow, streamFailure, abortedBy(caseDeadline, "case"), abortedBy(total, "total")]); }
     finally { for (const remove of detach) remove(); }
+    const runtimeMs = Math.min(Date.now() - started, request.timeMs);
     if (first === "stream-failure") throw new Error("output transport failed");
     let exitCode: number | null = null;
     if (typeof first === "object") {
@@ -303,7 +306,7 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     }
     stop.abort();
     void settled(exit);
-    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs: Math.min(Date.now() - started, request.timeMs), memoryKb: null };
+    const base = { stdout: stdout.text(), stderr: stderr.text(), runtimeMs, memoryKb: null };
     if (first === "total") return budgetExhausted();
     if (first === "case" || exitCode === SIGXCPU_EXIT) return { kind: "time-limit", ...base };
     if (first === "overflow") return { kind: "exited", exitCode: 1, ...base };
@@ -311,7 +314,7 @@ async function runInFreshVm(factory: SandboxFactory, request: PythonCaseRequest,
     // The bootstrap could not prove it had dropped privileges, so no learner code ran. Never the learner's fault.
     if (exitCode === PYTHON_EXIT_SANDBOX_SETUP && base.stderr.includes(PYTHON_SETUP_MARKER)) throw new Error("sandbox setup failed");
     // MemoryError is the learner's own exception (exit 1); a kill without a deadline is the kernel enforcing the data limit.
-    if (/\bMemoryError\b/.test(base.stderr.slice(-2000)) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
+    if ((exitCode === 1 && /\bMemoryError\b/.test(base.stderr.slice(-2000))) || exitCode === SIGKILL_EXIT) return { kind: "memory-limit", ...base };
     return { kind: "exited", exitCode, ...base };
   } finally {
     stop.abort();

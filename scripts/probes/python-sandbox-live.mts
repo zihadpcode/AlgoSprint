@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { Sandbox } from '@vercel/sandbox';
@@ -9,8 +9,11 @@ import { makePythonProgram } from '../../src/features/submissions/harness-python
 // Operator-only, fixed trusted sources. Never puts the caller's OIDC token, environment or expected output in a VM.
 const ids: string[] = [];
 const results: object[] = [];
+const providerPhases: {name:string;createMs:number;writeMs?:number;commandCreateMs?:number;waitAfterHandleMs?:number;stopMs?:number}[] = [];
+const timingOnly = process.argv.includes('--timing-only');
+const lifecycleOnly = process.argv.includes('--lifecycle-only');
 const limits = {timeMs: 2000, memoryKb: 262144};
-const report = '/tmp/algosprint-python-final-live-result.json';
+const report = lifecycleOnly ? '/tmp/algosprint-python-lifecycle-live-result.json' : timingOnly ? '/tmp/algosprint-python-timing-live-result.json' : '/tmp/algosprint-python-final-live-result.json';
 const identity = String.raw`import ctypes, errno, json, os, resource, threading
 assert os.getresuid() == (65534,)*3 and os.getresgid() == (65534,)*3 and os.getgroups() == []
 s = dict(line.split(':',1) for line in open('/proc/self/status'))
@@ -104,10 +107,12 @@ const cases = [
  {name:'setup-nonroot',source:"print('LEARNER_RAN')",expected:0,status:'INTERNAL_ERROR',nonroot:true},
 ] as const;
 
-function save(extra: object={}) { writeFileSync(report,JSON.stringify({image:PYTHON_SANDBOX_IMAGE,bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),ids,results,...extra},null,2)); }
-function factory(mode?:{control?:boolean;nonroot?:boolean;mapping?:boolean;onCommand?:()=>void}): SandboxFactory {
+function save(extra: object={}) { writeFileSync(report,JSON.stringify({image:PYTHON_SANDBOX_IMAGE,bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),executorSha256:createHash('sha256').update(readFileSync(new URL('../../src/features/submissions/python-vercel-sandbox.ts',import.meta.url))).digest('hex'),ids,results,providerPhases,...extra},null,2)); }
+function factory(mode?:{control?:boolean;nonroot?:boolean;mapping?:boolean;onCommand?:()=>void;onLearnerStarted?:()=>void}): SandboxFactory {
  return async signal=>{
+  const creationStarted=Date.now();
   const vm=await Sandbox.create({image:PYTHON_SANDBOX_IMAGE,resources:{vcpus:1},timeout:30000,persistent:false,networkPolicy:'deny-all',ports:[],signal});
+  const phase={name:vm.name,createMs:Date.now()-creationStarted} as (typeof providerPhases)[number];providerPhases.push(phase);
   ids.push(vm.name); save();
   try {
    if(mode?.mapping){
@@ -120,11 +125,11 @@ function factory(mode?:{control?:boolean;nonroot?:boolean;mapping?:boolean;onCom
     assert.equal(control.exitCode,0); assert.equal((await control.stdout()).trim(),'0');
    }
   } catch(e) { await vm.stop(); throw e; }
-  return {writeFiles:(f,o)=>vm.writeFiles(f,o),runCommand:async o=>{const cmd=await vm.runCommand({...o,sudo:mode?.nonroot?false:true,detached:true});mode?.onCommand?.();return cmd;},stop:o=>vm.stop(o)};
+  return {writeFiles:async(f,o)=>{const t=Date.now();try{await vm.writeFiles(f,o);}finally{phase.writeMs=Date.now()-t;}},runCommand:async o=>{const t=Date.now();const cmd=await vm.runCommand({...o,sudo:mode?.nonroot?false:true,detached:true});phase.commandCreateMs=Date.now()-t;mode?.onCommand?.();return {logs:async function*(o){let text='',seen=false;for await(const log of cmd.logs(o)){if(log.stream==='stdout'){text=(text+log.data).slice(-128);if(!seen&&text.includes('PROBE_STARTED')){seen=true;mode?.onLearnerStarted?.();}}yield log;}},kill:(s,o)=>cmd.kill(s,o),wait:async o=>{const t=Date.now();try{return await cmd.wait(o);}finally{phase.waitAfterHandleMs=Date.now()-t;}}};},stop:async o=>{const t=Date.now();try{return await vm.stop(o);}finally{phase.stopMs=Date.now()-t;}}};
  };
 }
 if(!process.argv.includes('--run')) {
- console.log(JSON.stringify({image:PYTHON_SANDBOX_IMAGE,bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),cases:cases.map(c=>({name:c.name,source:c.source,status:c.status})),additional:['10 full-CPU cases in width5 under20s','2 fresh-VM isolation cases','host abort on sleep'],maxVMs:25}));
+ console.log(JSON.stringify({image:PYTHON_SANDBOX_IMAGE,bootstrapSha256:createHash('sha256').update(PYTHON_BOOTSTRAP).digest('hex'),cases:(timingOnly||lifecycleOnly?[]:cases).map(c=>({name:c.name,source:c.source,status:c.status})),additional:[...(!lifecycleOnly?['10 full-CPU cases in width5 under20s']:[]),'2 fresh-VM isolation cases','host abort after learner stdout marker'],maxVMs:lifecycleOnly?3:timingOnly?13:25}));
 } else {
  assert(process.env.VERCEL_OIDC_TOKEN,'Load current development OIDC credentials through the provider workflow before --run');
  const claims=JSON.parse(Buffer.from(process.env.VERCEL_OIDC_TOKEN!.split('.')[1],'base64url').toString());
@@ -133,7 +138,7 @@ if(!process.argv.includes('--run')) {
  assert.equal(active.length,0,'Other live sandboxes found; coordinate before running');
  try {
   // Serial trusted boundary cases prevent accidental load or concurrent privileged controls.
-  for(const c of cases) {
+  for(const c of timingOnly||lifecycleOnly?[]:cases) {
    const start=Date.now(); const ex=createVercelSandboxExecutor(factory({control:'control' in c && c.control,nonroot:'nonroot' in c && c.nonroot,mapping:'mapping' in c && c.mapping}));
    const run=await ex.runCase({source:c.source,stdin:'stdin' in c?c.stdin:'[]',...limits,signal:AbortSignal.timeout(20000)});
    const out=mapPythonRun(run,c.expected,limits); results.push({name:c.name,elapsedMs:Date.now()-start,run,outcome:out});save();
@@ -141,15 +146,17 @@ if(!process.argv.includes('--run')) {
    if(c.name==='setup-nonroot') assert(!out.stdout.includes('LEARNER_RAN'));
   }
   const ex=createVercelSandboxExecutor(factory());
+  if(!lifecycleOnly){
   const ten=makePythonProgram('solve',"def solve():\n import time\n t=time.process_time()\n while time.process_time()-t < 1.8: pass\n return 42");
   const start=Date.now();const outcomes=await executePython(ex,ten,Array.from({length:10},()=>({stdin:'[]',expected:42})),limits);
   results.push({name:'ten-full-cpu-cases',elapsedMs:Date.now()-start,outcomes});save();assert(outcomes.every(o=>o.status==='ACCEPTED'));assert(Date.now()-start<20000);
+  }
   const isolated=makePythonProgram('solve',"def solve():\n import os\n p='/tmp/algosprint-isolation-marker'\n assert not os.path.exists(p)\n open(p,'w').write('fixed')\n return 7");
   const iso=await executePython(ex,isolated,[{stdin:'[]',expected:7},{stdin:'[]',expected:7}],limits);results.push({name:'fresh-case-isolation',outcomes:iso});save();assert(iso.every(o=>o.status==='ACCEPTED'));
-  const abort=new AbortController();const started=Date.now();let commandCreated=false;let timer:ReturnType<typeof setTimeout>|undefined;
-  const cancelEx=createVercelSandboxExecutor(factory({onCommand:()=>{commandCreated=true;timer=setTimeout(()=>abort.abort(),250);}}));
-  const cancelled=await cancelEx.runCase({source:'import time;time.sleep(10)',stdin:'[]',...limits,signal:AbortSignal.any([abort.signal,AbortSignal.timeout(20000)])});clearTimeout(timer);
-  results.push({name:'host-cancel',elapsedMs:Date.now()-started,commandCreated,run:cancelled});save();assert(commandCreated);assert.equal(cancelled.kind,'unavailable');assert(Date.now()-started<10000);
+  const abort=new AbortController();const started=Date.now();let commandCreated=false,learnerStarted=false;let timer:ReturnType<typeof setTimeout>|undefined;
+  const cancelEx=createVercelSandboxExecutor(factory({onCommand:()=>{commandCreated=true;},onLearnerStarted:()=>{learnerStarted=true;timer=setTimeout(()=>abort.abort(),250);}}));
+  const cancelled=await cancelEx.runCase({source:"import time;print('PROBE_STARTED',flush=True);time.sleep(10)",stdin:'[]',...limits,signal:AbortSignal.any([abort.signal,AbortSignal.timeout(20000)])});clearTimeout(timer);
+  results.push({name:'host-cancel',elapsedMs:Date.now()-started,commandCreated,learnerStarted,run:cancelled});save();assert(commandCreated&&learnerStarted);assert.equal(cancelled.kind,'unavailable');assert(Date.now()-started<10000);
   let states:{name:string;status:string|undefined}[]=[];
   for(let attempt=0;attempt<4;attempt++) { const all=await (await Sandbox.list()).toArray();states=ids.map(name=>({name,status:all.find(s=>s.name===name)?.status}));if(states.every(s=>s.status==='stopped'))break;await new Promise(r=>setTimeout(r,500)); }
   save({states});assert(states.every(s=>s.status==='stopped'));
