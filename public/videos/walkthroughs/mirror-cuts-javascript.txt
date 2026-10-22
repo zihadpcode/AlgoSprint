@@ -1,0 +1,33 @@
+A ribbon printed with lowercase letters must be cut into pieces so that every piece reads the same
+
+forwards and backwards. Return the smallest number of cuts needed. A ribbon that is already a palindrome needs
+
+0 cuts.
+
+One cut: 'aa' | 'b'.
+
+Two cuts: every letter on its own.
+
+Every palindrome is found once by expanding from its center, and each one offers a way to end
+
+a prefix with one more cut.
+
+cuts[i] = i - 1 for i in 0..n. For each center, expand odd and even palindromes; for
+
+each text[l..r] found, update cuts[r + 1] = min(cuts[r + 1], cuts[l] + 1). Return cuts[n].
+
+cuts[i] is the fewest cuts for the first i letters, with cuts[0] = -1 as a sentinel. Expanding
+
+around all 2n - 1 centers discovers every palindrome text[l..r] in O(n²) total, and each one relaxes cuts[r
+
++ 1] from cuts[l] + 1. That avoids the separate O(n²) palindrome table and runs in O(n²) time
+
+with O(n) memory.
+
+cuts = [-1, 0, 1, 2] for 'aab'.
+
+Center 0 (even) finds 'aa' → cuts[2] = min(1, cuts[0] + 1) = 0.
+
+'b' alone → cuts[3] = cuts[2] + 1 = 1. The answer is 1.
+
+O(n²). O(n)

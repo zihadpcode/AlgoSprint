@@ -1,0 +1,16 @@
+{
+  "slug": "digit-power",
+  "language": "JAVASCRIPT",
+  "title": "Digit Power",
+  "src": "/videos/walkthroughs/digit-power-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/digit-power-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/digit-power-javascript.txt",
+  "durationSeconds": 141,
+  "sourceHash": "28b4aa0e4908da6fb07c7c5b26b084ab1b5542d38f67fa0f3c48447571ef2cb2",
+  "sha256": "019a148d6877a6dff22e43ae54af208063dfc3fe01bcdb977894b58d2fdd2afc",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "cd5b6e693ffe5e1fef030dc5c076833bdf5fd80d1f3f474fc1e17d9f64e3725d",
+  "transcriptSha256": "533ca077de471c364b788ffe5acc2c82058b15ae10ed7d59ee9d2029378a3be6",
+  "rendererVersion": "2026-10-22.1"
+}

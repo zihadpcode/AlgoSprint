@@ -1,0 +1,16 @@
+{
+  "slug": "bracket-run",
+  "language": "PYTHON",
+  "title": "Bracket Run",
+  "src": "/videos/walkthroughs/bracket-run-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/bracket-run-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/bracket-run-python.txt",
+  "durationSeconds": 97,
+  "sourceHash": "5c35af450147f792cc411c25e84c1595142b1fe96cc1575f02079a1ee2a801f6",
+  "sha256": "f48d182c8f953985530d2b9b7cef20ae39c2caedfb02307c48a2ab4a743ea914",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "a7dd713d2a27a5ca0fa8e8ab7abf14893d34a88938dd957cd73ee6d26f8bb399",
+  "transcriptSha256": "0cbf70f66c3aba0920ece6e83e5e07bed63e882bf6d9b20c3750aa5d9246b608"
+}

@@ -1,0 +1,35 @@
+A sliding puzzle has a 2 × 3 frame holding tiles 1 to 5 and one empty space
+
+shown as 0. A move slides a tile that is edge-adjacent to the empty space into it. Given
+
+the current board, return the fewest moves needed to reach [[1, 2, 3], [4, 5, 0]], or -1
+
+if that arrangement cannot be reached.
+
+Slide 5 left into
+
+the space: one move.
+
+Swapping two tiles is impossible with
+
+slides, so the answer is -1.
+
+With only 720 states, BFS over all of them finds the minimum moves directly.
+
+Encode the board as a string. BFS from it: for each state, swap the space with each adjacent
+
+position (from a precomputed table), skip visited states, and return the layer number when the target appears.
+
+Treating each arrangement as a node turns the puzzle into a shortest path in an unweighted graph, so
+
+BFS gives the minimum. The state space is 720,
+
+so this is effectively constant time. For larger puzzles like the 15-puzzle I'd use A* with a Manhattan-distance
+
+heuristic, and check solvability up front with the permutation parity.
+
+Start '123405' is layer 0; its neighbors include '123450'.
+
+'123450' is found in layer 1: return 1.
+
+O(6! · 6) — at most 720 states. O(6!)

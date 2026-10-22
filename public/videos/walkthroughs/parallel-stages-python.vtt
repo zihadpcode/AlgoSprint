@@ -1,0 +1,105 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.208
+A workshop has tasks numbered 0 to tasks - 1. Each prerequisite [a, b] means task a must
+
+2
+00:00:06.208 --> 00:00:11.799
+be finished before task b can start. Work happens in stages: in one stage you may run any
+
+3
+00:00:11.799 --> 00:00:16.090
+number of tasks at the same time, but a task may only run in a stage if all
+
+4
+00:00:16.090 --> 00:00:21.727
+of its prerequisites were finished in earlier stages. Return the smallest number of stages needed to finish
+
+5
+00:00:21.727 --> 00:00:27.229
+every task, or -1 if the prerequisites contain a cycle, so some task can never run.
+
+6
+00:00:28.000 --> 00:00:32.571
+Stage 1 runs task 0, stage 2 runs tasks 1 and 2
+
+7
+00:00:36.000 --> 00:00:40.683
+together, stage 3 runs task 3 and stage 4 runs task 4.
+
+8
+00:00:44.000 --> 00:00:45.424
+Every task waits for another,
+
+9
+00:00:52.000 --> 00:00:53.440
+so none can ever start.
+
+10
+00:01:00.000 --> 00:01:06.096
+Tasks whose unfinished-prerequisite count is zero are exactly the next stage. Finishing them lowers other tasks'
+
+11
+00:01:06.096 --> 00:01:06.599
+counts.
+
+12
+00:01:08.000 --> 00:01:15.035
+Build unlock lists and prerequisite counts. Start with all tasks of count zero. Per stage, count it, finish
+
+13
+00:01:15.035 --> 00:01:20.908
+the ready tasks and decrement the counts of the tasks they unlock; those that reach zero form the
+
+14
+00:01:20.908 --> 00:01:24.997
+next stage. If fewer than all tasks were finished, there is a cycle.
+
+15
+00:01:26.000 --> 00:01:31.115
+This is Kahn's algorithm run one level at a time. Each level is the set of tasks whose
+
+16
+00:01:31.115 --> 00:01:36.875
+prerequisites all finished earlier, so the number of levels equals the length of the longest prerequisite chain,
+
+17
+00:01:36.875 --> 00:01:38.023
+which is the minimum number
+
+18
+00:01:39.000 --> 00:01:46.701
+of stages. Every task and every prerequisite is touched once, so it is O(tasks + prerequisites) time and
+
+19
+00:01:46.701 --> 00:01:52.871
+space. If a cycle exists its tasks never reach count zero, the finished count stays below the total,
+
+20
+00:01:52.871 --> 00:01:54.317
+and the answer is -1.
+
+21
+00:01:55.000 --> 00:02:01.475
+In the first example the counts are task 0: 0, tasks 1 and 2: 1, task 3: 2,
+
+22
+00:02:01.475 --> 00:02:02.814
+task 4: 1.
+
+23
+00:02:04.000 --> 00:02:11.990
+Level 1 = {0}; it zeroes tasks 1 and 2. Level 2 = {1, 2}; it zeroes task
+
+24
+00:02:11.990 --> 00:02:16.337
+3. Level 3 = {3}; level 4 = {4}.
+
+25
+00:02:17.000 --> 00:02:20.952
+All five tasks finished in four stages, so the answer is 4.
+
+26
+00:02:22.000 --> 00:02:29.087
+O(tasks + prerequisites). O(tasks + prerequisites) for the unlock lists, counts and ready lists

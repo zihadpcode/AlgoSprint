@@ -1,0 +1,16 @@
+{
+  "slug": "digit-power",
+  "language": "PYTHON",
+  "title": "Digit Power",
+  "src": "/videos/walkthroughs/digit-power-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/digit-power-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/digit-power-python.txt",
+  "durationSeconds": 141,
+  "sourceHash": "e7c456bbea91d731b8dc93a0afdc424131565f46ffcfdf0928ea3927a0c3eed0",
+  "sha256": "f8c9fd0f9f08130a169569ba10034320355ea47a5a4541e76b41221747b2b6b4",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "d0bbf3a348cd4698f492dbf20d2bbb77a4c57b538b63a8d305fb9f1ad046ad6e",
+  "transcriptSha256": "1955408b4ede723c294046e1eb4fd661cf1216e5d8724c2c842387248a2e84bb"
+}

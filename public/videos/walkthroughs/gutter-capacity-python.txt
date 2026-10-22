@@ -1,0 +1,47 @@
+A flat roof has a row of parapet blocks whose heights are listed in the array heights, one
+
+unit wide each. After heavy rain, water settles in the dips between taller blocks; water above a block
+
+rises to the lower of the tallest block on its left and the tallest block on its right,
+
+and never spills off either end. Return the total volume of water held, in square units. Fewer than
+
+three blocks hold no water.
+
+The blocks of height 2 and 3 bound the middle: water levels are 2, 1 and 2 above
+
+the three middle blocks, for 5 units.
+
+The heights only descend, so nothing is held.
+
+When the block at the left pointer is lower than the block at the right pointer, the left
+
+block's water level is decided by the left wall alone, because some block at least as tall as
+
+the right block exists on its right.
+
+Keep pointers at both ends and the tallest block seen from each side. Repeatedly process the side whose
+
+current block is lower: update that side's wall, add the water above the block, and move the pointer
+
+inward.
+
+I move two pointers inward and always settle the lower side. If the left block is lower than
+
+the right block, the right side already guarantees a wall at least as tall as the right block,
+
+so the water over the left block is exactly leftWall minus its height. Each step moves one pointer,
+
+so the pass is linear with constant memory, matching the prefix-array solution without the arrays.
+
+For [2, 0, 1, 0, 3], the left block 2 is lower than the right block 3, so
+
+the left side is settled: leftWall = 2, no water, left moves to index 1.
+
+Index 1 (0) adds 2; index 2 (1) adds 1; index 3 (0) adds 2, each compared against
+
+the right block 3.
+
+The pointers meet and the total is 5.
+
+O(n). O(1)

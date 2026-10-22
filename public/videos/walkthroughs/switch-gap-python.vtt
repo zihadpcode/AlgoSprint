@@ -1,0 +1,81 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.481
+A control panel records which of its switches are on as the bits of a non-negative integer mask;
+
+2
+00:00:04.481 --> 00:00:09.873
+bit 0 is the rightmost switch. Two on-switches are neighbours when no other switch between them is on.
+
+3
+00:00:09.873 --> 00:00:16.396
+Return the largest distance, measured in bit positions, between any pair of neighbouring on-switches in mask. If
+
+4
+00:00:16.396 --> 00:00:19.113
+fewer than two switches are on, return 0.
+
+5
+00:00:20.000 --> 00:00:27.770
+41 is 101001 in binary, so switches 0, 3 and 5 are on. The neighbour gaps are 3
+
+6
+00:00:27.770 --> 00:00:29.605
+and 2, and the largest is 3.
+
+7
+00:00:31.000 --> 00:00:37.592
+4096 is 1000000000000 in binary: only switch 12 is on, so there is no pair of neighbours.
+
+8
+00:00:39.000 --> 00:00:43.163
+Only set bits matter, so jump from one set bit to the next instead of looking at the
+
+9
+00:00:43.163 --> 00:00:44.317
+zeros between them.
+
+10
+00:00:45.000 --> 00:00:50.941
+Repeatedly isolate the lowest set bit with remaining &amp; -remaining, find its position with bit.bit_length() - 1,
+
+11
+00:00:50.941 --> 00:00:55.101
+compare with the previous position, and clear it with remaining &amp;= remaining - 1.
+
+12
+00:00:56.000 --> 00:01:02.760
+The low-bit trick visits each set bit exactly once. remaining &amp; -remaining isolates it, bit_length() - 1 finds
+
+13
+00:01:02.760 --> 00:01:08.576
+its zero-based position, and remaining &amp; (remaining - 1) removes it. Comparing each visited position with the
+
+14
+00:01:08.576 --> 00:01:15.403
+previous one finds the largest neighbouring gap. There are at most 31 iterations in this input domain, with
+
+15
+00:01:15.403 --> 00:01:17.451
+O(1) extra memory.
+
+16
+00:01:19.000 --> 00:01:25.662
+For 41 the lowest set bit is 1 at position 0, so previous = 0 and mask becomes
+
+17
+00:01:25.662 --> 00:01:26.109
+40.
+
+18
+00:01:27.000 --> 00:01:33.407
+Next bit 8 is position 3, giving gap 3; then bit 32 is position 5, giving gap 2.
+
+19
+00:01:33.407 --> 00:01:34.371
+The answer is 3.
+
+20
+00:01:35.000 --> 00:01:40.999
+O(k) for k set bits, at most 31, which is O(log mask). O(1)

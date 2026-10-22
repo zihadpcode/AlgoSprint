@@ -1,0 +1,16 @@
+{
+  "slug": "prefix-echoes",
+  "language": "PYTHON",
+  "title": "Prefix Echoes",
+  "src": "/videos/walkthroughs/prefix-echoes-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/prefix-echoes-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/prefix-echoes-python.txt",
+  "durationSeconds": 125,
+  "sourceHash": "9949e7ec83df88a98a65ec52f5446b42799c7a0f392b72ffb8b857c1105cdb22",
+  "sha256": "56ed110eb415cb9d8b0b5d03ede16d2abab41b76354288ea67d5438d9199a911",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "8623049d5e62b35b95a47f1cb47f1d01bd74797b5471d88b0879191e07db859e",
+  "transcriptSha256": "890ae9491ed85ea7c1b29a29d95d387edc519f74bb44f00ee43ce6c437fe3324"
+}

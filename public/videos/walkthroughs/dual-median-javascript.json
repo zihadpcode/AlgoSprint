@@ -1,0 +1,16 @@
+{
+  "slug": "dual-median",
+  "language": "JAVASCRIPT",
+  "title": "Dual Median",
+  "src": "/videos/walkthroughs/dual-median-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/dual-median-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/dual-median-javascript.txt",
+  "durationSeconds": 127,
+  "sourceHash": "b9a17edf3dcf0d9907ba156aba0ec9c1cd4b3ecd8c889f75d3257db37b15aba3",
+  "sha256": "39b334ea8699bd78a6c975827006b101a87fcaa529cac3fb2c24ffa91104652d",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "8cd487d67d3d8d43034be1bb39ee121da5b7e19bf1d8fc711193bf6be6fb8ea5",
+  "transcriptSha256": "de63409ad7cdfc8947e84ce221a5a1485ec655dec5a10e98489599c4fd35119c",
+  "rendererVersion": "2026-10-22.1"
+}

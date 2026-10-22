@@ -1,0 +1,49 @@
+A city planner draws the skyline of rectangular buildings standing on flat ground. Each building is [left,
+
+right, height] and covers x from left up to (not including) right. The skyline is described by key
+
+points [x, h]: at x the outline's height changes to h. Return the key points sorted by x,
+
+with no two consecutive points sharing the same height. The last key point always drops to height 0.
+
+The outline rises to 10, 15,
+
+then 12, drops to 0 at
+
+12, rises to 10 at 15,
+
+8 at 20 and 0 at 24.
+
+Touching buildings of equal height
+
+merge into one flat stretch.
+
+Between edges the set of standing buildings is fixed, and a max-heap keyed by height exposes the tallest;
+
+ended buildings can be discarded only when they reach the top.
+
+Sort buildings by left and the unique edge coordinates. For each x: push (height, right) for buildings with
+
+left <= x; pop while the top's right <= x; height = top or 0; append [x, height]
+
+if it differs from the last point.
+
+The outline only changes at edges, so I sweep the sorted edges with a max-heap of standing buildings
+
+keyed by height. Buildings that have ended stay in
+
+the heap until they reach the top, where I discard them (lazy deletion), so each building is pushed
+
+and popped once, O(n log n) overall. I emit
+
+a key point only when the visible height changes, which also merges equal-height neighbors. A divide-and-conquer
+
+merge of skylines is the other classic O(n log n) approach.
+
+x=2: heap {10} → [2,10]. x=3: {15,10} → [3,15]. x=5: {15,12,10} → same height.
+
+x=7: 15 ends → 12 → [7,12]. x=9: 10 ends, top still 12. x=12: all ended → [12,0].
+
+x=15 → [15,10]; x=19 → still 10; x=20 → [20,8]; x=24 → [24,0].
+
+O(n log n). O(n)

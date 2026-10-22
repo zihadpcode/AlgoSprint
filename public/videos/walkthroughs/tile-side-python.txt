@@ -1,0 +1,27 @@
+A carpenter wants to cut every plank in planks into equal pieces of one shared whole-number length, with
+
+no leftover wood on any plank. Return the longest piece length that works for every plank.
+
+Pieces of length 6 divide all three planks, and nothing longer does.
+
+Only length 1 divides both 7 and 9.
+
+The answer is the greatest common divisor of all lengths, and gcd can be combined one plank at
+
+a time.
+
+Define gcd(a, b) by repeatedly replacing (a, b) with (b, a % b). Reduce the planks with it.
+
+A piece length must divide every plank, so the longest one is the gcd of the whole array.
+
+gcd is associative, so I fold it across the planks with Euclid's algorithm, which takes logarithmic steps per
+
+pair. That's O(n log M) time and constant space. I could also stop early once the running gcd
+
+hits 1.
+
+gcd(12, 18): (12, 18) → (18, 12) → (12, 6) → (6, 0), giving 6.
+
+gcd(6, 30): (6, 30) → (30, 6) → (6, 0), giving 6.
+
+O(n log M) for maximum length M. O(1)

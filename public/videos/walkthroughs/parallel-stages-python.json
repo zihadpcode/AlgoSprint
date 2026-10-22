@@ -1,0 +1,16 @@
+{
+  "slug": "parallel-stages",
+  "language": "PYTHON",
+  "title": "Parallel Stages",
+  "src": "/videos/walkthroughs/parallel-stages-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/parallel-stages-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/parallel-stages-python.txt",
+  "durationSeconds": 150,
+  "sourceHash": "6ce95c1e729e402e3bea3b0c4003c649dd74006ea0081f7f2ba66d2c3b148160",
+  "sha256": "e67d9dd7d7c242c0604cfce7e50815c110f63e29fe6ef714cd95fe22106b1581",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "4603c04df2ab8cdd990d78ca31d0bcb1101946ccda2a56acc1424d4e3ab45387",
+  "transcriptSha256": "b21c96d0196e3ee56c6cb7ed0f358898466dc8e2bcb547b581cd482f8cf23af5"
+}

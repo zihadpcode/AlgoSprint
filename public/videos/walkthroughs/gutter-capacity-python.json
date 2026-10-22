@@ -1,0 +1,16 @@
+{
+  "slug": "gutter-capacity",
+  "language": "PYTHON",
+  "title": "Gutter Capacity",
+  "src": "/videos/walkthroughs/gutter-capacity-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/gutter-capacity-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/gutter-capacity-python.txt",
+  "durationSeconds": 121,
+  "sourceHash": "f7c02f6ad777ca7fb48b7ba101a9762fdc045947435598c29bedb9f0f9343d81",
+  "sha256": "4b67cb8a8a237d870844ad8f3ef8df6e8cdc37ded730a4e73585c1ce022e3e2c",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "ff6d5aa253b0c2a5a48241c5db1a6962be5b2267b2b8b6f9b4036ece6f40b65c",
+  "transcriptSha256": "6e5a240666d6299571aeb3319fa04230376027c8cc56d30b696953194d3584c4"
+}

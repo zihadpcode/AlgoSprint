@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.542
+A student's quiz marks are listed in chronological order in the array marks. A rising run is a
+
+2
+00:00:05.542 --> 00:00:11.612
+selection of quizzes, kept in chronological order, whose marks strictly increase from one selected quiz to the
+
+3
+00:00:11.612 --> 00:00:17.552
+next; the selected quizzes do not need to be consecutive. Return the length of the longest rising run.
+
+4
+00:00:17.552 --> 00:00:19.789
+An empty list has a longest run of 0.
+
+5
+00:00:21.000 --> 00:00:26.874
+One longest run is 2, 3, 6, 9 with length 4. No run of length 5 exists.
+
+6
+00:00:29.000 --> 00:00:32.440
+Marks never rise, so any single quiz is the longest run.
+
+7
+00:00:37.000 --> 00:00:41.882
+Among all runs of a given length, only the one with the smallest ending mark matters for future
+
+8
+00:00:41.882 --> 00:00:45.423
+extension, and those smallest ends are increasing with the length.
+
+9
+00:00:47.000 --> 00:00:52.604
+Maintain tails where tails[k] is the smallest mark ending a run of length k + 1. For each
+
+10
+00:00:52.604 --> 00:00:58.482
+mark, binary search the first tail that is not smaller and overwrite it, or append when every tail
+
+11
+00:00:58.482 --> 00:01:01.002
+is smaller. The length of tails is the answer.
+
+12
+00:01:02.000 --> 00:01:07.378
+I keep the smallest possible ending mark for every run length. A new mark that exceeds all tails
+
+13
+00:01:07.378 --> 00:01:12.989
+starts a longer run; otherwise it replaces the first tail that is at least as large, which keeps
+
+14
+00:01:12.989 --> 00:01:19.202
+future extensions as easy as possible. The tails array is sorted, so each update is a binary search,
+
+15
+00:01:19.202 --> 00:01:24.515
+giving n log n overall. Its length is the answer even though its contents are not necessarily a
+
+16
+00:01:24.515 --> 00:01:25.181
+real run.
+
+17
+00:01:26.000 --> 00:01:35.387
+For [5, 2, 8, 6, 3, 6, 9, 7], tails evolve: [5] → [2] → [2, 8] →
+
+18
+00:01:35.387 --> 00:01:39.505
+[2, 6] → [2, 3] → [2, 3, 6].
+
+19
+00:01:41.000 --> 00:01:48.413
+9 appends to give [2, 3, 6, 9]; 7 replaces 9 to give [2, 3, 6, 7].
+
+20
+00:01:50.000 --> 00:01:53.068
+The length of tails is 4, which is the longest rising run.
+
+21
+00:01:54.000 --> 00:01:55.926
+O(n log n). O(n)

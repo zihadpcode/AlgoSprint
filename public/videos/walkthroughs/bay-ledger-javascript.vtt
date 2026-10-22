@@ -1,0 +1,145 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.104
+A loading dock has bays numbered 1 to bays in a row, all empty at first. Process the
+
+2
+00:00:05.104 --> 00:00:11.878
+operations in order. ["set", bay, count] makes that bay hold exactly count boxes (replacing whatever it held).
+
+3
+00:00:11.878 --> 00:00:18.754
+["total", bay] reports how many boxes are in bays 1 to bay together. ["locate", k] numbers the boxes
+
+4
+00:00:18.754 --> 00:00:24.531
+1, 2, 3, ... starting from bay 1 and moving outward, and reports the bay that holds box
+
+5
+00:00:24.531 --> 00:00:29.631
+number k, which is the smallest b such that bays 1 to b hold at least k boxes
+
+6
+00:00:29.631 --> 00:00:35.322
+together; it reports -1 if the whole dock holds fewer than k boxes. Return the reports of the
+
+7
+00:00:35.322 --> 00:00:39.973
+total and locate operations in order. A set operation produces no report.
+
+8
+00:00:41.000 --> 00:00:47.368
+After the first two sets bay 3 holds 5 boxes and bay 6 holds 2. Bays 1 to
+
+9
+00:00:47.368 --> 00:00:51.960
+4 hold 5 boxes. Box 6 is the first box of bay 6
+
+10
+00:00:53.000 --> 00:00:59.092
+(bays 1 to 3 hold only 5), so locate 6 reports 6. Then bay 3 drops to 1
+
+11
+00:00:59.092 --> 00:01:03.010
+and bay 8 gets 9 boxes, so the running totals are 1 at
+
+12
+00:01:04.000 --> 00:01:09.473
+bay 3, 3 at bay 6 and 12 at bay 8. Box 6 is now in bay 8,
+
+13
+00:01:09.473 --> 00:01:15.485
+and box 14 does not exist, so the reports are 5, 6, 8, -1.
+
+14
+00:01:17.000 --> 00:01:19.097
+The dock is empty for the first two locates,
+
+15
+00:01:25.000 --> 00:01:28.848
+so both report -1. After setting 3 boxes, total
+
+16
+00:01:33.000 --> 00:01:35.694
+reports 3 and box 3 lives in bay 1.
+
+17
+00:01:41.000 --> 00:01:47.453
+A Fenwick tree makes both point changes and prefix totals logarithmic, and its layout lets a single descent
+
+18
+00:01:47.453 --> 00:01:49.177
+find the first bay reaching a target.
+
+19
+00:01:50.000 --> 00:01:56.064
+Keep counts in held and partial sums in tree. set adds (new - old) up the update chain.
+
+20
+00:01:56.064 --> 00:02:02.495
+total adds down the query chain. locate starts at position 0, tries jumps of the largest power of
+
+21
+00:02:02.495 --> 00:02:07.062
+two down to 1, takes a jump when the stored sum is below the remaining target (subtracting it),
+
+22
+00:02:07.062 --> 00:02:11.527
+and finally answers position + 1 if that bay exists, else -1.
+
+23
+00:02:13.000 --> 00:02:17.406
+The Fenwick tree stores in cell i the sum of the last i &amp; -i bays, so every
+
+24
+00:02:17.406 --> 00:02:22.747
+prefix is a sum of at most 17 cells. Because totals are monotone in the bay number, the
+
+25
+00:02:22.747 --> 00:02:23.318
+first
+
+26
+00:02:24.000 --> 00:02:29.559
+bay reaching k can be found by building the largest prefix still below k one power of two
+
+27
+00:02:29.559 --> 00:02:34.555
+at a time; the answer is the bay after it. Everything is logarithmic and the memory is one
+
+28
+00:02:34.555 --> 00:02:34.960
+array.
+
+29
+00:02:36.000 --> 00:02:42.807
+set 3 = 5 adds 5 to cells 3 and 4 and 8; set 6 = 2 adds
+
+30
+00:02:42.807 --> 00:02:44.478
+2 to cells 6 and 8.
+
+31
+00:02:46.000 --> 00:02:51.146
+For locate 6 the jump of 8 has stored sum 7, which is not below 6, so it
+
+32
+00:02:51.146 --> 00:02:56.699
+is rejected. The jump of 4 has sum 5, below 6, so it is taken and the remaining
+
+33
+00:02:56.699 --> 00:03:02.150
+target becomes 1. The jump of 2 reaches cell 6 with sum 2, not below 1, so it
+
+34
+00:03:02.150 --> 00:03:07.397
+is rejected; the jump of 1 reaches cell 5 with sum 0, below 1, so it is taken.
+
+35
+00:03:07.397 --> 00:03:10.065
+The position is 5 and the answer is bay 6.
+
+36
+00:03:11.000 --> 00:03:16.979
+O(bays + operations * log bays): about 17 steps per operation. O(bays)

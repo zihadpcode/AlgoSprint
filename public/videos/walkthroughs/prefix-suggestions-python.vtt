@@ -1,0 +1,93 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.730
+A search box suggests catalog words while a visitor types. Given distinct lowercase words and the full text
+
+2
+00:00:06.730 --> 00:00:12.487
+typed, return a list with one entry per typed character: after typing the first i characters, the entry
+
+3
+00:00:12.487 --> 00:00:18.774
+holds up to three catalog words that start with those characters, in alphabetical order (the three smallest).
+
+4
+00:00:18.774 --> 00:00:21.632
+When nothing matches, the entry is an empty list.
+
+5
+00:00:23.000 --> 00:00:26.184
+After 'm' the three smallest matches are mango, map, mast;
+
+6
+00:00:31.000 --> 00:00:34.398
+after 'ma' they are the same; after 'mas' only mast remains.
+
+7
+00:00:39.000 --> 00:00:40.216
+'k' and 'ki' match
+
+8
+00:00:47.000 --> 00:00:49.272
+both words; 'kix' matches nothing.
+
+9
+00:00:55.000 --> 00:01:00.419
+All words sharing a prefix pass through one trie node, so the node can remember that prefix's three
+
+10
+00:01:00.419 --> 00:01:02.036
+smallest words ahead of time.
+
+11
+00:01:03.000 --> 00:01:07.829
+Sort the words and insert them into a trie in that order. Along each word's path, append the
+
+12
+00:01:07.829 --> 00:01:12.164
+word to a node's list if it holds fewer than three. Then walk the typed letters from the
+
+13
+00:01:12.164 --> 00:01:17.178
+root, outputting each node's list, or an empty list once the path falls off the trie.
+
+14
+00:01:18.000 --> 00:01:22.521
+I build a trie from the words in sorted order, and each node stores the first three words
+
+15
+00:01:22.521 --> 00:01:28.591
+that pass through it, which are its prefix's three smallest matches. Each keystroke then moves one step down
+
+16
+00:01:28.591 --> 00:01:34.158
+the tree and reads the saved list. Once a letter has no child, every later prefix is empty
+
+17
+00:01:34.158 --> 00:01:40.629
+too. Building costs a sort plus the total length of the words, and queries are O(1) each. The
+
+18
+00:01:40.629 --> 00:01:45.316
+trade-off is memory for the nodes. Sorting with binary search is a lighter alternative.
+
+19
+00:01:46.000 --> 00:01:52.939
+Sorted words: mango, map, mast, mat, melon. Node 'm' keeps mango, map, mast. Node 'ma' keeps the same
+
+20
+00:01:52.939 --> 00:01:53.350
+three.
+
+21
+00:01:54.000 --> 00:01:57.691
+Node 'mas' is reached only by mast, so it keeps [mast].
+
+22
+00:01:59.000 --> 00:02:03.306
+Typing 'mas' reads [mango, map, mast], [mango, map, mast], [mast].
+
+23
+00:02:04.000 --> 00:02:10.300
+O(n log n · L) to build, then O(1) per keystroke. O(total letters in words)

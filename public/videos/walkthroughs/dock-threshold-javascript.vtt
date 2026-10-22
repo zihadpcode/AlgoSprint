@@ -1,0 +1,65 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.888
+A harbor lists dock capacities in nondecreasing order. Return the zero-based index of the first dock whose
+
+2
+00:00:05.888 --> 00:00:12.139
+capacity is at least load. If every dock is too small, or the list is empty, return -1.
+
+3
+00:00:12.139 --> 00:00:16.690
+Several docks may have the same capacity; choose the earliest qualifying index.
+
+4
+00:00:18.000 --> 00:00:23.558
+Both indices 1 and 2 have capacity 5, but index 1 is the first qualifying dock.
+
+5
+00:00:26.000 --> 00:00:27.985
+No capacity reaches the required load.
+
+6
+00:00:34.000 --> 00:00:39.136
+Sorted data lets each comparison discard a region that cannot contain the first qualifying dock.
+
+7
+00:00:40.000 --> 00:00:47.856
+Maintain [left,right). If the midpoint qualifies, move right to mid. Otherwise move left to mid + 1. At
+
+8
+00:00:47.856 --> 00:00:50.740
+convergence, check whether the index exists.
+
+9
+00:00:52.000 --> 00:00:57.424
+This is a search for the first qualifying position, not any matching value. I keep a half-open interval
+
+10
+00:00:57.424 --> 00:01:03.377
+around the boundary and discard half of it at every comparison. Equal values remain on the qualifying side,
+
+11
+00:01:03.377 --> 00:01:05.533
+which preserves the first-index requirement.
+
+12
+00:01:07.000 --> 00:01:16.104
+For [2,5,5,9] and load 5, the first midpoint is index 2. It qualifies, so move right to 2.
+
+13
+00:01:17.000 --> 00:01:23.656
+Index 1 also qualifies, so move right to 1. Index 0 is too small, so move left to
+
+14
+00:01:23.656 --> 00:01:24.015
+1.
+
+15
+00:01:25.000 --> 00:01:28.622
+The bounds meet at index 1, which is the first qualifying dock.
+
+16
+00:01:30.000 --> 00:01:31.904
+O(log n). O(1)

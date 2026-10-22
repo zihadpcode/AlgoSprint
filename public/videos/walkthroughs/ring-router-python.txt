@@ -1,0 +1,61 @@
+A cache cluster places servers at integer positions on a ring and sends every request key to the
+
+first server found clockwise: the server with the smallest position that is >= the key, wrapping around to
+
+the server with the smallest position overall when no server sits at or after the key. Servers can
+
+join and leave. The operations are ["add", name, position], which adds a server and returns true, or returns
+
+false and changes nothing if that name is already in use or that position already holds a server;
+
+["remove", name], which removes the server and returns true, or returns false if there is no such server;
+
+and ["route", key], which returns the name of the server that handles key, or null when the cluster
+
+is empty. Apply the operations in order starting from an empty cluster and return the result of every
+
+operation.
+
+Key 100 lands exactly on alpha; 101 goes
+
+on to beta (500); 501 wraps around to
+
+alpha. After beta leaves, 101 wraps to alpha.
+
+Position 100 is taken, so adding gamma there fails.
+
+An empty cluster routes to
+
+null and has nothing to remove.
+
+The ring is a sorted list read circularly, so the handler is the first position at or after
+
+the key, found by binary search.
+
+Maintain a sorted array of positions with a parallel array of names and a name-to-position map.
+
+bisect_left(target) returns the first index with position >= target. route wraps to index 0 when that index
+
+equals the length. add and remove locate the index with bisect_left, then insert or remove list entries.
+
+This is consistent hashing reduced to its data structure. The positions sit in a sorted array, so the
+
+owner of a key is a lower-bound lookup with a wrap-around. Routing is O(log s). Membership changes are
+
+rare in practice, and with a plain array they cost
+
+O(s) because list insertion and deletion shift elements; a balanced tree or skip list would make every operation
+
+O(log s). In real systems each server also gets many virtual positions so load spreads evenly and a
+
+departing server hands its keys to several neighbours rather than one.
+
+After the two adds, positions = [100, 500] and names = [alpha, beta].
+
+bisect_left(101) = 1 (beta); bisect_left(501) = 2 = length, so wrap to index 0 (alpha).
+
+Removing beta removes index 1. Position 100 stays taken, so adding gamma there returns false.
+
+O(log s) per route; O(s) per successful add or remove because Python list insertion and deletion shift elements,
+
+plus O(log s) search. O(s)

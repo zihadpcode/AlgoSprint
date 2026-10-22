@@ -1,0 +1,16 @@
+{
+  "slug": "switch-gap",
+  "language": "JAVASCRIPT",
+  "title": "Switch Gap",
+  "src": "/videos/walkthroughs/switch-gap-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/switch-gap-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/switch-gap-javascript.txt",
+  "durationSeconds": 111,
+  "sourceHash": "b4eeb3c5fbabaa5971171b6031b386d8a1cb1d4c4631e38f8e5aa57cf23362a0",
+  "sha256": "550fb5607e369e9699bfdd2478d08b3e950aa9aa4820c2c99dc7bd4bfdb16eef",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "f25bcb64b3e51136d34da373802f4772ffc583b970d3865bd6c3a6e6269079be",
+  "transcriptSha256": "53433ac4246c0432395c5c0163cf705e0eccb125ce3d1fc0f40df8505cc2f4cc"
+}

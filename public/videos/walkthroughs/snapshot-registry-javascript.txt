@@ -1,0 +1,41 @@
+Design a configuration registry that remembers history. set(key, value, time) records that key had value from
+
+time onward. get(key, time) returns the value that was current at that time: the value from the set
+
+with the largest time <= time for that key, or an empty string if there was none. Calls
+
+arrive as ["set", key, value, time] or ["get", key, time]; set times strictly increase across all calls, but
+
+get times can be anything. Return the result of every get, in order.
+
+Before 5 nothing was set; from
+
+5 to 8 it is dark;
+
+from 9 on it is light.
+
+A key that was never set returns an empty string.
+
+Each key's history is append-only and sorted by time, which is exactly what binary search needs.
+
+Keep a class with a Map from key to parallel arrays of times and values. set appends. get
+
+binary-searches for the first time > query and returns the value just before it.
+
+I keep per-key append-only histories. Set times only increase, so each history is sorted for free, and a
+
+get is an upper-bound binary search returning the entry just
+
+before the first later time. Sets are O(1) and gets O(log h). If sets could arrive out of
+
+order I'd insert in sorted position or use a balanced tree.
+
+theme history: times [5], values [dark].
+
+get 4 → first index with time > 4 is 0 → ''. get 5 → index 1
+
+→ dark.
+
+After set light@9: get 8 → index 1 → dark; get 20 → index 2 → light.
+
+O(1) per set, O(log h) per get. O(n)

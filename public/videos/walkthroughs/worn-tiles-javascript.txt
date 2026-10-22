@@ -1,0 +1,43 @@
+A hallway has length floor tiles, numbered 0 to length - 1. A cleaning pass [from, to] scrubs
+
+every tile from from to to, both ends included. A tile wears out once at least limit passes
+
+have scrubbed it. Passes may overlap, repeat or touch each other in any order. Return how many tiles
+
+are worn out after all the passes.
+
+Tiles 4, 5 and 6 are covered by two or more passes (tile 5 by three), and tiles
+
+8 and 9
+
+are covered by the second and fourth passes. That makes 5 worn tiles. Every other tile is scrubbed
+
+at most once.
+
+One pass scrubs every tile exactly once, so no tile reaches the limit of 2.
+
+Record only where each pass starts and stops; the running sum of those marks is the pass count
+
+of every tile.
+
+Allocate change of size length + 1. For each pass add 1 at from and subtract 1 at
+
+to + 1. Sweep the tiles left to right keeping a running total of change and count the
+
+tiles where it is at least limit.
+
+A pass is an interval, and the number of passes covering a tile is the sum of +1
+
+marks at or before it minus -1 marks before it. A difference array stores those marks, and one
+
+prefix-sum sweep rebuilds every tile's count. That turns 350 million paint steps into about 103,500 operations.
+
+For the first example the marks are +1 at tiles 2, 4, 5 and 8 and -1 at
+
+tiles 7, 10, 6 and 12.
+
+The running sum reaches 2 at tile 4, 3 at tile 5, 2 at tile 6, drops at
+
+tile 7, is 2 again at tiles 8 and 9, so 5 tiles meet the limit.
+
+O(length + passes). O(length)

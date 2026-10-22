@@ -1,0 +1,41 @@
+A rescue drone at the origin (0, 0) can check k distress beacons before its battery runs low.
+
+Each beacon is [x, y]. Return the k beacons closest to the origin by straight-line distance, ordered from
+
+closest to farthest. Break distance ties by smaller x, then by smaller y. Beacons may share a position;
+
+each one counts separately.
+
+Squared distances are 18, 26 and
+
+20, so [3, 3] then [-2, 4].
+
+All are at distance 1;
+
+ties go by x, then y:
+
+[-1, 0], [0, -1], [0, 1].
+
+Only the k best candidates matter; a max-heap exposes the worst of them for quick replacement.
+
+Use a comparator on (squared distance, x, y). Push beacons until the heap has k; afterwards, if a
+
+beacon is better than the heap's top (its worst), replace the top and sift down. Finally sort the
+
+k survivors with the comparator.
+
+I keep the k best beacons in a max-heap keyed by (distance², x, y), so the root is
+
+the worst of the current best. Each new beacon either loses to the root
+
+or replaces it and sifts down. That's O(n log k) with O(k) memory, then I sort the k
+
+survivors. Quickselect would give average O(n), but the heap also works on a stream.
+
+k = 2. Push [3,3] (18) and [5,-1] (26); the root is [5,-1].
+
+[-2,4] (20) beats 26, so it replaces the root, and the heap is {[3,3], [-2,4]}.
+
+Sorted: [3,3], [-2,4].
+
+O(n log k + k log k). O(k)

@@ -1,0 +1,39 @@
+A rescue robot moves through a warehouse floor described by the array grid, where each string is one
+
+row. The character S marks the robot's start, T marks the trapped worker, # marks a shelf the
+
+robot cannot enter, and . marks open floor. Each hop moves the robot one cell up, down, left
+
+or right, never diagonally and never off the floor. Return the smallest number of hops needed to reach
+
+T, or -1 if T cannot be reached.
+
+The shelves block the direct route, so the robot goes down twice and right twice for 4 hops.
+
+The shelf splits the row and the robot can never reach T.
+
+With unit-cost moves, exploring cells in discovery order visits them by increasing distance, so the first visit
+
+to any cell is along a shortest path.
+
+Encode each cell as a single index. Start a queue with S at distance 0. Repeatedly take the
+
+front cell; if it is T return its distance, otherwise enqueue each open, unvisited neighbor with distance plus
+
+one. An exhausted queue means T is unreachable.
+
+This is unweighted shortest path, so breadth-first search is the tool. I record a cell's distance the moment
+
+it is enqueued, which guarantees each cell enters the queue at most once
+
+and that the recorded distance is minimal. Using an index pointer into the array instead of shift keeps
+
+dequeues constant time. The whole search is linear in the number of cells.
+
+For ["S.#", ".##", "..T"], S is dequeued and enqueues (0,1) and (1,0) at distance 1.
+
+(1,0) enqueues (2,0) at distance 2; (2,0) enqueues (2,1) at 3; (2,1) enqueues (2,2) at 4.
+
+(2,2) is T, so the search returns 4.
+
+O(rows × cols). O(rows × cols)

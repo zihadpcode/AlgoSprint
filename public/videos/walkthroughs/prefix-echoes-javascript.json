@@ -1,0 +1,16 @@
+{
+  "slug": "prefix-echoes",
+  "language": "JAVASCRIPT",
+  "title": "Prefix Echoes",
+  "src": "/videos/walkthroughs/prefix-echoes-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/prefix-echoes-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/prefix-echoes-javascript.txt",
+  "durationSeconds": 125,
+  "sourceHash": "9b4a26b96484a3d0f557eb74b0cab5db5ea044accac97df971debdf99c6c7b1b",
+  "sha256": "a676c72bd30ffe3d77979cbc1f54da9ea11f0d85e2a345dcf4c2abcb25df06a6",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "546162c83435a917438d17a05860b1d7bddf666d231225b92401962c6cc6eedc",
+  "transcriptSha256": "890ae9491ed85ea7c1b29a29d95d387edc519f74bb44f00ee43ce6c437fe3324",
+  "rendererVersion": "2026-10-22.1"
+}

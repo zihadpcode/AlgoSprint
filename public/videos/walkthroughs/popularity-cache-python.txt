@@ -1,0 +1,43 @@
+Design a cache with room for capacity entries that evicts the least frequently used key when full. Every
+
+get of a present key and every put counts as a use of that key. When several keys
+
+tie for the lowest use count, evict the one used least recently. Operations arrive as ["put", key, value]
+
+or ["get", key]. A put of an existing key updates its value (and counts as a use). Return
+
+the results of every get in order: the stored value, or -1 if the key is absent.
+
+Key 2 (used once) is evicted for
+
+3. When 4 arrives, keys 1 and
+
+3 both have two uses; 1 was
+
+used less recently, so it is evicted.
+
+A missing key returns -1.
+
+Ordered groups per use count make the victim the first key of the lowest non-empty group, which a
+
+single minimum pointer tracks.
+
+Track each key's value and frequency, plus an OrderedDict for each frequency. Within a bucket, keys are ordered
+
+from least to most recent. A touch moves the key into the next frequency bucket; eviction pops the
+
+oldest key from the minimum-frequency bucket.
+
+Frequency buckets let us find the least-used keys directly. OrderedDict provides constant average time
+
+removal and insertion while retaining recency within a frequency. A minimum-frequency pointer identifies the
+
+eviction bucket, so each cache operation uses O(1) average time and storage stays O(capacity).
+
+After the first five operations: buckets {1: [3], 2: [1]}, minFreq 1.
+
+get 3 moves 3 to bucket 2 → {2: [1, 3]}, minFreq 2.
+
+put 4 when full evicts the first of bucket 2 (key 1), then inserts 4 at count 1.
+
+O(1) average per operation. O(capacity)

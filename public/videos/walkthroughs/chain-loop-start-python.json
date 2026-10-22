@@ -1,0 +1,16 @@
+{
+  "slug": "chain-loop-start",
+  "language": "PYTHON",
+  "title": "Chain Loop Start",
+  "src": "/videos/walkthroughs/chain-loop-start-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/chain-loop-start-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/chain-loop-start-python.txt",
+  "durationSeconds": 123,
+  "sourceHash": "e8891065d585101152e1d5e9dd5eef72dcee14831d7b727dc9dbb699172ddbae",
+  "sha256": "62f61c8ce29d1bfbcc51322a9ede9e50d14c74ae60d73a2bd506ee94b3a69e3d",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "1f25923c33f8ba4d9c19f6dccb6afa0bd398dda4a746b470df65e5db39536bb2",
+  "transcriptSha256": "fd4e35f7470eaf49e0d059879f0a0bfefe015178e1048b9e24c90bafb4b40a2b"
+}

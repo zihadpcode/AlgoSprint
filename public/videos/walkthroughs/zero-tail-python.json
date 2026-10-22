@@ -1,0 +1,16 @@
+{
+  "slug": "zero-tail",
+  "language": "PYTHON",
+  "title": "Zero Tail",
+  "src": "/videos/walkthroughs/zero-tail-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/zero-tail-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/zero-tail-python.txt",
+  "durationSeconds": 137,
+  "sourceHash": "6ea825557dd1625bd39f43cdecfcdb7ce3b6293a6b67348887085c9679c32d61",
+  "sha256": "f9f5b0746d5221e518e28b6e4dc96e4729d80c719cb01f5399d0d5c92ee7b478",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "b8f1121ecc3dbf18afeb248c10bcf0435a2cd992e821bf44c855a70f00695168",
+  "transcriptSha256": "a15ab2190fe9be2fb14afc6fc94e62632b8bc3bcdf3acb8d57ee54fd7a313314"
+}

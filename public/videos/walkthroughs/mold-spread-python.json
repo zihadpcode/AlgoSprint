@@ -1,0 +1,16 @@
+{
+  "slug": "mold-spread",
+  "language": "PYTHON",
+  "title": "Mold Spread",
+  "src": "/videos/walkthroughs/mold-spread-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/mold-spread-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/mold-spread-python.txt",
+  "durationSeconds": 106,
+  "sourceHash": "b91a23f4a273ef8d3b6f3763a6cdf1cc46aa9cf51671778239ac03c228aecd9a",
+  "sha256": "8d7676143cf364ad284fdcba1541d7671cccd94f61a9faf57caa7f9b88ca3fa4",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "e0442e4eea4a461c25aeb0c4764cec89b0b5641b04a34a829dd8f9b27ff3ba44",
+  "transcriptSha256": "35a6ef795f5b50a990615df4ad261471bb89eb0b9cf36331104e69895a856692"
+}

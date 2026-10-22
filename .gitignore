@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Local coordination notes between agents (never commit)
 AGENT-COORDINATION.md
+
+# Local Python renderer bytecode
+__pycache__/

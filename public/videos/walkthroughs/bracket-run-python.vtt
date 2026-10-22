@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.734
+A code formatter receives a string of '(' and ')' characters. Return the length of the longest contiguous
+
+2
+00:00:05.734 --> 00:00:10.787
+stretch that is a well-formed bracket sequence: every '(' is closed by a later ')' and no ')'
+
+3
+00:00:10.787 --> 00:00:12.190
+appears before its matching '('.
+
+4
+00:00:13.000 --> 00:00:15.648
+The longest well-formed stretch is '()', length 2.
+
+5
+00:00:21.000 --> 00:00:22.318
+'()()' has length 4.
+
+6
+00:00:29.000 --> 00:00:34.525
+The bottom of the stack marks where the current valid stretch cannot extend past, and after each match
+
+7
+00:00:34.525 --> 00:00:36.936
+the stretch length is the distance to the stack top.
+
+8
+00:00:38.000 --> 00:00:44.144
+stack = [-1]. For '(' push i. For ')' pop; if the stack is empty push i as
+
+9
+00:00:44.144 --> 00:00:48.534
+a new base, otherwise best = max(best, i - top).
+
+10
+00:00:50.000 --> 00:00:55.999
+I keep indices of unmatched '(' above a base marker, the index just before the current stretch. A
+
+11
+00:00:55.999 --> 00:01:01.299
+')' pops its partner. If nothing is left, it becomes the new base; otherwise the valid stretch ending
+
+12
+00:01:01.299 --> 00:01:07.379
+here runs from just after the stack top. That handles nesting and adjacency in one pass. A two-counter
+
+13
+00:01:07.379 --> 00:01:12.260
+scan left to right and then right to left solves it in O(1) space as an alternative.
+
+14
+00:01:13.000 --> 00:01:16.813
+')()())': i=0 ')' pops -1 → empty → push 0.
+
+15
+00:01:18.000 --> 00:01:25.775
+i=1 '(' push; i=2 ')' pop → top 0 → length 2. i=3 push; i=4 pop → length
+
+16
+00:01:25.775 --> 00:01:26.266
+4.
+
+17
+00:01:27.000 --> 00:01:31.507
+i=5 ')' pops 0 → empty → push 5. The best is 4.
+
+18
+00:01:33.000 --> 00:01:34.418
+O(n). O(n)

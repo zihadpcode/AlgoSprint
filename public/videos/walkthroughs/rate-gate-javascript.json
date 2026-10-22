@@ -1,0 +1,16 @@
+{
+  "slug": "rate-gate",
+  "language": "JAVASCRIPT",
+  "title": "Rate Gate",
+  "src": "/videos/walkthroughs/rate-gate-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/rate-gate-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/rate-gate-javascript.txt",
+  "durationSeconds": 142,
+  "sourceHash": "e07bac8e148e18afc5b3bd3ebb0102963e6e123525dda77590ff0a83b52d9e5b",
+  "sha256": "8a533b12f44ff031577238f816b6a15f201cadec8d55b1ee6a7283e1f48d8332",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "9895d5ce714d61608e9ef1caba3a04dfccb723406a7bf683007fbd1c3d53bbe9",
+  "transcriptSha256": "6ed043f8c946eb1a8294c8493bee198c2cc88c09e5e789e7b973a4862edcf267"
+}

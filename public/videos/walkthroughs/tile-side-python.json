@@ -1,0 +1,16 @@
+{
+  "slug": "tile-side",
+  "language": "PYTHON",
+  "title": "Tile Side",
+  "src": "/videos/walkthroughs/tile-side-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/tile-side-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/tile-side-python.txt",
+  "durationSeconds": 86,
+  "sourceHash": "fca2ef7759fece72358fd29dafb64bb828ba8665e04b6b8de0cb31e9310f8ba8",
+  "sha256": "994edb760dfa271abcbab3ea29b1cab4e731f61cad6f6fff7f5fc125ceadf4ba",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "44b8971211d98c232137e351e4e90badabcd43839e1f4c875cabfc696e9d864a",
+  "transcriptSha256": "3d6a8cd894508681adce36ba8f79caf4351353b08e9493c20c471743785870d7"
+}

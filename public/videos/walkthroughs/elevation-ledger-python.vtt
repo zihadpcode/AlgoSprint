@@ -1,0 +1,125 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:07.069
+Surveyors record height differences between numbered benchmarks 0 to benchmarks - 1. A statement [a, b, d]
+
+2
+00:00:07.069 --> 00:00:13.379
+claims that height[a] - height[b] = d. Process the statements in order and keep only those that agree
+
+3
+00:00:13.379 --> 00:00:18.703
+with the statements accepted so far. For each statement return "new" if benchmarks a and b were not
+
+4
+00:00:18.703 --> 00:00:24.484
+yet linked by accepted statements (the statement is accepted and now links them), "known" if they were already
+
+5
+00:00:24.484 --> 00:00:30.378
+linked and the accepted statements imply exactly the difference d (nothing changes), or "conflict" if they were
+
+6
+00:00:30.378 --> 00:00:36.955
+already linked and the implied difference is not d (the statement is rejected and ignored). Return one string
+
+7
+00:00:36.955 --> 00:00:38.120
+per statement, in order.
+
+8
+00:00:39.000 --> 00:00:43.160
+The first two statements link 0, 1 and 2 (so height[0]
+
+9
+00:00:47.000 --> 00:00:51.219
+- height[2] = 3). The third repeats that implied value (known);
+
+10
+00:00:55.000 --> 00:00:59.956
+the fourth contradicts it (conflict, ignored); the fifth links benchmark 3 (new).
+
+11
+00:01:03.000 --> 00:01:06.536
+A difference of 0 is symmetric, so the second statement is known;
+
+12
+00:01:11.000 --> 00:01:14.855
+the third claims a difference of 2 where 0 is implied, which conflicts.
+
+13
+00:01:19.000 --> 00:01:24.286
+Store for each benchmark its height minus its parent's height; the sum along the path to the root
+
+14
+00:01:24.286 --> 00:01:29.282
+gives the height relative to the group's root, so two benchmarks in a group have a fixed difference.
+
+15
+00:01:30.000 --> 00:01:36.762
+find(x) climbs to the root, then rewrites offsets and parents along the path so each points straight at
+
+16
+00:01:36.762 --> 00:01:43.621
+the root with its offset relative to the root. For [a, b, d], compare riseA - riseB with
+
+17
+00:01:43.621 --> 00:01:49.072
+d when the roots match; otherwise link the smaller group under the larger with offset d - riseA
+
+18
+00:01:49.072 --> 00:01:50.749
++ riseB (or its negation).
+
+19
+00:01:52.000 --> 00:01:57.782
+Each group's heights are known relative to its root, so the structure stores offset[x] = height[x] -
+
+20
+00:01:57.782 --> 00:02:03.185
+height[parent[x]]. find sums offsets to the root and compresses the path, rewriting each offset to be
+
+21
+00:02:03.185 --> 00:02:06.256
+root-relative. A statement links two groups only when
+
+22
+00:02:07.000 --> 00:02:12.776
+the roots differ; the new root-to-root gap is d - riseA + riseB. With union by size and
+
+23
+00:02:12.776 --> 00:02:20.998
+path compression each operation is O(alpha(n)) amortized, and memory is O(benchmarks). The same weighted idea
+
+24
+00:02:20.998 --> 00:02:25.425
+solves currency-exchange ratio queries, using multiplication instead of addition.
+
+25
+00:02:27.000 --> 00:02:35.364
+[0, 1, 5] attaches one root under the other; [1, 2, -2] attaches 2, so height[0] - height[2]
+
+26
+00:02:35.364 --> 00:02:36.121
+= 3.
+
+27
+00:02:37.000 --> 00:02:45.719
+find(0) and find(2) share a root with rises that differ by 3, so [0, 2, 3] is known
+
+28
+00:02:45.719 --> 00:02:48.600
+and [0, 2, 4] is a conflict.
+
+29
+00:02:50.000 --> 00:02:57.093
+[3, 0, 1] joins benchmark 3 to the group; the answers are new, new, known, conflict, new.
+
+30
+00:02:58.000 --> 00:03:05.687
+O(alpha(n)) amortized per statement, where alpha is the inverse Ackermann function, because union by size and
+
+31
+00:03:05.687 --> 00:03:12.103
+path compression are both used. O(benchmarks) for the parent, size and offset arrays

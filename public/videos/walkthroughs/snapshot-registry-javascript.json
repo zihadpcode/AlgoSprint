@@ -1,0 +1,16 @@
+{
+  "slug": "snapshot-registry",
+  "language": "JAVASCRIPT",
+  "title": "Snapshot Registry",
+  "src": "/videos/walkthroughs/snapshot-registry-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/snapshot-registry-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/snapshot-registry-javascript.txt",
+  "durationSeconds": 127,
+  "sourceHash": "0cee2c20743ec33dd4320dec75b060f672e70c98f896dfc13f5d4ed6021dd21b",
+  "sha256": "789f99cb6e2d635a4f6992d2b9a53f819177d573c1b76b871674cf97e7710150",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "361b5cb0cf79a2f8b532ea618e9a582973166c75618ccc673561a840da0c5e46",
+  "transcriptSha256": "0f15530d321f0b50776598942897aae10fe16eea61c7a8f4f8274eadc2014fd5"
+}

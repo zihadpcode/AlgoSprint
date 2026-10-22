@@ -1,0 +1,1689 @@
+[
+  {
+    "problemSlug": "quiet-badge",
+    "youtubeId": "rBENYgWy3xU",
+    "title": "First Unique Character in a String - Leetcode 387 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Frequency count",
+    "referenceProblem": "First Unique Character In A String",
+    "bridge": "The lesson counts characters and locates the first unique one, matching the badge frequency rule. Adapt the function and empty-input/no-match result to the statement, and return an index rather than the letter itself.",
+    "segments": []
+  },
+  {
+    "problemSlug": "relay-window",
+    "youtubeId": "UdUUnoiLkPg",
+    "title": "Maximum Average Subarray I - Leetcode 643 - Fixed Sliding Window (Python)",
+    "channel": "Greg Hogg",
+    "concept": "Fixed window",
+    "referenceProblem": "Maximum Average Subarray I",
+    "bridge": "The lesson maintains a fixed-width sum while finding a maximum average. Because width never changes, maximizing its average and maximizing its total choose the same window; return the total here and allow it to stay negative.",
+    "segments": []
+  },
+  {
+    "problemSlug": "badge-majority",
+    "youtubeId": "7pnhv842keE",
+    "title": "Majority Element - Leetcode 169 - Python",
+    "channel": "NeetCode",
+    "concept": "Boyer moore",
+    "referenceProblem": "Majority Element",
+    "bridge": "The lesson explains the majority candidate and cancellation invariant. Here a majority is guaranteed, so adapt the entry-point name and return the team number; a verification pass is unnecessary under that guarantee.",
+    "segments": []
+  },
+  {
+    "problemSlug": "balance-runs",
+    "youtubeId": "fFVZt-6sgyo",
+    "title": "Subarray Sum Equals K - Prefix Sums - Leetcode 560 - Python",
+    "channel": "NeetCode",
+    "concept": "Prefix sum",
+    "referenceProblem": "Subarray Sum Equals K",
+    "bridge": "The lesson counts subarrays with a target sum by recording earlier prefix totals. Apply the same reasoning to signed daily changes and count runs by position, including repeated prefixes.",
+    "segments": [
+      {
+        "startSeconds": 147,
+        "endSeconds": 791,
+        "label": "Drawing explanation"
+      },
+      {
+        "startSeconds": 791,
+        "endSeconds": 918,
+        "label": "Coding explanation"
+      }
+    ]
+  },
+  {
+    "problemSlug": "balanced-blueprint",
+    "youtubeId": "WTzjTskDFMg",
+    "title": "Valid Parentheses - Stack - Leetcode 20 - Python",
+    "channel": "NeetCode",
+    "concept": "Stack matching",
+    "referenceProblem": "Valid Parentheses",
+    "bridge": "The lesson matches brackets with a stack, including all three bracket types used by the blueprint. Adapt the function signature, reject an unmatched closing bracket before popping, and keep the empty plan balanced.",
+    "segments": [
+      {
+        "startSeconds": 85,
+        "endSeconds": 440,
+        "label": "Drawing explanation"
+      },
+      {
+        "startSeconds": 440,
+        "endSeconds": 643,
+        "label": "Coding explanation"
+      }
+    ]
+  },
+  {
+    "problemSlug": "balanced-canopy",
+    "youtubeId": "QfJsau0ItOY",
+    "title": "Balanced Binary Tree - Leetcode 110 - Python",
+    "channel": "NeetCode",
+    "concept": "Tree recursion",
+    "referenceProblem": "Balanced Binary Tree",
+    "bridge": "The lesson computes tree height while detecting an unbalanced subtree. Its node objects differ from the compact level-order array here: decode children without assigning children to null entries before applying the height invariant.",
+    "segments": []
+  },
+  {
+    "problemSlug": "bay-ledger",
+    "youtubeId": "pYIOyWycjsA",
+    "title": "Fenwick Tree (Binary Indexed Tree) Explained with Animations | C, C++, Java, Python",
+    "channel": "Algopk",
+    "concept": "Fenwick tree",
+    "referenceProblem": "Fenwick Tree / Binary Indexed Tree",
+    "bridge": "The lesson explains Fenwick prefix sums and point updates. A set here replaces an old count, so update by the difference; locating the kth box additionally needs a prefix-order search or Fenwick binary descent, which this introductory lesson may not cover.",
+    "segments": []
+  },
+  {
+    "problemSlug": "booth-bookings",
+    "youtubeId": "fIxck3tlId4",
+    "title": "My Calendar I - Leetcode 729 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Design",
+    "referenceProblem": "My Calendar I",
+    "bridge": "The lesson maintains a calendar of non-overlapping bookings. Add the required cleaning gap to both neighbor checks, then extend the structure with stable accepted IDs, cancellation and the next-start query; a book-only interface does not implement those operations.",
+    "segments": []
+  },
+  {
+    "problemSlug": "canopy-gain",
+    "youtubeId": "Hr5cWUld4vU",
+    "title": "Binary Tree Maximum Path Sum - DFS - Leetcode 124 - Python",
+    "channel": "NeetCode",
+    "concept": "Tree recursion",
+    "referenceProblem": "Binary Tree Maximum Path Sum",
+    "bridge": "The lesson combines nonnegative downward gains from two child subtrees and records the best path through each node. Decode the level-order array first and keep at least one node in the answer, including when every score is negative.",
+    "segments": []
+  },
+  {
+    "problemSlug": "canopy-layers",
+    "youtubeId": "6ZnyEApgFYg",
+    "title": "Binary Tree Level Order Traversal - BFS - Leetcode 102",
+    "channel": "NeetCode",
+    "concept": "Bfs",
+    "referenceProblem": "Binary Tree Level Order Traversal",
+    "bridge": "The lesson visits a binary tree breadth first, one depth at a time. Replace its list of node values at each depth with their sum, and decode the compact level-order input; an empty survey returns an empty list.",
+    "segments": []
+  },
+  {
+    "problemSlug": "city-skyline",
+    "youtubeId": "_DmJdDmZLZM",
+    "title": "218. The Skyline Problem | Leetcode Unlocked - Python",
+    "channel": "Leetcode Unlocked",
+    "concept": "Sweep line",
+    "referenceProblem": "The Skyline Problem",
+    "bridge": "The lesson sweeps building boundaries and maintains the active skyline height. Apply half-open building spans and emit a key point only when height changes, including the final fall to zero.",
+    "segments": []
+  },
+  {
+    "problemSlug": "close-calls",
+    "youtubeId": "cQ1Oz4ckceM",
+    "title": "TWO SUM II - Amazon Coding Interview Question - Leetcode 167 - Python",
+    "channel": "NeetCode",
+    "concept": "Two pointers",
+    "referenceProblem": "Two Sum II - Input Array Is Sorted",
+    "bridge": "The lesson uses numeric sorted order to move pair-search boundaries without reconsidering earlier positions. Here eligibility is a difference <= tolerance rather than an exact sum: for each right endpoint move a left boundary until the span fits, then count every earlier index still in the span, including equal readings.",
+    "segments": []
+  },
+  {
+    "problemSlug": "crew-cover",
+    "youtubeId": "Ev92oky6aLM",
+    "title": "Smallest Sufficient Team - LeetCode 1125 - Python",
+    "channel": "Alpha-Code",
+    "concept": "Bitmask dp",
+    "referenceProblem": "Smallest Sufficient Team",
+    "bridge": "The lesson represents covered skills as a bitmask and searches for a smallest sufficient team. This task returns the minimum number rather than member indices, receives masks directly and can be impossible, in which case return -1.",
+    "segments": []
+  },
+  {
+    "problemSlug": "crossword-trace",
+    "youtubeId": "pfiQ_PS1g8E",
+    "title": "Word Search - Backtracking - Leetcode 79 - Python",
+    "channel": "NeetCode",
+    "concept": "Backtracking",
+    "referenceProblem": "Word Search",
+    "bridge": "The lesson backtracks through edge-adjacent board cells while matching a word. Preserve the no-reused-cell rule, restore visitation marks after each trial, and adapt the grid representation and entry-point name.",
+    "segments": []
+  },
+  {
+    "problemSlug": "dial-distance",
+    "youtubeId": "yRI18_MaG7k",
+    "title": "Minimum Number of One Bit Operations to Make Integers Zero - Leetcode 1611 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Gray code",
+    "referenceProblem": "Minimum One Bit Operations To Make Integers Zero",
+    "bridge": "The lesson relates an integer to inverse Gray-code operations. Here decode both displayed settings into click indices, then take the shorter distance around a ring of size 2**bits; a distance from zero alone is not the answer.",
+    "segments": []
+  },
+  {
+    "problemSlug": "dial-lookup",
+    "youtubeId": "U8XENwh8Oy8",
+    "title": "Search in rotated sorted array - Leetcode 33 - Python",
+    "channel": "NeetCode",
+    "concept": "Rotated binary search",
+    "referenceProblem": "Search In Rotated Sorted Array",
+    "bridge": "The lesson searches a rotated sorted list by recognizing which half is ordered. Adapt the dial signature and return -1 when absent; the distinct-number assumption is what makes the ordered-half test decisive.",
+    "segments": []
+  },
+  {
+    "problemSlug": "digit-power",
+    "youtubeId": "g9YQyYi4IQQ",
+    "title": "Pow(x, n) - X to the power of N - Leetcode 50 - Python",
+    "channel": "NeetCode",
+    "concept": "Fast exponentiation",
+    "referenceProblem": "Powx N",
+    "bridge": "The lesson explains square-and-multiply exponentiation. Here the exponent arrives as decimal digits, so process each digit with result = result**10 * base**digit modulo modulus; converting the full exponent or using floating-point power is not the required method.",
+    "segments": []
+  },
+  {
+    "problemSlug": "drop-nth-car",
+    "youtubeId": "XVuQxVej6y8",
+    "title": "Remove Nth Node from End of List - Oracle Interview Question - Leetcode 19",
+    "channel": "NeetCode",
+    "concept": "Fast slow pointers",
+    "referenceProblem": "Remove Nth Node From End Of List",
+    "bridge": "The lesson separates two pointers by k nodes to remove a node counted from the end. Here links are array indices rather than objects, and the result is the surviving index order; preserve the original input when reconnecting the copied links.",
+    "segments": []
+  },
+  {
+    "problemSlug": "dual-median",
+    "youtubeId": "q6IEA26hvXc",
+    "title": "Median of Two Sorted Arrays - Binary Search - Leetcode 4",
+    "channel": "NeetCode",
+    "concept": "Partition binary search",
+    "referenceProblem": "Median Of Two Sorted Arrays",
+    "bridge": "The lesson partitions two sorted arrays so their combined left half contains the median. Handle an empty side with boundary sentinels and return the average of the two middle values for an even combined size.",
+    "segments": []
+  },
+  {
+    "problemSlug": "elevation-ledger",
+    "youtubeId": "Uei1fwDoyKk",
+    "title": "Evaluate Division - Leetcode 399 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Union find",
+    "referenceProblem": "Evaluate Division",
+    "bridge": "The lesson traverses a graph of equations to combine known relationships. Here relationships add height offsets rather than multiply ratios, and each incoming statement can be rejected without changing accepted facts; a weighted union-find is an extra optimization beyond a traversal lesson.",
+    "segments": []
+  },
+  {
+    "problemSlug": "exact-flags",
+    "youtubeId": "4zNK0rhFfcA",
+    "title": "Count Number of Nice Subarrays - Leetcode 1248 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Variable window",
+    "referenceProblem": "Count Number Of Nice Subarrays",
+    "bridge": "The lesson counts subarrays containing exactly k odd numbers. This problem also permits negative readings and k = 0; in Python value % 2 identifies negative odd numbers correctly, and an at-most helper must return zero for a negative limit.",
+    "segments": []
+  },
+  {
+    "problemSlug": "first-redundant-link",
+    "youtubeId": "1lNK80tOTfc",
+    "title": "Redundant Connection - Leetcode 684 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Union find",
+    "referenceProblem": "Redundant Connection",
+    "bridge": "The lesson uses union-find to detect an edge joining nodes already connected. Return the first such input edge here, retain its original endpoint order, and handle a self-link as immediately redundant.",
+    "segments": []
+  },
+  {
+    "problemSlug": "floodgate-path",
+    "youtubeId": "amvrKlMLuGY",
+    "title": "Swim in Rising Water - Dijkstra's Algorithm - Leetcode 778 - Python",
+    "channel": "NeetCode",
+    "concept": "Minimax path",
+    "referenceProblem": "Swim In Rising Water",
+    "bridge": "The lesson finds a grid route minimizing its largest elevation. The same maximum-along-path relaxation applies here, with both endpoint heights included; adapt the function signature and support rectangular dimensions from this statement.",
+    "segments": []
+  },
+  {
+    "problemSlug": "floor-tracker",
+    "youtubeId": "qkLl7nAwDPo",
+    "title": "Design Min Stack - Amazon Interview Question - Leetcode 155 - Python",
+    "channel": "NeetCode",
+    "concept": "Design",
+    "referenceProblem": "Min Stack",
+    "bridge": "The lesson keeps a stack together with information needed to answer its minimum. Convert the object methods to the supplied operation list and return only pop, top and min results, retaining duplicate minima.",
+    "segments": []
+  },
+  {
+    "problemSlug": "fragile-links",
+    "youtubeId": "twP8rbQMvfo",
+    "title": "Leetcode - Critical Connections in a Network (Python)",
+    "channel": "Timothy H Chang",
+    "concept": "Bridges",
+    "referenceProblem": "Critical Connections in a Network",
+    "bridge": "The lesson identifies bridges using DFS discovery times and low-link values. This network need not start connected, so start DFS in every unvisited component and sort normalized endpoint pairs as the output requires.",
+    "segments": []
+  },
+  {
+    "problemSlug": "fuel-stretch",
+    "youtubeId": "aYqYMIqZx5s",
+    "title": "Minimum Size Subarray Sum - Leetcode 209 - Python",
+    "channel": "NeetCode",
+    "concept": "Variable window",
+    "referenceProblem": "Minimum Size Subarray Sum",
+    "bridge": "The lesson shrinks a sliding window after its positive values meet a target. The same positivity assumption holds for fuel; record the shortest nonempty qualifying run and return zero when none exists.",
+    "segments": []
+  },
+  {
+    "problemSlug": "grid-turn",
+    "youtubeId": "fMSJSS7eO1w",
+    "title": "Rotate Image - Matrix - Leetcode 48",
+    "channel": "NeetCode",
+    "concept": "Matrix transform",
+    "referenceProblem": "Rotate Image",
+    "bridge": "The lesson rotates a square image by transposing and reversing rows. This problem forbids modifying the input, so copy the matrix before those in-place operations and return the new matrix.",
+    "segments": []
+  },
+  {
+    "problemSlug": "grove-harvest",
+    "youtubeId": "2DyhfvAetlU",
+    "title": "Maximum Sum BST in Binary Tree | DFS & Postorder Traversal | Python, Java & C++ | DSA",
+    "channel": "RisingBrain",
+    "concept": "Tree recursion",
+    "referenceProblem": "Maximum Sum BST in Binary Tree",
+    "bridge": "The lesson combines postorder summaries to find the maximum-sum BST subtree. Decode the compact array to children, require strict inequalities throughout each subtree and retain zero as the result when harvesting nothing is best.",
+    "segments": []
+  },
+  {
+    "problemSlug": "kth-badge",
+    "youtubeId": "5LUXSvjmGCw",
+    "title": "Kth Smallest Element in a BST - Leetcode 230 - Python",
+    "channel": "NeetCode",
+    "concept": "Inorder traversal",
+    "referenceProblem": "Kth Smallest Element In A Bst",
+    "bridge": "The lesson uses the sorted order produced by an inorder BST traversal. Decode the compact level-order array, count visited nodes from one and return the badge value at rank k rather than the node object.",
+    "segments": []
+  },
+  {
+    "problemSlug": "lane-merge",
+    "youtubeId": "q5a5OiGbT6Q",
+    "title": "Merge K Sorted Lists - Leetcode 23 - Python",
+    "channel": "NeetCode",
+    "concept": "K way merge",
+    "referenceProblem": "Merge K Sorted Lists",
+    "bridge": "The lesson repeatedly takes the smallest head from several sorted linked lists. Here the lanes are arrays, so heap entries can store a lane index and an offset; preserve duplicates and return values in the required order.",
+    "segments": []
+  },
+  {
+    "problemSlug": "laser-shots",
+    "youtubeId": "lPmkKnvNPrw",
+    "title": "Minimum Number of Arrows to Burst Balloons - Leetcode 452 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Greedy",
+    "referenceProblem": "Minimum Number Of Arrows To Burst Balloons",
+    "bridge": "The lesson chooses a minimum set of arrow positions to cover closed balloon intervals. Laser panels have the same closed-endpoint intersection rule, so touching endpoints can share one shot; adapt the names and return only the count.",
+    "segments": []
+  },
+  {
+    "problemSlug": "later-lower",
+    "youtubeId": "wWrprKyQmE4",
+    "title": "Leetcode - Count of Smaller Numbers After Self (Python)",
+    "channel": "Timothy H Chang",
+    "concept": "Fenwick tree",
+    "referenceProblem": "Count of Smaller Numbers After Self",
+    "bridge": "The lesson counts smaller elements appearing to the right of each position. Preserve strictness for equal scores and the original arrival order; if the lesson uses ordered insertion rather than Fenwick updates, compare its running time with this problem’s limits.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ledger-tree-check",
+    "youtubeId": "s6ATEkipzow",
+    "title": "Validate Binary Search Tree - Depth First Search - Leetcode 98",
+    "channel": "NeetCode",
+    "concept": "Bounded recursion",
+    "referenceProblem": "Validate Binary Search Tree",
+    "bridge": "The lesson validates a BST using bounds inherited from every ancestor. Decode the compact level-order array correctly and enforce strict bounds rather than comparing a node only with its immediate children.",
+    "segments": []
+  },
+  {
+    "problemSlug": "lone-sensor",
+    "youtubeId": "qMPX1AOa83k",
+    "title": "Single Number - Leetcode 136 - Python",
+    "channel": "NeetCode",
+    "concept": "Xor",
+    "referenceProblem": "Single Number",
+    "bridge": "The lesson cancels equal pairs using XOR to leave the single unpaired value. Every other sensor ID here occurs exactly twice, so the same cancellation works in constant extra space; return the remaining identifier, not its index.",
+    "segments": [
+      {
+        "startSeconds": 38,
+        "endSeconds": 85,
+        "label": "O(n) Memory Solution"
+      },
+      {
+        "startSeconds": 85,
+        "endSeconds": 376,
+        "label": "O(1) Memory Solution"
+      },
+      {
+        "startSeconds": 376,
+        "endSeconds": 428,
+        "label": "Coding Solution"
+      }
+    ]
+  },
+  {
+    "problemSlug": "longest-clean-streak",
+    "youtubeId": "wiGpQwVHdE0",
+    "title": "Longest Substring Without Repeating Characters - Leetcode 3 - Python",
+    "channel": "NeetCode",
+    "concept": "Variable window",
+    "referenceProblem": "Longest Substring Without Repeating Characters",
+    "bridge": "The lesson grows a character window and moves its left edge past duplicates. Apply the same last-seen or set invariant to the recorded string and return the window length, including zero for an empty record.",
+    "segments": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 280,
+        "label": "Conceptual"
+      },
+      {
+        "startSeconds": 280,
+        "endSeconds": 405,
+        "label": "Coding solution"
+      }
+    ]
+  },
+  {
+    "problemSlug": "lru-results",
+    "youtubeId": "7ABFKPK2hD4",
+    "title": "LRU Cache - Twitch Interview Question - Leetcode 146",
+    "channel": "NeetCode",
+    "concept": "Design",
+    "referenceProblem": "Lru Cache",
+    "bridge": "The lesson maintains key lookup together with least-recently-used order. Here both get and put refresh recency, put on an existing key updates its value, and only get operations return outputs, with -1 for a missing key.",
+    "segments": [
+      {
+        "startSeconds": 120,
+        "endSeconds": 450,
+        "label": "Drawing solution"
+      },
+      {
+        "startSeconds": 450,
+        "endSeconds": 1069,
+        "label": "Coding solution"
+      }
+    ]
+  },
+  {
+    "problemSlug": "merge-point",
+    "youtubeId": "D0X0BONOQhI",
+    "title": "Intersection of Two Linked Lists - Leetcode 160 - Python",
+    "channel": "NeetCode",
+    "concept": "Two pointers",
+    "referenceProblem": "Intersection Of Two Linked Lists",
+    "bridge": "The lesson finds where two linked lists share node identity, rather than merely an equal value. Here identity is a station index in the next array; return the shared index or -1 and avoid changing either chain.",
+    "segments": []
+  },
+  {
+    "problemSlug": "merge-shifts",
+    "youtubeId": "44H3cEC2fFM",
+    "title": "Merge Intervals - Sorting - Leetcode 56",
+    "channel": "NeetCode",
+    "concept": "Interval merge",
+    "referenceProblem": "Merge Intervals",
+    "bridge": "The lesson sorts and merges overlapping intervals. Clinic shifts include both endpoints, so [1, 4] and [4, 6] must merge; update the merged end to the greatest covered end and return blocks sorted by start.",
+    "segments": [
+      {
+        "startSeconds": 85,
+        "endSeconds": 340,
+        "label": "Drawing solution"
+      },
+      {
+        "startSeconds": 340,
+        "endSeconds": 614,
+        "label": "Coding solution"
+      }
+    ]
+  },
+  {
+    "problemSlug": "mirror-callsign",
+    "youtubeId": "jJXJ16kPFWg",
+    "title": "Valid Palindrome - Leetcode 125 - Python",
+    "channel": "NeetCode",
+    "concept": "Two pointers",
+    "referenceProblem": "Valid Palindrome",
+    "bridge": "The lesson compares a string from both ends while skipping non-alphanumeric characters and ignoring case. Apply that same normalization to the callsign and accept a string containing no letters or digits; return a boolean rather than a normalized string.",
+    "segments": []
+  },
+  {
+    "problemSlug": "one-slip-mirror",
+    "youtubeId": "JrxRYBwG6EI",
+    "title": "Valid Palindrome II - Leetcode 680 - Python",
+    "channel": "NeetCode",
+    "concept": "Two pointers",
+    "referenceProblem": "Valid Palindrome Ii",
+    "bridge": "The lesson checks whether deleting at most one character can make a palindrome. On the first mismatch test the two possible skips separately, and do not allow both skips to be used in one trial.",
+    "segments": []
+  },
+  {
+    "problemSlug": "orchard-plots",
+    "youtubeId": "pV2kpPD66nE",
+    "title": "NUMBER OF ISLANDS - Leetcode 200 - Python",
+    "channel": "NeetCode",
+    "concept": "Flood fill",
+    "referenceProblem": "Number Of Islands",
+    "bridge": "The lesson counts connected grid regions using four-neighbor traversal. Use this statement’s tree/empty-cell representation, mark each visited orchard cell once and do not connect diagonal neighbors.",
+    "segments": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 300,
+        "label": "Conceptual solution"
+      },
+      {
+        "startSeconds": 300,
+        "endSeconds": 701,
+        "label": "Coding"
+      }
+    ]
+  },
+  {
+    "problemSlug": "pace-median",
+    "youtubeId": "itmhHWaHupI",
+    "title": "Find Median from Data Stream - Heap & Priority Queue - Leetcode 295",
+    "channel": "NeetCode",
+    "concept": "Two heaps",
+    "referenceProblem": "Find Median From Data Stream",
+    "bridge": "The lesson balances a lower max-heap and upper min-heap for a stream median. Convert streaming updates into the operation format here, and use the average of the two heap tops for even counts.",
+    "segments": []
+  },
+  {
+    "problemSlug": "parallel-stages",
+    "youtubeId": "Akt3glAwyfY",
+    "title": "Course Schedule II - Topological Sort - Leetcode 210",
+    "channel": "NeetCode",
+    "concept": "Topological sort",
+    "referenceProblem": "Course Schedule Ii",
+    "bridge": "The lesson constructs a topological order and detects prerequisite cycles. To count parallel stages, process all currently ready tasks as one batch before admitting tasks unlocked by that batch; producing an arbitrary linear order alone is insufficient.",
+    "segments": [
+      {
+        "startSeconds": 145,
+        "endSeconds": 640,
+        "label": "Drawing explanation"
+      },
+      {
+        "startSeconds": 640,
+        "endSeconds": 1029,
+        "label": "Coding explanation"
+      }
+    ]
+  },
+  {
+    "problemSlug": "peak-watch",
+    "youtubeId": "DfljaUwZsOk",
+    "title": "Sliding Window Maximum - Monotonic Queue - Leetcode 239",
+    "channel": "NeetCode",
+    "concept": "Monotonic deque",
+    "referenceProblem": "Sliding Window Maximum",
+    "bridge": "The lesson keeps a decreasing deque of candidate maxima while a fixed-width window advances. Remove expired indices as well as dominated values, and return one maximum per complete window.",
+    "segments": []
+  },
+  {
+    "problemSlug": "postfix-ledger",
+    "youtubeId": "iu0082c4HDE",
+    "title": "Evaluate Reverse Polish Notation - Leetcode 150 - Python",
+    "channel": "NeetCode",
+    "concept": "Stack evaluation",
+    "referenceProblem": "Evaluate Reverse Polish Notation",
+    "bridge": "The lesson evaluates reverse Polish notation with a stack. Pop the right operand before the left and follow this statement’s division semantics; Python floor division differs from truncation toward zero for negative intermediate results.",
+    "segments": []
+  },
+  {
+    "problemSlug": "prefix-echoes",
+    "youtubeId": "JoF0Z7nVSrA",
+    "title": "Knuth–Morris–Pratt KMP - Find the Index of the First Occurrence in a String - Leetcode 28 - Python",
+    "channel": "NeetCode",
+    "concept": "Prefix function",
+    "referenceProblem": "Find the Index of the First Occurrence in a String (KMP)",
+    "bridge": "The lesson builds the KMP longest-prefix-suffix table for efficient matching. This task asks for counts of every queried prefix rather than one match: propagate occurrence counts along prefix links and include the prefix’s own occurrence at position zero.",
+    "segments": []
+  },
+  {
+    "problemSlug": "prime-tally",
+    "youtubeId": "R6zyD06Yn3k",
+    "title": "Leetcode - Count Primes (Python)",
+    "channel": "Timothy H Chang",
+    "concept": "Sieve",
+    "referenceProblem": "Count Primes",
+    "bridge": "The lesson counts primes using a sieve rather than testing every divisor repeatedly. Count only primes strictly less than limit, initialize zero and one as non-prime, and stop marking multiples after their smallest useful factors.",
+    "segments": []
+  },
+  {
+    "problemSlug": "profit-block",
+    "youtubeId": "5AY70aAHZiQ",
+    "title": "Shortest Subarray with Sum at Least K - Leetcode 862 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Monotonic deque",
+    "referenceProblem": "Shortest Subarray With Sum At Least K",
+    "bridge": "The lesson combines prefix sums with a monotonic deque when negative values make ordinary sliding windows fail. Here candidate starts must stay in the length range [minLen, maxLen], and the goal is a maximum sum rather than a shortest qualifying subarray; adapt both expiry and answer updates.",
+    "segments": []
+  },
+  {
+    "problemSlug": "pulse-gates",
+    "youtubeId": "YnxUdAO7TAo",
+    "title": "Shortest Path in a Binary Matrix - Leetcode 1091 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "State space bfs",
+    "referenceProblem": "Shortest Path In Binary Matrix",
+    "bridge": "The lesson uses BFS to find the shortest grid route. Pulse gates require extra state (row, column, time modulo period) and a wait transition, so revisiting a cell at a different phase is necessary; plain visited-cell BFS from the reference is not enough.",
+    "segments": []
+  },
+  {
+    "problemSlug": "rate-gate",
+    "youtubeId": "qmJcs_VTJA0",
+    "title": "Leetcode - Number of Recent Calls (Python)",
+    "channel": "Timothy H Chang",
+    "concept": "Sliding log",
+    "referenceProblem": "Number of Recent Calls",
+    "bridge": "The lesson expires old timestamps from a queue to count recent calls. Maintain a separate queue per client, expire times <= t - window, and append only accepted requests; rejected calls must not consume future capacity.",
+    "segments": []
+  },
+  {
+    "problemSlug": "reverse-convoy",
+    "youtubeId": "G0_I-ZF0S38",
+    "title": "Reverse Linked List - Iterative AND Recursive - Leetcode 206 - Python",
+    "channel": "NeetCode",
+    "concept": "Pointer reversal",
+    "referenceProblem": "Reverse Linked List",
+    "bridge": "The lesson reverses a linked list by saving the next pointer before changing it. Here pointers are indices and -1 means no next truck; reverse a copied next array and return [newHead, newNext] rather than a node object.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ridge-count",
+    "youtubeId": "1pkOgXD63yU",
+    "title": "Sliding Window: Best Time to Buy and Sell Stock - Leetcode 121 - Python",
+    "channel": "NeetCode",
+    "concept": "Linear scan",
+    "referenceProblem": "Best Time To Buy And Sell Stock",
+    "bridge": "The lesson scans prices while maintaining a best value seen so far. For ridges maintain the maximum prior elevation and count each strictly larger new elevation instead of maximizing a buy/sell difference; the first nonempty marker counts automatically.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ridge-trails",
+    "youtubeId": "wCc_nd-GiEc",
+    "title": "Longest Increasing Path in a Matrix - Leetcode 329",
+    "channel": "NeetCode",
+    "concept": "Memoized dfs",
+    "referenceProblem": "Longest Increasing Path In A Matrix",
+    "bridge": "The lesson memoizes the longest increasing path starting at each grid cell. Strictly increasing moves prevent cycles, so compute each state once and return a count of cells rather than a count of edges.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ring-router",
+    "youtubeId": "s4DPM8ct1pI",
+    "title": "Binary Search - Leetcode 704 - Python",
+    "channel": "NeetCode",
+    "concept": "Lower bound",
+    "referenceProblem": "Binary Search",
+    "bridge": "The lesson halves a sorted search interval. Routing needs a lower bound instead of an exact match and wraps to the first server when no position qualifies; maintain uniqueness and update the sorted positions on add/remove operations.",
+    "segments": [
+      {
+        "startSeconds": 58,
+        "endSeconds": 310,
+        "label": "Drawing explanation"
+      },
+      {
+        "startSeconds": 310,
+        "endSeconds": 579,
+        "label": "Coding explanation"
+      }
+    ]
+  },
+  {
+    "problemSlug": "rising-marks",
+    "youtubeId": "cjWnW0hdF1Y",
+    "title": "Longest Increasing Subsequence - Dynamic Programming - Leetcode 300",
+    "channel": "NeetCode",
+    "concept": "Increasing subsequence",
+    "referenceProblem": "Longest Increasing Subsequence",
+    "bridge": "The lesson computes a strictly increasing subsequence rather than a contiguous run. Preserve chronology and strictness for equal marks, and compare the quadratic DP with binary-search tails for the stated input size.",
+    "segments": [
+      {
+        "startSeconds": 105,
+        "endSeconds": 178,
+        "label": "Brute force solution"
+      },
+      {
+        "startSeconds": 178,
+        "endSeconds": 655,
+        "label": "DFS solution"
+      },
+      {
+        "startSeconds": 655,
+        "endSeconds": 935,
+        "label": "Dynamic programming solution"
+      },
+      {
+        "startSeconds": 935,
+        "endSeconds": 1093,
+        "label": "Coding solution"
+      }
+    ]
+  },
+  {
+    "problemSlug": "rival-teams",
+    "youtubeId": "mev55LTubBY",
+    "title": "Is Graph Bipartite? - Leetcode 785 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Bipartite coloring",
+    "referenceProblem": "Is Graph Bipartite",
+    "bridge": "The lesson colors an undirected graph with two colors and rejects an edge whose endpoints have the same color. Start a traversal in every disconnected component and treat duplicate rivalries as repeated constraints rather than extra colors.",
+    "segments": []
+  },
+  {
+    "problemSlug": "roster-merge",
+    "youtubeId": "P1Ic85RarKY",
+    "title": "Merge Sorted Array - Leetcode 88 - Python",
+    "channel": "NeetCode",
+    "concept": "Two pointers",
+    "referenceProblem": "Merge Sorted Array",
+    "bridge": "The lesson merges sorted values using two pointers. The reference may reuse spare space in one array; here produce and return a new combined roster, preserving every repeated ranking from both inputs.",
+    "segments": []
+  },
+  {
+    "problemSlug": "sensor-ring",
+    "youtubeId": "aBbsfn863oA",
+    "title": "Design Circular Queue - Leetcode 622 - Python",
+    "channel": "NeetCode",
+    "concept": "Design",
+    "referenceProblem": "Design Circular Queue",
+    "bridge": "The lesson implements a circular queue using wraparound indices. Here writing to a full buffer overwrites its oldest value rather than rejecting the write; adapt read, newest and size outputs to that overwrite policy.",
+    "segments": []
+  },
+  {
+    "problemSlug": "shared-melody",
+    "youtubeId": "Ua0GhsJSlWM",
+    "title": "Longest Common Subsequence - Dynamic Programming - Leetcode 1143",
+    "channel": "NeetCode",
+    "concept": "Two dimensional dp",
+    "referenceProblem": "Longest Common Subsequence",
+    "bridge": "The lesson matches two strings using longest-common-subsequence DP. Notes need not be contiguous, so apply the same skip-or-match recurrence and return the shared length rather than reconstructing a melody.",
+    "segments": []
+  },
+  {
+    "problemSlug": "shared-mentor",
+    "youtubeId": "gs2LMfuOR9k",
+    "title": "Lowest Common Ancestor of a Binary Search Tree - Leetcode 235 - Python",
+    "channel": "NeetCode",
+    "concept": "Inorder traversal",
+    "referenceProblem": "Lowest Common Ancestor Of A Binary Search Tree",
+    "bridge": "The lesson finds the lowest common ancestor in a BST by comparing both target values with the current node. Decode the compact input, include a member as its own ancestor and return a badge value rather than an object.",
+    "segments": []
+  },
+  {
+    "problemSlug": "shuffled-signs",
+    "youtubeId": "9UtInBqnCgA",
+    "title": "Valid Anagram - Leetcode 242 - Python",
+    "channel": "NeetCode",
+    "concept": "Frequency count",
+    "referenceProblem": "Valid Anagram",
+    "bridge": "The lesson compares letter multiplicities to recognize anagrams. Apply it to the complete two signs, not just their sets of distinct letters, and follow the empty-string behavior in the statement.",
+    "segments": []
+  },
+  {
+    "problemSlug": "signal-codes",
+    "youtubeId": "h9iTnkgv05E",
+    "title": "Word Ladder - Breadth First Search - Leetcode 127 - Python",
+    "channel": "NeetCode",
+    "concept": "Bfs",
+    "referenceProblem": "Word Ladder",
+    "bridge": "The lesson searches word transformations with BFS. Here count both endpoint codes, require each later code to be approved and return zero when unreachable; adapt those conventions rather than returning the number of edges.",
+    "segments": []
+  },
+  {
+    "problemSlug": "snapshot-registry",
+    "youtubeId": "fu2cD_6E8Hw",
+    "title": "Time Based Key-Value Store - Leetcode 981 - Python",
+    "channel": "NeetCode",
+    "concept": "Timestamp binary search",
+    "referenceProblem": "Time Based Key Value Store",
+    "bridge": "The lesson stores timestamped values per key and binary-searches their histories. Find the rightmost time <= the query, not an exact match, and return an empty string before the key’s first recorded value.",
+    "segments": []
+  },
+  {
+    "problemSlug": "spiral-survey",
+    "youtubeId": "BJnMZNwUk1M",
+    "title": "Spiral Matrix - Microsoft Interview Question - Leetcode 54",
+    "channel": "NeetCode",
+    "concept": "Matrix transform",
+    "referenceProblem": "Spiral Matrix",
+    "bridge": "The lesson walks a matrix by shrinking its top, bottom, left and right boundaries. Retest boundaries before traversing the opposite edges so single-row or single-column inner rings are not counted twice.",
+    "segments": []
+  },
+  {
+    "problemSlug": "studio-bookings",
+    "youtubeId": "FdzJmTCVyJU",
+    "title": "Meeting Rooms II - Leetcode 253 - Python",
+    "channel": "NeetCode",
+    "concept": "Sweep line",
+    "referenceProblem": "Meeting Rooms Ii",
+    "bridge": "The lesson counts simultaneous meetings to determine the required rooms. Treat end times as releasing a studio before bookings starting at the same time, since these intervals are half open.",
+    "segments": []
+  },
+  {
+    "problemSlug": "suffix-alarm",
+    "youtubeId": "NJVFimdADIs",
+    "title": "Leetcode - Stream of Characters (Python)",
+    "channel": "Timothy H Chang",
+    "concept": "Trie",
+    "referenceProblem": "Stream of Characters",
+    "bridge": "The lesson searches recent stream characters against forbidden-word suffixes, commonly with a reversed trie. Produce one boolean per arriving character and bound history by the longest forbidden word instead of rescanning the full stream.",
+    "segments": []
+  },
+  {
+    "problemSlug": "switch-gap",
+    "youtubeId": "5Km3utixwZs",
+    "title": "Number of 1 Bits - Leetcode 191 - Python",
+    "channel": "NeetCode",
+    "concept": "Bit scan",
+    "referenceProblem": "Number Of 1 Bits",
+    "bridge": "The lesson scans the set bits of an integer. Here remember the previous set-bit position and maximize the position difference instead of counting set bits; fewer than two on-switches give zero.",
+    "segments": [
+      {
+        "startSeconds": 70,
+        "endSeconds": 273,
+        "label": "Explain solution 1"
+      },
+      {
+        "startSeconds": 273,
+        "endSeconds": 340,
+        "label": "Coding solution 1"
+      },
+      {
+        "startSeconds": 340,
+        "endSeconds": 663,
+        "label": "Explain solution 2"
+      },
+      {
+        "startSeconds": 663,
+        "endSeconds": 718,
+        "label": "Coding solution 2"
+      }
+    ]
+  },
+  {
+    "problemSlug": "tally-ranges",
+    "youtubeId": "2pndAmo_sMA",
+    "title": "Range Sum Query Immutable - Leetcode 303 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Prefix sum",
+    "referenceProblem": "Range Sum Query Immutable",
+    "bridge": "The lesson preprocesses prefix sums for immutable range totals. Use prefix[right + 1] - prefix[left] because these query endpoints are inclusive, and keep signed values and the original query order.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ticket-turns",
+    "youtubeId": "cVmS9N6kf2Y",
+    "title": "Time Needed to Buy Tickets - Leetcode 2073 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Queue simulation",
+    "referenceProblem": "Time Needed To Buy Tickets",
+    "bridge": "The lesson simulates or counts turns while people buy one ticket per visit. Return the completion time for the original indexed person, retaining their identity when the line rotates.",
+    "segments": []
+  },
+  {
+    "problemSlug": "tile-pop",
+    "youtubeId": "VFskby7lUbw",
+    "title": "Burst Baloons - Dynamic Programming - Leetcode 312 - Python",
+    "channel": "NeetCode",
+    "concept": "Interval dp",
+    "referenceProblem": "Burst Balloons",
+    "bridge": "The lesson uses interval dynamic programming when removals make formerly separated items adjacent. This task removes compatible pairs rather than one balloon, so its recurrence and score differ; derive which interval interiors must disappear before a pair can be popped.",
+    "segments": []
+  },
+  {
+    "problemSlug": "tile-shuffle",
+    "youtubeId": "C8wonkVDWz8",
+    "title": "Sliding Puzzle - Leetcode 773 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "State space bfs",
+    "referenceProblem": "Sliding Puzzle",
+    "bridge": "The lesson treats each puzzle arrangement as a BFS state and swaps the blank with legal neighbors. Use the fixed 2-by-3 goal here and return -1 for arrangements not reached by the search.",
+    "segments": []
+  },
+  {
+    "problemSlug": "tile-side",
+    "youtubeId": "i5I_wrbUdzM",
+    "title": "Greatest Common Divisor of Strings - Leetcode 1071 - Python",
+    "channel": "NeetCodeIO",
+    "concept": "Gcd",
+    "referenceProblem": "Greatest Common Divisor Of Strings",
+    "bridge": "The lesson uses Euclid’s greatest-common-divisor reasoning to find a common repeating unit. Here take the GCD of every plank length rather than comparing strings; that greatest divisor is the longest cut length with no waste.",
+    "segments": []
+  },
+  {
+    "problemSlug": "toll-slide",
+    "youtubeId": "pGMsrvt0fpk",
+    "title": "Minimum Path Sum - Dynamic Programming - Leetcode 64 - Python",
+    "channel": "NeetCode",
+    "concept": "Two dimensional dp",
+    "referenceProblem": "Minimum Path Sum",
+    "bridge": "The lesson computes minimum-cost right/down grid paths with DP. Add whether the free horizontal slide has been used, and handle any positive slide distance without paying its landing cell; the ordinary one-state recurrence does not express this option.",
+    "segments": []
+  },
+  {
+    "problemSlug": "trail-gain",
+    "youtubeId": "1pkOgXD63yU",
+    "title": "Sliding Window: Best Time to Buy and Sell Stock - Leetcode 121 - Python",
+    "channel": "NeetCode",
+    "concept": "Linear scan",
+    "referenceProblem": "Best Time To Buy And Sell Stock",
+    "bridge": "The lesson scans prices while retaining the cheapest earlier buy and best later profit. Here checkpoint altitude is the price analogue, so preserve the earlier/later ordering and return zero if every later height is lower.",
+    "segments": []
+  },
+  {
+    "problemSlug": "twin-xor",
+    "youtubeId": "wSgrc98d2lI",
+    "title": "Maximum XOR of Two Numbers in an Array | Leet code 421 | Theory explained + Python code",
+    "channel": "Sai Anish Malla",
+    "concept": "Binary trie",
+    "referenceProblem": "Maximum XOR of Two Numbers in an Array",
+    "bridge": "The lesson optimizes XOR between two array values using high-bit decisions. Keep two distinct indices, permit equal sensor values at different indices and adapt the return value and bit-width assumptions to this statement.",
+    "segments": []
+  },
+  {
+    "problemSlug": "vault-account",
+    "youtubeId": "8aW3tkIul-8",
+    "title": "Let's code a beginners Python BANKING PROGRAM 💰",
+    "channel": "Bro Code",
+    "concept": "Design",
+    "referenceProblem": "Python Banking Program",
+    "bridge": "The lesson maintains a bank balance across deposits, withdrawals and balance checks in Python. Replace interactive prompts with the supplied operation list, start at zero and reject an unaffordable withdrawal without changing balance; only withdrawal and balance calls produce outputs.",
+    "segments": []
+  },
+  {
+    "problemSlug": "warmer-wait",
+    "youtubeId": "cTBiBSnjO3c",
+    "title": "Daily Temperatures - Monotonic Stack - Leetcode 739 - Python",
+    "channel": "NeetCode",
+    "concept": "Monotonic stack",
+    "referenceProblem": "Daily Temperatures",
+    "bridge": "The lesson resolves pending temperature indices using a monotonic stack. Only a strictly warmer future day settles an index; convert its position difference to a wait and leave unresolved days at zero.",
+    "segments": [
+      {
+        "startSeconds": 111,
+        "endSeconds": 565,
+        "label": "Drawing explanation"
+      },
+      {
+        "startSeconds": 565,
+        "endSeconds": 712,
+        "label": "Coding explanation"
+      }
+    ]
+  },
+  {
+    "problemSlug": "watchtower-placements",
+    "youtubeId": "nalYyLZgvCY",
+    "title": "N-Queens II - Leetcode 52 - Python",
+    "channel": "NeetCode",
+    "concept": "Backtracking",
+    "referenceProblem": "N Queens Ii",
+    "bridge": "The lesson counts N-Queens placements using occupied columns and diagonals. Watchtowers have the same attack lines; return only the placement count rather than board layouts and follow this statement’s size bounds.",
+    "segments": []
+  },
+  {
+    "problemSlug": "worn-tiles",
+    "youtubeId": "08sn_w4LWEE",
+    "title": "Car Pooling - Leetcode 1094 - Python",
+    "channel": "NeetCode",
+    "concept": "Difference array",
+    "referenceProblem": "Car Pooling",
+    "bridge": "The lesson models interval additions with changes at their endpoints and a running total. Each cleaning pass contributes one on an inclusive tile range, so subtract at to + 1 and count tiles whose accumulated coverage reaches limit rather than checking vehicle capacity.",
+    "segments": []
+  },
+  {
+    "problemSlug": "zero-tail",
+    "youtubeId": "_NxbBkunCEM",
+    "title": "LeetCode 172: Factorial Trailing Zeroes | Python Solution | Math & Number Theory",
+    "channel": "Code Scribbler",
+    "concept": "Prime factorization",
+    "referenceProblem": "Factorial Trailing Zeroes",
+    "bridge": "The lesson counts trailing factorial zeroes by counting prime factors instead of building the product. Here the product is an arbitrary list and the numeral base is variable: factor the base and take the minimum available factor count divided by its required exponent; counting only fives is insufficient.",
+    "segments": []
+  },
+  {
+    "problemSlug": "badge-majority",
+    "youtubeId": "sBuRjHqDTzY",
+    "title": "Majority Element - LeetCode #169 - O(n) and O(1) space with Python, JavaScript, Java, C++",
+    "channel": "CodingNinja",
+    "concept": "Majority-element voting",
+    "referenceProblem": "LeetCode 169: Majority Element",
+    "bridge": "The majority-element task explains canceling unequal values; use the problem's guaranteed majority and badge input contract.",
+    "segments": []
+  },
+  {
+    "problemSlug": "badge-subsets",
+    "youtubeId": "FWn12R7wC34",
+    "title": "Subsets - Backtracking - Leetcode 78",
+    "channel": "Web Coder Abhishek",
+    "concept": "Power-set backtracking",
+    "referenceProblem": "LeetCode 78: Subsets",
+    "bridge": "Generate every badge subset, then ensure the size/lexicographic ordering required by this problem.",
+    "segments": []
+  },
+  {
+    "problemSlug": "bake-batches",
+    "youtubeId": "pdly3JU1V3Y",
+    "title": "Koko Eating Banana | DSA in JavaScript | MAANG level problem | Part 19",
+    "channel": "Sheryians Coding School",
+    "concept": "Binary search on a feasible answer",
+    "referenceProblem": "LeetCode 875: Koko Eating Bananas",
+    "bridge": "Replace eating-speed feasibility with the batch-capacity feasibility required by this statement; prove it is monotone before searching.",
+    "segments": []
+  },
+  {
+    "problemSlug": "balanced-blueprint",
+    "youtubeId": "Lb-UP8uLEkQ",
+    "title": "Valid Parentheses - LeetCode 20 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Bracket stack matching",
+    "referenceProblem": "LeetCode 20: Valid Parentheses",
+    "bridge": "Use a stack to match opener/closer types and reject leftover or mismatched symbols.",
+    "segments": []
+  },
+  {
+    "problemSlug": "balanced-canopy",
+    "youtubeId": "k5p6-NrEQnM",
+    "title": "Is Your Binary Tree Balanced? | Efficient JavaScript Solution Explained | 110 | LeetCode 101",
+    "channel": "Software Interviews Prep",
+    "concept": "Post-order height and balance",
+    "referenceProblem": "LeetCode 110: Balanced Binary Tree",
+    "bridge": "Return subtree height or an imbalance sentinel in the same post-order visit; rebuild the level-order array as needed.",
+    "segments": []
+  },
+  {
+    "problemSlug": "bracket-run",
+    "youtubeId": "tyLRMPlrvno",
+    "title": "leetCode 32 Longest Valid Parentheses (stack) | JSer - in JavaScript",
+    "channel": "JSer",
+    "concept": "Longest valid bracket substring with index stack",
+    "referenceProblem": "LeetCode 32: Longest Valid Parentheses",
+    "bridge": "Store unmatched positions and a base marker, then derive valid run lengths from index differences.",
+    "segments": []
+  },
+  {
+    "problemSlug": "canopy-gain",
+    "youtubeId": "EK0A__Ri2Ms",
+    "title": "Binary Tree Maximum Path Sum - LeetCode 124 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Maximum binary-tree path sum",
+    "referenceProblem": "LeetCode 124: Binary Tree Maximum Path Sum",
+    "bridge": "Combine nonnegative child gains at each node while returning only one branch upward; build the level-order input first.",
+    "segments": []
+  },
+  {
+    "problemSlug": "canopy-layers",
+    "youtubeId": "fAAZixBzIAI",
+    "title": "Binary Tree Algorithms for Technical Interviews - Full Course",
+    "channel": "freeCodeCamp.org",
+    "concept": "Breadth-first tree traversal",
+    "referenceProblem": "Breadth First Values",
+    "bridge": "Use breadth-first traversal one queue layer at a time, summing node values for each depth. Return depth sums, not the list of values in each layer.",
+    "segments": []
+  },
+  {
+    "problemSlug": "charging-hops",
+    "youtubeId": "ckwPxNG9xeA",
+    "title": "Jump Game - LeetCode 55 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Greedy reachability frontier",
+    "referenceProblem": "LeetCode 55: Jump Game",
+    "bridge": "Track the farthest reachable index while scanning reachable stations and stop if a gap cannot be crossed.",
+    "segments": []
+  },
+  {
+    "problemSlug": "charging-loop",
+    "youtubeId": "XLLZAbtaPOU",
+    "title": "Gas Station LeetCode 134 | Intuitive Explanation + Code",
+    "channel": "CodingNinja",
+    "concept": "Gas-station circuit feasibility",
+    "referenceProblem": "LeetCode 134: Gas Station",
+    "bridge": "Track total surplus and reset the candidate start when its running surplus becomes negative.",
+    "segments": []
+  },
+  {
+    "problemSlug": "cheapest-route",
+    "youtubeId": "3wux3N_2tk8",
+    "title": "Dijkstra's Algorithm in JavaScript [Understanding AI - Lesson 6 / 15]",
+    "channel": "Radu Mariescu-Istodor",
+    "concept": "Greedy shortest-path relaxation",
+    "referenceProblem": "Dijkstra pathfinding in JavaScript",
+    "bridge": "Build an undirected weighted graph by adding each road in both directions. Apply Dijkstra relaxation and return this problem's required route cost.",
+    "segments": []
+  },
+  {
+    "problemSlug": "cipher-window",
+    "youtubeId": "z9e-tGD7Z8g",
+    "title": "Minimum Window Substring - LeetCode 76 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Minimum covering substring",
+    "referenceProblem": "LeetCode 76: Minimum Window Substring",
+    "bridge": "Track required character multiplicities, grow until covered, then shrink to find the shortest valid cover.",
+    "segments": []
+  },
+  {
+    "problemSlug": "crossword-trace",
+    "youtubeId": "_bGRNR3D92s",
+    "title": "Word Search - LeetCode 79 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Grid word-search backtracking",
+    "referenceProblem": "LeetCode 79: Word Search",
+    "bridge": "Match adjacent cells one letter at a time and undo path membership during backtracking; respect the no-reuse rule.",
+    "segments": []
+  },
+  {
+    "problemSlug": "dial-lookup",
+    "youtubeId": "dgwIx9cXovM",
+    "title": "33. Search in Rotated Sorted Array | Javascript",
+    "channel": "ThinkFWD",
+    "concept": "Binary search in a rotated sorted array",
+    "referenceProblem": "LeetCode 33: Search in Rotated Sorted Array",
+    "bridge": "Determine which half is ordered, retain the half whose bounds contain the target, and return its input index.",
+    "segments": []
+  },
+  {
+    "problemSlug": "exact-flags",
+    "youtubeId": "dMQmQ_L6rl0",
+    "title": "Subarrays With At Most K Distinct Integers solved in JS | GfG | POTD | Streak 405 | Fri, 09 Jan 2026",
+    "channel": "NewsCraft Studio",
+    "concept": "At-most distinct sliding-window counting",
+    "referenceProblem": "Subarrays With At Most K Distinct Integers",
+    "bridge": "The lesson counts subarrays with at most k distinct values using a shrinking window. Here count odd values instead of distinct integers: update the odd count as values enter or leave, then obtain exactly k as atMost(k) - atMost(k - 1). Treat a negative limit as zero valid subarrays, and use an oddness test that handles negative values.",
+    "segments": []
+  },
+  {
+    "problemSlug": "fare-combinations",
+    "youtubeId": "YCovzApmPs8",
+    "title": "Coin Change II - LeetCode #518 | Python, JavaScript, Java and C++",
+    "channel": "CodingNinja",
+    "concept": "Unbounded coin-combination counting",
+    "referenceProblem": "LeetCode 518: Coin Change II",
+    "bridge": "Count unordered choices by processing each denomination before increasing the amount; preserve this problem's output contract.",
+    "segments": []
+  },
+  {
+    "problemSlug": "fewest-tokens",
+    "youtubeId": "oBt53YbR9Kk",
+    "title": "Dynamic Programming - Learn to Solve Algorithmic Problems & Coding Challenges",
+    "channel": "freeCodeCamp.org",
+    "concept": "Memoization and tabulation",
+    "referenceProblem": "Fibonacci, gridTraveler and bestSum",
+    "bridge": "Use a bestSum-style amount table to minimize the number of tokens rather than count combinations.",
+    "segments": []
+  },
+  {
+    "problemSlug": "first-redundant-link",
+    "youtubeId": "VZFdvpxqkRI",
+    "title": "Disjoint Set (Union Find) in JavaScript (Hindi) 🔗| Full Explanation & Implementation | Ashish Saluja",
+    "channel": "Ashish Saluja - IT Guru",
+    "concept": "Disjoint-set union",
+    "referenceProblem": "Union Find implementation in JavaScript (Hindi)",
+    "bridge": "Check whether two endpoints already share a root before unioning a new link.",
+    "segments": []
+  },
+  {
+    "problemSlug": "floodgate-path",
+    "youtubeId": "3wux3N_2tk8",
+    "title": "Dijkstra's Algorithm in JavaScript [Understanding AI - Lesson 6 / 15]",
+    "channel": "Radu Mariescu-Istodor",
+    "concept": "Greedy shortest-path relaxation",
+    "referenceProblem": "Dijkstra pathfinding in JavaScript",
+    "bridge": "Use best-known path costs and settle the next least-cost state. For floodgates, combine an edge with max(current_cost, elevation), not ordinary addition.",
+    "segments": []
+  },
+  {
+    "problemSlug": "floor-tracker",
+    "youtubeId": "-lUf3e3z5gg",
+    "title": "LeetCode 155 - Min Stack (JavaScript)",
+    "channel": "Hayk Simonyan",
+    "concept": "Two-stack minimum maintenance",
+    "referenceProblem": "LeetCode 155: Min Stack",
+    "bridge": "Store ordinary values and a parallel running-minimum stack; preserve the problem's operations and result format.",
+    "segments": []
+  },
+  {
+    "problemSlug": "fuel-stretch",
+    "youtubeId": "I6a02rfXcys",
+    "title": "Leetcode 209 - Minimum Size Subarray Sum JavaScript",
+    "channel": "Chuck's Resume",
+    "concept": "Minimum positive-sum sliding window",
+    "referenceProblem": "LeetCode 209: Minimum Size Subarray Sum",
+    "bridge": "Expand over positive fuel values, shrink while the sum reaches target, and return the shortest qualifying interval or zero.",
+    "segments": []
+  },
+  {
+    "problemSlug": "grid-rescue-hops",
+    "youtubeId": "tWVWeAqZ0WU",
+    "title": "Graph Algorithms for Technical Interviews - Full Course",
+    "channel": "freeCodeCamp.org",
+    "concept": "Graph BFS/DFS and connected components",
+    "referenceProblem": "Graph traversal, shortest path and island count",
+    "bridge": "Treat passable cells as vertices and use BFS levels to count the fewest grid hops.",
+    "segments": []
+  },
+  {
+    "problemSlug": "grid-turn",
+    "youtubeId": "ziBu_GhxsDc",
+    "title": "LeetCode: 48. Rotate Image (Visualized)",
+    "channel": "Code With Zi",
+    "concept": "Matrix rotation",
+    "referenceProblem": "LeetCode 48: Rotate Image",
+    "bridge": "Rotate the square input using the transpose/reverse or equivalent layer-swap transformation, returning the required matrix.",
+    "segments": []
+  },
+  {
+    "problemSlug": "kth-badge",
+    "youtubeId": "za9OrjpbaCs",
+    "title": "Kth Smallest Element in a BST - LeetCode 230 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Kth BST element",
+    "referenceProblem": "LeetCode 230: Kth Smallest Element in a BST",
+    "bridge": "Select the kth value in BST order; build the problem's level-order input and return a badge value rather than a node.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ledger-equalities",
+    "youtubeId": "VZFdvpxqkRI",
+    "title": "Disjoint Set (Union Find) in JavaScript (Hindi) 🔗| Full Explanation & Implementation | Ashish Saluja",
+    "channel": "Ashish Saluja - IT Guru",
+    "concept": "Disjoint-set union",
+    "referenceProblem": "Union Find implementation in JavaScript (Hindi)",
+    "bridge": "Union all equalities before testing whether an inequality joins the same root.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ledger-tree-check",
+    "youtubeId": "PITUkhnuWHQ",
+    "title": "Validate Binary Search Tree - LeetCode #98 - Python, JavaScript, Java, C++",
+    "channel": "CodingNinja",
+    "concept": "Global BST validation",
+    "referenceProblem": "LeetCode 98: Validate Binary Search Tree",
+    "bridge": "Check all ancestor restrictions, keeping bounds strict so duplicates fail; adapt to the level-order array interface.",
+    "segments": []
+  },
+  {
+    "problemSlug": "lineup-orders",
+    "youtubeId": "42NUMtEj51g",
+    "title": "Permutations - LeetCode Question 46 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Permutation backtracking",
+    "referenceProblem": "LeetCode 46: Permutations",
+    "bridge": "Generate each ordering by choosing unused players. AlgoSprint additionally requires lexicographically ordered results.",
+    "segments": []
+  },
+  {
+    "problemSlug": "lit-panels",
+    "youtubeId": "k_LbW4lxA6Y",
+    "title": "Counting bits | Leetcode | Javascript",
+    "channel": "Kromate",
+    "concept": "Bit-counting table",
+    "referenceProblem": "LeetCode 338: Counting Bits",
+    "bridge": "Reuse the count for i >> 1 and add the lowest bit to build counts from zero through the requested value.",
+    "segments": []
+  },
+  {
+    "problemSlug": "lone-sensor",
+    "youtubeId": "O9VELMn3jIY",
+    "title": "Bitwise Operators 3: The XOR Operation",
+    "channel": "Computer Science Lessons",
+    "concept": "Bitwise XOR and masks",
+    "referenceProblem": "The XOR Operation",
+    "bridge": "XOR every reading; equal pairs cancel and the unpaired reading remains.",
+    "segments": []
+  },
+  {
+    "problemSlug": "longest-clean-streak",
+    "youtubeId": "ziIbg9kf3pY",
+    "title": "Longest Substring Without Repeating Characters - Leetcode 3 - Javascript",
+    "channel": "Cluely",
+    "concept": "Duplicate-free sliding window",
+    "referenceProblem": "LeetCode 3: Longest Substring Without Repeating Characters",
+    "bridge": "Advance the left boundary beyond duplicate occurrences and track the largest clean interval.",
+    "segments": []
+  },
+  {
+    "problemSlug": "lru-results",
+    "youtubeId": "qAOkeZ8doz0",
+    "title": "🚀 Master LRU Cache Implementation in JavaScript | DSA Interview Question #javascript #datastructures",
+    "channel": "Imran Shaikh",
+    "concept": "Cache state and recency",
+    "referenceProblem": "LRU Cache implementation in JavaScript",
+    "bridge": "Maintain key lookup and refresh recency on successful reads/updates. Evict the least recent key when capacity is exceeded.",
+    "segments": []
+  },
+  {
+    "problemSlug": "merge-point",
+    "youtubeId": "LbuDalPLFX4",
+    "title": "Intersection of Two Linked Lists LeetCode 160 | Step-by-Step Solution Explained",
+    "channel": "CodingNinja",
+    "concept": "Intersection by pointer switching",
+    "referenceProblem": "LeetCode 160: Intersection of Two Linked Lists",
+    "bridge": "Switch each walker to the other route's head at its end; use next-array indices and -1 instead of node objects and null.",
+    "segments": []
+  },
+  {
+    "problemSlug": "merge-shifts",
+    "youtubeId": "QraDiBOwQZE",
+    "title": "LeetCode 56: Merge Intervals | JavaScript Clean Solution",
+    "channel": "Crappy Coder",
+    "concept": "Sort-and-sweep interval merging",
+    "referenceProblem": "LeetCode 56: Merge Intervals",
+    "bridge": "Sort shifts by start, extend overlapping blocks to the greatest end, and append a new block only after a gap.",
+    "segments": []
+  },
+  {
+    "problemSlug": "middle-car",
+    "youtubeId": "aAGu9C6_rUI",
+    "title": "Decoding the Tortoise and Hare Two Pointer Algorithm in Javascript Part 1 of 3",
+    "channel": "Coderbyte",
+    "concept": "Linked-list pointer spacing",
+    "referenceProblem": "Linked-list cycle detection with fast/slow pointers",
+    "bridge": "Advance one pointer twice as fast; when it reaches the end, the slow pointer is the required middle.",
+    "segments": []
+  },
+  {
+    "problemSlug": "mirror-callsign",
+    "youtubeId": "nfCJsAKoJ4g",
+    "title": "125. Valid Palindrome - LeetCode JavaScript",
+    "channel": "Becoming A Better Dev (with David)",
+    "concept": "Palindrome normalization and comparison",
+    "referenceProblem": "LeetCode 125: Valid Palindrome",
+    "bridge": "Compare lowercase ASCII letters and digits while ignoring other characters, using this statement's exact character rule.",
+    "segments": []
+  },
+  {
+    "problemSlug": "module-plan",
+    "youtubeId": "SfoFiWwRwXg",
+    "title": "Kahn's Algorithm for Topological Sort in JavaScript",
+    "channel": "Code with Ahsan",
+    "concept": "Indegrees and topological ordering",
+    "referenceProblem": "Kahn's topological sort",
+    "bridge": "Build dependency edges and verify that Kahn's processed count reaches the number of modules.",
+    "segments": []
+  },
+  {
+    "problemSlug": "one-slip-mirror",
+    "youtubeId": "tPtuwzTJEJY",
+    "title": "Valid Palindrome II - LeetCode 680 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Palindrome with one permitted deletion",
+    "referenceProblem": "LeetCode 680: Valid Palindrome II",
+    "bridge": "At the first mismatch, test skipping either endpoint once and require the remaining interval to be a palindrome.",
+    "segments": []
+  },
+  {
+    "problemSlug": "orchard-plots",
+    "youtubeId": "tWVWeAqZ0WU",
+    "title": "Graph Algorithms for Technical Interviews - Full Course",
+    "channel": "freeCodeCamp.org",
+    "concept": "Graph BFS/DFS and connected components",
+    "referenceProblem": "Graph traversal, shortest path and island count",
+    "bridge": "Start a flood fill from each unseen tree cell and count the connected components.",
+    "segments": []
+  },
+  {
+    "problemSlug": "parallel-stages",
+    "youtubeId": "SfoFiWwRwXg",
+    "title": "Kahn's Algorithm for Topological Sort in JavaScript",
+    "channel": "Code with Ahsan",
+    "concept": "Indegrees and topological ordering",
+    "referenceProblem": "Kahn's topological sort",
+    "bridge": "Process all currently ready tasks as one stage before enqueuing the following stage.",
+    "segments": []
+  },
+  {
+    "problemSlug": "parcel-checkpoints",
+    "youtubeId": "qVlFHYJ3jq4",
+    "title": "Prefix Sum Explained for Beginners | DSA Foundations Series | JDCodebase",
+    "channel": "JDCodebase",
+    "concept": "Prefix accumulation and range queries",
+    "referenceProblem": "Prefix-sum range queries",
+    "bridge": "Build cumulative parcel changes and subtract prefix[start] from prefix[end] for each half-open range.",
+    "segments": []
+  },
+  {
+    "problemSlug": "pattern-gate",
+    "youtubeId": "8BqOz9HDNeA",
+    "title": "Leetcode 44 - Wildcard Matching Full Tutorial and Explanation DYNAMIC PROGRAMMING JAVASCRIPT",
+    "channel": "Egreat Tech",
+    "concept": "Wildcard matching DP",
+    "referenceProblem": "LeetCode 44: Wildcard Matching",
+    "bridge": "Use text/pattern-prefix matching states, with zero-or-more transitions for * and one-symbol transitions for ?.",
+    "segments": []
+  },
+  {
+    "problemSlug": "peak-watch",
+    "youtubeId": "kx7PSOBagFY",
+    "title": "Data Structures in Javascript ( Sliding Window Maximum) | DSA Interview Questions | Deque | Leetcode",
+    "channel": "RoadsideCoder",
+    "concept": "Monotonic deque",
+    "referenceProblem": "Sliding Window Maximum",
+    "bridge": "Retain candidate indices and discard expired or dominated ones. Read the front for each fixed-width maximum.",
+    "segments": []
+  },
+  {
+    "problemSlug": "postfix-ledger",
+    "youtubeId": "3IO_134DZYA",
+    "title": "LEETCODE 150 (JAVASCRIPT) | EVALUATE REVERSE POLISH NOTATION",
+    "channel": "Andy Gala",
+    "concept": "Postfix stack evaluation",
+    "referenceProblem": "LeetCode 150: Evaluate Reverse Polish Notation",
+    "bridge": "Pop right operand before left for subtraction/division, and implement the specified truncation toward zero.",
+    "segments": []
+  },
+  {
+    "problemSlug": "prefix-counts",
+    "youtubeId": "t2CEgPsws3U",
+    "title": "Data Structures and Algorithms in JavaScript - Full Course for Beginners",
+    "channel": "freeCodeCamp.org",
+    "concept": "Prefix-tree structure",
+    "referenceProblem": "Trie section",
+    "bridge": "Add a pass-through occurrence counter at each trie node and read the queried prefix's count.",
+    "segments": []
+  },
+  {
+    "problemSlug": "prime-tally",
+    "youtubeId": "fdJ1wkAYqzU",
+    "title": "Sieve of Eratosthenes JavaScript",
+    "channel": "Chuck's Resume",
+    "concept": "Sieve of Eratosthenes",
+    "referenceProblem": "Prime enumeration with a sieve",
+    "bridge": "Mark multiples of each discovered prime and count only values strictly below this problem's limit.",
+    "segments": []
+  },
+  {
+    "problemSlug": "quiet-badge",
+    "youtubeId": "-YjcYkIdWLQ",
+    "title": "Solving LeetCode 387 in JavaScript (First Unique Character in a String)",
+    "channel": "KA Education",
+    "concept": "Earliest unique character",
+    "referenceProblem": "LeetCode 387: First Unique Character in a String",
+    "bridge": "Count each badge letter, then scan arrival order and return the first index with frequency one.",
+    "segments": []
+  },
+  {
+    "problemSlug": "quiet-heist",
+    "youtubeId": "C9AssP1k_tA",
+    "title": "House Robber II | Code Implementation | Leetcode 213 | Progression90",
+    "channel": "Progression",
+    "concept": "Circular non-adjacent selection",
+    "referenceProblem": "LeetCode 213: House Robber II",
+    "bridge": "Handle the circular conflict by taking the maximum of two linear ranges, excluding the first or last house.",
+    "segments": []
+  },
+  {
+    "problemSlug": "quiet-hours",
+    "youtubeId": "QraDiBOwQZE",
+    "title": "LeetCode 56: Merge Intervals | JavaScript Clean Solution",
+    "channel": "Crappy Coder",
+    "concept": "Merged busy intervals and complementary gaps",
+    "referenceProblem": "LeetCode 56: Merge Intervals",
+    "bridge": "Apply the same merged-end sweep but emit each positive gap before the next disjoint interval rather than the busy block.",
+    "segments": []
+  },
+  {
+    "problemSlug": "radio-clusters",
+    "youtubeId": "VZFdvpxqkRI",
+    "title": "Disjoint Set (Union Find) in JavaScript (Hindi) 🔗| Full Explanation & Implementation | Ashish Saluja",
+    "channel": "Ashish Saluja - IT Guru",
+    "concept": "Disjoint-set union",
+    "referenceProblem": "Union Find implementation in JavaScript (Hindi)",
+    "bridge": "Union every linked pair and decrement the component count only for distinct roots.",
+    "segments": []
+  },
+  {
+    "problemSlug": "rank-tags",
+    "youtubeId": "L44niWS7FJ4",
+    "title": "692. Top K Frequent Words | LeetCode Daily Challenge | JavaScript | Hashmap",
+    "channel": "LeetCodeWithMonu",
+    "concept": "Frequency ordering with alphabetic ties",
+    "referenceProblem": "LeetCode 692: Top K Frequent Words",
+    "bridge": "Count tags and rank by descending frequency and ascending text; return every distinct tag instead of only the top k.",
+    "segments": []
+  },
+  {
+    "problemSlug": "reverse-convoy",
+    "youtubeId": "hYxEh42IhRQ",
+    "title": "How to reverse a linked list in Hindi || Beat the competitive programming through javascript",
+    "channel": "Develop with Aakash",
+    "concept": "Linked-list reversal",
+    "referenceProblem": "Reverse a linked list in JavaScript (Hindi)",
+    "bridge": "Save each next index before reversing its link, using -1 as the end marker and returning the new head.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ridge-count",
+    "youtubeId": "5GJyxUqSUTc",
+    "title": "Javascript Interview Questions: Breaking Records from HackerRank",
+    "channel": "Papa Santo",
+    "concept": "Running record maximum",
+    "referenceProblem": "HackerRank: Breaking Records",
+    "bridge": "Count strict new maxima while walking the heights. Unlike the external score-record task, AlgoSprint counts the first marker and returns zero for an empty trail.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ridge-trails",
+    "youtubeId": "HuDa97YUSKU",
+    "title": "Longest Increasing Path in a Matrix | DFS + Memoization | JavaScript | LeetCode 329",
+    "channel": "Ashwini Kemshetty",
+    "concept": "DFS with memoized increasing paths",
+    "referenceProblem": "LeetCode 329: Longest Increasing Path in a Matrix",
+    "bridge": "Memoize the longest strictly increasing route from each cell, checking all four neighbor directions.",
+    "segments": []
+  },
+  {
+    "problemSlug": "rival-teams",
+    "youtubeId": "5xB9rnuEXU8",
+    "title": "LEETCODE 785 (JAVASCRIPT) | IS GRAPH BIPARTITE",
+    "channel": "Andy Gala",
+    "concept": "Bipartite graph coloring",
+    "referenceProblem": "LeetCode 785: Is Graph Bipartite",
+    "bridge": "Assign alternating colors in every connected component and reject a link joining equal colors.",
+    "segments": []
+  },
+  {
+    "problemSlug": "roster-merge",
+    "youtubeId": "cXxf46pbvOI",
+    "title": "Merge Two Sorted Lists - LeetCode 21 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Merge sorted sequences",
+    "referenceProblem": "LeetCode 21: Merge Two Sorted Lists",
+    "bridge": "Select the smaller current value from the two ordered inputs. AlgoSprint returns a values array instead of linked nodes.",
+    "segments": []
+  },
+  {
+    "problemSlug": "shared-melody",
+    "youtubeId": "TvNXjAkVxT8",
+    "title": "Longest Common Subsequence - LeetCode 1143 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Longest common subsequence",
+    "referenceProblem": "LeetCode 1143: Longest Common Subsequence",
+    "bridge": "Use sequence-prefix states and choose between extending a match or skipping from either sequence.",
+    "segments": []
+  },
+  {
+    "problemSlug": "shared-mentor",
+    "youtubeId": "fehixeGZY9k",
+    "title": "Lowest Common Ancestor of a BST - LeetCode 235 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "BST ancestor splitting point",
+    "referenceProblem": "LeetCode 235: Lowest Common Ancestor of a BST",
+    "bridge": "Move left or right while both target values lie on the same side; return the split node using this input/output contract.",
+    "segments": []
+  },
+  {
+    "problemSlug": "shuffled-signs",
+    "youtubeId": "yKjBmYrg-1w",
+    "title": "LeetCode 242 - Valid Anagram -  JavaScript Solution | Easy String Problem Explained",
+    "channel": "Web Coder Abhishek",
+    "concept": "Letter-frequency anagram check",
+    "referenceProblem": "LeetCode 242: Valid Anagram",
+    "bridge": "Compare letter multiplicities rather than character order, adapting the character constraints of this statement.",
+    "segments": []
+  },
+  {
+    "problemSlug": "signal-codes",
+    "youtubeId": "cYqUYKTMl3w",
+    "title": "Word Ladder-  Leetcode 127 - JavaScript -",
+    "channel": "Ankit Saxena",
+    "concept": "Shortest word transformation path",
+    "referenceProblem": "LeetCode 127: Word Ladder",
+    "bridge": "Treat dictionary words as vertices and single-letter substitutions as edges. Use breadth-first levels and adapt this problem's start/end counting and dictionary membership rules.",
+    "segments": []
+  },
+  {
+    "problemSlug": "slot-insert",
+    "youtubeId": "mUvCAk3_ms8",
+    "title": "Insert Intervals - LeetCode 57 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Insert and merge an interval",
+    "referenceProblem": "LeetCode 57: Insert Interval",
+    "bridge": "Keep earlier slots, combine all overlaps with the inserted slot, then append the remaining later slots.",
+    "segments": []
+  },
+  {
+    "problemSlug": "spiral-survey",
+    "youtubeId": "ty5t22rmrG8",
+    "title": "Spiral Matrix - LeetCode 54 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Spiral boundary traversal",
+    "referenceProblem": "LeetCode 54: Spiral Matrix",
+    "bridge": "Traverse the outer boundaries and shrink them inward without repeating rows or columns.",
+    "segments": []
+  },
+  {
+    "problemSlug": "studio-bookings",
+    "youtubeId": "LdqNfqjSWBQ",
+    "title": "Meeting Rooms II  | LeetCode 253 | Javascript | Two Pointer Approach",
+    "channel": "Aliatis",
+    "concept": "Sorted starts/ends sweep",
+    "referenceProblem": "LeetCode 253: Meeting Rooms II",
+    "bridge": "Sweep starts and ends to track simultaneous bookings, using this statement's endpoint convention.",
+    "segments": []
+  },
+  {
+    "problemSlug": "tally-ranges",
+    "youtubeId": "qVlFHYJ3jq4",
+    "title": "Prefix Sum Explained for Beginners | DSA Foundations Series | JDCodebase",
+    "channel": "JDCodebase",
+    "concept": "Prefix accumulation and range queries",
+    "referenceProblem": "Prefix-sum range queries",
+    "bridge": "Convert each requested range to two prefix positions using this statement's index convention.",
+    "segments": []
+  },
+  {
+    "problemSlug": "task-order",
+    "youtubeId": "SfoFiWwRwXg",
+    "title": "Kahn's Algorithm for Topological Sort in JavaScript",
+    "channel": "Code with Ahsan",
+    "concept": "Indegrees and topological ordering",
+    "referenceProblem": "Kahn's topological sort",
+    "bridge": "Choose the smallest available task with a min-heap to obtain the required deterministic order.",
+    "segments": []
+  },
+  {
+    "problemSlug": "ticket-pair",
+    "youtubeId": "Ivyh3V4QolA",
+    "title": "How To Solve Algorithms - Two Sum",
+    "channel": "Web Dev Simplified",
+    "concept": "Hash-map complement lookup",
+    "referenceProblem": "LeetCode 1: Two Sum",
+    "bridge": "Remember the earliest index of each price and look up its complement while honoring the specified tie-break.",
+    "segments": []
+  },
+  {
+    "problemSlug": "tile-side",
+    "youtubeId": "tnyhj3d0VIc",
+    "title": "📺 GCD of Two Numbers in JavaScript | Euclidean Algorithm Tutorial",
+    "channel": "Learn with Shikaar",
+    "concept": "Euclidean gcd",
+    "referenceProblem": "GCD of two numbers",
+    "bridge": "Fold gcd across every supplied dimension to find the common tile side.",
+    "segments": []
+  },
+  {
+    "problemSlug": "tower-tiles",
+    "youtubeId": "oBt53YbR9Kk",
+    "title": "Dynamic Programming - Learn to Solve Algorithmic Problems & Coding Challenges",
+    "channel": "freeCodeCamp.org",
+    "concept": "Memoization and tabulation",
+    "referenceProblem": "Fibonacci, gridTraveler and bestSum",
+    "bridge": "Use the recurrence relating a tiling count to the previous two counts; retain only two values.",
+    "segments": []
+  },
+  {
+    "problemSlug": "trail-gain",
+    "youtubeId": "NEeqvv464k8",
+    "title": "Best Time To Buy And Sell Stock - LeetCode 121 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "One-pass minimum-so-far profit",
+    "referenceProblem": "LeetCode 121: Best Time to Buy and Sell Stock",
+    "bridge": "Track the lowest previous marker and compare each later marker against it; adapt stock-price names to trail elevation gains.",
+    "segments": []
+  },
+  {
+    "problemSlug": "typo-distance",
+    "youtubeId": "_1Qb95R87jU",
+    "title": "LeetCoding in Javascript Ep1: Edit Distance/ Levenshtein Distance",
+    "channel": "Laffed",
+    "concept": "Edit-distance dynamic programming",
+    "referenceProblem": "LeetCode 72 / Levenshtein Distance",
+    "bridge": "Use insert, delete and replace transitions between string-prefix states.",
+    "segments": []
+  },
+  {
+    "problemSlug": "warehouse-routes",
+    "youtubeId": "oBt53YbR9Kk",
+    "title": "Dynamic Programming - Learn to Solve Algorithmic Problems & Coding Challenges",
+    "channel": "freeCodeCamp.org",
+    "concept": "Memoization and tabulation",
+    "referenceProblem": "Fibonacci, gridTraveler and bestSum",
+    "bridge": "Use a gridTraveler-style table but respect blocked cells and the given movement rules.",
+    "segments": []
+  },
+  {
+    "problemSlug": "warmer-wait",
+    "youtubeId": "dtiBmmIPR0E",
+    "title": "Monotonic Stack Explained",
+    "channel": "Kacy Codes",
+    "concept": "Monotonic stack",
+    "referenceProblem": "Previous/next greater elements",
+    "bridge": "Keep unresolved indices on a monotonic stack. For each warmer day, resolve earlier colder days and record index differences.",
+    "segments": []
+  },
+  {
+    "problemSlug": "watchtower-placements",
+    "youtubeId": "IY8uVrt_jlM",
+    "title": "leetCode 51 N-Queens (Backtracking) | JSer - algorithm and JavaScript",
+    "channel": "JSer",
+    "concept": "N-Queens backtracking",
+    "referenceProblem": "LeetCode 51: N-Queens",
+    "bridge": "Place one watchtower per row, reject occupied columns/diagonals, and adapt the N-Queens representation to this output.",
+    "segments": []
+  },
+  {
+    "problemSlug": "word-groups",
+    "youtubeId": "WalLC8nlrPk",
+    "title": "Group Anagrams - LeetCode 49 - JavaScript",
+    "channel": "AlgoJS",
+    "concept": "Anagram signature grouping",
+    "referenceProblem": "LeetCode 49: Group Anagrams",
+    "bridge": "Group words by a canonical letter signature, then apply the group and word ordering required by this statement.",
+    "segments": []
+  }
+]

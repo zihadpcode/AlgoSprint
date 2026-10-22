@@ -1,0 +1,51 @@
+A shop recorded its daily profit in profits (a negative number is a loss). The owner must report
+
+one block of consecutive days whose length is at least minLen and at most maxLen. Return the largest
+
+total profit that a valid block can have. A block has to be reported even if every valid
+
+block loses money.
+
+The days [5, -4, -1, 6] total 6, and so do the days [3, -2, 5]. No other
+
+block
+
+of 2 to 4 days does better (for example [6, -3, 2] totals 5), so the answer is
+
+6.
+
+Every valid block loses money. The best one is [-4, -2] with a total of -6; the whole
+
+record totals -13.
+
+As the end moves right, the allowed starts slide right too, so the minimum prefix in the window
+
+can be kept in a deque that discards dominated candidates.
+
+Build prefix totals. For each end from minLen to n, push the newly allowed start end - minLen
+
+after popping every back entry whose prefix is at least as large, pop the front while it is
+
+older than end - maxLen, and compare prefix[end] - prefix[front] with the best.
+
+Each end wants the smallest prefix total among starts in [end - maxLen, end - minLen]. That window
+
+moves one step right per end, so this is a sliding-window minimum over the prefix array, which a
+
+monotonic deque solves in amortized
+
+O(1). A start that is both later and no smaller than an earlier one will outlive it in
+
+the window and never lose to it, so the earlier one can be dropped. An index-based deque in
+
+a typed array avoids shift costs.
+
+For the first example the prefix totals are 0, 3, 1, 6, 2, 1, 7, 4, 6.
+
+At end 3 the allowed starts are 0 to 1 and the cheapest prefix is 0, giving 6;
+
+at end 7 the starts are 3 to 5 with minimum 1, giving 4 - 1 = 3,
+
+and so on. The best stays 6.
+
+O(n): each start is pushed and popped at most once. O(n) for the prefix array and the deque

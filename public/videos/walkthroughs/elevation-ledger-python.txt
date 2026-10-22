@@ -1,0 +1,61 @@
+Surveyors record height differences between numbered benchmarks 0 to benchmarks - 1. A statement [a, b, d]
+
+claims that height[a] - height[b] = d. Process the statements in order and keep only those that agree
+
+with the statements accepted so far. For each statement return "new" if benchmarks a and b were not
+
+yet linked by accepted statements (the statement is accepted and now links them), "known" if they were already
+
+linked and the accepted statements imply exactly the difference d (nothing changes), or "conflict" if they were
+
+already linked and the implied difference is not d (the statement is rejected and ignored). Return one string
+
+per statement, in order.
+
+The first two statements link 0, 1 and 2 (so height[0]
+
+- height[2] = 3). The third repeats that implied value (known);
+
+the fourth contradicts it (conflict, ignored); the fifth links benchmark 3 (new).
+
+A difference of 0 is symmetric, so the second statement is known;
+
+the third claims a difference of 2 where 0 is implied, which conflicts.
+
+Store for each benchmark its height minus its parent's height; the sum along the path to the root
+
+gives the height relative to the group's root, so two benchmarks in a group have a fixed difference.
+
+find(x) climbs to the root, then rewrites offsets and parents along the path so each points straight at
+
+the root with its offset relative to the root. For [a, b, d], compare riseA - riseB with
+
+d when the roots match; otherwise link the smaller group under the larger with offset d - riseA
+
++ riseB (or its negation).
+
+Each group's heights are known relative to its root, so the structure stores offset[x] = height[x] -
+
+height[parent[x]]. find sums offsets to the root and compresses the path, rewriting each offset to be
+
+root-relative. A statement links two groups only when
+
+the roots differ; the new root-to-root gap is d - riseA + riseB. With union by size and
+
+path compression each operation is O(alpha(n)) amortized, and memory is O(benchmarks). The same weighted idea
+
+solves currency-exchange ratio queries, using multiplication instead of addition.
+
+[0, 1, 5] attaches one root under the other; [1, 2, -2] attaches 2, so height[0] - height[2]
+
+= 3.
+
+find(0) and find(2) share a root with rises that differ by 3, so [0, 2, 3] is known
+
+and [0, 2, 4] is a conflict.
+
+[3, 0, 1] joins benchmark 3 to the group; the answers are new, new, known, conflict, new.
+
+O(alpha(n)) amortized per statement, where alpha is the inverse Ackermann function, because union by size and
+
+path compression are both used. O(benchmarks) for the parent, size and offset arrays

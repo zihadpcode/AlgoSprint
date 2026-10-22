@@ -1,0 +1,16 @@
+{
+  "slug": "rising-marks",
+  "language": "PYTHON",
+  "title": "Rising Marks",
+  "src": "/videos/walkthroughs/rising-marks-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/rising-marks-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/rising-marks-python.txt",
+  "durationSeconds": 118,
+  "sourceHash": "b55ce0f9298d477243eae4aed5d43e3d7500de0dfe67c4a1f617e4873a79d2e4",
+  "sha256": "99106ae5ed800c2e33ce80844324950dbc54a4c4e8ba10e1c9694c63d3ad564d",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "16e03c34287a7efcd0e57c174816df3ec1defad2432d8c7f3daf54a27e70a7c1",
+  "transcriptSha256": "e49f7792b67632acac042d666df536645ed0940cc742a5340d4a0ed33bc1d93c"
+}

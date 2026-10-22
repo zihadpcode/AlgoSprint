@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.361
+A security team pairs sensor IDs so their bitwise XOR is as large as possible, to make collisions
+
+2
+00:00:06.361 --> 00:00:12.823
+unlikely. Given non-negative integers in values, return the largest value of values[i] XOR values[j] over all
+
+3
+00:00:12.823 --> 00:00:13.726
+pairs with i &lt; j.
+
+4
+00:00:15.000 --> 00:00:18.467
+5 XOR 25 = 28 is the largest.
+
+5
+00:00:23.000 --> 00:00:24.872
+Equal values XOR to 0.
+
+6
+00:00:31.000 --> 00:00:36.868
+Choosing the opposite bit as high up as possible maximizes XOR, and a trie of earlier values tells
+
+7
+00:00:36.868 --> 00:00:39.450
+you instantly whether that opposite bit is available.
+
+8
+00:00:41.000 --> 00:00:47.378
+Represent the trie with two child arrays (zero and one). Insert the first value. For each next value,
+
+9
+00:00:47.378 --> 00:00:52.478
+walk from bit 30 to 0: if the opposite child exists, take it and set that bit in
+
+10
+00:00:52.478 --> 00:00:57.545
+the result; otherwise follow the same bit. Update the answer, then insert the value.
+
+11
+00:00:59.000 --> 00:01:04.232
+XOR is maximized greedily from the top bit, so for each value I walk a binary trie of
+
+12
+00:01:04.232 --> 00:01:06.925
+earlier values, taking the opposite bit whenever it
+
+13
+00:01:08.000 --> 00:01:15.659
+exists. Each insert and query is 31 steps, so it's O(31n). An alternative builds the answer bit by
+
+14
+00:01:15.659 --> 00:01:19.342
+bit with a hash set of prefixes, also O(31n).
+
+15
+00:01:20.000 --> 00:01:29.510
+Insert 3, 10 and 5. For 25 (11001): want 0 at bit 4. 5 = 00101 is there,
+
+16
+00:01:29.510 --> 00:01:31.201
+so the path follows 5.
+
+17
+00:01:32.000 --> 00:01:36.875
+The result is 25 ^ 5 = 28; later values do not beat it.
+
+18
+00:01:38.000 --> 00:01:42.272
+O(31 · n). O(31 · n) trie nodes

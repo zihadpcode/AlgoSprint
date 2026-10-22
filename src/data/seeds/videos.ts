@@ -1,9 +1,10 @@
+import videoAdditions from "./video-additions.json";
 import type { VideoSeed } from "@/lib/validators/video";
 
-// Every video below was checked against YouTube's keyless oEmbed endpoint (HTTP 200, title and author as recorded here)
-// on 2026-10-13, and every segment is a chapter published in that video's own description on the same date. Never
-// add a video id, title, channel or timestamp from memory; see docs/VIDEO-SOLUTIONS.md. All videos teach a concept
-// through a reference problem that differs from (or only resembles) the target problem it is attached to.
+// Original source definitions were checked against YouTube's keyless oEmbed endpoint on 2026-10-13; their segments
+// are creator-published chapters from that date. Keep the original 45 mappings immutable. Later verified references
+// append from video-additions.json; source dates, coding-language evidence and scope live in video-sources.json.
+// Never invent video IDs, metadata or timestamps; see docs/VIDEO-SOLUTIONS.md.
 type Source = Pick<VideoSeed, "youtubeId" | "title" | "channel" | "segments">;
 const seg = (startSeconds: number, endSeconds: number, label: string) => ({ startSeconds, endSeconds, label });
 
@@ -272,4 +273,6 @@ export const VIDEOS: VideoSeed[] = [
     "This problem is related to the video's reference problem, Unique Paths: a robot moves only right or down from the top-left to the bottom-right of a grid. The difference is that some cells here are shelves the robot cannot enter. How many routes pass through a shelf cell, and how does that affect the cells next to it? The statement also says there are no routes when the start or the destination is a shelf, and the count is taken modulo 1000000007."),
   video("word-groups", groupAnagrams, "Grouping words that use the same letters", "Group Anagrams (LeetCode 49)",
     "This problem is related to the video's reference problem, Group Anagrams, whose title mentions categorizing strings by count: both put words that use the same letters into groups. The main new element here is the fixed output order: inside each group the words are listed alphabetically, with repeats kept, and the groups are ordered by their first word. Grouping alone is therefore not the finished answer. Check the first example for the exact order, and note that the list of words may be empty."),
+  // Verified language-specific references; existing rows above retain their original positions.
+  ...videoAdditions,
 ];

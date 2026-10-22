@@ -1,0 +1,97 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.579
+A shop recorded its daily profit in profits (a negative number is a loss). The owner must report
+
+2
+00:00:05.579 --> 00:00:12.150
+one block of consecutive days whose length is at least minLen and at most maxLen. Return the largest
+
+3
+00:00:12.150 --> 00:00:17.393
+total profit that a valid block can have. A block has to be reported even if every valid
+
+4
+00:00:17.393 --> 00:00:18.401
+block loses money.
+
+5
+00:00:20.000 --> 00:00:29.549
+The days [5, -4, -1, 6] total 6, and so do the days [3, -2, 5]. No other
+
+6
+00:00:29.549 --> 00:00:29.960
+block
+
+7
+00:00:31.000 --> 00:00:38.321
+of 2 to 4 days does better (for example [6, -3, 2] totals 5), so the answer is
+
+8
+00:00:38.321 --> 00:00:38.885
+6.
+
+9
+00:00:40.000 --> 00:00:47.174
+Every valid block loses money. The best one is [-4, -2] with a total of -6; the whole
+
+10
+00:00:47.174 --> 00:00:48.978
+record totals -13.
+
+11
+00:00:50.000 --> 00:00:55.444
+As the end moves right, the allowed starts slide right too, so the minimum prefix in the window
+
+12
+00:00:55.444 --> 00:00:58.623
+can be kept in a deque that discards dominated candidates.
+
+13
+00:01:00.000 --> 00:01:06.322
+Build prefix totals. For each end from minLen to n, push the newly allowed start end - minLen
+
+14
+00:01:06.322 --> 00:01:11.825
+after popping every back entry whose prefix is at least as large, pop the front while it is
+
+15
+00:01:11.825 --> 00:01:16.515
+older than end - maxLen, and compare prefix[end] - prefix[front] with the best.
+
+16
+00:01:18.000 --> 00:01:24.795
+Each end needs the smallest prefix total among starts in [end - max_len, end - min_len]. A monotonic
+
+17
+00:01:24.795 --> 00:01:29.289
+collections.deque tracks that moving minimum. If a later start has a prefix total
+
+18
+00:01:30.000 --> 00:01:34.778
+no larger than an earlier start, it is at least as good and expires later, so the earlier
+
+19
+00:01:34.778 --> 00:01:39.803
+start can be removed. Every index enters and leaves once, giving O(n) time.
+
+20
+00:01:41.000 --> 00:01:49.128
+For the first example the prefix totals are 0, 3, 1, 6, 2, 1, 7, 4, 6.
+
+21
+00:01:50.000 --> 00:01:55.147
+At end 3 the allowed starts are 0 to 1 and the cheapest prefix is 0, giving 6;
+
+22
+00:01:55.147 --> 00:02:00.027
+at end 7 the starts are 3 to 5 with minimum 1, giving 4 - 1 = 3,
+
+23
+00:02:00.027 --> 00:02:02.497
+and so on. The best stays 6.
+
+24
+00:02:04.000 --> 00:02:10.331
+O(n): each start is pushed and popped at most once. O(n) for the prefix array and the deque

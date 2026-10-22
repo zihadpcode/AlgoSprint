@@ -1,0 +1,41 @@
+Two labs each publish their sorted measurement lists, first and second (either may be empty, but not both).
+
+Return the median of all measurements combined: the middle value for an odd total count, or the average
+
+of the two middle values for an even count (which may end in .5). Aim for time logarithmic
+
+in the list sizes.
+
+Combined [1, 2, 3]: the median is 2.
+
+Combined [1, 2, 3, 4]: (2 + 3) / 2 = 2.5.
+
+Only the boundary of the left half matters, and the number taken from the shorter list determines it,
+
+so it can be binary-searched.
+
+Let a be the shorter list. half = (m + n + 1) >> 1. Binary search i
+
+in [0, m] with j = half - i. If a[i-1] > b[j], move hi = i -
+
+1; if b[j-1] > a[i], move lo = i + 1; otherwise the median comes from max of
+
+the left sides and, for even totals, min of the right sides.
+
+I binary search how many elements the shorter list contributes to the left half. For a guess i,
+
+j = half - i, and the partition is valid when both cross comparisons hold. Otherwise the comparison
+
+tells me which way to move i. The median then comes from the boundary values. Searching the shorter
+
+list keeps j in range and gives O(log min(m, n)).
+
+a = [1,2], b = [3,4], half = 2. i = 1, j = 1: aL = 1,
+
+aR = 2, bL = 3, bR = 4; bL > aR, so lo = 2.
+
+i = 2, j = 0: aL = 2 <= bR = 3 and bL = -∞ <=
+
+aR = +∞. Even total: (max(2, -∞) + min(+∞, 3)) / 2 = 2.5.
+
+O(log min(m, n)). O(1)

@@ -1,0 +1,16 @@
+{
+  "slug": "mirror-cuts",
+  "language": "PYTHON",
+  "title": "Mirror Cuts",
+  "src": "/videos/walkthroughs/mirror-cuts-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/mirror-cuts-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/mirror-cuts-python.txt",
+  "durationSeconds": 105,
+  "sourceHash": "d683468b8043b7c6b8ac0bf4119555792ec6f0760b087fdc0d92091c0f430fb7",
+  "sha256": "fd89ae8ee1a26f5a8f4e229e4cb01315c6f76ae6dcc330209d8fb8302e6bf629",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "16642e1b27b38d1900e50dfcfdfb8aea517d73e39093c5111f2d559fde4d2eeb",
+  "transcriptSha256": "6242d384ce2e3fb445003f5efd82bfdae607f99a382d02cccce1adfb5b8f2184"
+}

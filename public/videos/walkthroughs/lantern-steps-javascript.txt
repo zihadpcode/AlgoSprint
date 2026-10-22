@@ -1,0 +1,35 @@
+A trail has numbered platforms 0 through n - 1 and an exit at position n. Platform i
+
+requires costs[i] lantern tokens when you leave it. You may start on platform 0 or platform 1 without
+
+an initial fee. Each move advances one or two positions. Return the minimum total tokens required to reach
+
+the exit. The exit has no fee. You pay for every platform you leave, including your starting platform.
+
+Start at platform 0, pay 4 to move to platform 2, then pay 2 to reach exit 4.
+
+Start at platform 1 and pay 3 to reach the exit.
+
+Many routes reach the same platform. Once the cheapest arrival cost is known, more expensive arrivals need not
+
+be reconsidered.
+
+Build the minimum arrival cost from left to right. Only the two preceding values are needed for the
+
+next transition.
+
+I define the state as the minimum cost to arrive at a position. The last move comes from
+
+one of two earlier platforms, including that platform’s departure fee. Computing each state once removes
+
+repeated recursion, and keeping only two states reduces extra space to constant.
+
+The free starting choices give dp[0] = 0 and dp[1] = 0. For [4,9,2,7], dp[2] = min(9,4) =
+
+4.
+
+dp[3] = min(dp[2]+2, dp[1]+9) = 6.
+
+The exit is position 4: dp[4] = min(dp[3]+7, dp[2]+2) = 6.
+
+O(n). O(1)

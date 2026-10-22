@@ -1,0 +1,105 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.864
+A log scanner watches a stream of lowercase letters that arrive one at a time. It has a
+
+2
+00:00:04.864 --> 00:00:10.475
+list of forbidden words. After each arriving letter, report whether some forbidden word is a suffix of
+
+3
+00:00:10.475 --> 00:00:16.134
+everything received so far, meaning the word's letters match the most recent letters of the stream, in order.
+
+4
+00:00:16.134 --> 00:00:21.332
+Given the forbidden words and the whole stream as a string, return an array with one boolean per
+
+5
+00:00:21.332 --> 00:00:21.748
+letter.
+
+6
+00:00:23.000 --> 00:00:27.875
+After "stap" the suffix "tap" is forbidden; after "stape" the suffix "pe" is; "stapep"
+
+7
+00:00:31.000 --> 00:00:35.787
+ends in nothing forbidden; "stapepy" ends in "y". The first three letters have no match.
+
+8
+00:00:39.000 --> 00:00:44.894
+After "a" no word ends the stream; after "ab" both "ab" and "b" are suffixes, so one alarm
+
+9
+00:00:44.894 --> 00:00:45.470
+is enough.
+
+10
+00:00:47.000 --> 00:00:53.227
+Suffix matching is prefix matching on the reversed strings, and a trie answers prefix questions one character at
+
+11
+00:00:53.227 --> 00:00:53.727
+a time.
+
+12
+00:00:55.000 --> 00:01:00.868
+Insert every word reversed into a trie, marking where each word ends. For each arriving letter, walk from
+
+13
+00:01:00.868 --> 00:01:06.650
+the newest letter toward older ones, following trie edges, and stop at a missing edge, at a marked
+
+14
+00:01:06.650 --> 00:01:09.888
+node (alarm), or after the longest word's length letters.
+
+15
+00:01:11.000 --> 00:01:15.517
+A word is a suffix of the stream exactly when its reverse is a prefix of the stream
+
+16
+00:01:15.517 --> 00:01:19.887
+read backwards. So I build a trie of reversed words, and for each arriving
+
+17
+00:01:21.000 --> 00:01:25.737
+letter walk it from the newest letter backwards. The walk can never be longer than the longest word,
+
+18
+00:01:25.737 --> 00:01:32.096
+so each letter costs O(L) and the trie costs O(total letters) memory. Aho-Corasick would
+
+19
+00:01:33.000 --> 00:01:38.952
+bring the per-letter cost to amortized O(1) by adding failure links, at the price of a more complex
+
+20
+00:01:38.952 --> 00:01:43.868
+build; with words of at most 20 letters the reversed trie is the practical answer.
+
+21
+00:01:45.000 --> 00:01:51.128
+For ["tap", "pe", "y"] the paths are p-a-t, e-p and y, each ending at a marked node.
+
+22
+00:01:52.000 --> 00:01:57.093
+Walking back from 'p' goes p, a, t, landing on the end of "tap": alarm.
+
+23
+00:01:58.000 --> 00:02:03.750
+'e' then 'p' ends the path of "pe": alarm; the second 'p' finds no edge after 'e'; 'y'
+
+24
+00:02:03.750 --> 00:02:11.036
+lands on a marked node. Output: false, false, false, true, true, false, true.
+
+25
+00:02:12.000 --> 00:02:19.261
+O(total word letters) to build; O(L) per arriving letter, where L is the longest word (at most 20),
+
+26
+00:02:19.261 --> 00:02:25.164
+so O(stream * L) overall. O(total word letters * 26) for the typed-array trie

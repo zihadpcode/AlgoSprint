@@ -1,0 +1,125 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.192
+A grove survey records the yield of every tree in a binary arrangement, given in level order (tree)
+
+2
+00:00:06.192 --> 00:00:11.548
+with null for a missing child. A yield can be negative where a tree is diseased. A subtree
+
+3
+00:00:11.548 --> 00:00:16.151
+is a node together with everything below it. A subtree is ordered when every yield in its left
+
+4
+00:00:16.151 --> 00:00:21.536
+part is strictly smaller than its root's yield, every yield in its right part is strictly larger, and
+
+5
+00:00:21.536 --> 00:00:27.591
+both parts are themselves ordered; a single node is ordered. Return the largest total yield over all ordered
+
+6
+00:00:27.591 --> 00:00:33.260
+subtrees, or 0 when every ordered subtree has a negative total, because you may harvest nothing.
+
+7
+00:00:34.000 --> 00:00:38.525
+The whole tree is not ordered because 5 sits in the right part of 6 but is smaller
+
+8
+00:00:38.525 --> 00:00:45.720
+than 6. The subtree rooted at 9 (9, 5, 12) is ordered with total 26, beating the subtree
+
+9
+00:00:45.720 --> 00:00:48.600
+at 3 (3, 2, 4) with total 9.
+
+10
+00:00:50.000 --> 00:00:56.311
+The whole tree is ordered, but its total is -140 and every single node is negative, so the
+
+11
+00:00:56.311 --> 00:00:58.446
+best harvest is nothing: 0.
+
+12
+00:01:00.000 --> 00:01:05.846
+The definition is recursive: a subtree is ordered when both child subtrees are ordered and their extremes
+
+13
+00:01:05.846 --> 00:01:09.981
+straddle the root, so each call only needs to hand its parent four numbers.
+
+14
+00:01:11.000 --> 00:01:18.398
+Decode the level order into child index arrays. visit(node) returns { ordered, total, low, high }: a missing
+
+15
+00:01:18.398 --> 00:01:25.439
+child is ordered with total 0, low = +infinity and high = -infinity. A node is ordered when
+
+16
+00:01:25.439 --> 00:01:32.383
+both children are, left.high &lt; value and right.low &gt; value; then its total is left.total + right.total +
+
+17
+00:01:32.383 --> 00:01:40.586
+value, its low is min(left.low, value) and its high is max(right.high, value). Record the best total whenever a
+
+18
+00:01:40.586 --> 00:01:42.731
+node is ordered, starting from 0.
+
+19
+00:01:44.000 --> 00:01:48.667
+A subtree is ordered when its left subtree is ordered with a maximum below the root, its right
+
+20
+00:01:48.667 --> 00:01:53.104
+subtree is ordered with a minimum above the root, and the root lies strictly between
+
+21
+00:01:54.000 --> 00:02:01.685
+them. So each subtree summarises itself as (ordered, total, min, max) and the parent combines two summaries in
+
+22
+00:02:01.685 --> 00:02:07.460
+O(1). That is a natural post-order recursion and runs in O(n) time. The call stack
+
+23
+00:02:09.000 --> 00:02:13.604
+is as deep as the tree is tall, so a degenerate tree of thousands of levels needs O(n)
+
+24
+00:02:13.604 --> 00:02:18.553
+stack; the iterative reverse sweep trades the recursion for an index loop over the level order.
+
+25
+00:02:20.000 --> 00:02:25.444
+Nodes 2, 4, 5 and 12 are ordered singles with totals equal to their yields.
+
+26
+00:02:27.000 --> 00:02:34.356
+Node 9 has left max 5 &lt; 9 and right min 12 &gt; 9, total 26. Node 3
+
+27
+00:02:34.356 --> 00:02:41.231
+has total 9. Node 6 sees left max 4 &lt; 6 but right min 5 &lt; 6, so
+
+28
+00:02:41.231 --> 00:02:42.197
+it is not ordered.
+
+29
+00:02:43.000 --> 00:02:45.854
+The best total among ordered nodes is 26.
+
+30
+00:02:47.000 --> 00:02:54.383
+O(n) for n non-null nodes (the serialized length is at most 2n). O(n) for the decoded child arrays,
+
+31
+00:02:54.383 --> 00:02:58.875
+plus a recursion stack as deep as the tree is tall, which reaches O(n) on a chain

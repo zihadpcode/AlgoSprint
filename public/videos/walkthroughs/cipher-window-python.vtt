@@ -1,0 +1,81 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.579
+A cryptographer looks for the shortest stretch of an intercepted message text that contains every letter of a
+
+2
+00:00:05.579 --> 00:00:12.083
+key pattern, including repeats (a pattern of 'aab' needs two a's and one b inside the stretch). Return
+
+3
+00:00:12.083 --> 00:00:18.859
+that shortest substring of text. If several stretches tie for shortest, return the leftmost one. If none exists,
+
+4
+00:00:18.859 --> 00:00:20.156
+return an empty string.
+
+5
+00:00:21.000 --> 00:00:24.164
+'banc' is the shortest stretch containing a, b and c.
+
+6
+00:00:29.000 --> 00:00:31.960
+The text has only one a, so no stretch works.
+
+7
+00:00:37.000 --> 00:00:42.194
+The window only needs to know how many required letters it still lacks; moving either edge changes that
+
+8
+00:00:42.194 --> 00:00:43.464
+count by at most one.
+
+9
+00:00:45.000 --> 00:00:51.406
+Initialize need from the pattern letter counts and missing = len(pattern). For each right index, decrement need
+
+10
+00:00:51.406 --> 00:00:56.470
+for that letter and reduce missing if its previous need was positive. While missing is zero, save a
+
+11
+00:00:56.470 --> 00:01:02.078
+strictly shorter window, then remove the leftmost letter by incrementing its need and increasing missing if that
+
+12
+00:01:02.078 --> 00:01:03.275
+need becomes positive.
+
+13
+00:01:04.000 --> 00:01:10.544
+I keep need counts that go negative for surplus letters, plus a single missing counter. Extending right reduces
+
+14
+00:01:10.544 --> 00:01:15.591
+missing only when the letter was still needed. While nothing is missing I record the window and shrink
+
+15
+00:01:17.000 --> 00:01:23.102
+from the left, and missing only rises when a needed letter drops back above zero. Each index enters
+
+16
+00:01:23.102 --> 00:01:29.486
+and leaves once, so it's O(n + m). Recording only strictly shorter windows keeps the leftmost on ties.
+
+17
+00:01:31.000 --> 00:01:37.794
+Extend until 'adobec' covers a, b, c. Record length 6, then shrink: removing 'a' makes it missing.
+
+18
+00:01:39.000 --> 00:01:42.744
+Extend to 'doba' (missing again 0 at index 10), shrink...
+
+19
+00:01:44.000 --> 00:01:48.608
+Eventually 'banc' (length 4) is recorded, and no shorter window appears.
+
+20
+00:01:50.000 --> 00:01:53.598
+O(n + m). O(1), 26 counters

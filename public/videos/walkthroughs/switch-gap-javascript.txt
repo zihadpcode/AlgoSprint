@@ -1,0 +1,41 @@
+A control panel records which of its switches are on as the bits of a non-negative integer mask;
+
+bit 0 is the rightmost switch. Two on-switches are neighbours when no other switch between them is on.
+
+Return the largest distance, measured in bit positions, between any pair of neighbouring on-switches in mask. If
+
+fewer than two switches are on, return 0.
+
+41 is 101001 in binary, so switches 0, 3 and 5 are on. The neighbour gaps are 3
+
+and 2, and the largest is 3.
+
+4096 is 1000000000000 in binary: only switch 12 is on, so there is no pair of neighbours.
+
+Only set bits matter, so jump from one set bit to the next instead of looking at the
+
+zeros between them.
+
+Repeatedly isolate the lowest set bit with mask & -mask, read its position from 31 - Math.clz32(bit), compare
+
+with the previous position, then clear it with mask &= mask - 1.
+
+The low-bit trick visits each set bit exactly once: mask & -mask isolates it, Math.clz32 turns it into
+
+a position, and mask & (mask - 1) removes it. Each visited bit is compared with the previous
+
+one, so the loop is O(popcount), at most 31 iterations, with O(1) memory. Since the input is bounded
+
+by 31 bits the scan version is equally acceptable in practice, but this is the idiomatic bit-manipulation
+
+answer.
+
+For 41 the lowest set bit is 1 at position 0, so previous = 0 and mask becomes
+
+40.
+
+Next bit 8 is position 3, giving gap 3; then bit 32 is position 5, giving gap 2.
+
+The answer is 3.
+
+O(k) for k set bits, at most 31, which is O(log mask). O(1)

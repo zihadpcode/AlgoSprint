@@ -1,0 +1,71 @@
+A loading dock has bays numbered 1 to bays in a row, all empty at first. Process the
+
+operations in order. ["set", bay, count] makes that bay hold exactly count boxes (replacing whatever it held).
+
+["total", bay] reports how many boxes are in bays 1 to bay together. ["locate", k] numbers the boxes
+
+1, 2, 3, ... starting from bay 1 and moving outward, and reports the bay that holds box
+
+number k, which is the smallest b such that bays 1 to b hold at least k boxes
+
+together; it reports -1 if the whole dock holds fewer than k boxes. Return the reports of the
+
+total and locate operations in order. A set operation produces no report.
+
+After the first two sets bay 3 holds 5 boxes and bay 6 holds 2. Bays 1 to
+
+4 hold 5 boxes. Box 6 is the first box of bay 6
+
+(bays 1 to 3 hold only 5), so locate 6 reports 6. Then bay 3 drops to 1
+
+and bay 8 gets 9 boxes, so the running totals are 1 at
+
+bay 3, 3 at bay 6 and 12 at bay 8. Box 6 is now in bay 8,
+
+and box 14 does not exist, so the reports are 5, 6, 8, -1.
+
+The dock is empty for the first two locates,
+
+so both report -1. After setting 3 boxes, total
+
+reports 3 and box 3 lives in bay 1.
+
+A Fenwick tree makes both point changes and prefix totals logarithmic, and its layout lets a single descent
+
+find the first bay reaching a target.
+
+Keep counts in held and partial sums in tree. set adds (new - old) up the update chain.
+
+total adds down the query chain. locate starts at position 0, tries jumps of the largest power of
+
+two down to 1, takes a jump when the stored sum is below the remaining target (subtracting it),
+
+and finally answers position + 1 if that bay exists, else -1.
+
+The Fenwick tree stores in cell i the sum of the last i & -i bays, so every
+
+prefix is a sum of at most 17 cells. Because totals are monotone in the bay number, the
+
+first
+
+bay reaching k can be found by building the largest prefix still below k one power of two
+
+at a time; the answer is the bay after it. Everything is logarithmic and the memory is one
+
+array.
+
+set 3 = 5 adds 5 to cells 3 and 4 and 8; set 6 = 2 adds
+
+2 to cells 6 and 8.
+
+For locate 6 the jump of 8 has stored sum 7, which is not below 6, so it
+
+is rejected. The jump of 4 has sum 5, below 6, so it is taken and the remaining
+
+target becomes 1. The jump of 2 reaches cell 6 with sum 2, not below 1, so it
+
+is rejected; the jump of 1 reaches cell 5 with sum 0, below 1, so it is taken.
+
+The position is 5 and the answer is bay 6.
+
+O(bays + operations * log bays): about 17 steps per operation. O(bays)

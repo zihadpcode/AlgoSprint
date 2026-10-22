@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.559
+A swim meet records finishing times per lane, and each lane's list is already sorted from fastest to
+
+2
+00:00:05.559 --> 00:00:12.237
+slowest (smallest to largest). Merge all lanes into one list of every time, sorted from smallest to largest.
+
+3
+00:00:12.237 --> 00:00:13.506
+Some lanes may be empty.
+
+4
+00:00:15.000 --> 00:00:15.607
+All eight
+
+5
+00:00:23.000 --> 00:00:23.934
+times in order.
+
+6
+00:00:31.000 --> 00:00:32.370
+No lanes, no times.
+
+7
+00:00:39.000 --> 00:00:43.742
+Only the k lane fronts are candidates for the next output, and a heap finds the smallest in
+
+8
+00:00:43.742 --> 00:00:44.760
+O(log k).
+
+9
+00:00:46.000 --> 00:00:53.858
+Push [value, lane, index] for each non-empty lane. Repeatedly pop the minimum, output its value, and push the
+
+10
+00:00:53.858 --> 00:00:55.628
+next element of that lane if any.
+
+11
+00:00:57.000 --> 00:01:01.739
+The next output is always one of the k lane fronts, so I keep just those in a
+
+12
+00:01:01.739 --> 00:01:04.056
+min-heap. Each pop outputs a value
+
+13
+00:01:05.000 --> 00:01:11.796
+and pushes its lane's successor, so scanning the k lanes and processing N values costs O(k + N
+
+14
+00:01:11.796 --> 00:01:14.602
+log(k + 1)) total with O(k)
+
+15
+00:01:16.000 --> 00:01:22.907
+heap space. The initial scan still costs O(k) when all lanes are empty. Merging lanes pairwise in rounds
+
+16
+00:01:22.907 --> 00:01:24.619
+gives the same bound without a heap.
+
+17
+00:01:26.000 --> 00:01:31.323
+The heap starts with fronts 1 (lane 0), 1 (lane 1) and 2 (lane 2).
+
+18
+00:01:32.000 --> 00:01:38.787
+Pop 1 (lane 0) and push 4. Pop 1 (lane 1) and push 3. Pop 2 and push
+
+19
+00:01:38.787 --> 00:01:41.132
+6. Pop 3 and push 4…
+
+20
+00:01:42.000 --> 00:01:47.922
+Output: [1,1,2,3,4,4,5,6].
+
+21
+00:01:49.000 --> 00:01:54.350
+O(k + N log(k + 1)). O(k) for the heap, plus the output

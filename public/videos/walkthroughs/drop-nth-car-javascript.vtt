@@ -1,0 +1,77 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.141
+A train is a linked chain of cars: car i is followed by car next[i], or by nothing
+
+2
+00:00:05.141 --> 00:00:11.730
+when next[i] is -1, and head is the first car. The chain visits every car exactly once. Uncouple
+
+3
+00:00:11.730 --> 00:00:17.230
+the k-th car counting from the back (k = 1 is the last car) and reconnect the train.
+
+4
+00:00:17.230 --> 00:00:20.228
+Return the car indices from front to back after the removal.
+
+5
+00:00:21.000 --> 00:00:22.314
+The second car from the back
+
+6
+00:00:29.000 --> 00:00:32.249
+is 3, leaving [0, 1, 2, 4].
+
+7
+00:00:37.000 --> 00:00:39.417
+Removing the only car leaves an empty train.
+
+8
+00:00:45.000 --> 00:00:49.896
+A gap of k cars between two pointers means that when the lead reaches the end, the trail
+
+9
+00:00:49.896 --> 00:00:51.059
+is right before the target.
+
+10
+00:00:52.000 --> 00:00:58.747
+Copy the links. Advance lead k times from head. If lead is -1, the head is removed. Otherwise
+
+11
+00:00:58.747 --> 00:01:05.206
+move lead and trail together until lead is the last car, then bypass trail's next car. Read off
+
+12
+00:01:05.206 --> 00:01:06.005
+the new order.
+
+13
+00:01:07.000 --> 00:01:12.093
+Two pointers k apart find the predecessor of the k-th car from the back in one pass. Removing
+
+14
+00:01:12.093 --> 00:01:16.407
+the head is the edge case; with node objects a dummy node in front of the head removes
+
+15
+00:01:16.407 --> 00:01:17.477
+that special case.
+
+16
+00:01:19.000 --> 00:01:21.886
+k = 2: lead moves 0→1→2.
+
+17
+00:01:23.000 --> 00:01:26.557
+Advance together until lead is 4: trail ends at 2.
+
+18
+00:01:28.000 --> 00:01:32.429
+Bypass 3: 2→4. Order [0,1,2,4].
+
+19
+00:01:34.000 --> 00:01:37.652
+O(n). O(1) beyond the copied links and output

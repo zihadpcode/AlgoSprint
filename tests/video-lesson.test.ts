@@ -31,10 +31,10 @@ it("renders nothing without videos", async () => {
   await render([]);
   expect(host.innerHTML).toBe("");
 });
-it("states that the video uses a different example and is not a walkthrough, without loading anything", async () => {
+it("labels external videos as reference lessons with adaptations, without loading anything", async () => {
   await render();
-  expect(VIDEO_FRAMING).toMatch(/different example problem/);
-  expect(VIDEO_FRAMING).toMatch(/not a walkthrough of this problem/);
+  expect(VIDEO_FRAMING).toMatch(/reference lessons/);
+  expect(VIDEO_FRAMING).toMatch(/bridge notes explain what matches/);
   expect(host.textContent).toContain(VIDEO_FRAMING);
   expect(host.textContent).toContain("Concept: Binary search on a sorted array");
   expect(host.textContent).toContain("Binary Search (LeetCode 704)");

@@ -1,0 +1,16 @@
+{
+  "slug": "profit-block",
+  "language": "JAVASCRIPT",
+  "title": "Profit Block",
+  "src": "/videos/walkthroughs/profit-block-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/profit-block-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/profit-block-javascript.txt",
+  "durationSeconds": 136,
+  "sourceHash": "a2259e4cc5629cd8e4a5d81e3cba883742790d8923457704e4c8de896dc3a130",
+  "sha256": "ba10f167ea7bd62b4a62e3caabc23e0d31e86eeff68df1c168fcf7822bc3dd5b",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "15e97a4af4844431083fc276771bf4b31c3210fb3d38c2eab8d6aae65466ee11",
+  "transcriptSha256": "fda4dbd7e28296bec9dff9558ee81c27a219c70d6657c80fdbaf26612c757c58",
+  "rendererVersion": "2026-10-22.1"
+}

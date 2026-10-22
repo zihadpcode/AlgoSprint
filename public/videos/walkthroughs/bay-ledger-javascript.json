@@ -1,0 +1,16 @@
+{
+  "slug": "bay-ledger",
+  "language": "JAVASCRIPT",
+  "title": "Bay Ledger",
+  "src": "/videos/walkthroughs/bay-ledger-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/bay-ledger-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/bay-ledger-javascript.txt",
+  "durationSeconds": 198,
+  "sourceHash": "a8e6b21bef243d193848a2f021720562f3e8b7f97894dddd3e2e0b69ddd472c7",
+  "sha256": "ed1acedc4c426ba12a1b518a1c4c2e8a7a95f6ede98eaa7a77e6f58ecc4f36d9",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "34b1a64ca79b0dc50c2bb69ae2ce699e70c22577cb26943686a552d6af7950cd",
+  "transcriptSha256": "d08b30c60ef57852cf6e636921e274424975084c97d841b942ab8f09ae7568e7",
+  "rendererVersion": "2026-10-22.1"
+}

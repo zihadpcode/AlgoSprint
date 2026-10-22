@@ -1,0 +1,16 @@
+{
+  "slug": "popularity-cache",
+  "language": "JAVASCRIPT",
+  "title": "Popularity Cache",
+  "src": "/videos/walkthroughs/popularity-cache-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/popularity-cache-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/popularity-cache-javascript.txt",
+  "durationSeconds": 168,
+  "sourceHash": "4813970bb16695996f095c74391cc98310f0ef8c7495d05401f0ad47d23acc82",
+  "sha256": "c2207553a1ee76f3412e04f2c69efa41c1a79fdf387cf3bdde82918f88009722",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "b920936a8b1b3ea0992382ba778e83bf4538d6a87d10d99c1392b715d3ddde02",
+  "transcriptSha256": "f9dd210c298869f08cd41d6db6d466f0728e093fb2ecd176d24669ec58a42183",
+  "rendererVersion": "2026-10-22.1"
+}

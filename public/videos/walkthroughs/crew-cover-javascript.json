@@ -1,0 +1,16 @@
+{
+  "slug": "crew-cover",
+  "language": "JAVASCRIPT",
+  "title": "Crew Cover",
+  "src": "/videos/walkthroughs/crew-cover-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/crew-cover-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/crew-cover-javascript.txt",
+  "durationSeconds": 138,
+  "sourceHash": "c41f0ad65c29bfaf5bf5dfb7faaca43c899ee7957eb8056a558e7c8c63ce333f",
+  "sha256": "c0e3e3cae048e56eb9b24ae19b18bf5f8070bf0245af245bbbd5347675c8daf5",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "61e99b13828695044b4c13c5780beba7f5eb3c294962b0bfab342d90bc273a32",
+  "transcriptSha256": "6d93b133e47c4d7a6d97d085ec30a99ade95f21cc258a0eb8be387c54e4fd76b",
+  "rendererVersion": "2026-10-22.1"
+}

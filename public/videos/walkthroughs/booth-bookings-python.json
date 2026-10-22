@@ -1,0 +1,16 @@
+{
+  "slug": "booth-bookings",
+  "language": "PYTHON",
+  "title": "Booth Bookings",
+  "src": "/videos/walkthroughs/booth-bookings-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/booth-bookings-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/booth-bookings-python.txt",
+  "durationSeconds": 222,
+  "sourceHash": "e4a1578b9041c18303b76853abfeef5a3e529594fced8536d43734c55478755e",
+  "sha256": "d95d19d12eaf9c6f3878c9dc82611e860cb59e934f9ada9842593113459b36f9",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "0f1e3838392f4efc86c98023aa90456bdbf2e43d1a0d23ad22f6739590ed77e0",
+  "transcriptSha256": "ffc66ddc6badeb385c7065e0f992de0d1b69b5454d04156abbbbf7daf3ccc704"
+}

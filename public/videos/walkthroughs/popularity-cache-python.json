@@ -1,0 +1,16 @@
+{
+  "slug": "popularity-cache",
+  "language": "PYTHON",
+  "title": "Popularity Cache",
+  "src": "/videos/walkthroughs/popularity-cache-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/popularity-cache-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/popularity-cache-python.txt",
+  "durationSeconds": 139,
+  "sourceHash": "62cc169e163b27ff6605e2e12f6670f0fe3de9e1d757e41f2ded1f71e3f2347a",
+  "sha256": "2786a388e220759101d7367f1c30e9bfe4dcedcd57d272238f4858b28f457bc1",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "6fb9fa5febeb076e5824685ffde07ed9ffd0db05c0e8a586a0404af5406be867",
+  "transcriptSha256": "b6130b0cbfee78b692451022b6c4456dd02d995da60c1e5222adef0e796b5312"
+}

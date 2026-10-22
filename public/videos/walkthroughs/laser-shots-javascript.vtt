@@ -1,0 +1,105 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.593
+Painted panels hang along a wall, and each panel covers a closed span [left, right] of integer positions.
+
+2
+00:00:06.593 --> 00:00:13.263
+A laser fired straight at integer position x marks every panel whose span contains x, meaning left &lt;=
+
+3
+00:00:13.263 --> 00:00:20.506
+x &lt;= right. Spans may overlap, touch, be nested or repeat. Return the fewest shots needed so that
+
+4
+00:00:20.506 --> 00:00:26.416
+every panel is marked at least once. A shot may be fired at any integer position, including one
+
+5
+00:00:26.416 --> 00:00:28.025
+outside the listed spans.
+
+6
+00:00:29.000 --> 00:00:36.856
+A shot at 2 marks [0, 2] and [-3, 4]; a shot at 10 marks [3, 10] and
+
+7
+00:00:36.856 --> 00:00:39.551
+[9, 15]; [14, 16]
+
+8
+00:00:41.000 --> 00:00:49.207
+needs its own shot at 16. The spans [0, 2], [3, 10] and [14, 16] are pairwise disjoint,
+
+9
+00:00:49.207 --> 00:00:51.207
+so three shots are unavoidable.
+
+10
+00:00:52.000 --> 00:00:55.494
+The spans are pairwise disjoint, so no position lies
+
+11
+00:01:00.000 --> 00:01:02.138
+in two of them and each needs its own shot.
+
+12
+00:01:08.000 --> 00:01:13.701
+Firing at the smallest right end among unmarked panels marks the most panels any choice for that panel
+
+13
+00:01:13.701 --> 00:01:14.085
+could.
+
+14
+00:01:15.000 --> 00:01:20.958
+Copy and sort the panels by right end. Walk them, keeping the last shot position. A panel with
+
+15
+00:01:20.958 --> 00:01:25.264
+left &gt; lastShot is unmarked: count a shot and fire at its right end.
+
+16
+00:01:26.000 --> 00:01:30.856
+Take the panel with the smallest right end r. Some shot must hit it, and every other panel
+
+17
+00:01:30.856 --> 00:01:36.125
+ends at or after r, so a panel that contains any shot inside this one also contains r.
+
+18
+00:01:36.125 --> 00:01:41.662
+Firing at r is therefore never worse, so an exchange argument shows the greedy choice is safe. After
+
+19
+00:01:41.662 --> 00:01:48.361
+firing, all panels with left &lt;= r are marked; the rest are handled the same way. Sorting by
+
+20
+00:01:48.361 --> 00:01:55.176
+right end is O(n log n), the scan is O(n), and the sorted copy costs O(n) memory (O(1)
+
+21
+00:01:55.176 --> 00:01:57.266
+if sorting the input in place is allowed).
+
+22
+00:01:58.000 --> 00:02:05.312
+[0, 2], [-3, 4], [3, 10], [9, 15], [14, 16].
+
+23
+00:02:06.000 --> 00:02:13.878
+left 0 &gt; -infinity so fire at 2; [-3, 4] has left -3 &lt;= 2 and is marked.
+
+24
+00:02:15.000 --> 00:02:23.400
+[3, 10] has left 3 &gt; 2, so fire at 10; [9, 15] is marked. [14, 16] has
+
+25
+00:02:23.400 --> 00:02:27.998
+left 14 &gt; 10, so fire at 16. Three shots.
+
+26
+00:02:29.000 --> 00:02:34.782
+O(n log n) for the sort, then O(n). O(n) for the sorted copy of the panels

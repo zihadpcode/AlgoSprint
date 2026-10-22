@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.027
+A lock dial advances by base raised to a power e, keeping only the remainder after dividing by
+
+2
+00:00:06.027 --> 00:00:10.820
+modulus. The exponent e is far too large for a number, so it is given as its decimal
+
+3
+00:00:10.820 --> 00:00:17.513
+digits, most significant digit first, with no leading zeros. Return (base ^ e) mod modulus.
+
+4
+00:00:19.000 --> 00:00:26.568
+The exponent is 10 and 2^10 = 1024, whose remainder modulo 1000 is 24.
+
+5
+00:00:28.000 --> 00:00:36.037
+3 and 7 share no factor, so 3^6 leaves remainder 1 modulo 7. That periodicity holds only when
+
+6
+00:00:36.037 --> 00:00:40.505
+the base and the modulus share no factor, so it is a special case rather than a general
+
+7
+00:00:40.505 --> 00:00:49.210
+rule. Here 100 leaves remainder 4 when divided by 6, so 3^100 leaves the same remainder as 3^4
+
+8
+00:00:49.210 --> 00:00:51.157
+= 81, which is 4.
+
+9
+00:00:52.000 --> 00:01:00.478
+Appending a digit maps the exponent x to 10x + d, and base^(10x + d) = (base^x)^10 *
+
+10
+00:01:00.478 --> 00:01:03.304
+base^d, so one running remainder is enough.
+
+11
+00:01:04.000 --> 00:01:11.595
+Start with result = 1 % modulus (the empty exponent). For each digit d, compute result^10 and base^d
+
+12
+00:01:11.595 --> 00:01:17.156
+using square-and-multiply on the small exponents 10 and d, and combine them modulo the modulus.
+
+13
+00:01:18.000 --> 00:01:25.436
+Read the exponent left to right using x -&gt; 10x + d. The identity base^(10x + d) =
+
+14
+00:01:25.436 --> 00:01:32.813
+(base^x)^10 * base^d lets the accumulator represent the modular power for the digits read so far. Both small
+
+15
+00:01:32.813 --> 00:01:39.709
+exponents are at most 10, so each digit needs only a constant number of modular multiplications. This takes
+
+16
+00:01:39.709 --> 00:01:47.837
+O(D) time and O(1) auxiliary space for D digits, without constructing the full exponent. Reducing products
+
+17
+00:01:47.837 --> 00:01:50.696
+modulo modulus keeps the intermediate values small.
+
+18
+00:01:52.000 --> 00:01:57.719
+result starts at 1; digit 1 gives 1^10 * 2^1 = 2.
+
+19
+00:01:59.000 --> 00:02:06.669
+result = 2^10 * 2^0 = 1024 mod 1000 = 24.
+
+20
+00:02:08.000 --> 00:02:10.789
+No more digits, so the answer is 24.
+
+21
+00:02:12.000 --> 00:02:19.883
+O(D) for D digits: each digit costs a constant number of modular multiplications (at most about 14). O(1)

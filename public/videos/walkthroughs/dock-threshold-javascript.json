@@ -1,0 +1,16 @@
+{
+  "slug": "dock-threshold",
+  "language": "JAVASCRIPT",
+  "title": "Dock Threshold",
+  "src": "/videos/walkthroughs/dock-threshold-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/dock-threshold-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/dock-threshold-javascript.txt",
+  "durationSeconds": 94,
+  "sourceHash": "e61abe8b910c5e001a1f8953cd1171f58b3281f801b09019870623e3e6a16960",
+  "sha256": "2a54278d6509d9904c2cd38acc456458cbdea9a090f4e915c91ef85282bcd0ce",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "054c15f46d0cc04041307be57cdacfdecee6f9f7c09493619ca115e88b983017",
+  "transcriptSha256": "dee5a4e8770590264aad920990118f0fa6a9d94699c867fa8663b56a4dd102cc",
+  "rendererVersion": "2026-10-22.1"
+}

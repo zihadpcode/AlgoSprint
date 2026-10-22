@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.718
+A trail has numbered platforms 0 through n - 1 and an exit at position n. Platform i
+
+2
+00:00:05.718 --> 00:00:12.076
+requires costs[i] lantern tokens when you leave it. You may start on platform 0 or platform 1 without
+
+3
+00:00:12.076 --> 00:00:18.706
+an initial fee. Each move advances one or two positions. Return the minimum total tokens required to reach
+
+4
+00:00:18.706 --> 00:00:24.639
+the exit. The exit has no fee. You pay for every platform you leave, including your starting platform.
+
+5
+00:00:26.000 --> 00:00:31.931
+Start at platform 0, pay 4 to move to platform 2, then pay 2 to reach exit 4.
+
+6
+00:00:34.000 --> 00:00:37.430
+Start at platform 1 and pay 3 to reach the exit.
+
+7
+00:00:42.000 --> 00:00:48.074
+Many routes reach the same platform. Once the cheapest arrival cost is known, more expensive arrivals need not
+
+8
+00:00:48.074 --> 00:00:48.872
+be reconsidered.
+
+9
+00:00:50.000 --> 00:00:55.014
+Build the minimum arrival cost from left to right. Only the two preceding values are needed for the
+
+10
+00:00:55.014 --> 00:00:55.975
+next transition.
+
+11
+00:00:57.000 --> 00:01:02.195
+I define the state as the minimum cost to arrive at a position. The last move comes from
+
+12
+00:01:02.195 --> 00:01:08.217
+one of two earlier platforms, including that platform’s departure fee. Computing each state once removes
+
+13
+00:01:08.217 --> 00:01:12.866
+repeated recursion, and keeping only two states reduces extra space to constant.
+
+14
+00:01:14.000 --> 00:01:26.960
+The free starting choices give dp[0] = 0 and dp[1] = 0. For [4,9,2,7], dp[2] = min(9,4) =
+
+15
+00:01:26.960 --> 00:01:27.451
+4.
+
+16
+00:01:29.000 --> 00:01:36.147
+dp[3] = min(dp[2]+2, dp[1]+9) = 6.
+
+17
+00:01:37.000 --> 00:01:46.239
+The exit is position 4: dp[4] = min(dp[3]+7, dp[2]+2) = 6.
+
+18
+00:01:47.000 --> 00:01:48.460
+O(n). O(1)

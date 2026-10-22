@@ -1,0 +1,77 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:07.632
+A shared calendar stores reserved slots as [start, end] pairs in slots, sorted by start and pairwise disjoint
+
+2
+00:00:07.632 --> 00:00:14.854
+(each slot ends before the next one starts). Both endpoints are included, so [1, 3] and [3, 5]
+
+3
+00:00:14.854 --> 00:00:20.797
+would share minute 3. Insert newSlot and return the calendar as a sorted list of disjoint slots, merging
+
+4
+00:00:20.797 --> 00:00:24.131
+newSlot with every slot it shares at least one minute with.
+
+5
+00:00:25.000 --> 00:00:28.675
+[6, 10] overlaps [5, 7] and [9,
+
+6
+00:00:33.000 --> 00:00:36.045
+12], so the three become [5, 12].
+
+7
+00:00:41.000 --> 00:00:43.485
+[4, 6] touches nothing and
+
+8
+00:00:49.000 --> 00:00:51.094
+is placed between the existing slots.
+
+9
+00:00:57.000 --> 00:01:02.760
+Because the calendar is sorted and disjoint, the slots that interact with newSlot form one contiguous run.
+
+10
+00:01:04.000 --> 00:01:09.472
+Copy slots that end before newSlot starts. Then, while the next slot starts at or before the growing
+
+11
+00:01:09.472 --> 00:01:13.467
+slot's end, absorb it. Push the grown slot, then copy the rest.
+
+12
+00:01:15.000 --> 00:01:21.413
+The input is sorted and disjoint, so the slots touching newSlot form one contiguous run. I copy everything
+
+13
+00:01:21.413 --> 00:01:26.950
+that ends before it, absorb the run by widening start and end, emit the merged slot, and copy
+
+14
+00:01:26.950 --> 00:01:30.865
+the tail. It's one pass, O(n), and it never mutates the input.
+
+15
+00:01:32.000 --> 00:01:35.257
+[1,2] ends before 6 and is copied.
+
+16
+00:01:36.000 --> 00:01:45.670
+[5,7] starts at 5 &lt;= 10, so the slot grows to [5,10]; [9,12] starts at 9 &lt;= 10,
+
+17
+00:01:45.670 --> 00:01:47.885
+so it grows to [5,12].
+
+18
+00:01:49.000 --> 00:01:51.006
+Nothing remains; the result is [[1,2],[5,12]].
+
+19
+00:01:53.000 --> 00:01:55.543
+O(n). O(n) for the output

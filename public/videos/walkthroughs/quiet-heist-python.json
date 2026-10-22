@@ -1,0 +1,16 @@
+{
+  "slug": "quiet-heist",
+  "language": "PYTHON",
+  "title": "Quiet Heist",
+  "src": "/videos/walkthroughs/quiet-heist-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/quiet-heist-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/quiet-heist-python.txt",
+  "durationSeconds": 93,
+  "sourceHash": "4fcf114e5dc383c1d6ad5d101c04ebbbb7e03606c5f28ea5c77a5a7f9dcb4df0",
+  "sha256": "5074498a85be91b5790966a2935cb9c67cfccc659a9f0cf3e6698677639384fc",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "6422f6aa4e65d016a926fcf55769fcbe4d442894b8316af1963c70ff97be3fc6",
+  "transcriptSha256": "f6e3119f759c6bfb8791ded1c1d96d48e9a45b1b15d79c5795ca295129c4e0d0"
+}

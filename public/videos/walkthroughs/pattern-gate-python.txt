@@ -1,0 +1,33 @@
+A security gate checks badge codes against a pattern. In the pattern, a letter matches that same letter,
+
+'?' matches any single letter, and '*' matches any run of letters, including an empty run. The whole
+
+text must be matched by the whole pattern. Return true if text matches pattern, otherwise false.
+
+'*' absorbs 'adg'.
+
+The pattern covers only three letters, but the text has four.
+
+Whether prefixes match depends only on smaller prefixes, so tabulate it.
+
+ok[j] holds row i - 1. Initialize ok[0] = true and ok[j] = ok[j - 1] for leading
+
+stars. For each text letter build next: next[0] = false; for a star next[j] = next[j - 1]
+
+|| ok[j]; for a letter or '?' next[j] = matches && ok[j - 1].
+
+ok[i][j] says whether the first i text letters match the first j pattern characters. A star either matches
+
+nothing (left in the same row) or absorbs one more letter (same column in the previous row). Letters
+
+and '?' use the diagonal. Only the previous row is needed, so it's O(|t|·|p|) time and O(|p|) space.
+
+A greedy two-pointer with star backtracking also works in practice, but the DP is easier to prove.
+
+Pattern 'b*e', text 'badge'. Row 0: [T,F,F,F].
+
+Row 'b': [F,T,T,F]. Rows 'a', 'd' and 'g' keep the star column true: [F,F,T,F].
+
+Row 'e': [F,F,T,T]. The answer is true.
+
+O(|t| × |p|). O(|p|)

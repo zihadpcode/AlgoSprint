@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.669
+A rescue mission needs skills numbered 0 to skills - 1. Each volunteer is described by a bitmask:
+
+2
+00:00:05.669 --> 00:00:10.416
+bit i is set when that volunteer has skill i. Choose some volunteers so that every skill is
+
+3
+00:00:10.416 --> 00:00:17.162
+held by at least one chosen volunteer. Return the smallest number of volunteers that covers all skills, or
+
+4
+00:00:17.162 --> 00:00:21.679
+-1 if no group of volunteers can. Each volunteer may be chosen at most once.
+
+5
+00:00:23.000 --> 00:00:29.803
+Volunteer 3 has skills 0 and 1, and volunteer 12 has skills 2 and 3, so those two
+
+6
+00:00:29.803 --> 00:00:33.232
+together cover all four skills. No single volunteer does.
+
+7
+00:00:34.000 --> 00:00:36.987
+Nobody has skill 2, so the mission cannot be covered.
+
+8
+00:00:42.000 --> 00:00:48.052
+Only the covered set matters, not which volunteers produced it, so track the fewest volunteers for each of
+
+9
+00:00:48.052 --> 00:00:49.659
+the 2^skills covered sets.
+
+10
+00:00:51.000 --> 00:00:58.845
+fewest[0] = 0, all others unreachable. For each volunteer with a non-empty mask, sweep every covered set and
+
+11
+00:00:58.845 --> 00:01:04.978
+relax fewest[covered | mask] with fewest[covered] + 1. Return fewest[full] or -1.
+
+12
+00:01:06.000 --> 00:01:11.783
+The state is the set of skills covered so far, encoded as a bitmask, and the transition ORs
+
+13
+00:01:11.783 --> 00:01:22.060
+in one more volunteer for a cost of one. That collapses 2^60 subsets into 2^16 states: 65,536 values
+
+14
+00:01:22.060 --> 00:01:29.076
+times 60 volunteers is about 3.9 million operations. Reusing a volunteer inside the same pass is harmless
+
+15
+00:01:29.076 --> 00:01:34.734
+because it never lowers a count. This is the standard smallest-sufficient-team formulation of set cover with a
+
+16
+00:01:34.734 --> 00:01:35.834
+small universe.
+
+17
+00:01:37.000 --> 00:01:42.625
+fewest[0000] = 0; every other covered set is unreachable.
+
+18
+00:01:44.000 --> 00:01:56.719
+Mask 3 sets fewest[0011] = 1; mask 12 then sets fewest[1100] = 1 and fewest[1111] = 2 from
+
+19
+00:01:56.719 --> 00:01:58.831
+fewest[0011].
+
+20
+00:02:00.000 --> 00:02:06.518
+Masks 6 and 9 cannot beat 2, so fewest[1111] = 2.
+
+21
+00:02:08.000 --> 00:02:16.794
+O(volunteers * 2^skills), at most 60 * 65,536 = about 3.9 million steps. O(2^skills)

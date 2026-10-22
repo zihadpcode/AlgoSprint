@@ -1,0 +1,69 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.915
+A photo library records one lowercase tag per upload in the array tags. Produce the list of distinct
+
+2
+00:00:05.915 --> 00:00:11.776
+tags ordered from most frequent to least frequent. When two tags have the same frequency, the alphabetically
+
+3
+00:00:11.776 --> 00:00:15.760
+smaller tag comes first. Return the ordered list of distinct tags.
+
+4
+00:00:17.000 --> 00:00:19.752
+sky appears three times, dog twice and
+
+5
+00:00:25.000 --> 00:00:27.306
+cat once, so the order follows the counts.
+
+6
+00:00:33.000 --> 00:00:36.286
+Both tags appear twice; oak is alphabetically first.
+
+7
+00:00:41.000 --> 00:00:46.814
+A frequency map gives every distinct tag and its count in one pass, and the ordering rule is
+
+8
+00:00:46.814 --> 00:00:48.313
+exactly a two-key sort.
+
+9
+00:00:49.000 --> 00:00:55.595
+Count tags with collections.Counter. Sort the distinct keys using the tuple key (-count, tag), giving descending
+
+10
+00:00:55.595 --> 00:00:58.000
+frequency and ascending alphabetical order.
+
+11
+00:00:59.000 --> 00:01:05.928
+Counter counts every tag in one pass. Sorting the distinct tags with key (-counts[tag], tag) expresses both
+
+12
+00:01:05.928 --> 00:01:13.716
+ordering rules directly. Counting costs O(n) and sorting costs O(d log d), so the total is O(n +
+
+13
+00:01:13.716 --> 00:01:17.108
+d log d), using O(d) space.
+
+14
+00:01:18.000 --> 00:01:24.961
+For [sky, dog, sky, cat, dog, sky], the map holds sky → 3, dog → 2, cat →
+
+15
+00:01:24.961 --> 00:01:25.319
+1.
+
+16
+00:01:26.000 --> 00:01:30.999
+Sorting by count descending yields [sky, dog, cat] with no ties to break.
+
+17
+00:01:32.000 --> 00:01:34.548
+O(n + d log d). O(d)

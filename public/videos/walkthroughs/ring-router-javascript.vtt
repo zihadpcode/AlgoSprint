@@ -1,0 +1,125 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.738
+A cache cluster places servers at integer positions on a ring and sends every request key to the
+
+2
+00:00:05.738 --> 00:00:12.694
+first server found clockwise: the server with the smallest position that is &gt;= the key, wrapping around to
+
+3
+00:00:12.694 --> 00:00:18.204
+the server with the smallest position overall when no server sits at or after the key. Servers can
+
+4
+00:00:18.204 --> 00:00:26.066
+join and leave. The operations are ["add", name, position], which adds a server and returns true, or returns
+
+5
+00:00:26.066 --> 00:00:31.971
+false and changes nothing if that name is already in use or that position already holds a server;
+
+6
+00:00:31.971 --> 00:00:37.345
+["remove", name], which removes the server and returns true, or returns false if there is no such server;
+
+7
+00:00:37.345 --> 00:00:42.663
+and ["route", key], which returns the name of the server that handles key, or null when the cluster
+
+8
+00:00:42.663 --> 00:00:48.215
+is empty. Apply the operations in order starting from an empty cluster and return the result of every
+
+9
+00:00:48.215 --> 00:00:48.899
+operation.
+
+10
+00:00:50.000 --> 00:00:54.006
+Key 100 lands exactly on alpha; 101 goes
+
+11
+00:00:58.000 --> 00:01:01.467
+on to beta (500); 501 wraps around to
+
+12
+00:01:06.000 --> 00:01:09.868
+alpha. After beta leaves, 101 wraps to alpha.
+
+13
+00:01:14.000 --> 00:01:17.383
+Position 100 is taken, so adding gamma there fails.
+
+14
+00:01:22.000 --> 00:01:23.408
+An empty cluster routes to
+
+15
+00:01:30.000 --> 00:01:31.708
+null and has nothing to remove.
+
+16
+00:01:38.000 --> 00:01:43.077
+The ring is a sorted list read circularly, so the handler is the first position at or after
+
+17
+00:01:43.077 --> 00:01:45.178
+the key, found by binary search.
+
+18
+00:01:46.000 --> 00:01:50.890
+Maintain a sorted array of positions with a parallel array of names and a name-to-position map.
+
+19
+00:01:50.890 --> 00:01:58.204
+lowerBound(target) returns the first index with position &gt;= target. route wraps to index 0 when that index
+
+20
+00:01:58.204 --> 00:02:03.127
+equals the length. add and remove locate the index by lowerBound and splice.
+
+21
+00:02:04.000 --> 00:02:09.109
+This is consistent hashing reduced to its data structure. The positions sit in a sorted array, so the
+
+22
+00:02:09.109 --> 00:02:12.927
+owner of a key is a lower-bound lookup with a wrap-around. Routing
+
+23
+00:02:14.000 --> 00:02:21.051
+is O(log s). Membership changes are rare in practice, and with a plain array they cost O(s) because
+
+24
+00:02:21.051 --> 00:02:25.142
+splice shifts elements; a balanced tree or skip list would make every
+
+25
+00:02:26.000 --> 00:02:33.512
+operation O(log s). In real systems each server also gets many virtual positions so load spreads evenly and
+
+26
+00:02:33.512 --> 00:02:36.780
+a departing server hands its keys to several neighbours rather than one.
+
+27
+00:02:38.000 --> 00:02:44.882
+After the two adds, positions = [100, 500] and names = [alpha, beta].
+
+28
+00:02:46.000 --> 00:02:56.494
+lowerBound(101) = 1 (beta); lowerBound(501) = 2 = length, so wrap to index 0 (alpha).
+
+29
+00:02:58.000 --> 00:03:04.388
+Removing beta splices index 1 out. Position 100 stays taken, so adding gamma there returns false.
+
+30
+00:03:05.000 --> 00:03:13.004
+O(log s) per route; O(s) per successful add or remove because splice shifts the array, plus an O(log
+
+31
+00:03:13.004 --> 00:03:15.058
+s) search. O(s)

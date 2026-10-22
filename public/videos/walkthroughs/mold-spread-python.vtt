@@ -1,0 +1,77 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.552
+A pantry shelf is a grid of equal-length rows: 'F' is fresh bread, 'S' is spoiled bread and
+
+2
+00:00:05.552 --> 00:00:11.121
+'.' is empty space. Every minute, each fresh loaf that shares an edge (up, down, left or right)
+
+3
+00:00:11.121 --> 00:00:17.133
+with a spoiled loaf becomes spoiled. Return the number of minutes until no fresh bread remains, 0 if
+
+4
+00:00:17.133 --> 00:00:21.894
+there is no fresh bread at the start, or -1 if some fresh loaf can never spoil.
+
+5
+00:00:23.000 --> 00:00:25.636
+Mold reaches the bottom-right loaf after 4 minutes.
+
+6
+00:00:31.000 --> 00:00:34.473
+The loaf in the bottom-left corner touches nothing, so it never spoils.
+
+7
+00:00:39.000 --> 00:00:44.818
+Spoiling time is the shortest distance from any initial mold, which a BFS seeded with all molds computes
+
+8
+00:00:44.818 --> 00:00:45.348
+directly.
+
+9
+00:00:46.000 --> 00:00:52.304
+Queue every 'S' cell and count every 'F'. While the queue and fresh count are non-zero, process one
+
+10
+00:00:52.304 --> 00:01:00.016
+layer: spoil each fresh neighbor, decrement the fresh count, enqueue it. Count layers. Return -1 if fresh bread
+
+11
+00:01:00.016 --> 00:01:00.667
+remains.
+
+12
+00:01:02.000 --> 00:01:07.909
+Each loaf spoils at its shortest distance from any initial mold, so I run one BFS with every
+
+13
+00:01:07.909 --> 00:01:11.926
+spoiled loaf as a source. Each layer is one minute. I mark
+
+14
+00:01:13.000 --> 00:01:17.848
+cells when I enqueue them so nothing is processed twice, and a fresh counter tells me when to
+
+15
+00:01:17.848 --> 00:01:22.002
+stop and whether anything stayed unreachable. Linear in the number of cells.
+
+16
+00:01:23.000 --> 00:01:29.118
+Layer 0: (0,0). Minute 1 spoils (0,1) and (1,0).
+
+17
+00:01:30.000 --> 00:01:36.843
+Minute 2: (0,2) and (1,1). Minute 3: (2,1). Minute 4: (2,2).
+
+18
+00:01:38.000 --> 00:01:40.400
+fresh = 0, so return 4.
+
+19
+00:01:42.000 --> 00:01:45.140
+O(rows × cols). O(rows × cols)

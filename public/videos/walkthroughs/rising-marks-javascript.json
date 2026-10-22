@@ -1,0 +1,16 @@
+{
+  "slug": "rising-marks",
+  "language": "JAVASCRIPT",
+  "title": "Rising Marks",
+  "src": "/videos/walkthroughs/rising-marks-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/rising-marks-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/rising-marks-javascript.txt",
+  "durationSeconds": 118,
+  "sourceHash": "5c2883b215a7865ede6946ff087e741c6394aa51c9de7a88e20680f3ef90982b",
+  "sha256": "4a6d142b568f04a10dd3dfe786447e67fb9a65cf84adcb42cf92c0c3735c0315",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "3cbe2ec2ce77b996269b354b27191d4ba7dcb71fa3a67c9db91e08c2959ceeb6",
+  "transcriptSha256": "e49f7792b67632acac042d666df536645ed0940cc742a5340d4a0ed33bc1d93c"
+}

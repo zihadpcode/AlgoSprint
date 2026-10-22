@@ -1,0 +1,16 @@
+{
+  "slug": "drop-nth-car",
+  "language": "JAVASCRIPT",
+  "title": "Drop the Nth Car",
+  "src": "/videos/walkthroughs/drop-nth-car-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/drop-nth-car-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/drop-nth-car-javascript.txt",
+  "durationSeconds": 99,
+  "sourceHash": "36136ac2a8bad9cc76bcb99e5dbd7c971f62003e095b6543aabb5c0f326908df",
+  "sha256": "c316a384c787a4c061728bbc375466ea884be2ec3c7d62b648830d5abc69f3fe",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "1170200a70228e1fbde7a212638ed1b439a7ba35f2d57c89398fa5bbd66c4d53",
+  "transcriptSha256": "2f248807101f44203c22be794ed07d7a518d53a8087aaf73cd2742373ac3ed79",
+  "rendererVersion": "2026-10-22.1"
+}

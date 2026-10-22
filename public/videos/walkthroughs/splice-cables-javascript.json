@@ -1,0 +1,16 @@
+{
+  "slug": "splice-cables",
+  "language": "JAVASCRIPT",
+  "title": "Splice the Cables",
+  "src": "/videos/walkthroughs/splice-cables-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/splice-cables-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/splice-cables-javascript.txt",
+  "durationSeconds": 107,
+  "sourceHash": "d5faf7549ea371e9cfe8c1a64e653c7fe61a32af2a26d177eb26ab82c619d6ad",
+  "sha256": "029c3d487d4367f2a8f15271fd9d1172ca64a14eb888d6692568a2b1e74d1835",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "3bceefe712aa1265ac124e2937ae9fa8e0898e88e38528a9e7aa47f8f1d0b071",
+  "transcriptSha256": "a8c305ebd72d13ed8a8a272031c371f32263cc04dfcf231a87b517d37c23b8c0"
+}

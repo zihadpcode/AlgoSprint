@@ -1,0 +1,16 @@
+{
+  "slug": "rank-tags",
+  "language": "PYTHON",
+  "title": "Rank the Tags",
+  "src": "/videos/walkthroughs/rank-tags-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/rank-tags-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/rank-tags-python.txt",
+  "durationSeconds": 96,
+  "sourceHash": "5f2ccecb9963c6f47574fb324919301f0404b7b8bc62ae67d476ed1883635312",
+  "sha256": "e79470be574e1b6e50fc446f1d423b2807e0899fcf52bb967f53d8c483182674",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "e73f7145bbe3647bb2ac0888913420f521bef8e8296fc0cc707c7d7359074d45",
+  "transcriptSha256": "6d1120f0ad7809ea27218675caa579f4a8f25fa100e6538bc80fa70ddcaf9175"
+}

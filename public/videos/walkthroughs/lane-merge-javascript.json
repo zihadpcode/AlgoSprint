@@ -1,0 +1,16 @@
+{
+  "slug": "lane-merge",
+  "language": "JAVASCRIPT",
+  "title": "Lane Merge",
+  "src": "/videos/walkthroughs/lane-merge-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/lane-merge-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/lane-merge-javascript.txt",
+  "durationSeconds": 115,
+  "sourceHash": "7839b1530d1406c8d3ed9dafdd1e0fbda31baf583dfefa9cf2ada4d3c63cafdb",
+  "sha256": "c7723c802158dfbce69b7dfd24c6dcebd887f91dcb1af192624e1b2c7dda1572",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "cb19ddbdb5760619a3573c3b67996e9bb49d4f3b9323c657da568aca1b136faa",
+  "transcriptSha256": "3d1292110c95fff7809ac1d761d2395699fc5cb9fe1278c98f039d8727cc6b17",
+  "rendererVersion": "2026-10-22.1"
+}

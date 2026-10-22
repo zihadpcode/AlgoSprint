@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:07.485
+Design a configuration registry that remembers history. set(key, value, time) records that key had value from
+
+2
+00:00:07.485 --> 00:00:13.641
+time onward. get(key, time) returns the value that was current at that time: the value from the set
+
+3
+00:00:13.641 --> 00:00:19.306
+with the largest time &lt;= time for that key, or an empty string if there was none. Calls
+
+4
+00:00:19.306 --> 00:00:28.394
+arrive as ["set", key, value, time] or ["get", key, time]; set times strictly increase across all calls, but
+
+5
+00:00:28.394 --> 00:00:32.074
+get times can be anything. Return the result of every get, in order.
+
+6
+00:00:33.000 --> 00:00:35.096
+Before 5 nothing was set; from
+
+7
+00:00:41.000 --> 00:00:42.254
+5 to 8 it is dark;
+
+8
+00:00:49.000 --> 00:00:50.228
+from 9 on it is light.
+
+9
+00:00:57.000 --> 00:00:59.715
+A key that was never set returns an empty string.
+
+10
+00:01:05.000 --> 00:01:10.958
+Each key's history is append-only and sorted by time, which is exactly what binary search needs.
+
+11
+00:01:12.000 --> 00:01:17.504
+Keep a class with a Map from key to parallel arrays of times and values. set appends. get
+
+12
+00:01:17.504 --> 00:01:21.659
+binary-searches for the first time &gt; query and returns the value just before it.
+
+13
+00:01:23.000 --> 00:01:29.412
+I keep per-key append-only histories. Set times only increase, so each history is sorted for free, and a
+
+14
+00:01:29.412 --> 00:01:32.975
+get is an upper-bound binary search returning the entry just
+
+15
+00:01:34.000 --> 00:01:40.664
+before the first later time. Sets are O(1) and gets O(log h). If sets could arrive out of
+
+16
+00:01:40.664 --> 00:01:43.886
+order I'd insert in sorted position or use a balanced tree.
+
+17
+00:01:45.000 --> 00:01:48.590
+theme history: times [5], values [dark].
+
+18
+00:01:50.000 --> 00:01:54.203
+get 4 → first index with time &gt; 4 is 0 → ''. get 5 → index 1
+
+19
+00:01:54.203 --> 00:01:54.614
+→ dark.
+
+20
+00:01:56.000 --> 00:02:01.184
+After set light@9: get 8 → index 1 → dark; get 20 → index 2 → light.
+
+21
+00:02:02.000 --> 00:02:05.985
+O(1) per set, O(log h) per get. O(n)

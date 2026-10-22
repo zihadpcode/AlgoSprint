@@ -2,23 +2,54 @@
 
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { studyLanguageLabel, useStudyLanguage } from "@/components/workspace/study-language";
+import type { ProblemWalkthrough } from "@/lib/problem-walkthroughs";
+import { ProblemWalkthroughVideo } from "./problem-walkthrough";
 import { embedUrl, formatTimestamp, watchUrl } from "@/lib/youtube";
 import type { ProblemDetail } from "@/features/problems/detail-query";
 
-type Video = ProblemDetail["videos"][number];
+type Video = Omit<ProblemDetail["videos"][number], "codingLanguages"> & { codingLanguages?: readonly string[] };
 
-// The framing is deliberately fixed text, not data: a video is a lesson on a concept, never a walkthrough of this problem.
-export const VIDEO_FRAMING = "These videos teach the underlying concept using a different example problem. They are not a walkthrough of this problem, so use the bridge notes to connect the idea back to it.";
+// Fixed framing keeps reference lessons distinct from the exact AlgoSprint contract.
+export const VIDEO_FRAMING = "These are reference lessons. The video may solve a related problem; the bridge notes explain what matches and what you still need to adapt for AlgoSprint.";
 
-export function VideoLesson({ videos }: { videos: Video[] }) {
-  if (!videos.length) return null;
+export function VideoLesson({ videos, walkthroughs = [] }: { videos: Video[]; walkthroughs?: ProblemWalkthrough[] }) {
+  const study = useStudyLanguage();
+  const [localLanguage, setLocalLanguage] = useState("ALL");
+  const [otherFor, setOtherFor] = useState<string | null>(null);
+  const language = study?.language ?? localLanguage;
+  const available = study?.languages ?? [...new Set([...videos.flatMap((video) => video.codingLanguages ?? []), ...walkthroughs.map((walkthrough) => walkthrough.language)])];
+  const matchingWalkthroughs = language === "ALL" ? walkthroughs : walkthroughs.filter((walkthrough) => walkthrough.language === language);
+  const matching = language === "ALL" ? videos : videos.filter((video) => video.codingLanguages?.includes(language));
+  const otherCount = videos.length - matching.length;
+  const showingOther = otherFor === `${language}:${study?.selection ?? 0}`;
+  const shown = showingOther ? videos : matching;
+  if (!videos.length && !walkthroughs.length) return null;
   return <div>
-    <p className="mt-3 text-sm leading-7 text-muted">{VIDEO_FRAMING}</p>
+    <p className="mt-3 text-sm leading-7 text-muted">{walkthroughs.length ? "AlgoSprint walkthroughs use this exact problem. External reference lessons include bridge notes explaining what to adapt." : VIDEO_FRAMING}</p>
     <details className="mt-4">
-      <summary className="cursor-pointer rounded-xl border border-line p-4 font-semibold text-accent">Reveal {videos.length === 1 ? "the video lesson" : "video lessons"}</summary>
+      <summary className="cursor-pointer rounded-xl border border-line p-4 font-semibold text-accent">Reveal {videos.length + walkthroughs.length === 1 ? "the video lesson" : "video lessons"}</summary>
       <p className="my-5 text-sm leading-7 text-muted">The concept and the bridge can hint at the approach. Try the hints first if you want to find the idea yourself.</p>
+      {(available.length > 0 || study) && <label className="mb-4 flex flex-wrap items-center gap-3 text-sm font-medium">Video language
+        <select className="min-h-11 rounded-xl border border-line bg-canvas px-3 py-2" value={language} onChange={(event) => {
+          if (study) study.selectLanguage(event.target.value); else setLocalLanguage(event.target.value);
+        }}>
+          {!study && <option value="ALL">All lessons</option>}
+          {available.map((value) => <option key={value} value={value}>{studyLanguageLabel(value)}</option>)}
+        </select>
+      </label>}
+      {matching.length === 0 && matchingWalkthroughs.length === 0 && <p role="status" className="mb-4 text-sm leading-7 text-muted">No video with verified {studyLanguageLabel(language ?? "selected-language")} code is available here yet. Other concept lessons may still help.</p>}
+      {matchingWalkthroughs.length > 0 && <ul className="mb-8 space-y-8">{matchingWalkthroughs.map((walkthrough) =>
+        <li key={`${walkthrough.src}:${language}`}><ProblemWalkthroughVideo walkthrough={walkthrough} /></li>)}</ul>}
+      {otherCount > 0 && <div className="mb-5">
+        <button type="button" className="min-h-11 text-left text-sm font-semibold text-accent underline underline-offset-4"
+          onClick={() => setOtherFor(showingOther ? null : `${language}:${study?.selection ?? 0}`)}>
+          {showingOther ? "Hide other concept lessons" : `Show ${otherCount} other concept lesson${otherCount === 1 ? "" : "s"}`}
+        </button>
+        <p className="mt-1 text-xs leading-6 text-muted">These may use another programming language or have an unverified coding language. Their ideas can still transfer.</p>
+      </div>}
       <ul className="space-y-8">
-        {videos.map((video) => <li key={video.youtubeId}><VideoItem video={video} /></li>)}
+        {shown.map((video) => <li key={`${video.youtubeId}:${language}`}><VideoItem video={video} /></li>)}
       </ul>
     </details>
   </div>;
@@ -31,6 +62,7 @@ function VideoItem({ video }: { video: Video }) {
   const loaded = start !== null;
   return <article aria-labelledby={`${id}-concept`} className="space-y-4 rounded-xl border border-line bg-canvas p-4 sm:p-5">
     <div>
+      <p className="mb-2 text-xs font-semibold text-muted">{video.codingLanguages?.length ? `Code shown: ${video.codingLanguages.map(studyLanguageLabel).join(" and ")}` : "Concept lesson · coding language not verified"}</p>
       <h3 id={`${id}-concept`} className="text-base font-semibold text-accent">Concept: {video.concept}</h3>
       <p className="mt-2 text-sm leading-7 text-muted">Video: {video.title}, by {video.channel}.</p>
     </div>

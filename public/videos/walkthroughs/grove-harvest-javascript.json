@@ -1,0 +1,16 @@
+{
+  "slug": "grove-harvest",
+  "language": "JAVASCRIPT",
+  "title": "Grove Harvest",
+  "src": "/videos/walkthroughs/grove-harvest-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/grove-harvest-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/grove-harvest-javascript.txt",
+  "durationSeconds": 180,
+  "sourceHash": "a41e2266ba35fdc0f07c039592e4b0609d59a440a6887d81bb6628857ffa2eaa",
+  "sha256": "0f75d72a4385731172765f79d3ae99a92b3e660969aadebc4cca9997b5c92bbd",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "d3107cc7b1037659a97a425039cfca2165ad1316c18c796a5c24277da2ec9ccf",
+  "transcriptSha256": "391d4af6b60d2ac975b2b0580c261fbf80401e69f6e13cb4375856df2cea936b",
+  "rendererVersion": "2026-10-22.1"
+}

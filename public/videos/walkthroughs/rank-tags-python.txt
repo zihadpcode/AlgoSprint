@@ -1,0 +1,33 @@
+A photo library records one lowercase tag per upload in the array tags. Produce the list of distinct
+
+tags ordered from most frequent to least frequent. When two tags have the same frequency, the alphabetically
+
+smaller tag comes first. Return the ordered list of distinct tags.
+
+sky appears three times, dog twice and
+
+cat once, so the order follows the counts.
+
+Both tags appear twice; oak is alphabetically first.
+
+A frequency map gives every distinct tag and its count in one pass, and the ordering rule is
+
+exactly a two-key sort.
+
+Count tags with collections.Counter. Sort the distinct keys using the tuple key (-count, tag), giving descending
+
+frequency and ascending alphabetical order.
+
+Counter counts every tag in one pass. Sorting the distinct tags with key (-counts[tag], tag) expresses both
+
+ordering rules directly. Counting costs O(n) and sorting costs O(d log d), so the total is O(n +
+
+d log d), using O(d) space.
+
+For [sky, dog, sky, cat, dog, sky], the map holds sky → 3, dog → 2, cat →
+
+1.
+
+Sorting by count descending yields [sky, dog, cat] with no ties to break.
+
+O(n + d log d). O(d)

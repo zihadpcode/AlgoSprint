@@ -1,0 +1,16 @@
+{
+  "slug": "later-lower",
+  "language": "JAVASCRIPT",
+  "title": "Later Lower",
+  "src": "/videos/walkthroughs/later-lower-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/later-lower-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/later-lower-javascript.txt",
+  "durationSeconds": 97,
+  "sourceHash": "bfaaec3ea8489ba202807b25a9b428582cdb8eacf6c2f6158a69934fab0e6377",
+  "sha256": "42263da6dbdc1d595f12cf933cfc60700caf18fbd70fea633dd59c6c1041d5be",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "793b7f8dc3130f06b201cfb8cb424a4742a8fe003bc921e422bebcfba2d94173",
+  "transcriptSha256": "318aafc422915ce98e30012c425c1512e893aa8f12a43ab04538982bc094058e",
+  "rendererVersion": "2026-10-22.1"
+}

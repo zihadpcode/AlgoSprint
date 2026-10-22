@@ -1,0 +1,47 @@
+You are given a lowercase string text and a list of lengths. For each length L in lengths,
+
+report how many times the prefix text[0..L) occurs inside text as a contiguous substring. Occurrences may
+
+overlap, and the prefix itself at position 0 counts as one occurrence. Return the counts in the same
+
+order as the lengths.
+
+The prefix "c" occurs at positions 0, 3, 7 and 10, and "cab" at the same
+
+four positions. "cabcab" occurs at positions 0 and 7. "cabcabd" and the whole text each occur once.
+
+"a" occurs 5 times, "aa" starts at positions 0 to 3 so it occurs 4 times, and the
+
+whole text occurs once.
+
+Every end position of an occurrence of a prefix lies on a chain of borders; counting each end
+
+once and pushing the count down the chain gives every prefix's total.
+
+Compute border[i] with the standard failure-function loop. Set echoes[len] = 1 for every len from 1 to n
+
+(the prefix ending at len - 1 is itself an occurrence of that length). For len from n
+
+down to 1, add echoes[len] to echoes[border[len - 1]] when that border is positive. Return echoes[L] for each
+
+query.
+
+An occurrence of the length-L prefix that ends at position e means text[0..L) is a suffix of text[0..e],
+
+i.e. L is a border of the prefix of length e + 1. Borders form a chain through
+
+the border array, so each prefix length contributes 1 to itself and passes its total to its longest
+
+border. Processing lengths from longest to shortest guarantees the total is final when it is pushed. The failure
+
+loop is amortized linear.
+
+border is [0, 1, 2, 3, 4].
+
+From echoes [1, 1, 1, 1, 1], length 5 pushes into 4, giving 2; length 4 pushes 2
+
+into 3, giving 3; and so on to 5 at length 1. The answers for 1, 2 and
+
+5 are 5, 4 and 1.
+
+O(n + queries). O(n)

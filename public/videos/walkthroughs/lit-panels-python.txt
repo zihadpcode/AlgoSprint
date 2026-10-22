@@ -1,0 +1,33 @@
+A display board shows a number in binary, lighting one panel for every 1 bit. For every number
+
+from 0 through count, report how many panels are lit. Return an array of length count + 1
+
+where entry i is the number of 1 bits in the binary form of i.
+
+0 to 5 in binary are 0, 1, 10, 11, 100, 101, so the counts are 0, 1,
+
+1, 2, 1, 2.
+
+Only 0 is shown, with no lit panels.
+
+Dropping the last bit gives a smaller number whose answer is already known.
+
+Create bits[0] = 0 and for i from 1 to count set bits[i] = bits[i >> 1] +
+
+(i & 1).
+
+This is a tiny dynamic program. i >> 1 drops the lowest bit and is smaller than i,
+
+so its count is already computed, and I add back i & 1. Each entry takes constant time,
+
+O(n) overall. An equivalent recurrence is bits[i] = bits[i & (i - 1)] + 1, which clears the
+
+lowest set bit instead.
+
+bits[1] = bits[0] + 1 = 1; bits[2] = bits[1] + 0 = 1; bits[3] = bits[1] +
+
+1 = 2.
+
+bits[4] = bits[2] + 0 = 1; bits[5] = bits[2] + 1 = 2.
+
+O(n). O(1) beyond the output

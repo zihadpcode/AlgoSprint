@@ -1,0 +1,93 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.448
+A running club records finishing paces one at a time in paces. After each new pace arrives, the
+
+2
+00:00:05.448 --> 00:00:10.888
+club board shows the median of all paces recorded so far: the middle value when the count is
+
+3
+00:00:10.888 --> 00:00:16.032
+odd, or the average of the two middle values when it is even (which may end in .5).
+
+4
+00:00:16.032 --> 00:00:18.551
+Return the list of medians shown after each arrival.
+
+5
+00:00:20.000 --> 00:00:28.021
+Medians: 5, then (5 + 15) / 2 = 10, then 5, then (3 + 5) / 2
+
+6
+00:00:28.021 --> 00:00:28.826
+= 4.
+
+7
+00:00:30.000 --> 00:00:32.182
+Equal paces: 2, then 2.
+
+8
+00:00:38.000 --> 00:00:43.878
+The median sits between the lower half's maximum and the upper half's minimum, and heaps expose both in
+
+9
+00:00:43.878 --> 00:00:44.512
+O(1).
+
+10
+00:00:46.000 --> 00:00:51.861
+lower is a max-heap (a min-heap of negated values), upper a min-heap. Insert into lower when the pace
+
+11
+00:00:51.861 --> 00:00:58.112
+is &lt;= lower's top, else into upper. If lower has two more than upper, move its top to
+
+12
+00:00:58.112 --> 00:01:02.874
+upper; if upper is larger, move its top to lower. Report the median from the tops.
+
+13
+00:01:04.000 --> 00:01:08.060
+I keep the lower half in a max-heap and the upper half in a min-heap, with the lower
+
+14
+00:01:08.060 --> 00:01:09.793
+half equal in size or one
+
+15
+00:01:12.000 --> 00:01:18.114
+larger. Each arrival goes to the side its value belongs on, then at most one element moves across
+
+16
+00:01:18.114 --> 00:01:20.792
+to rebalance. The median comes straight from
+
+17
+00:01:22.000 --> 00:01:29.068
+the tops. That's O(log n) per arrival. JavaScript has no built-in heap, so I wrote a small min-heap
+
+18
+00:01:29.068 --> 00:01:31.292
+and store negated values for the max-heap.
+
+19
+00:01:32.000 --> 00:01:37.494
+5 → lower {5}: median 5. 15 → upper {15}: median 10.
+
+20
+00:01:39.000 --> 00:01:43.828
+1 → lower {5,1}, sizes 2/1: median 5.
+
+21
+00:01:45.000 --> 00:01:53.540
+3 → lower {5,3,1} is too big, so move 5 to upper {5,15}. Median (3 + 5) /
+
+22
+00:01:53.540 --> 00:01:54.603
+2 = 4.
+
+23
+00:01:56.000 --> 00:01:57.926
+O(n log n). O(n)

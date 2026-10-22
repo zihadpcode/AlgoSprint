@@ -1,0 +1,41 @@
+A student's quiz marks are listed in chronological order in the array marks. A rising run is a
+
+selection of quizzes, kept in chronological order, whose marks strictly increase from one selected quiz to the
+
+next; the selected quizzes do not need to be consecutive. Return the length of the longest rising run.
+
+An empty list has a longest run of 0.
+
+One longest run is 2, 3, 6, 9 with length 4. No run of length 5 exists.
+
+Marks never rise, so any single quiz is the longest run.
+
+Among all runs of a given length, only the one with the smallest ending mark matters for future
+
+extension, and those smallest ends are increasing with the length.
+
+Maintain tails where tails[k] is the smallest mark ending a run of length k + 1. For each
+
+mark, binary search the first tail that is not smaller and overwrite it, or append when every tail
+
+is smaller. The length of tails is the answer.
+
+I keep the smallest possible ending mark for every run length. A new mark that exceeds all tails
+
+starts a longer run; otherwise it replaces the first tail that is at least as large, which keeps
+
+future extensions as easy as possible. The tails array is sorted, so each update is a binary search,
+
+giving n log n overall. Its length is the answer even though its contents are not necessarily a
+
+real run.
+
+For [5, 2, 8, 6, 3, 6, 9, 7], tails evolve: [5] → [2] → [2, 8] →
+
+[2, 6] → [2, 3] → [2, 3, 6].
+
+9 appends to give [2, 3, 6, 9]; 7 replaces 9 to give [2, 3, 6, 7].
+
+The length of tails is 4, which is the longest rising run.
+
+O(n log n). O(n)

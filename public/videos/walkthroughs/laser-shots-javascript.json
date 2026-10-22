@@ -1,0 +1,16 @@
+{
+  "slug": "laser-shots",
+  "language": "JAVASCRIPT",
+  "title": "Laser Shots",
+  "src": "/videos/walkthroughs/laser-shots-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/laser-shots-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/laser-shots-javascript.txt",
+  "durationSeconds": 156,
+  "sourceHash": "dd5e1f2c8804f049d76e61c4fff5613fb1dfb585157b57c0a18602b8d4fc23bd",
+  "sha256": "7006f990976552dea436552d75912bcbdfad5f67ff97b7e6d417763b0199322c",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "8358f6c4127c6db8404d3da829cf927b14de5bfe8befa84b7a15b614a17ae913",
+  "transcriptSha256": "a5ce23e61a088aa67b6c73bd9ea884755fe92e3e9cbf90751021375ee082bb5f",
+  "rendererVersion": "2026-10-22.1"
+}

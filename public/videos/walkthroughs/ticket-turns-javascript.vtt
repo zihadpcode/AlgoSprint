@@ -1,0 +1,81 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.833
+People wait in a single line at a ticket window. The array tickets holds how many tickets each
+
+2
+00:00:04.833 --> 00:00:10.530
+person still needs, front of the line first. Every second, the person at the front buys exactly one
+
+3
+00:00:10.530 --> 00:00:16.109
+ticket. If they still need more, they walk to the back of the line; otherwise they leave. Return
+
+4
+00:00:16.109 --> 00:00:21.325
+the second at which the person who started at zero-based index position buys their last ticket.
+
+5
+00:00:22.000 --> 00:00:29.574
+Seconds 1–3 serve persons 0, 1, 2 once each. Person 2 leaves. Second 4 serves person 0, who
+
+6
+00:00:29.574 --> 00:00:35.295
+leaves. Second 5 serves person 1, and second 6 serves person 1 again for their last ticket.
+
+7
+00:00:36.000 --> 00:00:42.307
+Person 0 buys at seconds 1, 3, 4 and 5; person 1 leaves after second 2.
+
+8
+00:00:44.000 --> 00:00:49.131
+The target buys one ticket per round, so the answer is the number of purchases that happen before
+
+9
+00:00:49.131 --> 00:00:54.027
+or during the target's final purchase, and every other person makes a predictable number of those.
+
+10
+00:00:55.000 --> 00:01:01.588
+Let needed be the target's count. A person at or before the target is served min(tickets, needed) times.
+
+11
+00:01:01.588 --> 00:01:08.408
+A person after the target is served min(tickets, needed - 1) times because the target finishes earlier in
+
+12
+00:01:08.408 --> 00:01:11.048
+the last round. Sum those contributions.
+
+13
+00:01:12.000 --> 00:01:17.836
+Rather than simulate, I count purchases. Everyone in front of the target, and the target, is served once
+
+14
+00:01:17.836 --> 00:01:23.096
+per round for up to needed rounds; everyone behind gets one round fewer because the target leaves before
+
+15
+00:01:23.096 --> 00:01:28.248
+them in the final round. Summing min values gives the answer in one linear pass with no queue.
+
+16
+00:01:29.000 --> 00:01:32.899
+For [2, 3, 1] and position 1, needed is 3.
+
+17
+00:01:34.000 --> 00:01:44.572
+Person 0 contributes min(2, 3) = 2, person 1 contributes min(3, 3) = 3, person 2 contributes min(1,
+
+18
+00:01:44.572 --> 00:01:45.845
+2) = 1.
+
+19
+00:01:47.000 --> 00:01:49.392
+The total is 6, matching the simulation.
+
+20
+00:01:51.000 --> 00:01:52.460
+O(n). O(1)

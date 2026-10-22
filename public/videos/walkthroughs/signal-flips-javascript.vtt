@@ -1,0 +1,57 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.361
+Two relay switches each store a non-negative integer as 31 binary toggles. To turn the pattern of a
+
+2
+00:00:05.361 --> 00:00:10.796
+into the pattern of b, a technician flips toggles one at a time. Return how many toggles must
+
+3
+00:00:10.796 --> 00:00:13.986
+be flipped, which is the number of bit positions where a and b differ.
+
+4
+00:00:15.000 --> 00:00:19.485
+1 is 001 and 4 is 100; they differ in two positions.
+
+5
+00:00:23.000 --> 00:00:24.899
+Identical patterns need no flips.
+
+6
+00:00:31.000 --> 00:00:33.907
+XOR marks every differing position with a 1 bit.
+
+7
+00:00:35.000 --> 00:00:40.725
+Compute x = a ^ b and repeatedly clear its lowest set bit with x &amp;= x -
+
+8
+00:00:40.725 --> 00:00:42.438
+1, counting iterations.
+
+9
+00:00:44.000 --> 00:00:48.496
+XOR leaves a 1 wherever the bits differ, so the answer is the popcount of a ^ b.
+
+10
+00:00:48.496 --> 00:00:54.841
+Clearing the lowest set bit with x &amp; (x - 1) runs once per set bit. Many languages
+
+11
+00:00:54.841 --> 00:00:56.973
+also expose popcount as a built-in.
+
+12
+00:00:58.000 --> 00:01:00.834
+1 ^ 4 = 5 (101).
+
+13
+00:01:02.000 --> 00:01:07.419
+5 &amp; 4 = 4, count 1; 4 &amp; 3 = 0, count 2.
+
+14
+00:01:09.000 --> 00:01:11.663
+O(number of differing bits). O(1)

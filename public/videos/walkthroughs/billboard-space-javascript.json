@@ -1,0 +1,16 @@
+{
+  "slug": "billboard-space",
+  "language": "JAVASCRIPT",
+  "title": "Billboard Space",
+  "src": "/videos/walkthroughs/billboard-space-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/billboard-space-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/billboard-space-javascript.txt",
+  "durationSeconds": 122,
+  "sourceHash": "181056a6b3134f272c808bc2c3071039d8cd81acaae3cde56a4c9eb2d03b7cb4",
+  "sha256": "e4cd6cb8cc38a985d9f09d83cbbe27c8f9464f51189d364fb947549d23eb760e",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "8a1ad262cfae2610ce5b6851de71cdc6fdf3be2a8d04e10cab2341fa828bc6c6",
+  "transcriptSha256": "f0cdda05d0509bcd9f076af629da0fa115d781aacdd6012c482f733bb03596f9",
+  "rendererVersion": "2026-10-22.1"
+}

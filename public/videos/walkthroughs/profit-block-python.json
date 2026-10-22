@@ -1,0 +1,16 @@
+{
+  "slug": "profit-block",
+  "language": "PYTHON",
+  "title": "Profit Block",
+  "src": "/videos/walkthroughs/profit-block-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/profit-block-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/profit-block-python.txt",
+  "durationSeconds": 131,
+  "sourceHash": "c5be2c9d86c723f349a93741506446bcce120b0b9f69d06594e0867968afb252",
+  "sha256": "7d377b274f68929eff324a7457a23902a819868f1ac4d2bb558b122d43a213c3",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "e52f4a6df649eb55b9d39eb8778c0c60c4839609f7dca9af829e134c66b4a5f8",
+  "transcriptSha256": "b71cd3f64ef556729ab74184641b54bcaf999e9e01de787e1c3c1e375f216425"
+}

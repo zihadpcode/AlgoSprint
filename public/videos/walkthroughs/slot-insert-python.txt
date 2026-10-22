@@ -1,0 +1,37 @@
+A shared calendar stores reserved slots as [start, end] pairs in slots, sorted by start and pairwise disjoint
+
+(each slot ends before the next one starts). Both endpoints are included, so [1, 3] and [3, 5]
+
+would share minute 3. Insert newSlot and return the calendar as a sorted list of disjoint slots, merging
+
+newSlot with every slot it shares at least one minute with.
+
+[6, 10] overlaps [5, 7] and [9,
+
+12], so the three become [5, 12].
+
+[4, 6] touches nothing and
+
+is placed between the existing slots.
+
+Because the calendar is sorted and disjoint, the slots that interact with newSlot form one contiguous run.
+
+Copy slots that end before newSlot starts. Then, while the next slot starts at or before the growing
+
+slot's end, absorb it. Push the grown slot, then copy the rest.
+
+The input is sorted and disjoint, so the slots touching newSlot form one contiguous run. I copy everything
+
+that ends before it, absorb the run by widening start and end, emit the merged slot, and copy
+
+the tail. It's one pass, O(n), and it never mutates the input.
+
+[1,2] ends before 6 and is copied.
+
+[5,7] starts at 5 <= 10, so the slot grows to [5,10]; [9,12] starts at 9 <= 10,
+
+so it grows to [5,12].
+
+Nothing remains; the result is [[1,2],[5,12]].
+
+O(n). O(n) for the output

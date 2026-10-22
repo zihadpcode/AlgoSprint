@@ -1,0 +1,16 @@
+{
+  "slug": "billboard-space",
+  "language": "PYTHON",
+  "title": "Billboard Space",
+  "src": "/videos/walkthroughs/billboard-space-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/billboard-space-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/billboard-space-python.txt",
+  "durationSeconds": 122,
+  "sourceHash": "205f48e15f0e3acc841d45ee90f80dd155288922dbf21ecfaf076e03b93adc21",
+  "sha256": "26099d1ec655a29236f87c3864b829984e94af2b9813d1fbd3cb78a0511b1dd3",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "2564358cf03eb735f54bac73cf31b13458fbbbfb04bc4eeb4b40be3d7e4c4af7",
+  "transcriptSha256": "f0cdda05d0509bcd9f076af629da0fa115d781aacdd6012c482f733bb03596f9"
+}

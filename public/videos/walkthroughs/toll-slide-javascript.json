@@ -1,0 +1,16 @@
+{
+  "slug": "toll-slide",
+  "language": "JAVASCRIPT",
+  "title": "Toll Slide",
+  "src": "/videos/walkthroughs/toll-slide-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/toll-slide-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/toll-slide-javascript.txt",
+  "durationSeconds": 133,
+  "sourceHash": "726db19b8a35080b3e619959642cb1c858657c4d3f9895e0dfa0cdb5b7390a92",
+  "sha256": "b6897a626c246bcbc758a983dff71ee1b1e05a227605404f19582b1555a7c7b6",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "4f2bde71ddf95a419cab46963141f780b39cefe04b68f4f974917a6616da9bd2",
+  "transcriptSha256": "c37edcad02f7544f94842e143817a690fea9cc5be54daad749d7928cffff9899"
+}

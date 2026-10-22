@@ -1,0 +1,27 @@
+Two relay switches each store a non-negative integer as 31 binary toggles. To turn the pattern of a
+
+into the pattern of b, a technician flips toggles one at a time. Return how many toggles must
+
+be flipped, which is the number of bit positions where a and b differ.
+
+1 is 001 and 4 is 100; they differ in two positions.
+
+Identical patterns need no flips.
+
+XOR marks every differing position with a 1 bit.
+
+Compute x = a ^ b and repeatedly clear its lowest set bit with x &= x -
+
+1, counting iterations.
+
+XOR leaves a 1 wherever the bits differ, so the answer is the popcount of a ^ b.
+
+Clearing the lowest set bit with x & (x - 1) runs once per set bit. Many languages
+
+also expose popcount as a built-in.
+
+1 ^ 4 = 5 (101).
+
+5 & 4 = 4, count 1; 4 & 3 = 0, count 2.
+
+O(number of differing bits). O(1)

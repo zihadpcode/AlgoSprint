@@ -1,0 +1,51 @@
+A sensor keeps only its most recent readings in a ring buffer with room for capacity readings. write(v)
+
+stores a reading; if the buffer is already full, the oldest reading is overwritten. read() removes and returns
+
+the oldest reading, or null if the buffer is empty. newest() returns the most recently written reading still
+
+in the buffer without removing it, or null if the buffer is empty. size() returns how many readings
+
+are stored. Given operations such as ["write", 5], ["read"], ["newest"] and ["size"], apply them in order to an
+
+empty buffer and return the results of every read, newest and size call, in order. write calls produce
+
+no result.
+
+Writing 4 into a full buffer overwrites the
+
+oldest reading (1). read() then returns 2, newest()
+
+is 4, and 2 readings (3 and 4) remain.
+
+An empty buffer returns null for read,
+
+0 for size and null for newest.
+
+Never move readings. Keep the position of the oldest reading and the count, and wrap indexes with a
+
+remainder.
+
+Allocate capacity slots. Track head (oldest) and count. A write goes to (head + count) % capacity when
+
+there is room; when full it replaces slots[head] and head advances. read, newest and size are index arithmetic.
+
+A ring buffer stores readings in a fixed array and treats it as circular: head marks the oldest
+
+reading and count says how many are live, so the newest sits at head +
+
+count - 1 modulo the capacity. Every operation is constant time and the memory never grows beyond capacity.
+
+The invariant is that live readings occupy count consecutive slots starting at head, wrapping around.
+
+With capacity 3, writes 1, 2, 3 occupy slots 0, 1, 2 with head 0 and count 3.
+
+Writing 4 replaces slot 0 and head becomes 1, so the live readings are 2, 3, 4 in
+
+order.
+
+read returns slots[1] = 2 and head becomes 2; newest is slots[(2 + 2 - 1) % 3]
+
+= slots[0] = 4; size is 2.
+
+O(1) per operation. O(capacity)

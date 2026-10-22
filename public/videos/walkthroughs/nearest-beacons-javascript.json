@@ -1,0 +1,16 @@
+{
+  "slug": "nearest-beacons",
+  "language": "JAVASCRIPT",
+  "title": "Nearest Beacons",
+  "src": "/videos/walkthroughs/nearest-beacons-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/nearest-beacons-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/nearest-beacons-javascript.txt",
+  "durationSeconds": 136,
+  "sourceHash": "6557264dd5392645a637c56a0ba75dbcdb4206240c55400e28dea0c0d651c147",
+  "sha256": "f10d1ccebb18a7e7f7e101cd00e43782b73ac1a733bc43ac191dfb079905d20f",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "fa422fd574a6247d4035f442251a59b10f91196cfe4f1d7ca8c40e3b6912ca4d",
+  "transcriptSha256": "f0fc7a3089f758484b579682b69f227ca479eafeb797bcb42e8100cbfc03c242",
+  "rendererVersion": "2026-10-22.1"
+}

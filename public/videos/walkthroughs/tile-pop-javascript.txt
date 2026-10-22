@@ -1,0 +1,53 @@
+A rail holds a row of tiles whose weights are given in weights. Two tiles that are currently
+
+next to each other can be popped together when their weights differ by at most tolerance. After a
+
+pop the tiles on either side close the gap and become neighbours. You may pop as many pairs
+
+as you like, in any order, or stop at any moment. Your score is the total weight of
+
+all tiles that were popped. Return the maximum score.
+
+Pop 9 and 8 (they differ by 1). Then 6 and 5 are neighbours, so pop them. Now
+
+4 and 2 are neighbours and differ by 2, so pop them too. Every tile is popped, for
+
+a score of 4 + 6 + 5 + 9 + 8 + 2 = 34.
+
+No two neighbouring tiles differ by 5 or less, so nothing can be popped and the score is
+
+0.
+
+Popped tiles form non-crossing pairs, and everything inside a pair is popped first, so a stretch's answer is
+
+built from smaller stretches.
+
+Let clear[i][j] say stretch i..j can be fully popped and best[i][j] be its best score. Both come from
+
+the leftmost tile i: either best skips it (best[i+1][j]), or i pairs with a k (k - i
+
+odd) with |w[i] - w[k]| <= tolerance and clear[i+1][k-1], giving sum(i..k) + best[k+1][j]; clear[i][j] holds if
+
+such a k also has clear[k+1][j]. Empty stretches are clear with score 0.
+
+A popped pair (i, k) requires the tiles between them to be gone first, and they must pair
+
+among themselves, so pairs nest or sit side by side but never cross. That is a classic interval
+
+DP: the state is a
+
+stretch, and the transition chooses the partner of its leftmost tile. Two tables are needed because 'can this
+
+stretch be emptied' is a different question from 'how much can I score in it'. The cubic cost
+
+comes from the choice of k.
+
+For the first example, tiles 9 and 8 (indices 3, 4) are clear with best 17, and 6
+
+and 5 (indices 1, 2) are clear with best 11.
+
+The tiles of weight 4 and 2 (indices 0 and 5) differ by 2 and enclose the cleared
+
+stretch of indices 1 to 4, so clear[0][5] is true and best[0][5] = 34.
+
+O(n^3): roughly n^3 / 12, about 670,000 inner steps at n = 200. O(n^2)

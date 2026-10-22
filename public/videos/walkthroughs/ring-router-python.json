@@ -1,0 +1,16 @@
+{
+  "slug": "ring-router",
+  "language": "PYTHON",
+  "title": "Ring Router",
+  "src": "/videos/walkthroughs/ring-router-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/ring-router-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/ring-router-python.txt",
+  "durationSeconds": 199,
+  "sourceHash": "35283ac1d7a113ca54a64d582af415b8a5a25020f06d73f54709abcad0de737d",
+  "sha256": "3a75501543272c0ea7b445d509704357a13713e5b1ce53de9461fa9d1d3e3efa",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "30635c288b6de30c4b144ccecb6f85c1118f2a18448c433dcf3c3f7f8afd4a80",
+  "transcriptSha256": "2be7e50fb3eeca5d294a4249f20c829e0b05fca6e995b3ecf99a2b15db937932"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "dial-distance",
+  "language": "JAVASCRIPT",
+  "title": "Dial Distance",
+  "src": "/videos/walkthroughs/dial-distance-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/dial-distance-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/dial-distance-javascript.txt",
+  "durationSeconds": 128,
+  "sourceHash": "9a7d292fb2226ddd2fe63f1219ffc3a86a37db0d7fdecef0b2ba40b8b47ff04e",
+  "sha256": "8f86075d6ce4c853dea0409a046cb5b376e1e944d63ad9662ab88959ef76ead2",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "775c08559a8a8c5806a637c630fb30ae41460f7205a93bb607924d5346537420",
+  "transcriptSha256": "210f76277223fd86d52d06381d59d8f44ac625120afce8e947241b5c7ee5b4dd",
+  "rendererVersion": "2026-10-22.1"
+}

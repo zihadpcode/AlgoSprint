@@ -1,0 +1,16 @@
+{
+  "slug": "city-skyline",
+  "language": "JAVASCRIPT",
+  "title": "City Skyline",
+  "src": "/videos/walkthroughs/city-skyline-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/city-skyline-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/city-skyline-javascript.txt",
+  "durationSeconds": 170,
+  "sourceHash": "28b29211f5fbf70a57d893ae87d7a5c6ed5561e85d747ff5c2d04026d85bd49c",
+  "sha256": "fa6a4ef99c98b81976be9e535ef97e0fc9670f9637f27ceffa4250fd4e8736c3",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "26d1085e2fded9cb5266689e51432fd9c892150806780694de3b94814d0ca8d8",
+  "transcriptSha256": "299d0e140c98e7619f9bb2cf97c3e44a14ef67faeab8021c71435fea1e7ba57c",
+  "rendererVersion": "2026-10-22.1"
+}

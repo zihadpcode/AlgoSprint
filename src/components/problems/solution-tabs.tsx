@@ -3,18 +3,24 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import type { ProblemDetail } from "@/features/problems/detail-query";
 import { CodeBlock } from "./code-block";
+import { studyLanguageLabel, useStudyLanguage } from "@/components/workspace/study-language";
 
 const kinds = { BRUTE_FORCE: "Brute force", BETTER: "Better", OPTIMAL: "Optimal", ALTERNATIVE: "Alternative" };
 export function SolutionTabs({ solutions }: { solutions: ProblemDetail["solutions"] }) {
-  const [active, setActive] = useState(0);
+  const study = useStudyLanguage();
+  const [activeChoice, setActiveChoice] = useState({ kind: solutions[0]?.kind, language: solutions[0]?.language });
+  const visible = study?.language ? solutions.filter((solution) => solution.language === study.language) : solutions;
+  const exact = visible.findIndex((solution) => solution.kind === activeChoice.kind && solution.language === activeChoice.language);
+  const active = exact >= 0 ? exact : Math.max(0, visible.findIndex((solution) => solution.kind === activeChoice.kind));
+  const setActive = (index: number) => { if (visible[index]) setActiveChoice({ kind: visible[index].kind, language: visible[index].language }); };
   const id = useId();
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
-    if (event.key === "ArrowRight") next = (index + 1) % solutions.length;
-    else if (event.key === "ArrowLeft") next = (index - 1 + solutions.length) % solutions.length;
+    if (event.key === "ArrowRight") next = (index + 1) % visible.length;
+    else if (event.key === "ArrowLeft") next = (index - 1 + visible.length) % visible.length;
     else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = solutions.length - 1;
+    else if (event.key === "End") next = visible.length - 1;
     else return;
     event.preventDefault();
     setActive(next);
@@ -24,8 +30,14 @@ export function SolutionTabs({ solutions }: { solutions: ProblemDetail["solution
   return <details className="mt-4">
     <summary className="cursor-pointer rounded-xl border border-line p-4 font-semibold text-accent">Reveal guided solutions</summary>
     <p className="my-5 text-sm leading-7 text-muted">Compare the tradeoffs, then explain the approach in your own words.</p>
-    <div role="tablist" aria-label="Solution approaches" className="flex flex-wrap gap-2">
-      {solutions.map((solution, index) => <button key={`${solution.kind}-${solution.language}`}
+    {study && <label className="mb-4 flex flex-wrap items-center gap-3 text-sm font-medium">Solution language
+      <select className="min-h-11 rounded-xl border border-line bg-canvas px-3 py-2" value={study.language} onChange={(event) => study.selectLanguage(event.target.value)}>
+        {study.languages.map((language) => <option key={language} value={language}>{studyLanguageLabel(language)}</option>)}
+      </select>
+    </label>}
+    {!visible.length && <p className="text-sm text-muted">A guided solution in {studyLanguageLabel(study?.language ?? "this language")} is not available yet.</p>}
+    {visible.length > 0 && <div role="tablist" aria-label="Solution approaches" className="flex flex-wrap gap-2">
+      {visible.map((solution, index) => <button key={`${solution.kind}-${solution.language}`}
         ref={(element) => { buttons.current[index] = element; }}
         type="button" role="tab" id={`${id}-tab-${index}`} aria-controls={`${id}-panel-${index}`}
         aria-selected={active === index} tabIndex={active === index ? 0 : -1}
@@ -33,8 +45,8 @@ export function SolutionTabs({ solutions }: { solutions: ProblemDetail["solution
         className="min-h-11 rounded-xl border border-line px-4 py-3 text-sm text-muted aria-selected:border-accent aria-selected:bg-accent/10 aria-selected:text-accent">
         {kinds[solution.kind]} · {solution.language.toLowerCase()}
       </button>)}
-    </div>
-    {solutions.map((solution, index) => <div key={`${solution.kind}-${solution.language}`} role="tabpanel"
+    </div>}
+    {visible.map((solution, index) => <div key={`${solution.kind}-${solution.language}`} role="tabpanel"
       id={`${id}-panel-${index}`} aria-labelledby={`${id}-tab-${index}`} hidden={active !== index} tabIndex={0} className="mt-6 space-y-6">
       <h3 className="text-lg font-semibold">{solution.title}</h3>
       <TextSection title="Intuition" text={solution.intuition} />

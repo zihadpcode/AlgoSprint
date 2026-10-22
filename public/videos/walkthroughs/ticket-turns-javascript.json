@@ -1,0 +1,16 @@
+{
+  "slug": "ticket-turns",
+  "language": "JAVASCRIPT",
+  "title": "Ticket Turns",
+  "src": "/videos/walkthroughs/ticket-turns-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/ticket-turns-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/ticket-turns-javascript.txt",
+  "durationSeconds": 115,
+  "sourceHash": "21cc8ce1fcecb0f5b9fd0633259d12e64c2c85f917382f62306643d912ae126b",
+  "sha256": "07b32f6a52186032d49a6f8e0a2509dfb086fb7cefa83d96abab9ea1dfa26e74",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "731dfeee98c0f36b82bff02a86da94343ef904559b7692816c5b6760b3f52c75",
+  "transcriptSha256": "4747ffe720226559a77998f1053b702eb7195c97b08f01ed5e7fef170569340f"
+}

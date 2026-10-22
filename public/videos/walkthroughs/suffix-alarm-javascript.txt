@@ -1,0 +1,51 @@
+A log scanner watches a stream of lowercase letters that arrive one at a time. It has a
+
+list of forbidden words. After each arriving letter, report whether some forbidden word is a suffix of
+
+everything received so far, meaning the word's letters match the most recent letters of the stream, in order.
+
+Given the forbidden words and the whole stream as a string, return an array with one boolean per
+
+letter.
+
+After "stap" the suffix "tap" is forbidden; after "stape" the suffix "pe" is; "stapep"
+
+ends in nothing forbidden; "stapepy" ends in "y". The first three letters have no match.
+
+After "a" no word ends the stream; after "ab" both "ab" and "b" are suffixes, so one alarm
+
+is enough.
+
+Suffix matching is prefix matching on the reversed strings, and a trie answers prefix questions one character at
+
+a time.
+
+Insert every word reversed into a trie, marking where each word ends. For each arriving letter, walk from
+
+the newest letter toward older ones, following trie edges, and stop at a missing edge, at a marked
+
+node (alarm), or after the longest word's length letters.
+
+A word is a suffix of the stream exactly when its reverse is a prefix of the stream
+
+read backwards. So I build a trie of reversed words, and for each arriving
+
+letter walk it from the newest letter backwards. The walk can never be longer than the longest word,
+
+so each letter costs O(L) and the trie costs O(total letters) memory. Aho-Corasick would
+
+bring the per-letter cost to amortized O(1) by adding failure links, at the price of a more complex
+
+build; with words of at most 20 letters the reversed trie is the practical answer.
+
+For ["tap", "pe", "y"] the paths are p-a-t, e-p and y, each ending at a marked node.
+
+Walking back from 'p' goes p, a, t, landing on the end of "tap": alarm.
+
+'e' then 'p' ends the path of "pe": alarm; the second 'p' finds no edge after 'e'; 'y'
+
+lands on a marked node. Output: false, false, false, true, true, false, true.
+
+O(total word letters) to build; O(L) per arriving letter, where L is the longest word (at most 20),
+
+so O(stream * L) overall. O(total word letters * 26) for the typed-array trie

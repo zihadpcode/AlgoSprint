@@ -1,0 +1,16 @@
+{
+  "slug": "tile-pop",
+  "language": "PYTHON",
+  "title": "Tile Pop",
+  "src": "/videos/walkthroughs/tile-pop-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/tile-pop-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/tile-pop-python.txt",
+  "durationSeconds": 156,
+  "sourceHash": "24649c76a4927d22b6c0fcf5861ee8e3e50f4187bf64351a52196f54586d3339",
+  "sha256": "08d6bbb7da46c5eb29a3b65dc4cf2f21fd1d732216b372a72bd8719865e95402",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "8a7561b056a995cbf2f2c9d3db6c56dd9e44b86ac0c3dac5b70d54a40acb7eb4",
+  "transcriptSha256": "91f2421d93ecd065d73de6da65cebc64f9464037367dba40ffddacc303e6cef3"
+}

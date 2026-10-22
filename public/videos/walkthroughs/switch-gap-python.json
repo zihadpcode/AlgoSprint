@@ -1,0 +1,16 @@
+{
+  "slug": "switch-gap",
+  "language": "PYTHON",
+  "title": "Switch Gap",
+  "src": "/videos/walkthroughs/switch-gap-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/switch-gap-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/switch-gap-python.txt",
+  "durationSeconds": 102,
+  "sourceHash": "57345e57ba5beab2599650d302e12357aa7f4c410766244064972a5c30d642ed",
+  "sha256": "86bf77b4292b5d761f0ac0eb7afe6980700c9da8ef26652b2e88a41b6f15f4e1",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "a80efd8c198d016bcb0e8acaa877d5e5287b8150d174076a830eef88d107fc24",
+  "transcriptSha256": "baa70a5a223c65d263be89036a9f9c0a84fcde586ec2c7838593b4e9d1281660"
+}
