@@ -1,0 +1,16 @@
+{
+  "slug": "slot-insert",
+  "language": "PYTHON",
+  "title": "Slot Insert",
+  "src": "/videos/walkthroughs/slot-insert-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/slot-insert-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/slot-insert-python.txt",
+  "durationSeconds": 117,
+  "sourceHash": "e0d88bb281368059625591424f4dafa4fe8057d43ad3a7568e393a512775bee1",
+  "sha256": "9b554fbaeccac3121c11be285a47f4f91dccbec6b75506363fd1a2356ac9dabf",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "2238a47e6aa15c5655b040f4e53bffc728e50712af25a8e82ca9ae8523c3a547",
+  "transcriptSha256": "0ac0b8685ab633d59e87b2a9472d2c0dbe9f17d9d811e4e763c0b44aa59a9add"
+}

@@ -1,0 +1,69 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.809
+A leaderboard lists scores in arrival order. For each player, count how many players who arrived after them
+
+2
+00:00:05.809 --> 00:00:09.420
+have a strictly lower score. Return the counts in arrival order.
+
+3
+00:00:11.000 --> 00:00:18.671
+After 5: 2 and 1 are lower (2). After 2: only 1 (1). After 6: 1 (1). After
+
+4
+00:00:18.671 --> 00:00:19.718
+1: none.
+
+5
+00:00:21.000 --> 00:00:21.767
+No players.
+
+6
+00:00:29.000 --> 00:00:34.376
+Scanning from the right turns the question into a running prefix count over values, which a Fenwick tree
+
+7
+00:00:34.376 --> 00:00:35.790
+answers in logarithmic time.
+
+8
+00:00:37.000 --> 00:00:43.309
+Use a Fenwick tree indexed by value + 10001. From the last player to the first: the answer
+
+9
+00:00:43.309 --> 00:00:50.398
+is the prefix sum up to value + 10000 (strictly lower), then add one at value + 10001.
+
+10
+00:00:51.000 --> 00:00:56.622
+Processing from the right means every inserted score belongs to a later player, so each answer is the
+
+11
+00:00:56.622 --> 00:01:02.313
+number of inserted scores strictly below mine. A Fenwick tree over the shifted score range does each insert
+
+12
+00:01:02.313 --> 00:01:09.413
+and prefix query in O(log R). With a huge value range I'd coordinate-compress first. The merge-sort approach
+
+13
+00:01:09.413 --> 00:01:16.084
+counts, for each left-half element, how many right-half elements were merged before it, and runs in O(n log
+
+14
+00:01:16.084 --> 00:01:16.495
+n).
+
+15
+00:01:18.000 --> 00:01:23.439
+From the right: 1 → query 0, insert 1. 6 → one smaller (1), insert.
+
+16
+00:01:25.000 --> 00:01:32.151
+2 → one smaller (1), insert. 5 → two smaller (1, 2). Output [2, 1, 1, 0].
+
+17
+00:01:33.000 --> 00:01:36.072
+O(n log R) for value range R. O(R)

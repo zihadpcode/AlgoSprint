@@ -1,0 +1,16 @@
+{
+  "slug": "nearest-beacons",
+  "language": "PYTHON",
+  "title": "Nearest Beacons",
+  "src": "/videos/walkthroughs/nearest-beacons-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/nearest-beacons-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/nearest-beacons-python.txt",
+  "durationSeconds": 138,
+  "sourceHash": "ebafe0143e6c4386bfc043227912ab6a1acf69fe55f6e3e288e5884995fb8aea",
+  "sha256": "99d1caa78822d09f339814ad663e199b8789a4c790b5dfbd1a8e47e192a7252d",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "5dddff6bcbfa189c73f8e8ade8e2c0d3c01076c6bbb509b2511458b1bfd79e85",
+  "transcriptSha256": "ebf148e0ceeb97c37fb617957b97a409d360d58a3678db72d9ff05034b8c87c1"
+}

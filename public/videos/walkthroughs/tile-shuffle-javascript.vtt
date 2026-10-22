@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.664
+A sliding puzzle has a 2 × 3 frame holding tiles 1 to 5 and one empty space
+
+2
+00:00:05.664 --> 00:00:11.232
+shown as 0. A move slides a tile that is edge-adjacent to the empty space into it. Given
+
+3
+00:00:11.232 --> 00:00:15.399
+the current board, return the fewest moves needed to reach [[1, 2, 3], [4, 5, 0]], or -1
+
+4
+00:00:15.399 --> 00:00:17.260
+if that arrangement cannot be reached.
+
+5
+00:00:18.000 --> 00:00:19.561
+Slide 5 left into
+
+6
+00:00:26.000 --> 00:00:27.670
+the space: one move.
+
+7
+00:00:34.000 --> 00:00:36.170
+Swapping two tiles is impossible with
+
+8
+00:00:42.000 --> 00:00:44.459
+slides, so the answer is -1.
+
+9
+00:00:50.000 --> 00:00:54.950
+With only 720 states, BFS over all of them finds the minimum moves directly.
+
+10
+00:00:56.000 --> 00:01:01.798
+Encode the board as a string. BFS from it: for each state, swap the space with each adjacent
+
+11
+00:01:01.798 --> 00:01:07.375
+position (from a precomputed table), skip visited states, and return the layer number when the target appears.
+
+12
+00:01:08.000 --> 00:01:13.137
+Treating each arrangement as a node turns the puzzle into a shortest path in an unweighted graph, so
+
+13
+00:01:13.137 --> 00:01:16.925
+BFS gives the minimum. The state space is 720,
+
+14
+00:01:18.000 --> 00:01:24.780
+so this is effectively constant time. For larger puzzles like the 15-puzzle I'd use A* with a Manhattan-distance
+
+15
+00:01:24.780 --> 00:01:28.857
+heuristic, and check solvability up front with the permutation parity.
+
+16
+00:01:30.000 --> 00:01:38.068
+Start '123405' is layer 0; its neighbors include '123450'.
+
+17
+00:01:39.000 --> 00:01:43.503
+'123450' is found in layer 1: return 1.
+
+18
+00:01:45.000 --> 00:01:50.512
+O(6! · 6) — at most 720 states. O(6!)

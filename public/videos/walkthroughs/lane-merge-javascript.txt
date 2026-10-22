@@ -1,0 +1,41 @@
+A swim meet records finishing times per lane, and each lane's list is already sorted from fastest to
+
+slowest (smallest to largest). Merge all lanes into one list of every time, sorted from smallest to largest.
+
+Some lanes may be empty.
+
+All eight
+
+times in order.
+
+No lanes, no times.
+
+Only the k lane fronts are candidates for the next output, and a heap finds the smallest in
+
+O(log k).
+
+Push [value, lane, index] for each non-empty lane. Repeatedly pop the minimum, output its value, and push the
+
+next element of that lane if any.
+
+The next output is always one of the k lane fronts, so I keep just those in a
+
+min-heap. Each pop outputs a value
+
+and pushes its lane's successor, so scanning the k lanes and processing N values costs O(k + N
+
+log(k + 1)) total with O(k)
+
+heap space. The initial scan still costs O(k) when all lanes are empty. Merging lanes pairwise in rounds
+
+gives the same bound without a heap.
+
+The heap starts with fronts 1 (lane 0), 1 (lane 1) and 2 (lane 2).
+
+Pop 1 (lane 0) and push 4. Pop 1 (lane 1) and push 3. Pop 2 and push
+
+6. Pop 3 and push 4…
+
+Output: [1,1,2,3,4,4,5,6].
+
+O(k + N log(k + 1)). O(k) for the heap, plus the output

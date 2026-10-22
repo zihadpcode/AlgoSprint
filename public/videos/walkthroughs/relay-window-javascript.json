@@ -1,0 +1,16 @@
+{
+  "slug": "relay-window",
+  "language": "JAVASCRIPT",
+  "title": "Relay Window",
+  "src": "/videos/walkthroughs/relay-window-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/relay-window-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/relay-window-javascript.txt",
+  "durationSeconds": 92,
+  "sourceHash": "5acac18a559535a65f3a6d4f16af5d03894c948fd7f9adcaaea9c3f3bc0bfed0",
+  "sha256": "6a466a14124772f90e3902b45fcf73471d79dc1cdf33fef1c03c14d444e24210",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "7e9f27c42ad78dfa98cc68907f94de625dc80ad65a16de0450483c0c68e50d70",
+  "transcriptSha256": "3f275a9ec2c34907966710ef716ac061c12d61686384aeaf1f2cb02ba2e02cb8",
+  "rendererVersion": "2026-10-22.1"
+}

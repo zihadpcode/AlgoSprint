@@ -1,0 +1,37 @@
+A pantry shelf is a grid of equal-length rows: 'F' is fresh bread, 'S' is spoiled bread and
+
+'.' is empty space. Every minute, each fresh loaf that shares an edge (up, down, left or right)
+
+with a spoiled loaf becomes spoiled. Return the number of minutes until no fresh bread remains, 0 if
+
+there is no fresh bread at the start, or -1 if some fresh loaf can never spoil.
+
+Mold reaches the bottom-right loaf after 4 minutes.
+
+The loaf in the bottom-left corner touches nothing, so it never spoils.
+
+Spoiling time is the shortest distance from any initial mold, which a BFS seeded with all molds computes
+
+directly.
+
+Queue every 'S' cell and count every 'F'. While the queue and fresh count are non-zero, process one
+
+layer: spoil each fresh neighbor, decrement the fresh count, enqueue it. Count layers. Return -1 if fresh bread
+
+remains.
+
+Each loaf spoils at its shortest distance from any initial mold, so I run one BFS with every
+
+spoiled loaf as a source. Each layer is one minute. I mark
+
+cells when I enqueue them so nothing is processed twice, and a fresh counter tells me when to
+
+stop and whether anything stayed unreachable. Linear in the number of cells.
+
+Layer 0: (0,0). Minute 1 spoils (0,1) and (1,0).
+
+Minute 2: (0,2) and (1,1). Minute 3: (2,1). Minute 4: (2,2).
+
+fresh = 0, so return 4.
+
+O(rows × cols). O(rows × cols)

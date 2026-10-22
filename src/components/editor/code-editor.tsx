@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/loading-state";
 import { Popover } from "@/components/workspace/popover";
 import { useWorkspaceLayout } from "@/components/workspace/split-pane";
+import { useStudyLanguage } from "@/components/workspace/study-language";
 import { ExecutionPanels, type EditorExample } from "./execution-panels";
 import { RunnerControls } from "./runner-controls";
 import { ResetConfirmation } from "./reset-confirmation";
@@ -26,9 +27,12 @@ const MonacoSurface = dynamic(() => import("./monaco-surface"), {
 });
 
 export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled = false, runnerLanguages = ["JAVASCRIPT"], signedIn = false, signature, draftOwner = null, revision }: { runnerLanguages?: readonly string[]; draftOwner?: string | null; revision?: number; starters: EditorStarter[]; examples?: EditorExample[]; slug?: string; runnerEnabled?: boolean; signedIn?: boolean; signature?: RunnerSignature }) {
-  const [selected, setSelected] = useState(starters[0]?.language);
+  const [localSelected, setSelected] = useState(starters[0]?.language);
+  const study = useStudyLanguage();
+  const selected = study?.language ?? localSelected;
   const [drafts, setDrafts] = useState<EditorDrafts>({});
   const [confirmReset, setConfirmReset] = useState(false);
+  const [resetScope, setResetScope] = useState({ language: selected, selection: study?.selection ?? 0 });
   const [notice, setNotice] = useState("");
   const [settings, setSettings] = useState<EditorSettings>(defaultEditorSettings);
   const [recoverable, setRecoverable] = useState(false);
@@ -60,20 +64,23 @@ export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled =
   const starter = starters.find((entry) => entry.language === selected);
   if (!starter) return <div data-editor-panel className="flex min-h-0 flex-1 flex-col"><p className="p-4 text-sm text-muted">No starter code is available for this problem yet.</p><div className="mt-auto"><ExecutionPanels examples={examples} /></div></div>;
   const language = editorLanguages[starter.language];
+  const showingReset = confirmReset && resetScope.language === starter.language && resetScope.selection === (study?.selection ?? 0);
   const value = draftFor(starter, drafts);
   return <div data-editor-panel className="flex min-h-0 flex-1 flex-col">
     <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-line bg-surface px-3 py-2">
       <label htmlFor={id} className="sr-only">Editor language</label>
       <Select ref={languageSelect} id={id} value={starter.language} className="h-8 w-auto min-w-28 text-[0.8125rem]" onChange={(event) => {
         const next = starters.find((entry) => entry.language === event.target.value);
-        if (next) { setSelected(next.language); setConfirmReset(false); setNotice(""); }
+        if (next) { setSelected(next.language); study?.selectLanguage(next.language); setConfirmReset(false); setNotice(""); }
       }}>
         {starters.map((entry) => <option key={entry.language} value={entry.language}>{editorLanguages[entry.language].label}</option>)}
       </Select>
       <p className="hidden text-xs text-subtle sm:block">Entry point: <code className="text-muted">{starter.entryPoint}</code>.</p>
       <p role="status" aria-atomic="true" className="min-w-0 text-xs text-accent empty:hidden">{notice}</p>
       <div className="ml-auto flex items-center gap-1">
-        <Button size="sm" variant="quiet" disabled={value === starter.code || confirmReset} onClick={() => setConfirmReset(true)}><RotateCcw aria-hidden="true" size={13} />Reset to starter</Button>
+        <Button size="sm" variant="quiet" disabled={value === starter.code || showingReset} onClick={() => {
+          setResetScope({ language: starter.language, selection: study?.selection ?? 0 }); setConfirmReset(true);
+        }}><RotateCcw aria-hidden="true" size={13} />Reset to starter</Button>
         {recoverable && <span className="text-xs font-medium text-accent">Draft found</span>}
         <Popover openOnce={recoverable} label={recoverable ? "Device drafts: a saved draft is available" : "Device drafts"} icon={<Save aria-hidden="true" size={15} />} panelClassName="w-[min(24rem,calc(100vw-2rem))]"
           badge={recoverable ? <span aria-hidden="true" className="absolute top-1 right-1 size-1.5 rounded-full bg-accent" /> : undefined}>
@@ -92,7 +99,7 @@ export function CodeEditor({ starters, examples = [], slug = "", runnerEnabled =
           {layout.layout === "editor" ? <PanelLeftOpen aria-hidden="true" size={15} /> : <PanelLeftClose aria-hidden="true" size={15} />}</Button>}
       </div>
     </div>
-    {confirmReset && <div className="shrink-0 border-b border-line bg-surface px-3 py-2"><ResetConfirmation language={language.label} onCancel={() => {
+    {showingReset && <div className="shrink-0 border-b border-line bg-surface px-3 py-2"><ResetConfirmation language={language.label} onCancel={() => {
       setConfirmReset(false);
       // The reset trigger is disabled while the prompt is open; return to the selector.
       languageSelect.current?.focus();

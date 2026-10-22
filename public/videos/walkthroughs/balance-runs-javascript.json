@@ -1,0 +1,16 @@
+{
+  "slug": "balance-runs",
+  "language": "JAVASCRIPT",
+  "title": "Balance Runs",
+  "src": "/videos/walkthroughs/balance-runs-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/balance-runs-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/balance-runs-javascript.txt",
+  "durationSeconds": 95,
+  "sourceHash": "4576567188c9570e0b573fa9461c5e7a7b4da4b9d2acbc9fd6fe96cb898fe300",
+  "sha256": "37e4f36cf67063c08418d0aa14b1c5a0ea5d06555ba763077011815b47ac0267",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "868910e7d18e17ac89ed5eaddca27defc680eb981e361210b20757d398a1c4e3",
+  "transcriptSha256": "cd2bd166ec46d187f0bfdaef717f7914d6d75cf85a07cf6432c1f6b95390edb6",
+  "rendererVersion": "2026-10-22.1"
+}

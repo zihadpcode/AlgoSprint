@@ -1,0 +1,16 @@
+{
+  "slug": "suffix-alarm",
+  "language": "JAVASCRIPT",
+  "title": "Suffix Alarm",
+  "src": "/videos/walkthroughs/suffix-alarm-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/suffix-alarm-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/suffix-alarm-javascript.txt",
+  "durationSeconds": 146,
+  "sourceHash": "1dbc6a81867a19ea246a11be9a681ee8d910318cce0b570500256e494f6d6c6f",
+  "sha256": "01d773882c1688b070ba3ca09c2152ddc6914538f6697db18253e1c5f1821bf7",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "b4d51d787269ff3aa7ebaa6c7143285b92c956e95597efda41dd506baeeb4ea1",
+  "transcriptSha256": "1dee1cf2acc6dcb1a3e039a47a2ef615930a04a06fd749b113527719ff6aa1cf"
+}

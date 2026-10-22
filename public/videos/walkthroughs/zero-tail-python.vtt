@@ -1,0 +1,97 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.037
+A factory stamps the serial numbers in numbers onto one big crate by multiplying them all together and
+
+2
+00:00:06.037 --> 00:00:12.252
+writing the product in base base (digits 0 to base - 1, so base 10 is ordinary decimal).
+
+3
+00:00:12.252 --> 00:00:17.750
+Return how many zero digits the written product ends with. The product can have tens of thousands of
+
+4
+00:00:17.750 --> 00:00:21.452
+digits, so it must be reasoned about without building it with ordinary numbers.
+
+5
+00:00:23.000 --> 00:00:30.152
+The product is 252000, which ends in three zeros in decimal. The numbers factor as 40 = 2^3
+
+6
+00:00:30.152 --> 00:00:36.980
+* 5, 75 = 3 * 5^2, 12 = 2^2 * 3 and 7, so the product holds
+
+7
+00:00:36.980 --> 00:00:44.516
+five 2s and three 5s. A decimal zero uses one 2 and one 5, and the 5s run
+
+8
+00:00:44.516 --> 00:00:45.326
+out after three.
+
+9
+00:00:46.000 --> 00:00:52.737
+The product is 1944. Since 12 = 2^2 * 3, each trailing zero in base 12 needs two
+
+10
+00:00:52.737 --> 00:00:59.164
+2s and one 3. The product has three 2s and five 3s, so only one zero can be
+
+11
+00:00:59.164 --> 00:01:03.585
+formed: 1944 is written as 1 1 6 0 in base 12.
+
+12
+00:01:05.000 --> 00:01:09.939
+A trailing zero in base b consumes one copy of b, i.e. e copies of each prime p
+
+13
+00:01:09.939 --> 00:01:14.057
+with p^e exactly dividing b. The scarcest prime sets the limit.
+
+14
+00:01:15.000 --> 00:01:19.976
+Factor the base by trial division. For each prime p with exponent e in the base, sum the
+
+15
+00:01:19.976 --> 00:01:25.608
+exponent of p in every number, then take floor(sum / e). Return the minimum over the primes of
+
+16
+00:01:25.608 --> 00:01:26.222
+the base.
+
+17
+00:01:27.000 --> 00:01:33.148
+The product is divisible by base^k exactly when, for every prime power p^e in the base, the product
+
+18
+00:01:33.148 --> 00:01:36.656
+has at least k * e copies of p. So the answer is the minimum
+
+19
+00:01:38.000 --> 00:01:46.197
+over primes of floor(copies / e). Factoring the base costs at most about 31,623 trial divisions, and counting
+
+20
+00:01:46.197 --> 00:01:52.123
+copies over 5,000 numbers is cheap, so nothing larger than a 32-bit integer is ever created.
+
+21
+00:01:53.000 --> 00:01:56.499
+10 = 2 * 5, so both primes need e = 1.
+
+22
+00:01:58.000 --> 00:02:05.699
+The numbers 40, 75, 12 and 7 contain five 2s and three 5s, giving allowances of 5 and
+
+23
+00:02:05.699 --> 00:02:07.564
+3, so the answer is 3.
+
+24
+00:02:09.000 --> 00:02:15.848
+O(sqrt(base) + n * (log max + distinct primes of base)). O(1)

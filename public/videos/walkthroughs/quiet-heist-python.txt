@@ -1,0 +1,31 @@
+A charity collects donations from houses arranged in a circle around a plaza, and houses[i] is the amount
+
+house i would give. To avoid pestering neighbors, collectors never visit two adjacent houses, and the first and
+
+last houses are neighbors. Return the largest total they can collect.
+
+Houses 0 and 2 are adjacent around the circle, so the best is house 1 alone: 3.
+
+Houses 0 and 2 give 4.
+
+The circle constraint means the optimal plan skips house 0 or skips house n - 1, and each
+
+of those is the line version.
+
+Write best(from, to) with two rolling values (take, skip). Return max(best(0, n - 2), best(1, n - 1)),
+
+or houses[0] when n = 1.
+
+On a line I'd keep two states: the best total if I take this house, and if I
+
+skip it. The circle forbids using both the first and the last house, so the answer is the
+
+better of the line answers excluding the first house and excluding the last house. Two O(n) passes with
+
+O(1) memory.
+
+[1,2,3,1]: line(0..2) = max(1 + 3, 2) = 4.
+
+line(1..3) = max(2 + 1, 3) = 3. The answer is 4.
+
+O(n). O(1)

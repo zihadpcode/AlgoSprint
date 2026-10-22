@@ -1,0 +1,16 @@
+{
+  "slug": "glyph-order",
+  "language": "JAVASCRIPT",
+  "title": "Glyph Order",
+  "src": "/videos/walkthroughs/glyph-order-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/glyph-order-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/glyph-order-javascript.txt",
+  "durationSeconds": 136,
+  "sourceHash": "a255d3360163ca8049423d6cae840f645612e53e5001eb5444bc456df50c350f",
+  "sha256": "a3657be003413fe70b79ac85b89ba47fe13ccb60a9e7defc558066190e6567eb",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "9807386f4ecc25004dca9d01e92505e9708e194caf72ee237af61da23dc6a2ee",
+  "transcriptSha256": "bb08ccb14b912a03accb3026397eb35507c9982520191d280f0f141e62ed52cb",
+  "rendererVersion": "2026-10-22.1"
+}

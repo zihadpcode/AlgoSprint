@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.520
+A hiking app records the elevation at each marker along a trail in the array heights, in walking
+
+2
+00:00:05.520 --> 00:00:10.472
+order. A marker is a ridge when its elevation is strictly greater than every marker before it, so
+
+3
+00:00:10.472 --> 00:00:16.381
+the first marker is always a ridge. Return how many markers are ridges. An empty trail has zero
+
+4
+00:00:16.381 --> 00:00:16.962
+ridges.
+
+5
+00:00:18.000 --> 00:00:24.049
+Markers 3, 4 and 6 each beat every earlier marker. The second 4 only ties the earlier 4,
+
+6
+00:00:24.049 --> 00:00:25.196
+so it is not a ridge.
+
+7
+00:00:26.000 --> 00:00:29.787
+Only the first marker is a ridge because the trail descends afterwards.
+
+8
+00:00:34.000 --> 00:00:38.187
+A marker beats every earlier marker exactly when it beats the highest earlier marker.
+
+9
+00:00:39.000 --> 00:00:44.868
+Walk the trail once while remembering the highest elevation so far. Each time a marker exceeds it, count
+
+10
+00:00:44.868 --> 00:00:46.628
+the marker and raise the maximum.
+
+11
+00:00:48.000 --> 00:00:53.755
+Only the highest earlier elevation can block a new ridge, so I carry that one number forward and
+
+12
+00:00:53.755 --> 00:00:59.344
+compare each marker against it. The scan is linear with constant memory, and starting at negative infinity
+
+13
+00:00:59.344 --> 00:01:03.435
+handles the first marker and negative elevations without special cases.
+
+14
+00:01:05.000 --> 00:01:12.621
+For [3, 1, 4, 4, 6], highest starts at -infinity, so 3 counts and highest becomes 3.
+
+15
+00:01:14.000 --> 00:01:20.177
+1 does not beat 3. The first 4 beats 3, count becomes 2 and highest becomes 4. The
+
+16
+00:01:20.177 --> 00:01:22.017
+second 4 ties and is skipped.
+
+17
+00:01:23.000 --> 00:01:25.752
+6 beats 4, so the count finishes at 3.
+
+18
+00:01:27.000 --> 00:01:28.460
+O(n). O(1)

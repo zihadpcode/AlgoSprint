@@ -1,0 +1,16 @@
+{
+  "slug": "pulse-gates",
+  "language": "JAVASCRIPT",
+  "title": "Pulse Gates",
+  "src": "/videos/walkthroughs/pulse-gates-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/pulse-gates-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/pulse-gates-javascript.txt",
+  "durationSeconds": 152,
+  "sourceHash": "b52ccbeb5821cf6fa24418922b751f983083bb8a9c43d8424e48e450b1f81f16",
+  "sha256": "25657bab97a276849b73ccc8a3b7676d1ded8e3b03a6d6ebc12e6dabc68ed9e9",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "4bb662d6d406bbcac52ea2fd861e902c6d67a254d295181374da50b19d8895c6",
+  "transcriptSha256": "f2ee847877ad586b998df901ebabdd759defba6742cfd2a44d2d8365503d0563",
+  "rendererVersion": "2026-10-22.1"
+}

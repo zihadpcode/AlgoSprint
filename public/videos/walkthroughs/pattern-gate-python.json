@@ -1,0 +1,16 @@
+{
+  "slug": "pattern-gate",
+  "language": "PYTHON",
+  "title": "Pattern Gate",
+  "src": "/videos/walkthroughs/pattern-gate-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/pattern-gate-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/pattern-gate-python.txt",
+  "durationSeconds": 115,
+  "sourceHash": "b6ff516c34240dd824e03fe726e59a53762178f3f3be2bc1c198fb03f640db36",
+  "sha256": "30225b2e33077b3ab0ccd27b54c6c1eac415f83046317a634fbbfbe767dde81f",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "f61be744750cd48b73f36913de16641e788d35e1dedf769d8d0f9dd4f7bb8e46",
+  "transcriptSha256": "9bdcd4b311bf12074173c3792cb0f34f1f86a1e6af86cd3109e7862d2df8e4a5"
+}

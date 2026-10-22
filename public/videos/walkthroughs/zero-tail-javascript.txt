@@ -1,0 +1,47 @@
+A factory stamps the serial numbers in numbers onto one big crate by multiplying them all together and
+
+writing the product in base base (digits 0 to base - 1, so base 10 is ordinary decimal).
+
+Return how many zero digits the written product ends with. The product can have tens of thousands of
+
+digits, so it must be reasoned about without building it with ordinary numbers.
+
+The product is 252000, which ends in three zeros in decimal. The numbers factor as 40 = 2^3
+
+* 5, 75 = 3 * 5^2, 12 = 2^2 * 3 and 7, so the product holds
+
+five 2s and three 5s. A decimal zero uses one 2 and one 5, and the 5s run
+
+out after three.
+
+The product is 1944. Since 12 = 2^2 * 3, each trailing zero in base 12 needs two
+
+2s and one 3. The product has three 2s and five 3s, so only one zero can be
+
+formed: 1944 is written as 1 1 6 0 in base 12.
+
+A trailing zero in base b consumes one copy of b, i.e. e copies of each prime p
+
+with p^e exactly dividing b. The scarcest prime sets the limit.
+
+Factor the base by trial division. For each prime p with exponent e in the base, sum the
+
+exponent of p in every number, then take floor(sum / e). Return the minimum over the primes of
+
+the base.
+
+The product is divisible by base^k exactly when, for every prime power p^e in the base, the product
+
+has at least k * e copies of p. So the answer is the minimum
+
+over primes of floor(copies / e). Factoring the base costs at most about 31,623 trial divisions, and counting
+
+copies over 5,000 numbers is cheap, so nothing larger than a 32-bit integer is ever created.
+
+10 = 2 * 5, so both primes need e = 1.
+
+The numbers 40, 75, 12 and 7 contain five 2s and three 5s, giving allowances of 5 and
+
+3, so the answer is 3.
+
+O(sqrt(base) + n * (log max + distinct primes of base)). O(1)

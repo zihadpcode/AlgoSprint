@@ -1,0 +1,47 @@
+A search box suggests catalog words while a visitor types. Given distinct lowercase words and the full text
+
+typed, return a list with one entry per typed character: after typing the first i characters, the entry
+
+holds up to three catalog words that start with those characters, in alphabetical order (the three smallest).
+
+When nothing matches, the entry is an empty list.
+
+After 'm' the three smallest matches are mango, map, mast;
+
+after 'ma' they are the same; after 'mas' only mast remains.
+
+'k' and 'ki' match
+
+both words; 'kix' matches nothing.
+
+All words sharing a prefix pass through one trie node, so the node can remember that prefix's three
+
+smallest words ahead of time.
+
+Sort the words and insert them into a trie in that order. Along each word's path, append the
+
+word to a node's list if it holds fewer than three. Then walk the typed letters from the
+
+root, outputting each node's list, or an empty list once the path falls off the trie.
+
+I build a trie from the words in sorted order, and each node stores the first three words
+
+that pass through it, which are its prefix's three smallest matches. Each keystroke then moves one step down
+
+the tree and reads the saved list.
+
+Once a letter has no child, every later prefix is empty too. Building costs a sort plus the
+
+total length of the words, and queries are O(1) each. The trade-off is memory for the nodes. Sorting
+
+with binary search is a lighter alternative.
+
+Sorted words: mango, map, mast, mat, melon. Node 'm' keeps mango, map, mast. Node 'ma' keeps the same
+
+three.
+
+Node 'mas' is reached only by mast, so it keeps [mast].
+
+Typing 'mas' reads [mango, map, mast], [mango, map, mast], [mast].
+
+O(n log n · L) to build, then O(1) per keystroke. O(total letters in words)

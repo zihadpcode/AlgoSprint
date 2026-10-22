@@ -1,0 +1,16 @@
+{
+  "slug": "close-calls",
+  "language": "PYTHON",
+  "title": "Close Calls",
+  "src": "/videos/walkthroughs/close-calls-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/close-calls-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/close-calls-python.txt",
+  "durationSeconds": 110,
+  "sourceHash": "1a630301db7d95b8cca6c481afcfa796f511fc0ab16d37ab379549b726a608e5",
+  "sha256": "b7e9f1eccc37f80f8bd96df8d2f2c7c6d95ff77ba6cca3be689a32ed889a144d",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "03d48bec13173a288d13090fba8edaa0dec86f3a6bbea260e40a60ad58dfadbe",
+  "transcriptSha256": "849a8b99fb51c8357cdcbb53453d0c4603b22db4b2ed222cf0e951f21a3abd3a"
+}

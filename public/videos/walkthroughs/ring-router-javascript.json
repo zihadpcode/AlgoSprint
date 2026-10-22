@@ -1,0 +1,16 @@
+{
+  "slug": "ring-router",
+  "language": "JAVASCRIPT",
+  "title": "Ring Router",
+  "src": "/videos/walkthroughs/ring-router-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/ring-router-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/ring-router-javascript.txt",
+  "durationSeconds": 196,
+  "sourceHash": "451e183da2fab758bc8f9ffce13c990afcb6bbf99768184aaf8011e6c1fe9aef",
+  "sha256": "cc9a4ce163b0b611e6c8c921ef9c0a3370aaca3320a25fadc1c07d5ad03dd92c",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "0fa16739a207e181410e0d1f652c9a3b37f18a595a96b44c809f6d17d1098a6e",
+  "transcriptSha256": "4ec320b10fd368d1affcb1dff1bea8054aa900c61e011c4faa2c9c5a871a0de9",
+  "rendererVersion": "2026-10-22.1"
+}

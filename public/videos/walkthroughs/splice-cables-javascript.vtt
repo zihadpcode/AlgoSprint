@@ -1,0 +1,81 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.931
+A crew must join several cable pieces into one continuous cable. Joining two pieces of lengths a and
+
+2
+00:00:05.931 --> 00:00:10.902
+b costs a + b units of labor and produces one piece of length a + b. Given
+
+3
+00:00:10.902 --> 00:00:16.433
+the piece lengths in the array lengths, return the minimum total labor needed to join every piece into
+
+4
+00:00:16.433 --> 00:00:20.289
+a single cable. A single piece or no pieces needs no labor.
+
+5
+00:00:21.000 --> 00:00:27.283
+Join 2 and 3 for 5, then 4 and 5 for 9, then 6 and 9 for 15.
+
+6
+00:00:27.283 --> 00:00:33.001
+The total is 5 + 9 + 15 = 29, and no other order is cheaper.
+
+7
+00:00:34.000 --> 00:00:36.095
+One piece is already a single cable.
+
+8
+00:00:42.000 --> 00:00:47.819
+The greedy rule only ever needs the two smallest pieces, which is exactly what a min-heap serves efficiently.
+
+9
+00:00:49.000 --> 00:00:55.214
+Push all lengths into a min-heap. While at least two pieces remain, pop the two smallest, add their
+
+10
+00:00:55.214 --> 00:00:57.391
+sum to the labor, and push the sum back.
+
+11
+00:00:58.000 --> 00:01:03.147
+Each join should combine the two shortest available pieces, because a piece's length is paid again in every
+
+12
+00:01:06.000 --> 00:01:12.173
+later join that includes it. A binary min-heap gives the two smallest in O(log n) each, so n
+
+13
+00:01:12.173 --> 00:01:12.178
+−
+
+14
+00:01:14.000 --> 00:01:20.083
+1 joins cost O(n log n). I implement the heap by hand since JavaScript has no built-in priority
+
+15
+00:01:20.083 --> 00:01:20.497
+queue.
+
+16
+00:01:22.000 --> 00:01:29.519
+For [4, 3, 2, 6], the heap yields 2 and 3; labor becomes 5 and 5 is pushed
+
+17
+00:01:29.519 --> 00:01:29.884
+back.
+
+18
+00:01:31.000 --> 00:01:35.694
+Next it yields 4 and 5; labor becomes 14 and 9 is pushed.
+
+19
+00:01:37.000 --> 00:01:41.738
+Finally 6 and 9 are joined for 15, so the labor totals 29.
+
+20
+00:01:43.000 --> 00:01:44.926
+O(n log n). O(n)

@@ -1,0 +1,16 @@
+{
+  "slug": "nested-crates",
+  "language": "JAVASCRIPT",
+  "title": "Nested Crates",
+  "src": "/videos/walkthroughs/nested-crates-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/nested-crates-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/nested-crates-javascript.txt",
+  "durationSeconds": 112,
+  "sourceHash": "13a310a9dfe5f738df59b5b78ca86a865b8c0f7270dcc88528d59afbd8a55e18",
+  "sha256": "7acdbf2c3b0dacdd30f8855b14de4889a57e5e0946f9f7c9f5ae422f2998ce6a",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "8e3518338440560381df5218a92a1913508e08075c5698e62adda4fe44f223f5",
+  "transcriptSha256": "87f73a260c2c672fc9a1082c0b67b92e4ca12d32ef5f31dfd7a96dbce88e5886",
+  "rendererVersion": "2026-10-22.1"
+}

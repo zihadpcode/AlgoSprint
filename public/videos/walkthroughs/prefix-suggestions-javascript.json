@@ -1,0 +1,16 @@
+{
+  "slug": "prefix-suggestions",
+  "language": "JAVASCRIPT",
+  "title": "Prefix Suggestions",
+  "src": "/videos/walkthroughs/prefix-suggestions-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/prefix-suggestions-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/prefix-suggestions-javascript.txt",
+  "durationSeconds": 132,
+  "sourceHash": "092f5c6e03c9d3c306d394f486cffe4266ac94c0db31ddaa238a656b0189d4a0",
+  "sha256": "a92cfc50714246a2c635fb603d031861416669ac4301a4a54b8ffe40a0d0cedd",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "8902e62f9e60ce395b62c570f7929ca65b5ef262e34d63d7cf8f6228d1c25ea7",
+  "transcriptSha256": "d04624a72f25d7b884274c81dfefa34d5c5bb794b7b034c030f0da697a464845",
+  "rendererVersion": "2026-10-22.1"
+}

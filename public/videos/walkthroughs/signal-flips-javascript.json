@@ -1,0 +1,16 @@
+{
+  "slug": "signal-flips",
+  "language": "JAVASCRIPT",
+  "title": "Signal Flips",
+  "src": "/videos/walkthroughs/signal-flips-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/signal-flips-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/signal-flips-javascript.txt",
+  "durationSeconds": 73,
+  "sourceHash": "1e11974e718c313cf7ec02dbf9237984fdb6cc7cda5bf31e9b81f0bab98b00a4",
+  "sha256": "7fe5e85e1f655227df9ab565a4c65bd794e64682d1f30a8a3d369bd8d76202c3",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "e1f1e7207bccbd525669effcff87a831e8f31e4033f67dfe530581214d8299e8",
+  "transcriptSha256": "09be238a6f20dc180a9dedaff21912e90e6b038d7d20cec0181e9c627d88f7dd"
+}

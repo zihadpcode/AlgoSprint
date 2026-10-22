@@ -1,0 +1,16 @@
+{
+  "slug": "zero-tail",
+  "language": "JAVASCRIPT",
+  "title": "Zero Tail",
+  "src": "/videos/walkthroughs/zero-tail-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/zero-tail-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/zero-tail-javascript.txt",
+  "durationSeconds": 137,
+  "sourceHash": "1bca0ef9ac01fa664149e6271502787ec0a7582ca3db8492005842c00a21dd25",
+  "sha256": "8b0144f0b2a45c5f03b5def71eaa2b098af078d9a4920bdad9dfb83d6c86b645",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "b519dfa09b20585d368635780acabd14e108bbe7c8382d9478591ea40bd53903",
+  "transcriptSha256": "a15ab2190fe9be2fb14afc6fc94e62632b8bc3bcdf3acb8d57ee54fd7a313314"
+}

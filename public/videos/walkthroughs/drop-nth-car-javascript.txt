@@ -1,0 +1,37 @@
+A train is a linked chain of cars: car i is followed by car next[i], or by nothing
+
+when next[i] is -1, and head is the first car. The chain visits every car exactly once. Uncouple
+
+the k-th car counting from the back (k = 1 is the last car) and reconnect the train.
+
+Return the car indices from front to back after the removal.
+
+The second car from the back
+
+is 3, leaving [0, 1, 2, 4].
+
+Removing the only car leaves an empty train.
+
+A gap of k cars between two pointers means that when the lead reaches the end, the trail
+
+is right before the target.
+
+Copy the links. Advance lead k times from head. If lead is -1, the head is removed. Otherwise
+
+move lead and trail together until lead is the last car, then bypass trail's next car. Read off
+
+the new order.
+
+Two pointers k apart find the predecessor of the k-th car from the back in one pass. Removing
+
+the head is the edge case; with node objects a dummy node in front of the head removes
+
+that special case.
+
+k = 2: lead moves 0→1→2.
+
+Advance together until lead is 4: trail ends at 2.
+
+Bypass 3: 2→4. Order [0,1,2,4].
+
+O(n). O(1) beyond the copied links and output

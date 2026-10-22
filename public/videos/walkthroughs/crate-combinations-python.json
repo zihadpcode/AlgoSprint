@@ -1,0 +1,16 @@
+{
+  "slug": "crate-combinations",
+  "language": "PYTHON",
+  "title": "Crate Combinations",
+  "src": "/videos/walkthroughs/crate-combinations-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/crate-combinations-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/crate-combinations-python.txt",
+  "durationSeconds": 146,
+  "sourceHash": "f44e7cb332b5485670d659d246167307ddeb0a878147c2d419726fff72e19198",
+  "sha256": "23d7651c86dfd7e1c813081184051ec0aa21060af49e3a1484e0bcaef1d824a7",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "686c4f9f29849d50029fe615603ef39584eadbb520025b3d63b8c03295e8af98",
+  "transcriptSha256": "e877edcf43141a2338233c3f243c552f6605576f5d105c0eb2168218d6fac896"
+}

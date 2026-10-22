@@ -1,0 +1,33 @@
+A relay station records an integer load for each time slot in the array loads. You may reserve
+
+exactly width consecutive slots. Return the largest total load among all such reservations. Negative values
+
+represent load returned to the station, so a valid answer can be negative. Return the total, not the
+
+starting index.
+
+Slots with zero-based indices 2 through 4 contain 5, 2, and 6; their sum is 13.
+
+The two valid totals are -6 and -9. Choosing no slots is not allowed.
+
+Two adjacent windows differ in exactly two positions: one leaves and one enters.
+
+Sum the first width entries once. Shift the window by removing the outgoing value and adding the incoming
+
+value. Update the maximum after every shift.
+
+I first considered recomputing each reservation in O(n × width). Adjacent windows share width - 1 entries, so
+
+I maintain one running sum and update only the entering and leaving values. The algorithm takes linear time
+
+and constant extra space.
+
+The first three values total 9. Initialize both the current sum and best sum to 9.
+
+Move once: subtract 3 and add 2 to obtain 8. Move again: subtract 1 and add 6 to
+
+obtain 13.
+
+The last shift totals 9. The best value remains 13.
+
+O(n). O(1)

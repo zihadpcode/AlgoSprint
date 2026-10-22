@@ -1,0 +1,81 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.286
+A rescue robot moves through a warehouse floor described by the array grid, where each string is one
+
+2
+00:00:05.286 --> 00:00:11.056
+row. The character S marks the robot's start, T marks the trapped worker, # marks a shelf the
+
+3
+00:00:11.056 --> 00:00:16.919
+robot cannot enter, and . marks open floor. Each hop moves the robot one cell up, down, left
+
+4
+00:00:16.919 --> 00:00:22.664
+or right, never diagonally and never off the floor. Return the smallest number of hops needed to reach
+
+5
+00:00:22.664 --> 00:00:25.475
+T, or -1 if T cannot be reached.
+
+6
+00:00:27.000 --> 00:00:32.718
+The shelves block the direct route, so the robot goes down twice and right twice for 4 hops.
+
+7
+00:00:35.000 --> 00:00:38.226
+The shelf splits the row and the robot can never reach T.
+
+8
+00:00:43.000 --> 00:00:49.540
+With unit-cost moves, exploring cells in discovery order visits them by increasing distance, so the first visit
+
+9
+00:00:49.540 --> 00:00:51.801
+to any cell is along a shortest path.
+
+10
+00:00:53.000 --> 00:00:58.998
+Encode each cell as a single index. Start a queue with S at distance 0. Repeatedly take the
+
+11
+00:00:58.998 --> 00:01:05.472
+front cell; if it is T return its distance, otherwise enqueue each open, unvisited neighbor with distance plus
+
+12
+00:01:05.472 --> 00:01:08.374
+one. An exhausted queue means T is unreachable.
+
+13
+00:01:09.000 --> 00:01:14.711
+This is unweighted shortest path, so breadth-first search is the tool. I record a cell's distance the moment
+
+14
+00:01:14.711 --> 00:01:18.775
+it is enqueued, which guarantees each cell enters the queue at most once
+
+15
+00:01:20.000 --> 00:01:25.062
+and that the recorded distance is minimal. Using an index pointer into the array instead of shift keeps
+
+16
+00:01:25.062 --> 00:01:29.026
+dequeues constant time. The whole search is linear in the number of cells.
+
+17
+00:01:30.000 --> 00:01:38.871
+For ["S.#", ".##", "..T"], S is dequeued and enqueues (0,1) and (1,0) at distance 1.
+
+18
+00:01:40.000 --> 00:01:52.097
+(1,0) enqueues (2,0) at distance 2; (2,0) enqueues (2,1) at 3; (2,1) enqueues (2,2) at 4.
+
+19
+00:01:53.000 --> 00:01:56.190
+(2,2) is T, so the search returns 4.
+
+20
+00:01:57.000 --> 00:02:00.140
+O(rows × cols). O(rows × cols)

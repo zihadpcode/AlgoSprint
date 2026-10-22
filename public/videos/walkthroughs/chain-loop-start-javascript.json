@@ -1,0 +1,16 @@
+{
+  "slug": "chain-loop-start",
+  "language": "JAVASCRIPT",
+  "title": "Chain Loop Start",
+  "src": "/videos/walkthroughs/chain-loop-start-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/chain-loop-start-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/chain-loop-start-javascript.txt",
+  "durationSeconds": 125,
+  "sourceHash": "b1a68036af27b8b4c06664a21b646487c01337f577897119b72cdb7b5c57d47a",
+  "sha256": "3023279d412768202bb45988f58b5265467b82e5fa829f08e0d104c08e5bdf64",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "291312314861dc88f5212a5044340a31004096a0b10a417cfd5fd436d58fda00",
+  "transcriptSha256": "ddc20d867b6e61a6d04e4e90c9b50eb5b381f5f810f5c616924372e1a557da89",
+  "rendererVersion": "2026-10-22.1"
+}

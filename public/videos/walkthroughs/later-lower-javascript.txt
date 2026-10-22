@@ -1,0 +1,33 @@
+A leaderboard lists scores in arrival order. For each player, count how many players who arrived after them
+
+have a strictly lower score. Return the counts in arrival order.
+
+After 5: 2 and 1 are lower (2). After 2: only 1 (1). After 6: 1 (1). After
+
+1: none.
+
+No players.
+
+Scanning from the right turns the question into a running prefix count over values, which a Fenwick tree
+
+answers in logarithmic time.
+
+Use a Fenwick tree indexed by value + 10001. From the last player to the first: the answer
+
+is the prefix sum up to value + 10000 (strictly lower), then add one at value + 10001.
+
+Processing from the right means every inserted score belongs to a later player, so each answer is the
+
+number of inserted scores strictly below mine. A Fenwick tree over the shifted score range does each insert
+
+and prefix query in O(log R). With a huge value range I'd coordinate-compress first. The merge-sort approach
+
+counts, for each left-half element, how many right-half elements were merged before it, and runs in O(n log
+
+n).
+
+From the right: 1 → query 0, insert 1. 6 → one smaller (1), insert.
+
+2 → one smaller (1), insert. 5 → two smaller (1, 2). Output [2, 1, 1, 0].
+
+O(n log R) for value range R. O(R)

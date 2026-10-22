@@ -1,0 +1,35 @@
+A security team pairs sensor IDs so their bitwise XOR is as large as possible, to make collisions
+
+unlikely. Given non-negative integers in values, return the largest value of values[i] XOR values[j] over all
+
+pairs with i < j.
+
+5 XOR 25 = 28 is the largest.
+
+Equal values XOR to 0.
+
+Choosing the opposite bit as high up as possible maximizes XOR, and a trie of earlier values tells
+
+you instantly whether that opposite bit is available.
+
+Represent the trie with two child arrays (zero and one). Insert the first value. For each next value,
+
+walk from bit 30 to 0: if the opposite child exists, take it and set that bit in
+
+the result; otherwise follow the same bit. Update the answer, then insert the value.
+
+XOR is maximized greedily from the top bit, so for each value I walk a binary trie of
+
+earlier values, taking the opposite bit whenever it
+
+exists. Each insert and query is 31 steps, so it's O(31n). An alternative builds the answer bit by
+
+bit with a hash set of prefixes, also O(31n).
+
+Insert 3, 10 and 5. For 25 (11001): want 0 at bit 4. 5 = 00101 is there,
+
+so the path follows 5.
+
+The result is 25 ^ 5 = 28; later values do not beat it.
+
+O(31 · n). O(31 · n) trie nodes

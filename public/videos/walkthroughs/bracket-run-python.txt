@@ -1,0 +1,35 @@
+A code formatter receives a string of '(' and ')' characters. Return the length of the longest contiguous
+
+stretch that is a well-formed bracket sequence: every '(' is closed by a later ')' and no ')'
+
+appears before its matching '('.
+
+The longest well-formed stretch is '()', length 2.
+
+'()()' has length 4.
+
+The bottom of the stack marks where the current valid stretch cannot extend past, and after each match
+
+the stretch length is the distance to the stack top.
+
+stack = [-1]. For '(' push i. For ')' pop; if the stack is empty push i as
+
+a new base, otherwise best = max(best, i - top).
+
+I keep indices of unmatched '(' above a base marker, the index just before the current stretch. A
+
+')' pops its partner. If nothing is left, it becomes the new base; otherwise the valid stretch ending
+
+here runs from just after the stack top. That handles nesting and adjacency in one pass. A two-counter
+
+scan left to right and then right to left solves it in O(1) space as an alternative.
+
+')()())': i=0 ')' pops -1 → empty → push 0.
+
+i=1 '(' push; i=2 ')' pop → top 0 → length 2. i=3 push; i=4 pop → length
+
+4.
+
+i=5 ')' pops 0 → empty → push 5. The best is 4.
+
+O(n). O(n)

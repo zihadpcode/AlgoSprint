@@ -1,0 +1,16 @@
+{
+  "slug": "fare-combinations",
+  "language": "PYTHON",
+  "title": "Fare Combinations",
+  "src": "/videos/walkthroughs/fare-combinations-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/fare-combinations-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/fare-combinations-python.txt",
+  "durationSeconds": 111,
+  "sourceHash": "901dc66e4684a9fbf11403c290923f6517493ea8468bb70346bd0a23d7e75d3f",
+  "sha256": "cee909a77f6ece698d9d9172abd418694e60039aab6d4e0c6ad530ec78bbffa4",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "4d4295320c0e2ed0506e23e3025ace87652404a974938ff77af8ea6089887b93",
+  "transcriptSha256": "67ada0342952d8e52f9da44f399e1cc42909da567f47d9c8da809934ab6fcc19"
+}

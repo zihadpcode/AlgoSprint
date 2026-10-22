@@ -1,0 +1,65 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.092
+A spelling assistant measures how far a typed word is from the intended word as the smallest number
+
+2
+00:00:05.092 --> 00:00:11.918
+of single-letter edits that turn typed into intended. One edit inserts a letter, deletes a letter, or replaces
+
+3
+00:00:11.918 --> 00:00:15.216
+one letter with another. Return that smallest number of edits.
+
+4
+00:00:16.000 --> 00:00:22.438
+Replace h with r (rorse), delete r (rose), delete e (ros): 3 edits.
+
+5
+00:00:24.000 --> 00:00:25.878
+Identical words need no edits.
+
+6
+00:00:32.000 --> 00:00:39.862
+The answer for prefixes (i, j) depends only on (i-1, j-1), (i-1, j) and (i, j-1).
+
+7
+00:00:41.000 --> 00:00:48.174
+previous holds row i-1: initially [0, 1, ..., m]. For each i, current[0] = i; for each j,
+
+8
+00:00:48.174 --> 00:00:53.939
+use the match rule or 1 + the minimum of the three neighbors. Swap rows. Return previous[m].
+
+9
+00:00:55.000 --> 00:01:02.152
+This is the Levenshtein recurrence. dist[i][j] covers the first i and j letters, matching letters inherit the
+
+10
+00:01:02.152 --> 00:01:09.390
+diagonal, and otherwise I take 1 plus the best of replace (diagonal), delete (above) and insert (left). The
+
+11
+00:01:09.390 --> 00:01:16.202
+borders are pure insertions or deletions. Each row only needs the previous one, so it's O(n·m) time and
+
+12
+00:01:16.202 --> 00:01:20.767
+O(m) space. Keeping the full table would let me reconstruct the edits.
+
+13
+00:01:22.000 --> 00:01:25.578
+Row 0 for 'ros': [0,1,2,3].
+
+14
+00:01:27.000 --> 00:01:35.093
+Row 'h': [1,1,2,3]. Row 'o': [2,2,1,2]. Row 'r': [3,2,2,2].
+
+15
+00:01:36.000 --> 00:01:43.916
+Row 's': [4,3,3,2]. Row 'e': [5,4,4,3]. The answer is 3.
+
+16
+00:01:45.000 --> 00:01:46.984
+O(n × m). O(m)

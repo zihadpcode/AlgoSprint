@@ -1,0 +1,16 @@
+{
+  "slug": "cipher-window",
+  "language": "PYTHON",
+  "title": "Cipher Window",
+  "src": "/videos/walkthroughs/cipher-window-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/cipher-window-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/cipher-window-python.txt",
+  "durationSeconds": 115,
+  "sourceHash": "c9fc524cb82c9d7004190e5a826e75d212f36a98f60c2381087673c5513e44c2",
+  "sha256": "61580559680ff7675d95de5a5f94da0410c55ca171ea0c64ddcba5151c63f01f",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "c717b7d4abd0889707bacee90f669897530cab8e77c690cbdd3c4b51b8f366b4",
+  "transcriptSha256": "ef729a5373d11b61b2cd5b069c5bacf222e84a4bc8594d2f9f6c84491934a3d3"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "toll-slide",
+  "language": "PYTHON",
+  "title": "Toll Slide",
+  "src": "/videos/walkthroughs/toll-slide-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/toll-slide-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/toll-slide-python.txt",
+  "durationSeconds": 133,
+  "sourceHash": "3dc56f677cc459b93033a0a2682241ca965200691e5273b67c363b4fd06aa0e9",
+  "sha256": "c71896efa86cbbda888d8e7097bfb47807d6cc7c966cdf2486383901f50908b3",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "a489191fa174100b03d0d1fa265858b57b490e36a21722bc11f173fdf29845a3",
+  "transcriptSha256": "c37edcad02f7544f94842e143817a690fea9cc5be54daad749d7928cffff9899"
+}

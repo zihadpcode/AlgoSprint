@@ -1,0 +1,37 @@
+A ferry accepts tickets of the distinct face values in coins, and a traveler may use any number
+
+of tickets of each value. Count the different combinations of tickets whose values add up to exactly amount.
+
+Combinations are unordered: two of value 1 plus one of value 2 is the same combination no matter
+
+which ticket is handed over first. Return the count modulo 1000000007. There is exactly one way to pay
+
+an amount of 0: use no tickets.
+
+5; 2+2+1; 2+1+1+1; 1+1+1+1+1 — four combinations.
+
+7 is not a multiple of 3, so there are no combinations.
+
+Processing values one at a time and totals in increasing order counts each combination once, with tickets of
+
+the current value reusable.
+
+ways[0] = 1. For each coin c, for t from c to amount, add ways[t - c] to
+
+ways[t] modulo 1000000007. Return ways[amount].
+
+I build the table one value at a time. ways[t] counts the combinations of the values seen so
+
+far that sum to t. Adding value c means ways[t] += ways[t - c], and walking t upward
+
+lets the same value be reused. Coins in the outer loop is what makes the combinations unordered. That's
+
+O(values × amount) time with a single array.
+
+Start: ways = [1,0,0,0,0,0]. With 1s: every total has 1 way.
+
+With 2s: ways = [1,1,2,2,3,3].
+
+With 5s: ways[5] = 3 + ways[0] = 4.
+
+O(values × amount). O(amount)

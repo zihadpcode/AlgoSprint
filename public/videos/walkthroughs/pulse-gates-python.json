@@ -1,0 +1,16 @@
+{
+  "slug": "pulse-gates",
+  "language": "PYTHON",
+  "title": "Pulse Gates",
+  "src": "/videos/walkthroughs/pulse-gates-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/pulse-gates-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/pulse-gates-python.txt",
+  "durationSeconds": 149,
+  "sourceHash": "0af57c9203a17c53eb2115e841df30e541a5af4b1791e84c3f97970655f51d95",
+  "sha256": "16048d90f1873be2504355c258344809b221cb1d52cd23ebf31871b9bf1dcea1",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "90fcc2aa2f00f3aebbe6a3b0ad618de992e547fa67f304aea2780f0bd426cab9",
+  "transcriptSha256": "47ef321cd081851b47ece924f5a67c83fee4c2e7831a502b41efd8a700725e71"
+}

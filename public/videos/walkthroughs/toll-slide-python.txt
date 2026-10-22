@@ -1,0 +1,51 @@
+A delivery cart crosses a toll grid from the top-left cell to the bottom-right cell. grid[r][c] is the
+
+toll for being in cell (r, c): the cart pays the toll of its starting cell and of
+
+every cell it moves into. A normal move goes one cell right or one cell down. Once per
+
+trip, instead of a normal move, the cart may take the service slide: it glides any number of
+
+cells (at least one) to the right along its current row, paying nothing for any cell it passes
+
+or lands on. Return the smallest total toll for the trip. The slide is optional.
+
+Pay 4 for the start, slide along the top row to the last column for free, then move
+
+down onto 1 and 7. The total is
+
+4 + 1 + 7 = 12. Without the slide, the cheapest right/down trip costs 27 (4 +
+
+7 + 2 + 6 + 1 + 7).
+
+The cart starts on the goal and pays the toll of that one cell.
+
+The best place to start a slide that lands in column c is the cheapest unused arrival anywhere
+
+to its left in the same row, and that minimum can be carried along as the row is
+
+swept.
+
+Sweep each row left to right with rolling arrays for plain and slid. At each column compute plain
+
+from above/left, compute slid as the smaller of (slid from above/left + toll) and the cheapest plain value
+
+seen earlier in this row, then update that running minimum with the new plain value.
+
+Two states per cell turn an exponential search into 2 * rows * cols values. The only non-local
+
+transition is the slide, and since it
+
+always starts from an earlier cell of the same row, a running minimum answers it in O(1). Rolling
+
+the rows keeps memory at one row.
+
+plain along row 0 is 4, 11, 13, 22; the running minimum before column 3 is 4, so
+
+slid at column 3 is 4.
+
+Moving down from slid at (1, 3) = 5 gives 5 + 7 = 12 at (2, 3),
+
+which beats plain there (27), so the answer is 12.
+
+O(rows * cols). O(cols)

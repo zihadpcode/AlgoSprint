@@ -1,0 +1,97 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.606
+A conveyor system is modeled as a linked chain of stations. Station i forwards items to station next[i],
+
+2
+00:00:05.606 --> 00:00:11.494
+or to nowhere when next[i] is -1. Items enter at station head, or the chain is empty when
+
+3
+00:00:11.494 --> 00:00:16.924
+head is -1. Because of a wiring mistake, the chain may eventually loop back to an earlier station
+
+4
+00:00:16.924 --> 00:00:22.417
+forever. Return the index of the first station that is visited twice when following the chain from head,
+
+5
+00:00:22.417 --> 00:00:28.509
+which is where the loop begins. Return -1 when the chain ends. Aim for constant extra memory.
+
+6
+00:00:30.000 --> 00:00:34.486
+Items travel 0 → 1 → 2 → 3 → 1, so station 1 is the loop start.
+
+7
+00:00:38.000 --> 00:00:40.774
+The chain ends at station 2 and never loops.
+
+8
+00:00:46.000 --> 00:00:50.640
+A pointer moving two steps at a time gains one station per move on a pointer moving one
+
+9
+00:00:50.640 --> 00:00:55.718
+step, so inside a loop they must meet; the meeting point is positioned so that a walk from
+
+10
+00:00:55.718 --> 00:00:58.845
+the head and a walk from the meeting point reach the loop start together.
+
+11
+00:01:00.000 --> 00:01:05.553
+Phase one advances slow by one and fast by two until they coincide or fast reaches the end.
+
+12
+00:01:05.553 --> 00:01:11.084
+Phase two restarts one pointer at the head and moves both one step at a time; the station
+
+13
+00:01:11.084 --> 00:01:12.615
+where they meet is the loop start.
+
+14
+00:01:14.000 --> 00:01:18.452
+I run a slow and a fast pointer; if the fast pointer hits the end there is no
+
+15
+00:01:18.452 --> 00:01:23.070
+loop, otherwise they meet inside it. If the tail before the loop has length a and the loop
+
+16
+00:01:23.070 --> 00:01:27.585
+has length c, the meeting point sits a steps before the loop start when measured around the loop,
+
+17
+00:01:27.585 --> 00:01:32.037
+so a second walk from the head and from the meeting point converges exactly at the loop start.
+
+18
+00:01:32.037 --> 00:01:33.937
+Two passes, constant memory.
+
+19
+00:01:35.000 --> 00:01:42.814
+For next = [1, 2, 3, 1] and head 0: slow goes 1, 2, 3 while fast goes
+
+20
+00:01:42.814 --> 00:01:45.891
+2, 1, 3, meeting at station 3.
+
+21
+00:01:47.000 --> 00:01:53.186
+Restart entry at 0: entry moves to 1 while slow moves from 3 to 1. They coincide at
+
+22
+00:01:53.186 --> 00:01:54.018
+station 1.
+
+23
+00:01:55.000 --> 00:01:58.223
+Station 1 is the loop start, matching the direct walk.
+
+24
+00:01:59.000 --> 00:02:00.460
+O(n). O(1)

@@ -1,0 +1,16 @@
+{
+  "slug": "splice-cables",
+  "language": "PYTHON",
+  "title": "Splice the Cables",
+  "src": "/videos/walkthroughs/splice-cables-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/splice-cables-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/splice-cables-python.txt",
+  "durationSeconds": 100,
+  "sourceHash": "889f319d36cd40133effd60f7fcce97f7868f33739d0863219864f19c83dd6da",
+  "sha256": "5591facd1cf2c60dbaf56f2217546f7382b33a6f89c887e1977d3f71d545cc96",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "77b951079e47de0f2d4583a34a45457f9fd8c945ae24f6d3058585536180f461",
+  "transcriptSha256": "61903711bfc1100d025009eff98cf81057762e5503d865e9d5c2e5ac6d1793d9"
+}

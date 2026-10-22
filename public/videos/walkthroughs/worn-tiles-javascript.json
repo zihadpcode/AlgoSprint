@@ -1,0 +1,16 @@
+{
+  "slug": "worn-tiles",
+  "language": "JAVASCRIPT",
+  "title": "Worn Tiles",
+  "src": "/videos/walkthroughs/worn-tiles-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/worn-tiles-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/worn-tiles-javascript.txt",
+  "durationSeconds": 112,
+  "sourceHash": "bfc56af2a5fa8e66b2e48bccc39139a29f5c6b3dd72121568b31ff9edac6e821",
+  "sha256": "7eff83c21ef43e4d94bbc00edfc886530723baf682b69a6bd316159602cfeab0",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "e933224270d5a23a0940392401d72e96aadc64d629b8afdc54771e8592038b24",
+  "transcriptSha256": "42fd4c6ca9a2e490c5aafba287cf1ac70363c85ab05503174018f104ae11a06c"
+}

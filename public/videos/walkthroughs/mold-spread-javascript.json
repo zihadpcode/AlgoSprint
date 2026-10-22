@@ -1,0 +1,16 @@
+{
+  "slug": "mold-spread",
+  "language": "JAVASCRIPT",
+  "title": "Mold Spread",
+  "src": "/videos/walkthroughs/mold-spread-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/mold-spread-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/mold-spread-javascript.txt",
+  "durationSeconds": 106,
+  "sourceHash": "53a851fca3e19adb2bf536cc5a34ac67a6d2ecdd5249f1e37f9643e5fe5909e0",
+  "sha256": "d55dc82eaa0d553a169c72c9e4a030b0475ddd625f90593b7d705927d3711d14",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "e0442e4eea4a461c25aeb0c4764cec89b0b5641b04a34a829dd8f9b27ff3ba44",
+  "transcriptSha256": "35a6ef795f5b50a990615df4ad261471bb89eb0b9cf36331104e69895a856692",
+  "rendererVersion": "2026-10-22.1"
+}

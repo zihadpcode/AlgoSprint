@@ -1,0 +1,35 @@
+A mover stores crates inside one another to save space. Each crate is [width, height] (no rotation allowed),
+
+and crate A fits inside crate B only if A is strictly narrower and strictly shorter than B.
+
+Return the largest number of crates that can be nested in a single chain.
+
+[2,3] inside [5,4]
+
+inside [6,7]: three crates.
+
+Identical crates cannot
+
+nest: one crate.
+
+Sorting widths ascending with heights descending among equal widths turns nesting into a strictly increasing
+
+subsequence on heights alone.
+
+Sort by width ascending, then height descending. Maintain tails: for each height, binary search the first tail
+
+>= height and replace it (or append). The tails length is the answer.
+
+This is the Russian-doll pattern: sort by width, and break width ties by descending height so same-width crates
+
+can't both be chosen. Nesting then becomes a strictly increasing subsequence of heights, solved in O(n log n)
+
+with the smallest-tails array and a lower-bound binary search.
+
+Sorted: [2,3], [5,4], [6,7], [6,4] (6s by descending height).
+
+Heights 3, 4, 7, 4 → tails [3], [3,4], [3,4,7], then 4 replaces 4.
+
+The length is 3.
+
+O(n log n). O(n)

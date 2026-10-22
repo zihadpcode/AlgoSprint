@@ -1,0 +1,35 @@
+Model a simple savings vault as an object with three methods. deposit(amount) adds money. withdraw(amount)
+
+removes money only if the balance covers it, reporting true on success and false (with no change) otherwise.
+
+balance() reports the current balance. The vault starts at 0. Given a list of calls such as ["deposit",
+
+50], ["withdraw", 20] or ["balance"], apply them in order and return the results of every withdraw and balance
+
+call, in order. Deposits produce no result.
+
+Withdrawing 20 succeeds (30 left); withdrawing
+
+40 fails, so the balance stays 30.
+
+A new vault holds 0.
+
+The only state that affects future calls is the current balance.
+
+Write a small Vault class with a private balance and deposit, withdraw and balance methods, then dispatch each
+
+operation to it.
+
+I'd model this as a class whose private field is the balance, with the invariant that it's never
+
+negative. withdraw checks before mutating, so a failed call has no side
+
+effects. Every call is O(1). In a real system I'd use integer cents to avoid floating-point error, and
+
+I'd keep an append-only transaction log alongside the running total for auditing.
+
+deposit 50 → balance 50. withdraw 20 → true, 30. balance → 30.
+
+withdraw 40 → false, still 30. balance → 30.
+
+O(1) per call, O(n) overall. O(1) beyond the results

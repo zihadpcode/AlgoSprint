@@ -1,0 +1,89 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.443
+A hallway has length floor tiles, numbered 0 to length - 1. A cleaning pass [from, to] scrubs
+
+2
+00:00:06.443 --> 00:00:12.038
+every tile from from to to, both ends included. A tile wears out once at least limit passes
+
+3
+00:00:12.038 --> 00:00:17.776
+have scrubbed it. Passes may overlap, repeat or touch each other in any order. Return how many tiles
+
+4
+00:00:17.776 --> 00:00:19.461
+are worn out after all the passes.
+
+5
+00:00:21.000 --> 00:00:27.656
+Tiles 4, 5 and 6 are covered by two or more passes (tile 5 by three), and tiles
+
+6
+00:00:27.656 --> 00:00:28.618
+8 and 9
+
+7
+00:00:30.000 --> 00:00:35.981
+are covered by the second and fourth passes. That makes 5 worn tiles. Every other tile is scrubbed
+
+8
+00:00:35.981 --> 00:00:36.920
+at most once.
+
+9
+00:00:38.000 --> 00:00:42.506
+One pass scrubs every tile exactly once, so no tile reaches the limit of 2.
+
+10
+00:00:46.000 --> 00:00:51.296
+Record only where each pass starts and stops; the running sum of those marks is the pass count
+
+11
+00:00:51.296 --> 00:00:52.160
+of every tile.
+
+12
+00:00:53.000 --> 00:00:58.455
+Allocate change of size length + 1. For each pass add 1 at from and subtract 1 at
+
+13
+00:00:58.455 --> 00:01:03.213
+to + 1. Sweep the tiles left to right keeping a running total of change and count the
+
+14
+00:01:03.213 --> 00:01:05.148
+tiles where it is at least limit.
+
+15
+00:01:06.000 --> 00:01:10.982
+A pass is an interval, and the number of passes covering a tile is the sum of +1
+
+16
+00:01:10.982 --> 00:01:16.364
+marks at or before it minus -1 marks before it. A difference array stores those marks, and one
+
+17
+00:01:16.364 --> 00:01:25.081
+prefix-sum sweep rebuilds every tile's count. That turns 350 million paint steps into about 103,500 operations.
+
+18
+00:01:26.000 --> 00:01:32.739
+For the first example the marks are +1 at tiles 2, 4, 5 and 8 and -1 at
+
+19
+00:01:32.739 --> 00:01:35.336
+tiles 7, 10, 6 and 12.
+
+20
+00:01:36.000 --> 00:01:41.728
+The running sum reaches 2 at tile 4, 3 at tile 5, 2 at tile 6, drops at
+
+21
+00:01:41.728 --> 00:01:46.730
+tile 7, is 2 again at tiles 8 and 9, so 5 tiles meet the limit.
+
+22
+00:01:48.000 --> 00:01:50.596
+O(length + passes). O(length)

@@ -1,0 +1,31 @@
+A harbor lists dock capacities in nondecreasing order. Return the zero-based index of the first dock whose
+
+capacity is at least load. If every dock is too small, or the list is empty, return -1.
+
+Several docks may have the same capacity; choose the earliest qualifying index.
+
+Both indices 1 and 2 have capacity 5, but index 1 is the first qualifying dock.
+
+No capacity reaches the required load.
+
+Sorted data lets each comparison discard a region that cannot contain the first qualifying dock.
+
+Maintain [left,right). If the midpoint qualifies, move right to mid. Otherwise move left to mid + 1. At
+
+convergence, check whether the index exists.
+
+This is a search for the first qualifying position, not any matching value. I keep a half-open interval
+
+around the boundary and discard half of it at every comparison. Equal values remain on the qualifying side,
+
+which preserves the first-index requirement.
+
+For [2,5,5,9] and load 5, the first midpoint is index 2. It qualifies, so move right to 2.
+
+Index 1 also qualifies, so move right to 1. Index 0 is too small, so move left to
+
+1.
+
+The bounds meet at index 1, which is the first qualifying dock.
+
+O(log n). O(1)

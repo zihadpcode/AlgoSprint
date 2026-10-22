@@ -1,0 +1,105 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.579
+A shop recorded its daily profit in profits (a negative number is a loss). The owner must report
+
+2
+00:00:05.579 --> 00:00:12.143
+one block of consecutive days whose length is at least minLen and at most maxLen. Return the largest
+
+3
+00:00:12.143 --> 00:00:17.385
+total profit that a valid block can have. A block has to be reported even if every valid
+
+4
+00:00:17.385 --> 00:00:18.394
+block loses money.
+
+5
+00:00:19.000 --> 00:00:28.549
+The days [5, -4, -1, 6] total 6, and so do the days [3, -2, 5]. No other
+
+6
+00:00:28.549 --> 00:00:28.960
+block
+
+7
+00:00:30.000 --> 00:00:37.321
+of 2 to 4 days does better (for example [6, -3, 2] totals 5), so the answer is
+
+8
+00:00:37.321 --> 00:00:37.885
+6.
+
+9
+00:00:39.000 --> 00:00:46.174
+Every valid block loses money. The best one is [-4, -2] with a total of -6; the whole
+
+10
+00:00:46.174 --> 00:00:47.965
+record totals -13.
+
+11
+00:00:49.000 --> 00:00:54.444
+As the end moves right, the allowed starts slide right too, so the minimum prefix in the window
+
+12
+00:00:54.444 --> 00:00:57.623
+can be kept in a deque that discards dominated candidates.
+
+13
+00:00:59.000 --> 00:01:05.322
+Build prefix totals. For each end from minLen to n, push the newly allowed start end - minLen
+
+14
+00:01:05.322 --> 00:01:10.825
+after popping every back entry whose prefix is at least as large, pop the front while it is
+
+15
+00:01:10.825 --> 00:01:15.515
+older than end - maxLen, and compare prefix[end] - prefix[front] with the best.
+
+16
+00:01:17.000 --> 00:01:24.158
+Each end wants the smallest prefix total among starts in [end - maxLen, end - minLen]. That window
+
+17
+00:01:24.158 --> 00:01:29.719
+moves one step right per end, so this is a sliding-window minimum over the prefix array, which a
+
+18
+00:01:29.719 --> 00:01:31.878
+monotonic deque solves in amortized
+
+19
+00:01:33.000 --> 00:01:38.033
+O(1). A start that is both later and no smaller than an earlier one will outlive it in
+
+20
+00:01:38.033 --> 00:01:43.239
+the window and never lose to it, so the earlier one can be dropped. An index-based deque in
+
+21
+00:01:43.239 --> 00:01:45.357
+a typed array avoids shift costs.
+
+22
+00:01:46.000 --> 00:01:54.128
+For the first example the prefix totals are 0, 3, 1, 6, 2, 1, 7, 4, 6.
+
+23
+00:01:55.000 --> 00:02:00.147
+At end 3 the allowed starts are 0 to 1 and the cheapest prefix is 0, giving 6;
+
+24
+00:02:00.147 --> 00:02:05.027
+at end 7 the starts are 3 to 5 with minimum 1, giving 4 - 1 = 3,
+
+25
+00:02:05.027 --> 00:02:07.497
+and so on. The best stays 6.
+
+26
+00:02:09.000 --> 00:02:15.319
+O(n): each start is pushed and popped at most once. O(n) for the prefix array and the deque

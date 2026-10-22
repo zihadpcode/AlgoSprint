@@ -1,0 +1,57 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.019
+A carpenter wants to cut every plank in planks into equal pieces of one shared whole-number length, with
+
+2
+00:00:05.019 --> 00:00:09.771
+no leftover wood on any plank. Return the longest piece length that works for every plank.
+
+3
+00:00:11.000 --> 00:00:14.681
+Pieces of length 6 divide all three planks, and nothing longer does.
+
+4
+00:00:19.000 --> 00:00:21.539
+Only length 1 divides both 7 and 9.
+
+5
+00:00:27.000 --> 00:00:33.202
+The answer is the greatest common divisor of all lengths, and gcd can be combined one plank at
+
+6
+00:00:33.202 --> 00:00:33.702
+a time.
+
+7
+00:00:35.000 --> 00:00:43.102
+Define gcd(a, b) by repeatedly replacing (a, b) with (b, a % b). Reduce the planks with it.
+
+8
+00:00:44.000 --> 00:00:48.961
+A piece length must divide every plank, so the longest one is the gcd of the whole array.
+
+9
+00:00:48.961 --> 00:00:55.594
+gcd is associative, so I fold it across the planks with Euclid's algorithm, which takes logarithmic steps per
+
+10
+00:00:55.594 --> 00:01:02.528
+pair. That's O(n log M) time and constant space. I could also stop early once the running gcd
+
+11
+00:01:02.528 --> 00:01:03.162
+hits 1.
+
+12
+00:01:04.000 --> 00:01:12.784
+gcd(12, 18): (12, 18) → (18, 12) → (12, 6) → (6, 0), giving 6.
+
+13
+00:01:14.000 --> 00:01:20.796
+gcd(6, 30): (6, 30) → (30, 6) → (6, 0), giving 6.
+
+14
+00:01:22.000 --> 00:01:25.104
+O(n log M) for maximum length M. O(1)

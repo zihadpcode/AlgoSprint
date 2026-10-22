@@ -1,0 +1,16 @@
+{
+  "slug": "typo-distance",
+  "language": "PYTHON",
+  "title": "Typo Distance",
+  "src": "/videos/walkthroughs/typo-distance-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/typo-distance-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/typo-distance-python.txt",
+  "durationSeconds": 109,
+  "sourceHash": "cf2575eccd25d0dd3264c3d48bb9dc4b5c8bb3b025c033faed137e36806d0309",
+  "sha256": "a533a87a5bbf0a5d116d872eadd3ced25215309b6d3d943f14fdae3a1000d844",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "e5583a09c0d3ad8bb79fda40d88f9eeaf42655c9f6c79d93b2645e78014547d9",
+  "transcriptSha256": "8589f0d9e3d68c7482c199626417002b78e887c1c6e3167f3ca6b93336817226"
+}

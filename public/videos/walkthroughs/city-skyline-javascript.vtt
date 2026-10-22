@@ -1,0 +1,101 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.579
+A city planner draws the skyline of rectangular buildings standing on flat ground. Each building is [left,
+
+2
+00:00:05.579 --> 00:00:11.399
+right, height] and covers x from left up to (not including) right. The skyline is described by key
+
+3
+00:00:11.399 --> 00:00:17.583
+points [x, h]: at x the outline's height changes to h. Return the key points sorted by x,
+
+4
+00:00:17.583 --> 00:00:22.869
+with no two consecutive points sharing the same height. The last key point always drops to height 0.
+
+5
+00:00:24.000 --> 00:00:26.294
+The outline rises to 10, 15,
+
+6
+00:00:32.000 --> 00:00:34.186
+then 12, drops to 0 at
+
+7
+00:00:40.000 --> 00:00:42.170
+12, rises to 10 at 15,
+
+8
+00:00:48.000 --> 00:00:50.205
+8 at 20 and 0 at 24.
+
+9
+00:00:56.000 --> 00:00:57.680
+Touching buildings of equal height
+
+10
+00:01:04.000 --> 00:01:05.805
+merge into one flat stretch.
+
+11
+00:01:12.000 --> 00:01:17.440
+Between edges the set of standing buildings is fixed, and a max-heap keyed by height exposes the tallest;
+
+12
+00:01:17.440 --> 00:01:20.209
+ended buildings can be discarded only when they reach the top.
+
+13
+00:01:21.000 --> 00:01:27.874
+Sort buildings by left and the unique edge coordinates. For each x: push (height, right) for buildings with
+
+14
+00:01:27.874 --> 00:01:35.542
+left &lt;= x; pop while the top's right &lt;= x; height = top or 0; append [x, height]
+
+15
+00:01:35.542 --> 00:01:36.997
+if it differs from the last point.
+
+16
+00:01:38.000 --> 00:01:43.392
+The outline only changes at edges, so I sweep the sorted edges with a max-heap of standing buildings
+
+17
+00:01:43.392 --> 00:01:46.145
+keyed by height. Buildings that have ended stay in
+
+18
+00:01:47.000 --> 00:01:52.494
+the heap until they reach the top, where I discard them (lazy deletion), so each building is pushed
+
+19
+00:01:52.494 --> 00:01:56.030
+and popped once, O(n log n) overall. I emit
+
+20
+00:01:57.000 --> 00:02:03.191
+a key point only when the visible height changes, which also merges equal-height neighbors. A divide-and-conquer
+
+21
+00:02:03.191 --> 00:02:07.324
+merge of skylines is the other classic O(n log n) approach.
+
+22
+00:02:08.000 --> 00:02:20.011
+x=2: heap {10} → [2,10]. x=3: {15,10} → [3,15]. x=5: {15,12,10} → same height.
+
+23
+00:02:21.000 --> 00:02:32.451
+x=7: 15 ends → 12 → [7,12]. x=9: 10 ends, top still 12. x=12: all ended → [12,0].
+
+24
+00:02:34.000 --> 00:02:44.992
+x=15 → [15,10]; x=19 → still 10; x=20 → [20,8]; x=24 → [24,0].
+
+25
+00:02:46.000 --> 00:02:47.958
+O(n log n). O(n)

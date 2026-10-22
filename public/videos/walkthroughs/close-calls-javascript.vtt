@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.440
+A weather office logged one integer temperature reading per station. Two stations make a close call when their
+
+2
+00:00:05.440 --> 00:00:10.713
+readings differ by at most tolerance. Count the pairs of positions i &lt; j that make a close
+
+3
+00:00:10.713 --> 00:00:16.984
+call. Stations with equal readings are still separate stations, so equal readings form a pair too.
+
+4
+00:00:18.000 --> 00:00:24.500
+The close calls are the two 3s, 9 with 11, 11 with 12, and 12 with 14. Pairs
+
+5
+00:00:24.500 --> 00:00:29.540
+such as 9 and 12 differ by 3 and do not count, so the answer is 4.
+
+6
+00:00:31.000 --> 00:00:35.944
+All three readings are equal, so each of the 3 position pairs is a close call even with
+
+7
+00:00:35.944 --> 00:00:36.882
+tolerance 0.
+
+8
+00:00:39.000 --> 00:00:44.385
+In sorted order, the readings within tolerance below a given reading are one contiguous block ending right
+
+9
+00:00:44.385 --> 00:00:44.830
+before it.
+
+10
+00:00:46.000 --> 00:00:52.418
+Sort a copy of the readings. For each right index, advance left while sorted[right] - sorted[left] exceeds
+
+11
+00:00:52.418 --> 00:00:57.772
+tolerance. Every index from left to right - 1 pairs with right, so add right - left.
+
+12
+00:00:59.000 --> 00:01:05.159
+Sorting turns the pair condition into a range condition: for a fixed reading, partners within tolerance are an
+
+13
+00:01:05.159 --> 00:01:11.704
+unbroken stretch just below it. Because readings only increase along the sweep, the left boundary moves only
+
+14
+00:01:11.704 --> 00:01:18.186
+forward, so the sweep is linear after the O(n log n) sort. A typed array sort compares numerically.
+
+15
+00:01:18.186 --> 00:01:25.549
+Because every reading is at most 999, a counting array plus prefix sums over the 1,000 possible values
+
+16
+00:01:25.549 --> 00:01:31.475
+would also work in O(n + 1000); the sorted two-pointer sweep is the version that does not rely
+
+17
+00:01:31.475 --> 00:01:32.684
+on that small range.
+
+18
+00:01:34.000 --> 00:01:39.686
+The example becomes [3, 3, 9, 11, 12, 14, 20].
+
+19
+00:01:41.000 --> 00:01:48.657
+The second 3 adds 1, 9 adds 0, 11 adds 1, 12 adds 1 (11 only), 14 adds
+
+20
+00:01:48.657 --> 00:01:52.070
+1 (12 only) and 20 adds 0, giving 4.
+
+21
+00:01:53.000 --> 00:01:58.765
+O(n log n) for the sort plus O(n) for the sweep. O(n) for the sorted copy

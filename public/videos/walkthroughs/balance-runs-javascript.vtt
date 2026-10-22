@@ -1,0 +1,69 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.294
+A bookkeeper lists daily balance changes in changes; values may be negative. Count the runs of consecutive days
+
+2
+00:00:06.294 --> 00:00:11.863
+whose changes add up to exactly target. Runs are counted by position, so two different runs with the
+
+3
+00:00:11.863 --> 00:00:13.380
+same values both count.
+
+4
+00:00:14.000 --> 00:00:21.685
+[1, 2], [3], [3, -2, 2] and [2, 3, -2] each sum to 3: four runs.
+
+5
+00:00:23.000 --> 00:00:25.491
+Days 1–2 and days 2–3.
+
+6
+00:00:31.000 --> 00:00:36.110
+A run ending here hits the target exactly once for every earlier prefix equal to the current prefix
+
+7
+00:00:36.110 --> 00:00:36.893
+minus target.
+
+8
+00:00:38.000 --> 00:00:44.340
+Track the running prefix. For each day, add the count of (prefix - target) from the map, then
+
+9
+00:00:44.340 --> 00:00:47.743
+record the current prefix. Start the map with {0: 1}.
+
+10
+00:00:49.000 --> 00:00:53.107
+A run's sum is a difference of two prefix sums. For each day I look up how many
+
+11
+00:00:53.107 --> 00:00:59.375
+earlier prefixes equal the current prefix minus the target, using a hash map of prefix counts. Seeding the
+
+12
+00:00:59.375 --> 00:01:04.931
+map with the empty prefix and looking up before inserting are the two details that matter. It's linear
+
+13
+00:01:04.931 --> 00:01:09.161
+time and works with negative values, which a sliding window can't handle.
+
+14
+00:01:10.000 --> 00:01:16.224
+Prefixes: 1, 3, 6, 4, 6; seen starts {0:1}.
+
+15
+00:01:17.000 --> 00:01:23.590
+At 3: 3 - 3 = 0 is seen once, count 1. At 6: 6 - 3 =
+
+16
+00:01:23.590 --> 00:01:29.910
+3, count 2. At 4: 1, count 3. At 6: 3, count 4.
+
+17
+00:01:31.000 --> 00:01:32.418
+O(n). O(n)

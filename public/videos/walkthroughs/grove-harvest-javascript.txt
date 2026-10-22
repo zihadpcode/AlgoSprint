@@ -1,0 +1,61 @@
+A grove survey records the yield of every tree in a binary arrangement, given in level order (tree)
+
+with null for a missing child. A yield can be negative where a tree is diseased. A subtree
+
+is a node together with everything below it. A subtree is ordered when every yield in its left
+
+part is strictly smaller than its root's yield, every yield in its right part is strictly larger, and
+
+both parts are themselves ordered; a single node is ordered. Return the largest total yield over all ordered
+
+subtrees, or 0 when every ordered subtree has a negative total, because you may harvest nothing.
+
+The whole tree is not ordered because 5 sits in the right part of 6 but is smaller
+
+than 6. The subtree rooted at 9 (9, 5, 12) is ordered with total 26, beating the subtree
+
+at 3 (3, 2, 4) with total 9.
+
+The whole tree is ordered, but its total is -140 and every single node is negative, so the
+
+best harvest is nothing: 0.
+
+The definition is recursive: a subtree is ordered when both child subtrees are ordered and their extremes
+
+straddle the root, so each call only needs to hand its parent four numbers.
+
+Decode the level order into child index arrays. visit(node) returns { ordered, total, low, high }: a missing
+
+child is ordered with total 0, low = +infinity and high = -infinity. A node is ordered when
+
+both children are, left.high < value and right.low > value; then its total is left.total + right.total +
+
+value, its low is min(left.low, value) and its high is max(right.high, value). Record the best total whenever a
+
+node is ordered, starting from 0.
+
+A subtree is ordered when its left subtree is ordered with a maximum below the root, its right
+
+subtree is ordered with a minimum above the root, and the root lies strictly between
+
+them. So each subtree summarises itself as (ordered, total, min, max) and the parent combines two summaries in
+
+O(1). That is a natural post-order recursion and runs in O(n) time. The call stack
+
+is as deep as the tree is tall, so a degenerate tree of thousands of levels needs O(n)
+
+stack; the iterative reverse sweep trades the recursion for an index loop over the level order.
+
+Nodes 2, 4, 5 and 12 are ordered singles with totals equal to their yields.
+
+Node 9 has left max 5 < 9 and right min 12 > 9, total 26. Node 3
+
+has total 9. Node 6 sees left max 4 < 6 but right min 5 < 6, so
+
+it is not ordered.
+
+The best total among ordered nodes is 26.
+
+O(n) for n non-null nodes (the serialized length is at most 2n). O(n) for the decoded child arrays,
+
+plus a recursion stack as deep as the tree is tall, which reaches O(n) on a chain

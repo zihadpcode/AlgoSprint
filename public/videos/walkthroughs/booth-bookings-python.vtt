@@ -1,0 +1,149 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.320
+A recording booth takes reservations measured in whole minutes. A booking [start, end) occupies the minutes
+
+2
+00:00:06.320 --> 00:00:12.549
+start to end - 1, and the booth needs gap cleaning minutes between any two active bookings. Process
+
+3
+00:00:12.549 --> 00:00:18.966
+the operations in order and return one result per operation. ["book", start, end] is accepted only if for
+
+4
+00:00:18.966 --> 00:00:26.146
+every active booking [s, e) either end + gap &lt;= s or e + gap &lt;= start; an
+
+5
+00:00:26.146 --> 00:00:32.642
+accepted booking gets the next id (1, 2, 3, ... counting only accepted bookings) and that id is
+
+6
+00:00:32.642 --> 00:00:40.008
+the result, while a rejected booking changes nothing and the result is -1. ["cancel", id] removes the active
+
+7
+00:00:40.008 --> 00:00:45.273
+booking with that id and returns true, or returns false if the id was never issued or is
+
+8
+00:00:45.273 --> 00:00:51.006
+already cancelled. ["next", time] returns the start minute of the active booking with the smallest start that is
+
+9
+00:00:51.006 --> 00:00:55.683
+at least time, or -1 if there is none. Cancelled ids are never reused.
+
+10
+00:00:57.000 --> 00:01:05.841
+Booking [100, 200) gets id 1. [205, 260) starts only 5 minutes after it ends, less than the
+
+11
+00:01:05.841 --> 00:01:06.812
+gap of 10, so
+
+12
+00:01:08.000 --> 00:01:17.792
+it is rejected (-1). [210, 260) starts exactly 10 minutes later and gets id 2. next 150 finds
+
+13
+00:01:17.792 --> 00:01:19.706
+the booking starting at 210.
+
+14
+00:01:21.000 --> 00:01:30.963
+Cancelling id 1 returns true. [150, 205) would end only 5 minutes before [210, 260), so it is
+
+15
+00:01:30.963 --> 00:01:34.128
+rejected, but [150, 200)
+
+16
+00:01:35.000 --> 00:01:41.988
+leaves exactly 10 minutes and gets id 3. Cancelling id 1 again returns false, and next 0 finds
+
+17
+00:01:41.988 --> 00:01:43.983
+the booking starting at 150.
+
+18
+00:01:45.000 --> 00:01:52.707
+With no gap, back-to-back bookings are fine: [5, 10) is id 1 and [10, 15) is id 2.
+
+19
+00:01:54.000 --> 00:02:01.328
+[9, 11) overlaps both and is rejected. next 6 finds the booking starting at 10. After cancelling id
+
+20
+00:02:01.328 --> 00:02:01.714
+2
+
+21
+00:02:03.000 --> 00:02:09.618
+no booking starts at or after minute 6, so next 6 returns -1, and id 7 was never
+
+22
+00:02:09.618 --> 00:02:10.119
+issued.
+
+23
+00:02:11.000 --> 00:02:16.984
+Active bookings are disjoint, so sorted by start they are also sorted by end; a new booking can
+
+24
+00:02:16.984 --> 00:02:18.926
+only conflict with its immediate neighbours.
+
+25
+00:02:20.000 --> 00:02:26.059
+Keep parallel starts and ends lists in sorted order, and a dictionary from id to start. For book,
+
+26
+00:02:26.059 --> 00:02:32.685
+bisect_left finds the insertion position; check the predecessor and successor for the cleaning gap, then insert
+
+27
+00:02:32.685 --> 00:02:38.824
+into both lists. For cancel, look up its start and remove the corresponding entries. For next, return the
+
+28
+00:02:38.824 --> 00:02:40.927
+first start at least the requested time.
+
+29
+00:02:42.000 --> 00:02:47.916
+Non-overlapping intervals form a total order, so only the predecessor and successor can conflict with a new
+
+30
+00:02:47.916 --> 00:02:52.513
+booking. Binary search finds their position in O(log n). Python
+
+31
+00:02:54.000 --> 00:03:00.828
+list insertion and removal shift elements and therefore take O(n) in the worst case. The active-booking bound
+
+32
+00:03:00.828 --> 00:03:05.053
+makes this practical; a balanced search tree could make updates logarithmic.
+
+33
+00:03:06.000 --> 00:03:14.614
+The first booking lands in an empty list; [205, 260) finds predecessor end 200 + 10 = 210
+
+34
+00:03:14.614 --> 00:03:16.427
+&gt; 205 and is rejected.
+
+35
+00:03:18.000 --> 00:03:25.558
+Its predecessor end 200 + 10 = 210 &lt;= 210 passes and there is no successor, so it
+
+36
+00:03:25.558 --> 00:03:31.503
+is inserted as id 2, and next 150 finds starts[1] = 210.
+
+37
+00:03:33.000 --> 00:03:40.726
+O(log n) per binary search plus O(n) per list insertion or removal, with n active bookings. O(n)

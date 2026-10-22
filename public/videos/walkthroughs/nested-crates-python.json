@@ -1,0 +1,16 @@
+{
+  "slug": "nested-crates",
+  "language": "PYTHON",
+  "title": "Nested Crates",
+  "src": "/videos/walkthroughs/nested-crates-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/nested-crates-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/nested-crates-python.txt",
+  "durationSeconds": 112,
+  "sourceHash": "25d8af4da5f650e740ec557a0fc5e21ee7eba715164ea2e0b84d70daffc6a723",
+  "sha256": "99a48e569e71770c89859fafa0058f0618ec613ef5ffbef7ad4bba91d07b0af7",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "9bec31a32276f80b7efcb3e9818097dd3fcd9e5c833102ae08a7ac81df104e2f",
+  "transcriptSha256": "87f73a260c2c672fc9a1082c0b67b92e4ca12d32ef5f31dfd7a96dbce88e5886"
+}

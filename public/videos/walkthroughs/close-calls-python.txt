@@ -1,0 +1,37 @@
+A weather office logged one integer temperature reading per station. Two stations make a close call when their
+
+readings differ by at most tolerance. Count the pairs of positions i < j that make a close
+
+call. Stations with equal readings are still separate stations, so equal readings form a pair too.
+
+The close calls are the two 3s, 9 with 11, 11 with 12, and 12 with 14. Pairs
+
+such as 9 and 12 differ by 3 and do not count, so the answer is 4.
+
+All three readings are equal, so each of the 3 position pairs is a close call even with
+
+tolerance 0.
+
+In sorted order, the readings within tolerance below a given reading are one contiguous block ending right
+
+before it.
+
+Sort a copy of the readings. For each right index, advance left while sorted[right] - sorted[left] exceeds
+
+tolerance. Every index from left to right - 1 pairs with right, so add right - left.
+
+Sorting integer readings with sorted() makes the eligible partners for each right endpoint a contiguous range.
+
+Its left boundary only moves forward, so the sweep is linear after the O(n log n) sort. Python
+
+sorting uses numeric order for integers. Since the readings have a small bounded range, a counting array with
+
+prefix sums is another option; this sorted sweep also works without relying on that range.
+
+The example becomes [3, 3, 9, 11, 12, 14, 20].
+
+The second 3 adds 1, 9 adds 0, 11 adds 1, 12 adds 1 (11 only), 14 adds
+
+1 (12 only) and 20 adds 0, giving 4.
+
+O(n log n) for the sort plus O(n) for the sweep. O(n) for the sorted copy

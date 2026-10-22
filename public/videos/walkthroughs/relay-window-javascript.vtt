@@ -1,0 +1,69 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.403
+A relay station records an integer load for each time slot in the array loads. You may reserve
+
+2
+00:00:05.403 --> 00:00:12.198
+exactly width consecutive slots. Return the largest total load among all such reservations. Negative values
+
+3
+00:00:12.198 --> 00:00:17.821
+represent load returned to the station, so a valid answer can be negative. Return the total, not the
+
+4
+00:00:17.821 --> 00:00:18.808
+starting index.
+
+5
+00:00:20.000 --> 00:00:25.730
+Slots with zero-based indices 2 through 4 contain 5, 2, and 6; their sum is 13.
+
+6
+00:00:28.000 --> 00:00:33.563
+The two valid totals are -6 and -9. Choosing no slots is not allowed.
+
+7
+00:00:36.000 --> 00:00:40.823
+Two adjacent windows differ in exactly two positions: one leaves and one enters.
+
+8
+00:00:42.000 --> 00:00:48.049
+Sum the first width entries once. Shift the window by removing the outgoing value and adding the incoming
+
+9
+00:00:48.049 --> 00:00:50.865
+value. Update the maximum after every shift.
+
+10
+00:00:52.000 --> 00:00:59.084
+I first considered recomputing each reservation in O(n × width). Adjacent windows share width - 1 entries, so
+
+11
+00:00:59.084 --> 00:01:05.795
+I maintain one running sum and update only the entering and leaving values. The algorithm takes linear time
+
+12
+00:01:05.795 --> 00:01:07.384
+and constant extra space.
+
+13
+00:01:08.000 --> 00:01:13.247
+The first three values total 9. Initialize both the current sum and best sum to 9.
+
+14
+00:01:14.000 --> 00:01:21.046
+Move once: subtract 3 and add 2 to obtain 8. Move again: subtract 1 and add 6 to
+
+15
+00:01:21.046 --> 00:01:22.076
+obtain 13.
+
+16
+00:01:23.000 --> 00:01:26.936
+The last shift totals 9. The best value remains 13.
+
+17
+00:01:28.000 --> 00:01:29.460
+O(n). O(1)

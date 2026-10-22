@@ -1,0 +1,16 @@
+{
+  "slug": "prefix-suggestions",
+  "language": "PYTHON",
+  "title": "Prefix Suggestions",
+  "src": "/videos/walkthroughs/prefix-suggestions-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/prefix-suggestions-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/prefix-suggestions-python.txt",
+  "durationSeconds": 131,
+  "sourceHash": "07f18842047b0bf38358fc1e771814910e3c571d098310036ad014fb1b99edfa",
+  "sha256": "8f347269cbffad7d87fbd8d87a0697f474c703350a7913746a29f71fb25ee146",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "b8d3812d31fd0df08850cf9f23809bc931b58e9c21fa0271ba5ddd9525610d34",
+  "transcriptSha256": "e83e783c88126ad7b3ae1cd3164647b1d5af3e5ec68001acc859f82b5c456774"
+}

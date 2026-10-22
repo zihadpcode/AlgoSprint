@@ -1,0 +1,16 @@
+{
+  "slug": "sensor-ring",
+  "language": "JAVASCRIPT",
+  "title": "Sensor Ring",
+  "src": "/videos/walkthroughs/sensor-ring-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/sensor-ring-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/sensor-ring-javascript.txt",
+  "durationSeconds": 157,
+  "sourceHash": "deb9f5c49a4a79db794d7378eb9cc2c94db4259d2ed63098df46f80c2337e761",
+  "sha256": "f3dde458e40bbd2dde37a023a0634da5d83263368d3420683c2d84508246e5c4",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "9d64af8887a156c63c1f64d007752a9e2f96ae4004f34f189ed6af4966edc84e",
+  "transcriptSha256": "c36ad4f3352569e0df5b206a2dd3984171f10eb9f2d0078150f02e8b7bd618e1"
+}

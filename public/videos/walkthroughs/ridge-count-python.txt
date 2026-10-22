@@ -1,0 +1,35 @@
+A hiking app records the elevation at each marker along a trail in the array heights, in walking
+
+order. A marker is a ridge when its elevation is strictly greater than every marker before it, so
+
+the first marker is always a ridge. Return how many markers are ridges. An empty trail has zero
+
+ridges.
+
+Markers 3, 4 and 6 each beat every earlier marker. The second 4 only ties the earlier 4,
+
+so it is not a ridge.
+
+Only the first marker is a ridge because the trail descends afterwards.
+
+A marker beats every earlier marker exactly when it beats the highest earlier marker.
+
+Walk the trail once while remembering the highest elevation so far. Each time a marker exceeds it, count
+
+the marker and raise the maximum.
+
+Only the highest earlier elevation can block a new ridge, so I carry that one number forward and
+
+compare each marker against it. The scan is linear with constant memory, and starting at negative infinity
+
+handles the first marker and negative elevations without special cases.
+
+For [3, 1, 4, 4, 6], highest starts at -infinity, so 3 counts and highest becomes 3.
+
+1 does not beat 3. The first 4 beats 3, count becomes 2 and highest becomes 4. The
+
+second 4 ties and is skipped.
+
+6 beats 4, so the count finishes at 3.
+
+O(n). O(1)

@@ -1,0 +1,16 @@
+{
+  "slug": "dock-threshold",
+  "language": "PYTHON",
+  "title": "Dock Threshold",
+  "src": "/videos/walkthroughs/dock-threshold-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/dock-threshold-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/dock-threshold-python.txt",
+  "durationSeconds": 94,
+  "sourceHash": "59d201add14f06fb1dd2a4b7d18e521fbd375af7aecea823d98daeb8e7a9e377",
+  "sha256": "bbeaba28b3b4057634e826892d70be1da51eb81dbf62a88acc342d0e735d8d1c",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "1b2d5602df22ec198e25b8942c8d07b2e17d3180824d7e22b573fc06af95dfe8",
+  "transcriptSha256": "dee5a4e8770590264aad920990118f0fa6a9d94699c867fa8663b56a4dd102cc"
+}

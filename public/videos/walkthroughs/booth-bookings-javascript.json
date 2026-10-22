@@ -1,0 +1,16 @@
+{
+  "slug": "booth-bookings",
+  "language": "JAVASCRIPT",
+  "title": "Booth Bookings",
+  "src": "/videos/walkthroughs/booth-bookings-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/booth-bookings-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/booth-bookings-javascript.txt",
+  "durationSeconds": 227,
+  "sourceHash": "68da0862db98872fddc04cb481a85f92331d62fc3fc78eac83676d047370b8ea",
+  "sha256": "80955178e069921062482ebeb44684981724d3c9274ab2b12b01876c5383f7ed",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "56a6f8633cef29c004db6663a0bc6575041d75c0e25257dbbbeeb7d4e70c417e",
+  "transcriptSha256": "ff659493b187b4f530ad8cc1a2b0ad27bc21db92a5738ff3e15dbb9fe94671b9",
+  "rendererVersion": "2026-10-22.1"
+}

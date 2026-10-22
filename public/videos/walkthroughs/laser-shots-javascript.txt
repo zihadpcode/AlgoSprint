@@ -1,0 +1,51 @@
+Painted panels hang along a wall, and each panel covers a closed span [left, right] of integer positions.
+
+A laser fired straight at integer position x marks every panel whose span contains x, meaning left <=
+
+x <= right. Spans may overlap, touch, be nested or repeat. Return the fewest shots needed so that
+
+every panel is marked at least once. A shot may be fired at any integer position, including one
+
+outside the listed spans.
+
+A shot at 2 marks [0, 2] and [-3, 4]; a shot at 10 marks [3, 10] and
+
+[9, 15]; [14, 16]
+
+needs its own shot at 16. The spans [0, 2], [3, 10] and [14, 16] are pairwise disjoint,
+
+so three shots are unavoidable.
+
+The spans are pairwise disjoint, so no position lies
+
+in two of them and each needs its own shot.
+
+Firing at the smallest right end among unmarked panels marks the most panels any choice for that panel
+
+could.
+
+Copy and sort the panels by right end. Walk them, keeping the last shot position. A panel with
+
+left > lastShot is unmarked: count a shot and fire at its right end.
+
+Take the panel with the smallest right end r. Some shot must hit it, and every other panel
+
+ends at or after r, so a panel that contains any shot inside this one also contains r.
+
+Firing at r is therefore never worse, so an exchange argument shows the greedy choice is safe. After
+
+firing, all panels with left <= r are marked; the rest are handled the same way. Sorting by
+
+right end is O(n log n), the scan is O(n), and the sorted copy costs O(n) memory (O(1)
+
+if sorting the input in place is allowed).
+
+[0, 2], [-3, 4], [3, 10], [9, 15], [14, 16].
+
+left 0 > -infinity so fire at 2; [-3, 4] has left -3 <= 2 and is marked.
+
+[3, 10] has left 3 > 2, so fire at 10; [9, 15] is marked. [14, 16] has
+
+left 14 > 10, so fire at 16. Three shots.
+
+O(n log n) for the sort, then O(n). O(n) for the sorted copy of the panels

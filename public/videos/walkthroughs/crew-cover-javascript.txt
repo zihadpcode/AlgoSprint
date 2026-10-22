@@ -1,0 +1,41 @@
+A rescue mission needs skills numbered 0 to skills - 1. Each volunteer is described by a bitmask:
+
+bit i is set when that volunteer has skill i. Choose some volunteers so that every skill is
+
+held by at least one chosen volunteer. Return the smallest number of volunteers that covers all skills, or
+
+-1 if no group of volunteers can. Each volunteer may be chosen at most once.
+
+Volunteer 3 has skills 0 and 1, and volunteer 12 has skills 2 and 3, so those two
+
+together cover all four skills. No single volunteer does.
+
+Nobody has skill 2, so the mission cannot be covered.
+
+Only the covered set matters, not which volunteers produced it, so track the fewest volunteers for each of
+
+the 2^skills covered sets.
+
+fewest[0] = 0, all others unreachable. For each volunteer with a non-empty mask, sweep every covered set and
+
+relax fewest[covered | mask] with fewest[covered] + 1. Return fewest[full] or -1.
+
+The state is the set of skills covered so far, encoded as a bitmask, and the transition ORs
+
+in one more volunteer for a cost of one. That collapses 2^60 subsets into 2^16 states: 65,536 values
+
+times 60 volunteers is about 3.9 million operations. Reusing a volunteer inside the same pass is harmless
+
+because it never lowers a count. This is the standard smallest-sufficient-team formulation of set cover with a
+
+small universe.
+
+fewest[0000] = 0; every other covered set is unreachable.
+
+Mask 3 sets fewest[0011] = 1; mask 12 then sets fewest[1100] = 1 and fewest[1111] = 2 from
+
+fewest[0011].
+
+Masks 6 and 9 cannot beat 2, so fewest[1111] = 2.
+
+O(volunteers * 2^skills), at most 60 * 65,536 = about 3.9 million steps. O(2^skills)

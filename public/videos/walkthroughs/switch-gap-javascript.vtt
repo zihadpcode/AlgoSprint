@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.481
+A control panel records which of its switches are on as the bits of a non-negative integer mask;
+
+2
+00:00:04.481 --> 00:00:09.873
+bit 0 is the rightmost switch. Two on-switches are neighbours when no other switch between them is on.
+
+3
+00:00:09.873 --> 00:00:16.396
+Return the largest distance, measured in bit positions, between any pair of neighbouring on-switches in mask. If
+
+4
+00:00:16.396 --> 00:00:19.113
+fewer than two switches are on, return 0.
+
+5
+00:00:20.000 --> 00:00:27.770
+41 is 101001 in binary, so switches 0, 3 and 5 are on. The neighbour gaps are 3
+
+6
+00:00:27.770 --> 00:00:29.606
+and 2, and the largest is 3.
+
+7
+00:00:31.000 --> 00:00:37.592
+4096 is 1000000000000 in binary: only switch 12 is on, so there is no pair of neighbours.
+
+8
+00:00:39.000 --> 00:00:43.163
+Only set bits matter, so jump from one set bit to the next instead of looking at the
+
+9
+00:00:43.163 --> 00:00:44.317
+zeros between them.
+
+10
+00:00:45.000 --> 00:00:53.311
+Repeatedly isolate the lowest set bit with mask &amp; -mask, read its position from 31 - Math.clz32(bit), compare
+
+11
+00:00:53.311 --> 00:00:57.488
+with the previous position, then clear it with mask &amp;= mask - 1.
+
+12
+00:00:59.000 --> 00:01:06.991
+The low-bit trick visits each set bit exactly once: mask &amp; -mask isolates it, Math.clz32 turns it into
+
+13
+00:01:06.991 --> 00:01:12.997
+a position, and mask &amp; (mask - 1) removes it. Each visited bit is compared with the previous
+
+14
+00:01:12.997 --> 00:01:20.513
+one, so the loop is O(popcount), at most 31 iterations, with O(1) memory. Since the input is bounded
+
+15
+00:01:20.513 --> 00:01:26.442
+by 31 bits the scan version is equally acceptable in practice, but this is the idiomatic bit-manipulation
+
+16
+00:01:26.442 --> 00:01:26.880
+answer.
+
+17
+00:01:28.000 --> 00:01:34.662
+For 41 the lowest set bit is 1 at position 0, so previous = 0 and mask becomes
+
+18
+00:01:34.662 --> 00:01:35.111
+40.
+
+19
+00:01:36.000 --> 00:01:42.407
+Next bit 8 is position 3, giving gap 3; then bit 32 is position 5, giving gap 2.
+
+20
+00:01:42.407 --> 00:01:43.373
+The answer is 3.
+
+21
+00:01:44.000 --> 00:01:49.999
+O(k) for k set bits, at most 31, which is O(log mask). O(1)

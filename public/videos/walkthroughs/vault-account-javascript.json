@@ -1,0 +1,16 @@
+{
+  "slug": "vault-account",
+  "language": "JAVASCRIPT",
+  "title": "Vault Account",
+  "src": "/videos/walkthroughs/vault-account-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/vault-account-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/vault-account-javascript.txt",
+  "durationSeconds": 104,
+  "sourceHash": "309992f3277c7704d3c8345ac69fd5fedba523e0c160afc6a61156a45542a724",
+  "sha256": "12f85f96108e3ea84d1058d2875fbec0fabc8dcb8a05df9ebac0d999006049e3",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "cc3b77f320005c38dc0ffcc04cf8c62847e2306f8300a75845afd86e1e079ad8",
+  "transcriptSha256": "db2b52a3f7e858e1cd17d838efdd97b9fb98081b6660ff182f4049c1ba511531"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "close-calls",
+  "language": "JAVASCRIPT",
+  "title": "Close Calls",
+  "src": "/videos/walkthroughs/close-calls-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/close-calls-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/close-calls-javascript.txt",
+  "durationSeconds": 120,
+  "sourceHash": "b4fb5da987734f7945f094069263c598de9d17153319a376c41bcc1db8497909",
+  "sha256": "69902c276905d31a5fea222212f55cf1bf34ae2998518901d8031fe736da6a99",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "6be77bf6d484e5d244739c9473ec3a0615cb41808b337522ed0499cb81f7e8f4",
+  "transcriptSha256": "c90b3fb67795903f212f85a6ad6437aa4d9235f7319df43f5d9b624f5d990b6c",
+  "rendererVersion": "2026-10-22.1"
+}

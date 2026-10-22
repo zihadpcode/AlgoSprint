@@ -1,0 +1,31 @@
+A spelling assistant measures how far a typed word is from the intended word as the smallest number
+
+of single-letter edits that turn typed into intended. One edit inserts a letter, deletes a letter, or replaces
+
+one letter with another. Return that smallest number of edits.
+
+Replace h with r (rorse), delete r (rose), delete e (ros): 3 edits.
+
+Identical words need no edits.
+
+The answer for prefixes (i, j) depends only on (i-1, j-1), (i-1, j) and (i, j-1).
+
+previous holds row i-1: initially [0, 1, ..., m]. For each i, current[0] = i; for each j,
+
+use the match rule or 1 + the minimum of the three neighbors. Swap rows. Return previous[m].
+
+This is the Levenshtein recurrence. dist[i][j] covers the first i and j letters, matching letters inherit the
+
+diagonal, and otherwise I take 1 plus the best of replace (diagonal), delete (above) and insert (left). The
+
+borders are pure insertions or deletions. Each row only needs the previous one, so it's O(n·m) time and
+
+O(m) space. Keeping the full table would let me reconstruct the edits.
+
+Row 0 for 'ros': [0,1,2,3].
+
+Row 'h': [1,1,2,3]. Row 'o': [2,2,1,2]. Row 'r': [3,2,2,2].
+
+Row 's': [4,3,3,2]. Row 'e': [5,4,4,3]. The answer is 3.
+
+O(n × m). O(m)

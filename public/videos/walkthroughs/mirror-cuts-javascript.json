@@ -1,0 +1,16 @@
+{
+  "slug": "mirror-cuts",
+  "language": "JAVASCRIPT",
+  "title": "Mirror Cuts",
+  "src": "/videos/walkthroughs/mirror-cuts-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/mirror-cuts-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/mirror-cuts-javascript.txt",
+  "durationSeconds": 105,
+  "sourceHash": "548ef07ea615cd915a480d0fd41098f0caf2bea611e0dcf01c6f021166e8c58c",
+  "sha256": "5916af6fa713b0be604fa8e50a5bc84e90aeab1f6dae22dda2877e265b202e07",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "f08d42ad22cd19b2f2aab959604e1de5b3ff8a9b5cc5d4fb16d44ae91eab9fb8",
+  "transcriptSha256": "6242d384ce2e3fb445003f5efd82bfdae607f99a382d02cccce1adfb5b8f2184",
+  "rendererVersion": "2026-10-22.1"
+}

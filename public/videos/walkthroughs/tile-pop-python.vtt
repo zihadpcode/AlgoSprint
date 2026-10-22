@@ -1,0 +1,109 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.938
+A rail holds a row of tiles whose weights are given in weights. Two tiles that are currently
+
+2
+00:00:04.938 --> 00:00:09.899
+next to each other can be popped together when their weights differ by at most tolerance. After a
+
+3
+00:00:09.899 --> 00:00:14.938
+pop the tiles on either side close the gap and become neighbours. You may pop as many pairs
+
+4
+00:00:14.938 --> 00:00:20.372
+as you like, in any order, or stop at any moment. Your score is the total weight of
+
+5
+00:00:20.372 --> 00:00:23.370
+all tiles that were popped. Return the maximum score.
+
+6
+00:00:24.000 --> 00:00:30.138
+Pop 9 and 8 (they differ by 1). Then 6 and 5 are neighbours, so pop them. Now
+
+7
+00:00:30.138 --> 00:00:35.689
+4 and 2 are neighbours and differ by 2, so pop them too. Every tile is popped, for
+
+8
+00:00:35.689 --> 00:00:40.974
+a score of 4 + 6 + 5 + 9 + 8 + 2 = 34.
+
+9
+00:00:42.000 --> 00:00:47.132
+No two neighbouring tiles differ by 5 or less, so nothing can be popped and the score is
+
+10
+00:00:47.132 --> 00:00:47.629
+0.
+
+11
+00:00:50.000 --> 00:00:56.231
+Popped tiles form non-crossing pairs, and everything inside a pair is popped first, so a stretch's answer is
+
+12
+00:00:56.231 --> 00:00:57.769
+built from smaller stretches.
+
+13
+00:00:59.000 --> 00:01:06.552
+Let clear[i][j] say stretch i..j can be fully popped and best[i][j] be its best score. Both come from
+
+14
+00:01:06.552 --> 00:01:13.491
+the leftmost tile i: either best skips it (best[i+1][j]), or i pairs with a k (k - i
+
+15
+00:01:13.491 --> 00:01:25.966
+odd) with |w[i] - w[k]| &lt;= tolerance and clear[i+1][k-1], giving sum(i..k) + best[k+1][j]; clear[i][j] holds if
+
+16
+00:01:25.966 --> 00:01:30.798
+such a k also has clear[k+1][j]. Empty stretches are clear with score 0.
+
+17
+00:01:32.000 --> 00:01:37.547
+A popped pair (i, k) requires the tiles between them to be gone first, and they must pair
+
+18
+00:01:37.547 --> 00:01:43.761
+among themselves, so pairs nest or sit side by side but never cross. That is a classic interval
+
+19
+00:01:43.761 --> 00:01:45.377
+DP: the state is a
+
+20
+00:01:46.000 --> 00:01:52.037
+stretch, and the transition chooses the partner of its leftmost tile. Two tables are needed because 'can this
+
+21
+00:01:52.037 --> 00:01:56.433
+stretch be emptied' is a different question from 'how much can I score in it'. The cubic cost
+
+22
+00:01:56.433 --> 00:01:57.703
+comes from the choice of k.
+
+23
+00:01:59.000 --> 00:02:06.346
+For the first example, tiles 9 and 8 (indices 3, 4) are clear with best 17, and 6
+
+24
+00:02:06.346 --> 00:02:10.239
+and 5 (indices 1, 2) are clear with best 11.
+
+25
+00:02:11.000 --> 00:02:17.833
+The tiles of weight 4 and 2 (indices 0 and 5) differ by 2 and enclose the cleared
+
+26
+00:02:17.833 --> 00:02:26.188
+stretch of indices 1 to 4, so clear[0][5] is true and best[0][5] = 34.
+
+27
+00:02:27.000 --> 00:02:35.127
+O(n^3): roughly n^3 / 12, about 670,000 inner steps at n = 200. O(n^2)

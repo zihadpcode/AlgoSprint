@@ -1,0 +1,16 @@
+{
+  "slug": "bay-ledger",
+  "language": "PYTHON",
+  "title": "Bay Ledger",
+  "src": "/videos/walkthroughs/bay-ledger-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/bay-ledger-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/bay-ledger-python.txt",
+  "durationSeconds": 198,
+  "sourceHash": "02166ccc84bceedbd514e998a44fab9e6b75acc7406cffce5fa38d5767f63966",
+  "sha256": "35b29f1e0dcc5c27deea237c2ec59f900ecbb00657b3e5f01dc1ae61c3f2f686",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "6d7cd9c9bb3d8019b04ca250b10dd865c3c904af71973459debfe2972c3f57df",
+  "transcriptSha256": "d08b30c60ef57852cf6e636921e274424975084c97d841b942ab8f09ae7568e7"
+}

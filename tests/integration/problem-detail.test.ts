@@ -70,7 +70,7 @@ describe("problem details and personal writes against PostgreSQL", () => {
     expect(fallback?.related.length).toBeLessThanOrEqual(3);
     for (const item of fallback!.related) expect(seeds.find((seed) => seed.slug === item.slug)!.categories.some((c) => sharedCategories.includes(c))).toBe(true);
     expect(fallback?.related.every((item) => !privateSlugs.includes(item.slug) && item.slug !== "parcel-checkpoints")).toBe(true);
-    expect(Object.keys(result!).sort()).toEqual(["slug", "revision", "title", "difficulty", "kind", "pattern", "statement", "constraints", "estimatedMinutes", "categories", "tags", "examples", "hints", "solutions", "starterCode", "related", "personal", "videos"].sort());
+    expect(Object.keys(result!).sort()).toEqual(["slug", "revision", "title", "difficulty", "kind", "pattern", "statement", "constraints", "estimatedMinutes", "categories", "tags", "examples", "hints", "solutions", "starterCode", "related", "personal", "videos", "walkthroughs"].sort());
     expect(result?.revision).toBe((await db.problem.findUniqueOrThrow({ where: { slug }, select: { revision: true } })).revision);
     const json = JSON.stringify(result);
     for (const forbidden of [hiddenSentinel, "Private detail", "testCases", "seedHash", '"id":', '"userId":', '"problemId":']) expect(json).not.toContain(forbidden);
@@ -78,8 +78,8 @@ describe("problem details and personal writes against PostgreSQL", () => {
   it("returns video lessons for guests in position order with an exact projection and no internal ids", async () => {
     const guest = await queryProblem(db, slug, null);
     expect(guest?.videos.map((video) => video.youtubeId)).toEqual(["aaaaaaaaaa1", "bbbbbbbbbb2"]);
-    expect(guest?.videos[0]).toEqual({ youtubeId: "aaaaaaaaaa1", title: "First video", channel: "Chan", concept: "Concept one", referenceProblem: "Ref one", bridge: "Bridge one", segments: [{ startSeconds: 5, endSeconds: 60, label: "Idea" }] });
-    for (const video of guest!.videos) expect(Object.keys(video).sort()).toEqual(["bridge", "channel", "concept", "referenceProblem", "segments", "title", "youtubeId"]);
+    expect(guest?.videos[0]).toEqual({ youtubeId: "aaaaaaaaaa1", title: "First video", channel: "Chan", concept: "Concept one", referenceProblem: "Ref one", bridge: "Bridge one", codingLanguages: [], segments: [{ startSeconds: 5, endSeconds: 60, label: "Idea" }] });
+    for (const video of guest!.videos) expect(Object.keys(video).sort()).toEqual(["bridge", "channel", "codingLanguages", "concept", "referenceProblem", "segments", "title", "youtubeId"]);
     expect(JSON.stringify(guest!.videos)).not.toMatch(/"(id|problemId|position|createdAt)":/);
     expect((await queryProblem(db, slug, users[0]))?.videos).toEqual(guest?.videos);
     expect((await queryProblem(db, "parcel-checkpoints", null))?.videos).toEqual([]);
@@ -88,6 +88,18 @@ describe("problem details and personal writes against PostgreSQL", () => {
     await db.problemVideo.updateMany({ where: { youtubeId: "bbbbbbbbbb2" }, data: { segments: [{ startSeconds: 9, endSeconds: 3, label: "backwards" }] } });
     try { expect((await queryProblem(db, slug, null))?.videos[1].segments).toEqual([]); }
     finally { await db.problemVideo.updateMany({ where: { youtubeId: "bbbbbbbbbb2" }, data: { segments: [] } }); }
+  });
+  it("withholds exact recordings when their published statement or solution changes", async () => {
+    expect((await queryProblem(db, slug, null))?.walkthroughs.map((entry) => entry.language)).toContain("JAVASCRIPT");
+    const original = seeds.find((problem) => problem.slug === slug)!;
+    await db.problem.update({ where: { id: problemId }, data: { statement: "A revised public problem contract." } });
+    try { expect((await queryProblem(db, slug, null))?.walkthroughs).toEqual([]); }
+    finally { await db.problem.update({ where: { id: problemId }, data: { statement: original.statement } }); }
+    const solution = await db.problemSolution.findFirstOrThrow({ where: { problemId, kind: "OPTIMAL", language: "JAVASCRIPT" } });
+    await db.problemSolution.update({ where: { id: solution.id }, data: { code: "function revised() {}" } });
+    try { expect((await queryProblem(db, slug, null))?.walkthroughs).toEqual([]); }
+    finally { await db.problemSolution.update({ where: { id: solution.id }, data: { code: solution.code } }); }
+    expect((await queryProblem(db, slug, null))?.walkthroughs).toHaveLength(1);
   });
   it("does not expose videos of draft or archived problems", async () => {
     for (const hidden of privateSlugs) {

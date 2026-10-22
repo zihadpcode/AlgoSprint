@@ -1,0 +1,16 @@
+{
+  "slug": "pace-median",
+  "language": "JAVASCRIPT",
+  "title": "Pace Median",
+  "src": "/videos/walkthroughs/pace-median-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/pace-median-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/pace-median-javascript.txt",
+  "durationSeconds": 120,
+  "sourceHash": "43c38c7fc2bd999699a5099e3f90c06686be9dc9fd2deb6db288242ce1fe2394",
+  "sha256": "bf5495f9e5e03c787de2d3ee8ca3c9e6127c5a1bdeb09ba4db8e8f3c92164b1c",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "e9095429fb0b296de2f71b0440c656138b5d0afec8edd925879aec7d87add550",
+  "transcriptSha256": "917ed843db9e67f920b08904b0e6ac08f5c9d8c75332528c391a72d854bb9183",
+  "rendererVersion": "2026-10-22.1"
+}

@@ -1,0 +1,73 @@
+A recording booth takes reservations measured in whole minutes. A booking [start, end) occupies the minutes
+
+start to end - 1, and the booth needs gap cleaning minutes between any two active bookings. Process
+
+the operations in order and return one result per operation. ["book", start, end] is accepted only if for
+
+every active booking [s, e) either end + gap <= s or e + gap <= start; an
+
+accepted booking gets the next id (1, 2, 3, ... counting only accepted bookings) and that id is
+
+the result, while a rejected booking changes nothing and the result is -1. ["cancel", id] removes the active
+
+booking with that id and returns true, or returns false if the id was never issued or is
+
+already cancelled. ["next", time] returns the start minute of the active booking with the smallest start that is
+
+at least time, or -1 if there is none. Cancelled ids are never reused.
+
+Booking [100, 200) gets id 1. [205, 260) starts only 5 minutes after it ends, less than the
+
+gap of 10, so
+
+it is rejected (-1). [210, 260) starts exactly 10 minutes later and gets id 2. next 150 finds
+
+the booking starting at 210.
+
+Cancelling id 1 returns true. [150, 205) would end only 5 minutes before [210, 260), so it is
+
+rejected, but [150, 200)
+
+leaves exactly 10 minutes and gets id 3. Cancelling id 1 again returns false, and next 0 finds
+
+the booking starting at 150.
+
+With no gap, back-to-back bookings are fine: [5, 10) is id 1 and [10, 15) is id 2.
+
+[9, 11) overlaps both and is rejected. next 6 finds the booking starting at 10. After cancelling id
+
+2
+
+no booking starts at or after minute 6, so next 6 returns -1, and id 7 was never
+
+issued.
+
+Active bookings are disjoint, so sorted by start they are also sorted by end; a new booking can
+
+only conflict with its immediate neighbours.
+
+Keep parallel starts and ends lists in sorted order, and a dictionary from id to start. For book,
+
+bisect_left finds the insertion position; check the predecessor and successor for the cleaning gap, then insert
+
+into both lists. For cancel, look up its start and remove the corresponding entries. For next, return the
+
+first start at least the requested time.
+
+Non-overlapping intervals form a total order, so only the predecessor and successor can conflict with a new
+
+booking. Binary search finds their position in O(log n). Python
+
+list insertion and removal shift elements and therefore take O(n) in the worst case. The active-booking bound
+
+makes this practical; a balanced search tree could make updates logarithmic.
+
+The first booking lands in an empty list; [205, 260) finds predecessor end 200 + 10 = 210
+
+> 205 and is rejected.
+
+Its predecessor end 200 + 10 = 210 <= 210 passes and there is no successor, so it
+
+is inserted as id 2, and next 150 finds starts[1] = 210.
+
+O(log n) per binary search plus O(n) per list insertion or removal, with n active bookings. O(n)

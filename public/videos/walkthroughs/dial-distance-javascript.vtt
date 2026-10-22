@@ -1,0 +1,93 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.904
+A combination lock has a dial with 2^bits settings, each shown as a bits-bit number. The dial is
+
+2
+00:00:05.904 --> 00:00:10.368
+turned one click at a time from click 0 up to click 2^bits - 1, and after the
+
+3
+00:00:10.368 --> 00:00:15.578
+last click it wraps around to click 0. The setting displayed at click k is k XOR (k
+
+4
+00:00:15.578 --> 00:00:20.990
+&gt;&gt; 1), that is, k XOR-ed with k shifted right by one bit. For every pair [a, b]
+
+5
+00:00:20.990 --> 00:00:26.227
+of settings, return the fewest clicks needed to turn the dial from setting a to setting b, turning
+
+6
+00:00:26.227 --> 00:00:27.742
+in whichever direction is shorter.
+
+7
+00:00:29.000 --> 00:00:34.862
+Setting 6 shows at click 4 and setting 9 at click 14, so they are 10 clicks apart
+
+8
+00:00:34.862 --> 00:00:38.938
+one way and 22 the other way around the dial, and the answer is 10.
+
+9
+00:00:40.000 --> 00:00:46.464
+Setting 17 shows at click 30 and setting 3 at click 2, so they are 28 clicks apart
+
+10
+00:00:46.464 --> 00:00:50.279
+one way and 4 the other way around the dial, and the answer is 4.
+
+11
+00:00:51.000 --> 00:00:54.802
+A one-bit dial has clicks 0 and 1 showing settings 0
+
+12
+00:00:59.000 --> 00:01:02.954
+and 1, one click apart. A setting is zero clicks from itself.
+
+13
+00:01:07.000 --> 00:01:11.117
+Each click bit is the XOR of all setting bits at or above it, so folding the setting
+
+14
+00:01:11.117 --> 00:01:13.056
+onto itself with shifts recovers the click.
+
+15
+00:01:14.000 --> 00:01:19.766
+Compute click = setting ^ (setting &gt;&gt; 1), then ^= click &gt;&gt; 2, &gt;&gt; 4, &gt;&gt; 8, &gt;&gt;
+
+16
+00:01:19.766 --> 00:01:27.739
+16. Take apart = |clickA - clickB| and return min(apart, 2^bits - apart) for every pair.
+
+17
+00:01:29.000 --> 00:01:33.941
+The encoder XORs each bit with its upper neighbour, so the decoder must XOR each bit with everything
+
+18
+00:01:33.941 --> 00:01:40.250
+above it, which is a prefix XOR from the top. Shifting by 1, 2, 4, 8 and 16
+
+19
+00:01:40.250 --> 00:01:46.374
+and XOR-ing builds that prefix in five operations for a 31-bit value. Since the clicks form a cycle,
+
+20
+00:01:46.374 --> 00:01:49.618
+the answer is the shorter of the two arcs between the click numbers.
+
+21
+00:01:51.000 --> 00:01:57.173
+For bits = 5, setting 6 decodes to click 4 and setting 9 decodes to click 14.
+
+22
+00:01:58.000 --> 00:02:01.271
+The arcs are 10 and 22, so the answer is 10.
+
+23
+00:02:02.000 --> 00:02:07.087
+O(pairs) with a constant five folding steps per setting. O(pairs) for the output

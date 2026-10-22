@@ -1,0 +1,16 @@
+{
+  "slug": "scale-splits",
+  "language": "PYTHON",
+  "title": "Scale Splits",
+  "src": "/videos/walkthroughs/scale-splits-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/scale-splits-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/scale-splits-python.txt",
+  "durationSeconds": 154,
+  "sourceHash": "f97d729effc773ecfb6018a9d7bfa35119ac72875a2997528217624ea388771e",
+  "sha256": "2eb99e6a13428d8e91b2b2a2fd2c7964bd3fa63b08682a4fdaa43d013a620562",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "a5b51c4c03c9ff9681f19969373c46dccb677ef9173b784ad79899b56951d12a",
+  "transcriptSha256": "8a03f0181be3f7f1f83ffef5057f14d953beb5c92dfa72f77e596740b4e57c95"
+}

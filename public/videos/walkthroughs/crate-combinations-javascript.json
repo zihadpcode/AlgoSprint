@@ -1,0 +1,16 @@
+{
+  "slug": "crate-combinations",
+  "language": "JAVASCRIPT",
+  "title": "Crate Combinations",
+  "src": "/videos/walkthroughs/crate-combinations-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/crate-combinations-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/crate-combinations-javascript.txt",
+  "durationSeconds": 147,
+  "sourceHash": "9fb26fa5be2b4f469e9ddfe2fa4a8d99ce4bd8f3bb32dbcfcba1c84fa97dc2b6",
+  "sha256": "4ad64be0f8670965cee4d2133ea261e9cadf5a0b90115d381dbf2018f8709ddf",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "5fa8cfca56a538d12374cc7ebd4b6548f7acae4cfcbf2e3186666f4c6ba4bd5b",
+  "transcriptSha256": "c711a3dd5a6a535c82c7a09a86511cec32da2e9ca0d89ee98c78a63d149fbdc3",
+  "rendererVersion": "2026-10-22.1"
+}

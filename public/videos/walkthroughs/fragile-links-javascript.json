@@ -1,0 +1,16 @@
+{
+  "slug": "fragile-links",
+  "language": "JAVASCRIPT",
+  "title": "Fragile Links",
+  "src": "/videos/walkthroughs/fragile-links-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/fragile-links-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/fragile-links-javascript.txt",
+  "durationSeconds": 146,
+  "sourceHash": "c430705b53cdc936aeb0ef490386b3da0ed244b26b232b318806675c648a8ed9",
+  "sha256": "e68e5729b8374645a1b25421fcd22863d4a64c91b742bce62f4641258c00e0e7",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "89e43bd267ea00178b1cc03c8a63489c49312aee2bacddc8a54c5ea965c1eefb",
+  "transcriptSha256": "4a0546c70ea0e839b17a2821ce84aa849f9329dc661e548b193c8ed36c873fe1",
+  "rendererVersion": "2026-10-22.1"
+}

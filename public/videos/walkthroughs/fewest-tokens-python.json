@@ -1,0 +1,16 @@
+{
+  "slug": "fewest-tokens",
+  "language": "PYTHON",
+  "title": "Fewest Tokens",
+  "src": "/videos/walkthroughs/fewest-tokens-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/fewest-tokens-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/fewest-tokens-python.txt",
+  "durationSeconds": 122,
+  "sourceHash": "ed241bd53512ffe44bcf307e1d5d3422963daffd708219974968ad62e179d09b",
+  "sha256": "acbb1cb8a6c0022e520f49a96b6ad2e8619ed88849bc344220f4ffd20301e4b9",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "1df4ab43af2e661683af98851ac58858cf7e2390af2b1ff65cdf9fd89b2197b0",
+  "transcriptSha256": "cb01d545ecf165b06f11cacaa0e8318f81e24cdf9b39667c42a499b4e01fdcaa"
+}

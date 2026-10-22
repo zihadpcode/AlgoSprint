@@ -1,0 +1,16 @@
+{
+  "slug": "tile-shuffle",
+  "language": "JAVASCRIPT",
+  "title": "Tile Shuffle",
+  "src": "/videos/walkthroughs/tile-shuffle-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/tile-shuffle-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/tile-shuffle-javascript.txt",
+  "durationSeconds": 112,
+  "sourceHash": "c10f4266b57bcedc046819573eb57d4c06950b0dc22c89a6734b94e01c9cf6d5",
+  "sha256": "ca3ee4ee144e5d7b1ada5dafb61b6c03fd4330174e01dd2a0cc1fe5fbc43975c",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "d1bdc06d2d4df00c1a973b1db90c0f8dacf2a9be8931781110b8cd4c275f0661",
+  "transcriptSha256": "099fbb216d54c95993aa8bd2e7afc232f34fa9cf5aa7f7c4de808be7642a100c"
+}

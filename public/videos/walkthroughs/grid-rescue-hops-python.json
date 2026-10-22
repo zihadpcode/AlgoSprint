@@ -1,0 +1,16 @@
+{
+  "slug": "grid-rescue-hops",
+  "language": "PYTHON",
+  "title": "Grid Rescue Hops",
+  "src": "/videos/walkthroughs/grid-rescue-hops-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/grid-rescue-hops-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/grid-rescue-hops-python.txt",
+  "durationSeconds": 121,
+  "sourceHash": "5bc43da9a6f5c184bc17e3222b4ac48685112051d9f8d05281a80e18b7e97a58",
+  "sha256": "baf9c692a02a277dd818288feb34dc328607d2bc090d2fd3dfde9bfb1b24b8ee",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "81aeac77a3216e5fe8703de7c6bddbc0e2815e405bcdaa898aec31f0041f049a",
+  "transcriptSha256": "ecb5f0ef32ec8d86bcdbffdc0b235a0ee491c6573afdab479472b7774f0e42e4"
+}

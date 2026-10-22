@@ -1,0 +1,16 @@
+{
+  "slug": "gutter-capacity",
+  "language": "JAVASCRIPT",
+  "title": "Gutter Capacity",
+  "src": "/videos/walkthroughs/gutter-capacity-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/gutter-capacity-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/gutter-capacity-javascript.txt",
+  "durationSeconds": 123,
+  "sourceHash": "da20be35086e23951289d88403623cfadf28b8ea59fc0e6f954c6b08594e6e23",
+  "sha256": "cedbfe2ec9b0e6e00c42a15e78de2f53925de19827430f8965a6caf1b5999605",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "d80f329d87c9a84375ab825d736a6c9b51bfe7b94112cdceb9055e8e8b37e63c",
+  "transcriptSha256": "68f7bb891422c9060b0f2dbee8f926f4b626a0209fabd7027d0e00f2509dfca8",
+  "rendererVersion": "2026-10-22.1"
+}

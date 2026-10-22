@@ -1,0 +1,16 @@
+{
+  "slug": "elevation-ledger",
+  "language": "JAVASCRIPT",
+  "title": "Elevation Ledger",
+  "src": "/videos/walkthroughs/elevation-ledger-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/elevation-ledger-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/elevation-ledger-javascript.txt",
+  "durationSeconds": 193,
+  "sourceHash": "942d86347e2c9fb2264c1465360ecc37fd5624ab301566083a07b67412803e78",
+  "sha256": "df59c6b5c615c7fc2a43bec604dc725f92a24f8b472f28801c5a8f29ebc5111c",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "e1d7d9f4f31d51cef1a6085c1909dc434da470c84a95416508497bcd2fd30ef6",
+  "transcriptSha256": "48a45ab20545d2bbee5d80e86d93aa2d59f5a889eaa68849970856a25a269307",
+  "rendererVersion": "2026-10-22.1"
+}

@@ -1,0 +1,51 @@
+A workshop has tasks numbered 0 to tasks - 1. Each prerequisite [a, b] means task a must
+
+be finished before task b can start. Work happens in stages: in one stage you may run any
+
+number of tasks at the same time, but a task may only run in a stage if all
+
+of its prerequisites were finished in earlier stages. Return the smallest number of stages needed to finish
+
+every task, or -1 if the prerequisites contain a cycle, so some task can never run.
+
+Stage 1 runs task 0, stage 2 runs tasks 1 and 2
+
+together, stage 3 runs task 3 and stage 4 runs task 4.
+
+Every task waits for another,
+
+so none can ever start.
+
+Tasks whose unfinished-prerequisite count is zero are exactly the next stage. Finishing them lowers other tasks'
+
+counts.
+
+Build unlock lists and prerequisite counts. Start with all tasks of count zero. Per stage, count it, finish
+
+the ready tasks and decrement the counts of the tasks they unlock; those that reach zero form the
+
+next stage. If fewer than all tasks were finished, there is a cycle.
+
+This is Kahn's algorithm run one level at a time. Each level is the set of tasks whose
+
+prerequisites all finished earlier, so the number of levels equals the length of the longest prerequisite chain,
+
+which is the minimum number
+
+of stages. Every task and every prerequisite is touched once, so it is O(tasks + prerequisites) time and
+
+space. If a cycle exists its tasks never reach count zero, the finished count stays below the total,
+
+and the answer is -1.
+
+In the first example the counts are task 0: 0, tasks 1 and 2: 1, task 3: 2,
+
+task 4: 1.
+
+Level 1 = {0}; it zeroes tasks 1 and 2. Level 2 = {1, 2}; it zeroes task
+
+3. Level 3 = {3}; level 4 = {4}.
+
+All five tasks finished in four stages, so the answer is 4.
+
+O(tasks + prerequisites). O(tasks + prerequisites) for the unlock lists, counts and ready lists

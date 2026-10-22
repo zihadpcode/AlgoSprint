@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.501
+A mover stores crates inside one another to save space. Each crate is [width, height] (no rotation allowed),
+
+2
+00:00:06.501 --> 00:00:11.493
+and crate A fits inside crate B only if A is strictly narrower and strictly shorter than B.
+
+3
+00:00:11.493 --> 00:00:15.277
+Return the largest number of crates that can be nested in a single chain.
+
+4
+00:00:16.000 --> 00:00:18.759
+[2,3] inside [5,4]
+
+5
+00:00:24.000 --> 00:00:26.854
+inside [6,7]: three crates.
+
+6
+00:00:32.000 --> 00:00:33.390
+Identical crates cannot
+
+7
+00:00:40.000 --> 00:00:41.457
+nest: one crate.
+
+8
+00:00:48.000 --> 00:00:53.247
+Sorting widths ascending with heights descending among equal widths turns nesting into a strictly increasing
+
+9
+00:00:53.247 --> 00:00:54.794
+subsequence on heights alone.
+
+10
+00:00:56.000 --> 00:01:03.143
+Sort by width ascending, then height descending. Maintain tails: for each height, binary search the first tail
+
+11
+00:01:03.143 --> 00:01:07.234
+&gt;= height and replace it (or append). The tails length is the answer.
+
+12
+00:01:08.000 --> 00:01:14.880
+This is the Russian-doll pattern: sort by width, and break width ties by descending height so same-width crates
+
+13
+00:01:14.880 --> 00:01:21.601
+can't both be chosen. Nesting then becomes a strictly increasing subsequence of heights, solved in O(n log n)
+
+14
+00:01:21.601 --> 00:01:24.636
+with the smallest-tails array and a lower-bound binary search.
+
+15
+00:01:26.000 --> 00:01:33.339
+Sorted: [2,3], [5,4], [6,7], [6,4] (6s by descending height).
+
+16
+00:01:34.000 --> 00:01:42.952
+Heights 3, 4, 7, 4 → tails [3], [3,4], [3,4,7], then 4 replaces 4.
+
+17
+00:01:44.000 --> 00:01:44.897
+The length is 3.
+
+18
+00:01:48.000 --> 00:01:49.926
+O(n log n). O(n)

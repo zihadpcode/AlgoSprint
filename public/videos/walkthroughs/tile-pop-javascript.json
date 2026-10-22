@@ -1,0 +1,16 @@
+{
+  "slug": "tile-pop",
+  "language": "JAVASCRIPT",
+  "title": "Tile Pop",
+  "src": "/videos/walkthroughs/tile-pop-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/tile-pop-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/tile-pop-javascript.txt",
+  "durationSeconds": 156,
+  "sourceHash": "3633705cabefc3a4eb94435a18a9f9a357abb2093b7961d2f3d3abd062e9d813",
+  "sha256": "4750ca7c7b090a61d12e18559c1cccaa383e45fc7356eeb35bb7a4ad381743e6",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "7f0957d97145e8a567e58976777888ad63f42799a7e3db852b64e230f917d8ba",
+  "transcriptSha256": "91f2421d93ecd065d73de6da65cebc64f9464037367dba40ffddacc303e6cef3"
+}

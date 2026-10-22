@@ -1,0 +1,16 @@
+{
+  "slug": "ridge-count",
+  "language": "PYTHON",
+  "title": "Ridge Count",
+  "src": "/videos/walkthroughs/ridge-count-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/ridge-count-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/ridge-count-python.txt",
+  "durationSeconds": 91,
+  "sourceHash": "c2a2385c86a210e1103819925e590af1d0797e95d993748f1f23c863e7100c5c",
+  "sha256": "93b8ede2ffb340d35c3bc585f74ccbd98961945570a708ce33dcaa078bb877e8",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "455ef047036ff34e6f5fdbe8319d2fb78231d4bcced3d1444d5c9c4bfbadce8f",
+  "transcriptSha256": "b60eadbbef04e5775726c5836e3d61d4602027fa6aa1ce746d5cea8093993afb"
+}

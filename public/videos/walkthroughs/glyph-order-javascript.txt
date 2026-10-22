@@ -1,0 +1,45 @@
+An archive holds words written with lowercase glyphs that follow an unknown alphabetical order, and the words
+
+are listed in that order. Return a string containing every glyph that appears in the words exactly once,
+
+arranged in an order consistent with the list. When several orders are consistent, return the one that is
+
+smallest in ordinary a-z dictionary order (always choose the a-z-smallest glyph that is allowed next). Return an
+
+empty string if no order is consistent, for example when a word is followed by its own proper
+
+prefix or the requirements contradict each other.
+
+The adjacent pairs give t < f, w < e, r < t and e < r, which
+
+chain into the single order 'wertf'.
+
+z < x and x < z contradict each other.
+
+Adjacent comparisons give all the information, and choosing the smallest ready glyph at each step of Kahn's
+
+algorithm yields the a-z-smallest valid order.
+
+Build edges from each adjacent pair's first difference (deduplicated), returning '' on a prefix violation.
+
+Compute in-degrees, start a sorted ready list of zero in-degree glyphs, and repeatedly take its smallest,
+
+decrementing neighbors. Return '' if not all glyphs were taken.
+
+Only adjacent words matter, because their first differing glyph gives one requirement and the rest follow
+
+transitively. That builds a small graph on at most 26 glyphs. Kahn's algorithm finds a consistent
+
+order, and always taking the smallest ready glyph makes it the a-z-smallest one. If glyphs remain unreached
+
+there's a cycle. The prefix rule handles the only other way a list can be inconsistent.
+
+Pairs: wrt/wrf → t<f; wrf/er → w<e; er/ett → r<t; ett/rftt → e<r.
+
+In-degree 0: w. Take w, which frees e; take e, which frees r; then r, which frees t;
+
+then t, which frees f; then f.
+
+The result is 'wertf'.
+
+O(total letters + G² log G), with G <= 26. O(G²)

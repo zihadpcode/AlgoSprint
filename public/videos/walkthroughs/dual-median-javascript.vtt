@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.381
+Two labs each publish their sorted measurement lists, first and second (either may be empty, but not both).
+
+2
+00:00:06.381 --> 00:00:11.827
+Return the median of all measurements combined: the middle value for an odd total count, or the average
+
+3
+00:00:11.827 --> 00:00:17.369
+of the two middle values for an even count (which may end in .5). Aim for time logarithmic
+
+4
+00:00:17.369 --> 00:00:18.670
+in the list sizes.
+
+5
+00:00:20.000 --> 00:00:23.067
+Combined [1, 2, 3]: the median is 2.
+
+6
+00:00:28.000 --> 00:00:34.091
+Combined [1, 2, 3, 4]: (2 + 3) / 2 = 2.5.
+
+7
+00:00:36.000 --> 00:00:40.683
+Only the boundary of the left half matters, and the number taken from the shorter list determines it,
+
+8
+00:00:40.683 --> 00:00:42.317
+so it can be binary-searched.
+
+9
+00:00:43.000 --> 00:00:48.758
+Let a be the shorter list. half = (m + n + 1) &gt;&gt; 1. Binary search i
+
+10
+00:00:48.758 --> 00:00:54.841
+in [0, m] with j = half - i. If a[i-1] &gt; b[j], move hi = i -
+
+11
+00:00:54.841 --> 00:01:01.566
+1; if b[j-1] &gt; a[i], move lo = i + 1; otherwise the median comes from max of
+
+12
+00:01:01.566 --> 00:01:05.323
+the left sides and, for even totals, min of the right sides.
+
+13
+00:01:06.000 --> 00:01:11.195
+I binary search how many elements the shorter list contributes to the left half. For a guess i,
+
+14
+00:01:11.195 --> 00:01:17.966
+j = half - i, and the partition is valid when both cross comparisons hold. Otherwise the comparison
+
+15
+00:01:17.966 --> 00:01:23.422
+tells me which way to move i. The median then comes from the boundary values. Searching the shorter
+
+16
+00:01:23.422 --> 00:01:27.162
+list keeps j in range and gives O(log min(m, n)).
+
+17
+00:01:28.000 --> 00:01:36.694
+a = [1,2], b = [3,4], half = 2. i = 1, j = 1: aL = 1,
+
+18
+00:01:36.694 --> 00:01:44.313
+aR = 2, bL = 3, bR = 4; bL &gt; aR, so lo = 2.
+
+19
+00:01:45.000 --> 00:01:53.331
+i = 2, j = 0: aL = 2 &lt;= bR = 3 and bL = -∞ &lt;=
+
+20
+00:01:53.331 --> 00:02:02.184
+aR = +∞. Even total: (max(2, -∞) + min(+∞, 3)) / 2 = 2.5.
+
+21
+00:02:03.000 --> 00:02:05.400
+O(log min(m, n)). O(1)

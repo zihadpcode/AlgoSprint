@@ -1,0 +1,16 @@
+{
+  "slug": "lantern-steps",
+  "language": "JAVASCRIPT",
+  "title": "Lantern Steps",
+  "src": "/videos/walkthroughs/lantern-steps-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/lantern-steps-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/lantern-steps-javascript.txt",
+  "durationSeconds": 111,
+  "sourceHash": "568d68e3fb52af65422d7a626b461a99ba6b4041ddddc1dced901dbbe4c4a5bd",
+  "sha256": "ce2d07ea22711905b3570f4b1e8f6ecfb1d0a209697517b94d95736ab66df7cd",
+  "width": 1280,
+  "height": 720,
+  "captionsSha256": "a8054290b1eeee0d0fbe8481dc76b074cd9b6de978337af3e11f3e876e6779cb",
+  "transcriptSha256": "7c18dc5bd953b720ad3b3de67b87d7c2f8ebb459d9be0095dba8b7f5c3334f98",
+  "rendererVersion": "2026-10-22.1"
+}

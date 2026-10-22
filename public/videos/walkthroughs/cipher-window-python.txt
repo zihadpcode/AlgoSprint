@@ -1,0 +1,39 @@
+A cryptographer looks for the shortest stretch of an intercepted message text that contains every letter of a
+
+key pattern, including repeats (a pattern of 'aab' needs two a's and one b inside the stretch). Return
+
+that shortest substring of text. If several stretches tie for shortest, return the leftmost one. If none exists,
+
+return an empty string.
+
+'banc' is the shortest stretch containing a, b and c.
+
+The text has only one a, so no stretch works.
+
+The window only needs to know how many required letters it still lacks; moving either edge changes that
+
+count by at most one.
+
+Initialize need from the pattern letter counts and missing = len(pattern). For each right index, decrement need
+
+for that letter and reduce missing if its previous need was positive. While missing is zero, save a
+
+strictly shorter window, then remove the leftmost letter by incrementing its need and increasing missing if that
+
+need becomes positive.
+
+I keep need counts that go negative for surplus letters, plus a single missing counter. Extending right reduces
+
+missing only when the letter was still needed. While nothing is missing I record the window and shrink
+
+from the left, and missing only rises when a needed letter drops back above zero. Each index enters
+
+and leaves once, so it's O(n + m). Recording only strictly shorter windows keeps the leftmost on ties.
+
+Extend until 'adobec' covers a, b, c. Record length 6, then shrink: removing 'a' makes it missing.
+
+Extend to 'doba' (missing again 0 at index 10), shrink...
+
+Eventually 'banc' (length 4) is recorded, and no shorter window appears.
+
+O(n + m). O(1), 26 counters

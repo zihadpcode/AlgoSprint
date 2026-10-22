@@ -1,0 +1,45 @@
+A running club records finishing paces one at a time in paces. After each new pace arrives, the
+
+club board shows the median of all paces recorded so far: the middle value when the count is
+
+odd, or the average of the two middle values when it is even (which may end in .5).
+
+Return the list of medians shown after each arrival.
+
+Medians: 5, then (5 + 15) / 2 = 10, then 5, then (3 + 5) / 2
+
+= 4.
+
+Equal paces: 2, then 2.
+
+The median sits between the lower half's maximum and the upper half's minimum, and heaps expose both in
+
+O(1).
+
+lower is a max-heap (a min-heap of negated values), upper a min-heap. Insert into lower when the pace
+
+is <= lower's top, else into upper. If lower has two more than upper, move its top to
+
+upper; if upper is larger, move its top to lower. Report the median from the tops.
+
+I keep the lower half in a max-heap and the upper half in a min-heap, with the lower
+
+half equal in size or one
+
+larger. Each arrival goes to the side its value belongs on, then at most one element moves across
+
+to rebalance. The median comes straight from
+
+the tops. That's O(log n) per arrival. JavaScript has no built-in heap, so I wrote a small min-heap
+
+and store negated values for the max-heap.
+
+5 → lower {5}: median 5. 15 → upper {15}: median 10.
+
+1 → lower {5,1}, sizes 2/1: median 5.
+
+3 → lower {5,3,1} is too big, so move 5 to upper {5,15}. Median (3 + 5) /
+
+2 = 4.
+
+O(n log n). O(n)

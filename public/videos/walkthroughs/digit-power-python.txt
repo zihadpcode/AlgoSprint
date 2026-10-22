@@ -1,0 +1,41 @@
+A lock dial advances by base raised to a power e, keeping only the remainder after dividing by
+
+modulus. The exponent e is far too large for a number, so it is given as its decimal
+
+digits, most significant digit first, with no leading zeros. Return (base ^ e) mod modulus.
+
+The exponent is 10 and 2^10 = 1024, whose remainder modulo 1000 is 24.
+
+3 and 7 share no factor, so 3^6 leaves remainder 1 modulo 7. That periodicity holds only when
+
+the base and the modulus share no factor, so it is a special case rather than a general
+
+rule. Here 100 leaves remainder 4 when divided by 6, so 3^100 leaves the same remainder as 3^4
+
+= 81, which is 4.
+
+Appending a digit maps the exponent x to 10x + d, and base^(10x + d) = (base^x)^10 *
+
+base^d, so one running remainder is enough.
+
+Start with result = 1 % modulus (the empty exponent). For each digit d, compute result^10 and base^d
+
+using square-and-multiply on the small exponents 10 and d, and combine them modulo the modulus.
+
+Read the exponent left to right using x -> 10x + d. The identity base^(10x + d) =
+
+(base^x)^10 * base^d lets the accumulator represent the modular power for the digits read so far. Both small
+
+exponents are at most 10, so each digit needs only a constant number of modular multiplications. This takes
+
+O(D) time and O(1) auxiliary space for D digits, without constructing the full exponent. Reducing products
+
+modulo modulus keeps the intermediate values small.
+
+result starts at 1; digit 1 gives 1^10 * 2^1 = 2.
+
+result = 2^10 * 2^0 = 1024 mod 1000 = 24.
+
+No more digits, so the answer is 24.
+
+O(D) for D digits: each digit costs a constant number of modular multiplications (at most about 14). O(1)

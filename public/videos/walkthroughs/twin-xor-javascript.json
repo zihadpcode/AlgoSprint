@@ -1,0 +1,16 @@
+{
+  "slug": "twin-xor",
+  "language": "JAVASCRIPT",
+  "title": "Twin XOR",
+  "src": "/videos/walkthroughs/twin-xor-javascript.mp4",
+  "captionsSrc": "/videos/walkthroughs/twin-xor-javascript.vtt",
+  "transcriptSrc": "/videos/walkthroughs/twin-xor-javascript.txt",
+  "durationSeconds": 103,
+  "sourceHash": "5678fc9678666e73d293e21e52688e8b34f729fcfd0df2652ef3a47ca314bcb2",
+  "sha256": "4b53c9802855c4538c38beef63dbd443b915cb9cdc6542229a639b28e33e25b0",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "0894ab82a7dd5f124c62ab270e81cb97ae7848b40a99651fa08fa6693f2663c3",
+  "transcriptSha256": "715960b715ee14439ecdd45f38ec5c0449029c0f19533fef36f6bf39320279cd"
+}

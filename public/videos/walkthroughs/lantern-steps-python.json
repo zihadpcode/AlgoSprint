@@ -1,0 +1,16 @@
+{
+  "slug": "lantern-steps",
+  "language": "PYTHON",
+  "title": "Lantern Steps",
+  "src": "/videos/walkthroughs/lantern-steps-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/lantern-steps-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/lantern-steps-python.txt",
+  "durationSeconds": 111,
+  "sourceHash": "cff0c0f4f544b31ec8e9c75049cbe84007084db6513ea94bf5c42b3c55d8e783",
+  "sha256": "3fdbab76c6978de32bcda787a42dd72b67527761c3e1d7f8712521ad9f635c0f",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "01fc54433d83fb8a015cd602ae7a17e9e14f01b1bfc14f2c4a06129a0fbefefa",
+  "transcriptSha256": "7c18dc5bd953b720ad3b3de67b87d7c2f8ebb459d9be0095dba8b7f5c3334f98"
+}

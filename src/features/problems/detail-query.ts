@@ -2,10 +2,12 @@ import "server-only";
 import { progressView } from "@/features/progress/presentation";
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { segmentsSchema } from "@/lib/validators/video";
+import { videoLanguages } from "@/lib/video-languages";
+import { problemWalkthroughs } from "@/lib/problem-walkthroughs";
 
 // An allowlist, never include:true: hidden tests and operational fields stay server-side.
 const detailSelect = {
-  id: true, revision: true, slug: true, title: true, difficulty: true, kind: true, pattern: true,
+  id: true, revision: true, seedHash: true, slug: true, title: true, difficulty: true, kind: true, pattern: true,
   statement: true, constraints: true, estimatedMinutes: true,
   categories: { select: { category: { select: { slug: true, name: true } } }, orderBy: { category: { name: "asc" } } },
   tags: { select: { tag: { select: { slug: true, name: true } } }, orderBy: { tag: { name: "asc" } } },
@@ -36,7 +38,7 @@ export async function queryProblem(db: PrismaClient, slug: string, viewerId: str
   return db.$transaction(async (tx) => {
     const row = await tx.problem.findFirst({ where: { slug, status: "PUBLISHED" }, select: detailSelect });
     if (!row) return null;
-    const { id, revision, categories, tags, related, videos, ...content } = row;
+    const { id, revision, seedHash, categories, tags, related, videos, ...content } = row;
     const relatedProblems = related.length ? related.map((item) => item.related) : await tx.problem.findMany({
       where: { status: "PUBLISHED", slug: { not: slug }, categories: { some: { category: { slug: { in: categories.map((item) => item.category.slug) } } } } },
       select: { slug: true, title: true, difficulty: true }, orderBy: { slug: "asc" }, take: 3,
@@ -53,8 +55,9 @@ export async function queryProblem(db: PrismaClient, slug: string, viewerId: str
     } : null;
     return {
       ...content, revision,
+      walkthroughs: problemWalkthroughs({ ...content, seedHash }),
       // Segments are re-validated on read; malformed stored timestamps are dropped rather than shown.
-      videos: videos.map((video) => ({ ...video, segments: segmentsSchema.safeParse(video.segments).data ?? [] })),
+      videos: videos.map((video) => ({ ...video, segments: segmentsSchema.safeParse(video.segments).data ?? [], codingLanguages: videoLanguages(video.youtubeId) })),
       categories: categories.map((item) => item.category), tags: tags.map((item) => item.tag),
       related: relatedProblems, personal,
     };

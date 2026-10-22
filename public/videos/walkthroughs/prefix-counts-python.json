@@ -1,0 +1,16 @@
+{
+  "slug": "prefix-counts",
+  "language": "PYTHON",
+  "title": "Prefix Counts",
+  "src": "/videos/walkthroughs/prefix-counts-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/prefix-counts-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/prefix-counts-python.txt",
+  "durationSeconds": 124,
+  "sourceHash": "0554b12eb9a7ae6b1af4f2a664816fabe85206188bb10955fc5a4a22f1218b5a",
+  "sha256": "332c227b1b6a6ae347cdfb8d598616be7e394a51a45a940e857b42af8e59a111",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "4a45468d637a34033f2267e3f9780cc697444a251e7c0f1d214bd2648d1ac13c",
+  "transcriptSha256": "548e27ee658aaeb0cd5a639e6fb10663ab2d1d9b36ea9299aa71b7f8967fc9e4"
+}

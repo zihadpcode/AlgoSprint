@@ -7,6 +7,7 @@ import { CodeEditor } from "@/components/editor/code-editor";
 import type { SubmissionsState } from "@/components/workspace/submissions-list";
 import { ProblemPanel } from "@/components/workspace/problem-panel";
 import { SplitPane } from "@/components/workspace/split-pane";
+import { StudyLanguageProvider } from "@/components/workspace/study-language";
 import { getRunnerConfig } from "@/features/submissions/config";
 import { runnerSupports } from "@/features/submissions/harness";
 import { supportedRunnerLanguages } from "@/features/submissions/runner-languages";
@@ -37,8 +38,10 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
     catch { submissions = "unavailable"; }
   }
   return <AppShell signedIn={view.signedIn} admin={view.admin} layout="workspace">
+    <StudyLanguageProvider key={`${view.draftOwner ?? "guest"}:${problem.slug}:${problem.revision}`} languages={problem.starterCode.map((starter) => starter.language)}>
     <SplitPane
       left={<ProblemPanel problem={problem} submissions={submissions} loginHref={loginHref} />}
       right={<CodeEditor key={`${view.draftOwner ?? "guest"}:${problem.slug}:${problem.revision}`} draftOwner={view.draftOwner} revision={problem.revision} starters={problem.starterCode} examples={problem.examples} slug={problem.slug} signedIn={view.signedIn} runnerEnabled={Boolean(runnerConfig) && runnerSupports(problem.slug)} runnerLanguages={supportedRunnerLanguages(runnerConfig)} signature={runnerSupports(problem.slug) ? SIGNATURES[problem.slug] : undefined} />} />
+    </StudyLanguageProvider>
   </AppShell>;
 }

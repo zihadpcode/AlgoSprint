@@ -1,0 +1,129 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.956
+A maintenance drone flies over a grid map. 'S' is its start, 'E' is the exit, '#' is
+
+2
+00:00:04.956 --> 00:00:09.425
+a wall, '.' is open floor, and a digit k is a pulse gate that is open only
+
+3
+00:00:09.425 --> 00:00:14.071
+at times t with t mod period = k (at every other time the gate acts like a
+
+4
+00:00:14.071 --> 00:00:20.093
+wall). The drone starts on S at time 0. Each tick (one unit of time) it either stays
+
+5
+00:00:20.093 --> 00:00:24.739
+in its cell or moves one cell up, down, left or right, and at the end of the
+
+6
+00:00:24.739 --> 00:00:29.355
+tick it must be standing on a cell that is open at that new time. Return the earliest
+
+7
+00:00:29.355 --> 00:00:33.772
+time at which the drone can be standing on E, or -1 if it never can.
+
+8
+00:00:35.000 --> 00:00:39.582
+The gate is open at odd times. The drone reaches the cell before the gate at time 1,
+
+9
+00:00:39.582 --> 00:00:44.402
+but at time 2 the gate is closed, so it waits one tick, enters the gate at time
+
+10
+00:00:44.402 --> 00:00:49.832
+3 (open) and steps onto E at time 4. The gate cell is the only way to E
+
+11
+00:00:49.832 --> 00:00:54.766
+(the cell below E is a wall) and the earliest the drone can stand there is time 2,
+
+12
+00:00:54.766 --> 00:00:57.269
+so waiting once is forced and the answer is 4.
+
+13
+00:00:58.000 --> 00:01:02.960
+A wall fills the whole third column, so the exit can never be reached and the answer is
+
+14
+00:01:02.960 --> 00:01:03.319
+-1.
+
+15
+00:01:06.000 --> 00:01:11.814
+Because the gates repeat, two arrivals at the same cell with the same time modulo period have identical
+
+16
+00:01:11.814 --> 00:01:14.486
+futures, so only the earliest one matters.
+
+17
+00:01:16.000 --> 00:01:21.970
+Run a breadth-first search whose states are (cell, time mod period). From each state try the five moves
+
+18
+00:01:21.970 --> 00:01:26.793
+to time + 1, accept a target that is in the grid, not '#', and either not a
+
+19
+00:01:26.793 --> 00:01:33.332
+gate or a gate whose digit equals (time + 1) mod period, and skip visited states. Return the
+
+20
+00:01:33.332 --> 00:01:35.909
+time of the first dequeued E, else -1.
+
+21
+00:01:37.000 --> 00:01:41.932
+The clock is part of the state, but only through its remainder, so the state space is rows
+
+22
+00:01:41.932 --> 00:01:41.937
+*
+
+23
+00:01:45.000 --> 00:01:51.235
+columns * period instead of unbounded. Every move costs one tick, so breadth-first order is time order and
+
+24
+00:01:51.235 --> 00:01:51.432
+the
+
+25
+00:01:53.000 --> 00:02:00.675
+first arrival at E is optimal. Typed arrays for the queue avoid O(n) shifts: this handles 360,000 states
+
+26
+00:02:00.675 --> 00:02:01.331
+comfortably.
+
+27
+00:02:02.000 --> 00:02:09.008
+Start from the state (S, time mod 2 = 0). From it, staying put and stepping to (0,1)
+
+28
+00:02:09.008 --> 00:02:10.065
+are open at time 1.
+
+29
+00:02:11.000 --> 00:02:17.587
+The state ((0,1), 0) at time 2 comes from waiting one tick; from it the gate state ((0,2),
+
+30
+00:02:17.587 --> 00:02:21.049
+1) at time 3 is open, and E is dequeued at time 4.
+
+31
+00:02:22.000 --> 00:02:29.040
+O(rows * columns * period * 5), at most 1.8 million transitions. O(rows * columns * period) for
+
+32
+00:02:29.040 --> 00:02:30.522
+visited marks and the queue

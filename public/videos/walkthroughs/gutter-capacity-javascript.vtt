@@ -1,0 +1,97 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.598
+A flat roof has a row of parapet blocks whose heights are listed in the array heights, one
+
+2
+00:00:04.598 --> 00:00:10.892
+unit wide each. After heavy rain, water settles in the dips between taller blocks; water above a block
+
+3
+00:00:10.892 --> 00:00:15.126
+rises to the lower of the tallest block on its left and the tallest block on its right,
+
+4
+00:00:15.126 --> 00:00:21.059
+and never spills off either end. Return the total volume of water held, in square units. Fewer than
+
+5
+00:00:21.059 --> 00:00:22.538
+three blocks hold no water.
+
+6
+00:00:24.000 --> 00:00:29.819
+The blocks of height 2 and 3 bound the middle: water levels are 2, 1 and 2 above
+
+7
+00:00:29.819 --> 00:00:32.031
+the three middle blocks, for 5 units.
+
+8
+00:00:33.000 --> 00:00:35.390
+The heights only descend, so nothing is held.
+
+9
+00:00:41.000 --> 00:00:45.726
+When the block at the left pointer is lower than the block at the right pointer, the left
+
+10
+00:00:45.726 --> 00:00:51.049
+block's water level is decided by the left wall alone, because some block at least as tall as
+
+11
+00:00:51.049 --> 00:00:53.015
+the right block exists on its right.
+
+12
+00:00:54.000 --> 00:00:59.803
+Keep pointers at both ends and the tallest block seen from each side. Repeatedly process the side whose
+
+13
+00:00:59.803 --> 00:01:05.585
+current block is lower: update that side's wall, add the water above the block, and move the pointer
+
+14
+00:01:05.585 --> 00:01:06.028
+inward.
+
+15
+00:01:07.000 --> 00:01:12.014
+I move two pointers inward and always settle the lower side. If the left block is lower than
+
+16
+00:01:12.014 --> 00:01:16.142
+the right block, the right side already guarantees a wall at least as tall as the
+
+17
+00:01:17.000 --> 00:01:22.926
+right block, so the water over the left block is exactly leftWall minus its height. Each step moves
+
+18
+00:01:22.926 --> 00:01:29.460
+one pointer, so the pass is linear with constant memory, matching the prefix-array solution without the arrays.
+
+19
+00:01:31.000 --> 00:01:37.309
+For [2, 0, 1, 0, 3], the left block 2 is lower than the right block 3, so
+
+20
+00:01:37.309 --> 00:01:43.039
+the left side is settled: leftWall = 2, no water, left moves to index 1.
+
+21
+00:01:44.000 --> 00:01:52.853
+Index 1 (0) adds 2; index 2 (1) adds 1; index 3 (0) adds 2, each compared against
+
+22
+00:01:52.853 --> 00:01:53.958
+the right block 3.
+
+23
+00:01:55.000 --> 00:01:57.026
+The pointers meet and the total is 5.
+
+24
+00:01:59.000 --> 00:02:00.460
+O(n). O(1)

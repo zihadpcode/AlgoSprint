@@ -1,0 +1,16 @@
+{
+  "slug": "lit-panels",
+  "language": "PYTHON",
+  "title": "Lit Panels",
+  "src": "/videos/walkthroughs/lit-panels-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/lit-panels-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/lit-panels-python.txt",
+  "durationSeconds": 95,
+  "sourceHash": "62f5d621619cad8b12418c5650f578ff93a3bf638895d19c24be3bc4dd0afae1",
+  "sha256": "92766d453262e430938f7ea390fb2fc25ae9318becf8f9e14356ef746322984a",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "0a1a1ba116aa118e2f831e4bc825c77fa2d985b76350cc35781b0b114a119c49",
+  "transcriptSha256": "6ed54c49de09e8059fb254d95fd6bb9278513b8799273486708cfc10bbf51f9e"
+}

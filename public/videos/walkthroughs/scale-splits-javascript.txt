@@ -1,0 +1,49 @@
+A balance scale has a left pan and a right pan. Every crate in weights must go on
+
+exactly one of the two pans. Crates are distinct even when their weights match, and swapping every crate
+
+to the other pan gives a different placement. Count the placements for which the two pan totals differ
+
+by at most tolerance. The count can reach 2^36, which a JavaScript number holds exactly.
+
+The pans balance exactly only when 3, 5 and 8 sit on one pan against the 16, since
+
+3 + 5 + 8 = 16. That placement and its mirror image are the 2 answers.
+
+There are 2^6 = 64 placements. The total weight is 33, so the pan totals always differ by
+
+an odd number, and exactly 12 of the 64 placements differ by 1 or 3.
+
+The difference splits into a first-half part and a second-half part, so count pairs of half-sums instead of
+
+whole placements.
+
+For each half, build the sorted list of all signed sums by starting from [0] and merging (sums
+
++ w) with (sums - w) for each crate. Then count pairs with x + y <= tolerance
+
+and pairs with x + y <= -tolerance - 1 using a two-pointer pass (ascending x, descending pointer
+
+into y) and subtract.
+
+Each placement's difference is a half-sum from the first 18 crates plus a half-sum from the last 18,
+
+and the two halves are independent. That replaces 2^36 placements by two lists of 2^18 sums and a
+
+counting problem on
+
+two sorted arrays, solved by a monotone pointer. Building the lists by merging x + w and x
+
+- w keeps them sorted without ever calling sort. The count is exact in a double because it
+
+never exceeds 2^36.
+
+For [3, 5, 8, 16] the first half [3, 5] gives sums -8, -2, 2, 8 and the
+
+second half [8, 16] gives -24, -8, 8, 24.
+
+Only -8 + 8 and 8 + -8 are zero, so atMost(0) - atMost(-1) = 2.
+
+O(2^(n/2)): about 2 * 262,144 sums, built by merging, and two linear two-pointer sweeps at n = 36.
+
+O(2^(n/2)) doubles

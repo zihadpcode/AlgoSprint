@@ -1,0 +1,16 @@
+{
+  "slug": "elevation-ledger",
+  "language": "PYTHON",
+  "title": "Elevation Ledger",
+  "src": "/videos/walkthroughs/elevation-ledger-python.mp4",
+  "captionsSrc": "/videos/walkthroughs/elevation-ledger-python.vtt",
+  "transcriptSrc": "/videos/walkthroughs/elevation-ledger-python.txt",
+  "durationSeconds": 193,
+  "sourceHash": "5d33eb81e6b0cee0c6fe7760b4b1ce686bb470f4be6fd9f9d2055d7b81f24651",
+  "sha256": "615974ce401f7bc095923c385fc0e933a6241417b4a4f0a28f06b9cba8dadff6",
+  "width": 1280,
+  "height": 720,
+  "rendererVersion": "2026-10-22.1",
+  "captionsSha256": "46c67b618d1927a277c8c1f1f3f6a8298840876b782de437517ec3a3e26080f9",
+  "transcriptSha256": "449457c57f5814a6f889c89253fa4103be40220bf886cb59dfbd1c57d18e6abe"
+}
