@@ -41,10 +41,10 @@ beforeEach(() => {
   host = document.createElement("div"); document.body.append(host); root = createRoot(host);
 });
 afterEach(async () => { await act(() => root.unmount()); host.remove(); vi.restoreAllMocks(); });
-async function render(key = "problem-one") {
+async function render(key = "problem-one", isVisible = true) {
   const props = { key, languages: ["JAVASCRIPT", "PYTHON"], children: [
     createElement(CodeEditor, { key: "editor", starters }), createElement("section", { key: "solutions", "data-study-solutions": "" }, createElement(SolutionTabs, { solutions })),
-    createElement(VideoLesson, { key: "videos", videos, walkthroughs }),
+    createElement(VideoLesson, { key: "videos", videos, walkthroughs, isVisible }),
   ] };
   await act(() => root.render(createElement(StudyLanguageProvider, props)));
 }
@@ -124,4 +124,50 @@ it("resets language and drafts when the problem identity changes", async () => {
   await render(); await choose("Solution language", "PYTHON"); await type("old problem draft");
   await render("problem-two");
   expect(select("Editor language").value).toBe("JAVASCRIPT"); expect(host.querySelector("textarea")!.value).toBe(starters[0].code);
+});
+
+it("unloads both walkthrough and reference players when the video disclosure closes", async () => {
+  // happy-dom reports that iframe loading is disabled; the player must never make a network request.
+  const errors = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+  await render();
+  const disclosure = [...host.querySelectorAll("details")].find((details) => details.querySelector("summary")?.textContent === "Reveal video lessons")!;
+  await act(() => { disclosure.open = true; disclosure.dispatchEvent(new Event("toggle")); });
+  await act(() => { button("Play JavaScript walkthrough").click(); button("Load video player").click(); });
+  expect(host.querySelector("video")).not.toBeNull();
+  expect(host.querySelector("iframe")).not.toBeNull();
+
+  await act(() => { disclosure.open = false; disclosure.dispatchEvent(new Event("toggle")); });
+  expect(host.querySelector("video, iframe")).toBeNull();
+  await act(() => { disclosure.open = true; disclosure.dispatchEvent(new Event("toggle")); });
+  expect(host.querySelector("video, iframe")).toBeNull();
+  expect(button("Play JavaScript walkthrough")).toBeTruthy();
+  expect(button("Load video player")).toBeTruthy();
+  expect(select("Video language").value).toBe("JAVASCRIPT");
+  expect(errors.mock.calls.map((call) => String(call[0])).join("")).not.toMatch(/NetworkError|fetch\(\)/);
+});
+
+it("unloads players when their workspace panel is hidden while keeping disclosure and language choices", async () => {
+  const errors = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+  await render();
+  await choose("Video language", "PYTHON");
+  const disclosure = [...host.querySelectorAll("details")].find((details) => details.querySelector("summary")?.textContent === "Reveal video lessons")!;
+  await act(() => { disclosure.open = true; disclosure.dispatchEvent(new Event("toggle")); });
+  await act(() => { button("Play Python walkthrough").click(); button("Load video player").click(); });
+  expect(host.querySelector("video")).not.toBeNull();
+  expect(host.querySelector("iframe")).not.toBeNull();
+
+  await render("problem-one", false);
+  expect(host.querySelector("video, iframe")).toBeNull();
+  expect(button("Play Python walkthrough")).toBeUndefined();
+  expect(button("Load video player")).toBeUndefined();
+  await render("problem-one", true);
+  expect(host.querySelector("video, iframe")).toBeNull();
+  expect(disclosure.open).toBe(true);
+  expect(select("Video language").value).toBe("PYTHON");
+  expect(button("Play Python walkthrough")).toBeTruthy();
+  expect(button("Load video player")).toBeTruthy();
+  await act(() => { button("Play Python walkthrough").click(); button("Load video player").click(); });
+  expect(host.querySelector("video")).not.toBeNull();
+  expect(host.querySelector("iframe")).not.toBeNull();
+  expect(errors.mock.calls.map((call) => String(call[0])).join("")).not.toMatch(/NetworkError|fetch\(\)/);
 });

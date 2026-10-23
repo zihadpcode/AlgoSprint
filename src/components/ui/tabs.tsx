@@ -1,9 +1,12 @@
 "use client";
 
-import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { createContext, useContext, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type TabItem = { id: string; label: ReactNode; content: ReactNode; badge?: ReactNode };
+
+const TabPanelActiveContext = createContext(true);
+export function useTabPanelActive() { return useContext(TabPanelActiveContext); }
 
 /** Accessible tabs (WAI-ARIA tabs pattern): arrow keys, Home and End move between tabs; panels stay mounted
  *  so editor state, drafts and scroll position inside a panel survive switching. */
@@ -11,6 +14,7 @@ export function Tabs({ items, label, defaultTab, className, listClassName, panel
   items: TabItem[]; label: string; defaultTab?: string; className?: string; listClassName?: string; panelClassName?: string; onChange?: (id: string) => void;
 }) {
   const [active, setActive] = useState(defaultTab ?? items[0]?.id);
+  const parentActive = useTabPanelActive();
   const base = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const select = (index: number) => {
@@ -36,7 +40,7 @@ export function Tabs({ items, label, defaultTab, className, listClassName, panel
       })}
     </div>
     {items.map((item) => <div key={item.id} role="tabpanel" id={`${base}-panel-${item.id}`} aria-labelledby={`${base}-tab-${item.id}`} hidden={item.id !== active} tabIndex={0} className={cn("min-h-0 flex-1 focus-visible:outline-none", panelClassName)}>
-      {item.content}
+      <TabPanelActiveContext.Provider value={parentActive && item.id === active}>{item.content}</TabPanelActiveContext.Provider>
     </div>)}
   </div>;
 }

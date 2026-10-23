@@ -6,7 +6,7 @@ import { Tabs } from "@/components/ui/tabs";
 import { HintReveal } from "@/components/problems/hint-reveal";
 import { SolutionTabs } from "@/components/problems/solution-tabs";
 import { StarterCode } from "@/components/problems/starter-code";
-import { VideoLesson } from "@/components/problems/video-lesson";
+import { WorkspaceVideoLessons } from "./video-lessons";
 import { ProblemNotes, ProgressControls } from "@/components/problems/personal-controls";
 import type { ProblemDetail } from "@/features/problems/detail-query";
 import { progressLabel } from "@/features/progress/presentation";
@@ -55,7 +55,7 @@ export function ProblemPanel({ problem, submissions, loginHref }: { problem: Pro
   </div>;
   const hints = <div className="space-y-6">
     <section aria-labelledby="hints-heading"><h2 id="hints-heading" className={heading}>Layered hints</h2><HintReveal key={problem.slug} hints={problem.hints} /></section>
-    {(problem.videos.length > 0 || problem.walkthroughs.length > 0) && <section aria-labelledby="video-heading"><h2 id="video-heading" className={heading}>Video lessons</h2><VideoLesson key={problem.slug} videos={problem.videos} walkthroughs={problem.walkthroughs} /></section>}
+    {(problem.videos.length > 0 || problem.walkthroughs.length > 0) && <section aria-labelledby="video-heading"><h2 id="video-heading" className={heading}>Video lessons</h2><WorkspaceVideoLessons key={problem.slug} videos={problem.videos} walkthroughs={problem.walkthroughs} /></section>}
     <section aria-labelledby="solutions-heading"><h2 id="solutions-heading" className={heading}>Guided solutions</h2><SolutionTabs key={problem.slug} solutions={problem.solutions} /></section>
     <details className="rounded-lg border border-line">
       <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium text-muted hover:text-ink">Starter code reference</summary>
