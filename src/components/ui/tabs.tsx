@@ -39,7 +39,7 @@ export function Tabs({ items, label, defaultTab, className, listClassName, panel
         </button>;
       })}
     </div>
-    {items.map((item) => <div key={item.id} role="tabpanel" id={`${base}-panel-${item.id}`} aria-labelledby={`${base}-tab-${item.id}`} hidden={item.id !== active} tabIndex={0} className={cn("min-h-0 flex-1 focus-visible:outline-none", panelClassName)}>
+    {items.map((item) => <div key={item.id} role="tabpanel" id={`${base}-panel-${item.id}`} aria-labelledby={`${base}-tab-${item.id}`} hidden={item.id !== active} tabIndex={0} className={cn("min-h-0 flex-1 focus-visible:outline-offset-[-2px]", panelClassName)}>
       <TabPanelActiveContext.Provider value={parentActive && item.id === active}>{item.content}</TabPanelActiveContext.Provider>
     </div>)}
   </div>;

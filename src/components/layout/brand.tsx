@@ -9,11 +9,11 @@ export function BrandMark({ className }: { className?: string }) {
   </span>;
 }
 
-export function Brand({ compact = false }: { compact?: boolean }) {
+export function Brand({ compact = false, compactOnMobile = false }: { compact?: boolean; compactOnMobile?: boolean }) {
   return (
     <Link href="/" aria-label={`${APP_CONFIG.name} home`} className="inline-flex h-9 shrink-0 items-center gap-2.5 rounded-md">
       <BrandMark />
-      {!compact && <span className="text-[0.9375rem] font-semibold tracking-tight">{APP_CONFIG.name}</span>}
+      {!compact && <span className={cn("text-[0.9375rem] font-semibold tracking-tight", compactOnMobile && "hidden sm:inline")}>{APP_CONFIG.name}</span>}
     </Link>
   );
 }

@@ -26,14 +26,16 @@ const toneText = { success: "text-success", warm: "text-warm", danger: "text-dan
 
 
 /** Bottom drawer of the editor panel: visible test cases, optional custom input, and the latest result. */
-export function ExecutionPanels({ examples, available = false, result, pending = false, custom, drawer }: {
-  examples: EditorExample[]; available?: boolean; result?: ExecutionResult; pending?: boolean; custom?: ReactNode; drawer?: DrawerState;
+export function ExecutionPanels({ examples, available = false, result, pending = false, custom, customAvailable = true, drawer }: {
+  examples: EditorExample[]; available?: boolean; result?: ExecutionResult; pending?: boolean; custom?: ReactNode; customAvailable?: boolean; drawer?: DrawerState;
 }) {
   const own = useDrawerState();
   const { tab, setTab, open, setOpen, tall, setTall } = drawer ?? own;
   const base = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
-  const tabs: { id: DrawerTab; label: string }[] = [{ id: "cases", label: "Test cases" }, ...(custom ? [{ id: "custom" as const, label: "Custom input" }] : []), { id: "result", label: "Result" }];
+  // Keep custom arguments and results mounted across language changes, while navigation only includes available panels.
+  const panels: { id: DrawerTab; label: string }[] = [{ id: "cases", label: "Test cases" }, ...(custom ? [{ id: "custom" as const, label: "Custom input" }] : []), { id: "result", label: "Result" }];
+  const tabs = panels.filter((item) => item.id !== "custom" || customAvailable);
   const active = tabs.some((item) => item.id === tab) ? tab : "cases";
   const choose = (index: number) => { const item = tabs[(index + tabs.length) % tabs.length]; setTab(item.id); setOpen(true); refs.current[(index + tabs.length) % tabs.length]?.focus(); };
   const onKeyDown = (event: KeyboardEvent, index: number) => {
@@ -64,7 +66,7 @@ export function ExecutionPanels({ examples, available = false, result, pending =
           {open ? <ChevronDown aria-hidden="true" size={15} /> : <ChevronUp aria-hidden="true" size={15} />}</button>
       </div>
     </div>
-    {tabs.map((item) => <div key={item.id} role="tabpanel" id={`${base}-panel-${item.id}`} aria-labelledby={`${base}-tab-${item.id}`} hidden={!open || item.id !== active} tabIndex={0} className="min-h-0 flex-1 overflow-y-auto p-3 focus-visible:outline-offset-[-2px]">
+    {panels.map((item) => <div key={item.id} role="tabpanel" id={`${base}-panel-${item.id}`} aria-labelledby={`${base}-tab-${item.id}`} hidden={!open || item.id !== active || (item.id === "custom" && !customAvailable)} tabIndex={0} className="min-h-0 flex-1 overflow-y-auto p-3 focus-visible:outline-offset-[-2px]">
       {item.id === "cases" ? <TestCases examples={examples} /> : item.id === "custom" ? custom : <ResultView examples={examples} available={available} result={result} pending={pending} />}
     </div>)}
   </div>;
