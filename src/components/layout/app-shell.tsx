@@ -9,7 +9,7 @@ export function TopBar({ signedIn = false, admin = false, wide = false }: { sign
   return <header className="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur supports-[backdrop-filter]:bg-canvas/70">
     <div className={cn("mx-auto flex h-14 items-center gap-3 px-4 sm:px-6", wide ? "max-w-none" : "max-w-[1400px]")}>
       <MobileNav />
-      <Brand />
+      <Brand compactOnMobile />
       <span aria-hidden="true" className="mx-1 hidden h-5 w-px bg-line md:block" />
       <PrimaryLinks />
       <div className="ml-auto flex items-center gap-2">

@@ -83,7 +83,7 @@ it("disables Python honestly when the server cannot run it, without touching the
     await render({ language: "PYTHON", ...extra });
     expect(button("Run visible tests").disabled).toBe(true); expect(button("Submit solution").disabled).toBe(true);
     expect(host.textContent).toContain("Python code cannot be run on this server yet, so Run and Submit are disabled.");
-    expect(host.textContent).not.toContain("in your browser"); expect(host.textContent).not.toContain("Sign in to");
+    expect(host.querySelector('[role="group"][aria-label="How running and submitting work"]')?.textContent).not.toContain("in your browser"); expect(host.textContent).not.toContain("Sign in to");
   }
   await render({ serverLanguages: ["JAVASCRIPT"] });
   expect(button("Run visible tests").disabled).toBe(false); expect(button("Submit solution").disabled).toBe(false);
@@ -99,7 +99,7 @@ it("explains proposed server payload retention while keeping browser Run separat
   expect(host.textContent).toContain("Older data may remain if you stop using the server runner.");
   await render({ language: "PYTHON", serverLanguages: ["JAVASCRIPT", "PYTHON"] });
   expect(host.textContent).toContain("After a server Run or Submit is saved");
-  expect(host.textContent).not.toContain("in your browser");
+  expect(host.querySelector('[role="group"][aria-label="How running and submitting work"]')?.textContent).not.toContain("in your browser");
   await render({ enabled: false });
   expect(host.textContent).not.toContain("attempts older than 30 days");
 });

@@ -93,8 +93,8 @@ export function RunnerControls({ slug, code, language, enabled, signedIn, exampl
   const mod = mac ? "⌘" : "Ctrl";
   const customAvailable = browserRun && Boolean(signature);
   return <>
-    <ExecutionPanels examples={examples} available={canRun || canSubmit} pending={pending} result={last?.response.success ? last.response.result : undefined} drawer={drawer}
-      custom={customAvailable && signature ? <CustomInputPanel code={code} signature={signature} firstExample={examples[0]?.input} validCode={validCode} /> : undefined} />
+    <ExecutionPanels examples={examples} available={canRun || canSubmit} pending={pending} result={last?.response.success ? last.response.result : undefined} drawer={drawer} customAvailable={customAvailable}
+      custom={signature ? <CustomInputPanel code={code} signature={signature} firstExample={examples[0]?.input} validCode={customAvailable && validCode} /> : undefined} />
     <div className="shrink-0 space-y-1.5 border-t border-line bg-surface px-3 py-2">
       <div className="space-y-1 empty:hidden">
         {code.length > 20_000 && <p className="text-xs text-warm">Code must be at most 20,000 characters.</p>}

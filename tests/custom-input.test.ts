@@ -61,8 +61,34 @@ async function setText(text: string) {
 describe("custom input panel", () => {
   it("is offered only for JavaScript with a signature", async () => {
     await render(); expect(panel()).not.toBeNull();
-    await render({ language: "PYTHON", serverLanguages: ["JAVASCRIPT", "PYTHON"] }); expect(panel()).toBeNull();
+    await render({ language: "PYTHON", serverLanguages: ["JAVASCRIPT", "PYTHON"] });
+    expect(panel()?.closest<HTMLElement>('[role="tabpanel"]')?.hidden).toBe(true);
+    expect(host.querySelector('[role="tab"][id$="-tab-custom"]')).toBeNull();
     await render({ signature: undefined }); expect(panel()).toBeNull();
+  });
+  it.each(["", " ", "x".repeat(20_001)])("does not run disabled code through the custom shortcut (%#)", async (code) => {
+    await render({ code });
+    expect(runButton().disabled).toBe(true);
+    const event = new KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true, cancelable: true });
+    await act(() => { host.querySelector("textarea")!.dispatchEvent(event); });
+    expect(f.browser).not.toHaveBeenCalled(); expect(f.execute).not.toHaveBeenCalled(); expect(event.defaultPrevented).toBe(false);
+  });
+  it("leaves submit, Alt, repeating and composing shortcuts alone in custom input", async () => {
+    await render();
+    for (const extra of [{ shiftKey: true }, { altKey: true }, { repeat: true }, { isComposing: true }]) {
+      const event = new KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true, cancelable: true, ...extra });
+      await act(() => { host.querySelector("textarea")!.dispatchEvent(event); });
+      expect(event.defaultPrevented).toBe(false);
+    }
+    expect(f.browser).not.toHaveBeenCalled(); expect(f.execute).not.toHaveBeenCalled();
+  });
+  it.each(["ctrlKey", "metaKey"])("runs the custom arguments locally with %s+Enter", async (modifier) => {
+    f.browser.mockResolvedValue({ cases: [{ position: 0, status: "WRONG_ANSWER", stdout: "42", diagnostic: "", runtimeMs: 1 }] });
+    await render(); await setText('{"loads":[7],"width":1}');
+    const event = new KeyboardEvent("keydown", { key: "Enter", [modifier]: true, bubbles: true, cancelable: true });
+    await act(async () => { host.querySelector("textarea")!.dispatchEvent(event); });
+    expect(f.browser).toHaveBeenCalledExactlyOnceWith({ entryPoint: "relayWindow", keys, code: props.code, cases: [{ position: 0, input: { loads: [7], width: 1 }, expected: null }] });
+    expect(event.defaultPrevented).toBe(true); expect(f.execute).not.toHaveBeenCalled();
   });
   it("shows validation errors and never runs invalid input", async () => {
     await render(); await setText("{nope"); await act(() => runButton().click());
@@ -85,5 +111,18 @@ describe("custom input panel", () => {
       cases: [{ position: 0, status: "RUNTIME_ERROR", input: {}, expected: null, stdout: "", diagnostic: "ReferenceError: boom", runtimeMs: 1, memoryKb: null }] });
     await render(); await act(async () => { runButton().click(); });
     expect(panel()?.textContent).toContain("ReferenceError: boom"); expect(f.execute).not.toHaveBeenCalled();
+  });
+  it("marks output stale when arguments change while the captured run is pending", async () => {
+    let finish!: (value: { cases: CaseResult[] }) => void;
+    f.browser.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    await render(); await setText('{"loads":[7],"width":1}'); await act(() => runButton().click());
+    await setText('{"loads":[9],"width":1}');
+    await act(async () => finish({ cases: [{ position: 0, status: "WRONG_ANSWER", input: {}, expected: null, stdout: "7", diagnostic: "", runtimeMs: 1, memoryKb: null }] }));
+    expect(panel()?.textContent).toContain("earlier code or arguments");
+    expect(panel()?.textContent).toContain("Returned value");
+    await setText('{"loads":[7],"width":1}');
+    expect(panel()?.textContent).not.toContain("earlier code or arguments");
+    await render({ code: `${props.code}\n// edited` });
+    expect(panel()?.textContent).toContain("earlier code or arguments");
   });
 });
