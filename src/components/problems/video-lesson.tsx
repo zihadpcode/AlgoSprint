@@ -13,10 +13,11 @@ type Video = Omit<ProblemDetail["videos"][number], "codingLanguages"> & { coding
 // Fixed framing keeps reference lessons distinct from the exact AlgoSprint contract.
 export const VIDEO_FRAMING = "These are reference lessons. The video may solve a related problem; the bridge notes explain what matches and what you still need to adapt for AlgoSprint.";
 
-export function VideoLesson({ videos, walkthroughs = [] }: { videos: Video[]; walkthroughs?: ProblemWalkthrough[] }) {
+export function VideoLesson({ videos, walkthroughs = [], isVisible = true }: { videos: Video[]; walkthroughs?: ProblemWalkthrough[]; isVisible?: boolean }) {
   const study = useStudyLanguage();
   const [localLanguage, setLocalLanguage] = useState("ALL");
   const [otherFor, setOtherFor] = useState<string | null>(null);
+  const [playbackSession, setPlaybackSession] = useState(0);
   const language = study?.language ?? localLanguage;
   const available = study?.languages ?? [...new Set([...videos.flatMap((video) => video.codingLanguages ?? []), ...walkthroughs.map((walkthrough) => walkthrough.language)])];
   const matchingWalkthroughs = language === "ALL" ? walkthroughs : walkthroughs.filter((walkthrough) => walkthrough.language === language);
@@ -27,7 +28,10 @@ export function VideoLesson({ videos, walkthroughs = [] }: { videos: Video[]; wa
   if (!videos.length && !walkthroughs.length) return null;
   return <div>
     <p className="mt-3 text-sm leading-7 text-muted">{walkthroughs.length ? "AlgoSprint walkthroughs use this exact problem. External reference lessons include bridge notes explaining what to adapt." : VIDEO_FRAMING}</p>
-    <details className="mt-4">
+    <details className="mt-4" onToggle={(event) => {
+      // Hiding a native disclosure does not stop its media. Unmount loaded players on close.
+      if (!event.currentTarget.open) setPlaybackSession((session) => session + 1);
+    }}>
       <summary className="cursor-pointer rounded-xl border border-line p-4 font-semibold text-accent">Reveal {videos.length + walkthroughs.length === 1 ? "the video lesson" : "video lessons"}</summary>
       <p className="my-5 text-sm leading-7 text-muted">The concept and the bridge can hint at the approach. Try the hints first if you want to find the idea yourself.</p>
       {(available.length > 0 || study) && <label className="mb-4 flex flex-wrap items-center gap-3 text-sm font-medium">Video language
@@ -39,8 +43,8 @@ export function VideoLesson({ videos, walkthroughs = [] }: { videos: Video[]; wa
         </select>
       </label>}
       {matching.length === 0 && matchingWalkthroughs.length === 0 && <p role="status" className="mb-4 text-sm leading-7 text-muted">No video with verified {studyLanguageLabel(language ?? "selected-language")} code is available here yet. Other concept lessons may still help.</p>}
-      {matchingWalkthroughs.length > 0 && <ul className="mb-8 space-y-8">{matchingWalkthroughs.map((walkthrough) =>
-        <li key={`${walkthrough.src}:${language}`}><ProblemWalkthroughVideo walkthrough={walkthrough} /></li>)}</ul>}
+      {isVisible && matchingWalkthroughs.length > 0 && <ul className="mb-8 space-y-8">{matchingWalkthroughs.map((walkthrough) =>
+        <li key={`${walkthrough.src}:${language}:${playbackSession}:${isVisible}`}><ProblemWalkthroughVideo walkthrough={walkthrough} /></li>)}</ul>}
       {otherCount > 0 && <div className="mb-5">
         <button type="button" className="min-h-11 text-left text-sm font-semibold text-accent underline underline-offset-4"
           onClick={() => setOtherFor(showingOther ? null : `${language}:${study?.selection ?? 0}`)}>
@@ -48,9 +52,9 @@ export function VideoLesson({ videos, walkthroughs = [] }: { videos: Video[]; wa
         </button>
         <p className="mt-1 text-xs leading-6 text-muted">These may use another programming language or have an unverified coding language. Their ideas can still transfer.</p>
       </div>}
-      <ul className="space-y-8">
-        {shown.map((video) => <li key={`${video.youtubeId}:${language}`}><VideoItem video={video} /></li>)}
-      </ul>
+      {isVisible && <ul className="space-y-8">
+        {shown.map((video) => <li key={`${video.youtubeId}:${language}:${playbackSession}:${isVisible}`}><VideoItem video={video} /></li>)}
+      </ul>}
     </details>
   </div>;
 }
