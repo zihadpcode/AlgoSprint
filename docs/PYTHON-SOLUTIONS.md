@@ -1,6 +1,6 @@
 # Python guided solutions
 
-The Python editorial add-on covers every existing JavaScript solution approach: 264 approaches across 125 published coding problems. Open a problem's **Hints & Editorial** tab, expand **Reveal guided solutions**, then select an approach labeled **python**. The editor's language selector controls the submitted code; guided approaches have their own labeled tabs.
+The Python editorial add-on covers every existing JavaScript solution approach: 264 approaches across 125 published coding problems. Open a problem's **Hints & Editorial** tab, expand **Reveal guided solutions**, then choose **Python** in **Solution language**. The editor, guided solutions and videos share the selected language; the approach tabs compare solutions in that language.
 
 Three reviewed files under `src/data/seeds/languages/python-solutions-{a,b,c}.json` contain the Python code and implementation-specific explanation overrides. `loadPythonSolutions()` combines those with the corresponding original algorithm's explanation and walkthrough. Each original approach must have exactly one Python translation. Function names and argument order match the Python starter contract. The original published problem JSON, seed hashes and JavaScript solutions remain unchanged.
 
