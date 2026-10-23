@@ -1,5 +1,13 @@
 # Reliability and release verification
 
+## Current checkpoint — October 22, 2026
+
+Production is on `403f538` ([PR93](https://github.com/zihadpcode/AlgoSprint/pull/93)), reviewed at `7b76422`. Both exact-head runs ([39833605749](https://github.com/zihadpcode/AlgoSprint/actions/runs/39833605749), [39833652337](https://github.com/zihadpcode/AlgoSprint/actions/runs/39833652337)) and [merged-main CI39834946480](https://github.com/zihadpcode/AlgoSprint/actions/runs/39834946480) succeeded: 973 unit/component tests passed with two optional skips, plus 183 PostgreSQL integration tests, seed validation, lint, types, build, sandbox trace and both HTTP smoke suites. Canonical production deployment `dpl_EEEWm5jTjvmaJ1J5QVGjwoQA8GDH` is Ready.
+
+The published catalog contains 125 coding problems, 20 learning paths with 332 steps and 105 noncoding interview prompts. JavaScript and Python execution are enabled across all 125 coding problems; the October 21 signed-in Python canary and exact starter readback are recorded in [the production evidence](evidence/python-production-2026-10-21.md). Python guided solutions cover all 264 original approaches. The video release publishes 198 mappings over 165 verified YouTube sources: 155 meaningful related problem/language pairs plus 95 exact original recordings (52 JavaScript, 43 Python), covering all 250 required pairs. Production readback matched all 198 mappings and preserved all 45 prior rows exactly; Problem, StarterCode, ProblemSolution and SolutionStep fingerprints were unchanged. [The video guide](VIDEO-SOLUTIONS.md) records media decoding, narration, captions and source validation.
+
+Representative production checks passed native JavaScript/Python playback, YouTube playback, coordinated language selectors and unloading the previous player, with no captured browser warnings/errors. A bounded ten-minute runtime-log scan found no HTTP 5xx records and two copies of the existing pg query deprecation warning. These observations do not complete broader two-account, auth-session, interview, draft-recovery, mobile, keyboard or accessibility acceptance. Those checks remain open below. Earlier dated sections retain their historical counts and verification limits.
+
 ## October 13 recovery and editor checkpoint
 
 The owner verified a fresh password reset and subsequent login with the new password after Supabase's Site URL and exact canonical callback allowlist entry were corrected. This is owner-verified live recovery; Codex did not read or enter the password. [ACCOUNT-RECOVERY.md](ACCOUNT-RECOVERY.md) records the configuration correction, installed-SDK regression checks and remaining expired/reused-link, resend and old-password checks. [PR54](https://github.com/zihadpcode/AlgoSprint/pull/54) also preserves the failed-callback alert when a browser already has a signed-in session.
@@ -94,7 +102,7 @@ A later bounded ten-minute production log query returned three pg concurrent-que
 | Interview acceptance | Save/reload/finish, server expiry, stale second tab, interrupted save and local recovery all behave correctly on the deployed application. |
 | Account recovery | Fresh reset and new-password login are owner-verified on October 13. Old-password rejection, signup-confirmation resend and live expired/reused-link/provider-limit cases remain open. |
 | Draft protection | Opt-in, owner/revision-scoped recovery never overwrites server saves; logout/account changes and expiration remove stored private drafts. |
-| Content expansion | The reviewed 100-problem / 18-path checkpoint is seeded and verified through October 13. Require the same trusted references, QuickJS checks and conflict-aware seed process for later expansion. |
+| Content expansion | The reviewed 125-problem / 20-path checkpoint is seeded, with 332 steps, Python starters for every problem, 264 Python guided approaches and full JavaScript/Python video coverage. Require trusted references, language-specific execution checks and conflict-aware insert-only publication for later expansion. |
 | Operations | CLI runtime logs and restoration are recorded above. Advisors were refreshed; measure submission/database/query behavior before claiming scale; scheduled health checks provide best-effort monitoring. |
 | Interface acceptance | Finish authenticated screenshots, keyboard, zoom, screen reader and actual mobile-browser checks in SCREENSHOTS.md. |
 
