@@ -25,3 +25,19 @@ Separately, a failed callback's fixed error now remains visible on `/login?confi
 An installed-SDK round-trip test now exercises the real request action, cookie storage, PKCE challenge, callback and reset-page rendering against a fully intercepted synthetic provider with signed ES256 claims. It covers successful recovery, signup-session denial, reused links, wrong-browser links and normal signed-in routing. The reused-link case failed before the fix because the existing session hid the alert.
 
 After the configuration correction, the owner reported on October 13: a fresh password reset worked, and login succeeded with the new password. This is owner-verified live recovery, rather than an automated credential test. Codex did not read, enter or change the password. Old-password rejection and signup-confirmation resend were not reported as tested. Future checks should start from the canonical [forgot-password page](https://algosprint-brown.vercel.app/forgot-password) and open the newest email link in the requesting browser.
+
+## October 27 authenticated acceptance (candidate 3f2d64a)
+
+Scope: no disposable Supabase test account or signed-in session was available to this lane, and creating one would have meant sending real signup mail or writing to the production auth schema, so no live signed-in flow was run. Nothing below is production-authentication proof.
+
+Run on Node 24.22.1 against a fresh local Postgres 17 database ending `_test` (owned container, random loopback port, migrations applied with `prisma migrate deploy`, removed afterwards):
+
+- `tests/auth*`: 10 files, 71 tests passed (actions, callback, forwarding, proxy and proxy coverage, recovery, recovery round-trip and SDK transport, session, validation).
+- `npm run test:integration`: 22 files, 183 tests passed. Ownership coverage includes owner-only notes, flags and saved lists with two users on the same problems (`saved`), owner-only progress and recent attempts (`progress`), interview reads, writes and reports denied to another user including an administrator (`interviews`), and database re-authorization that rejects a revoked administrator (`admin`).
+- Full unit run: 992 passed, 6 failed, 2 skipped. Failures: `admin-content` (rejects oversized/deep/null JSON, duplicate imports and untrusted command fields), `python-solutions` (compiles every Python editorial), `python-starters` (two tests), and `reference-batch7` (`tile-pop` and `scale-splits` worst-case sandbox runs). The four affected files passed unchanged when rerun together (82 tests). Whether concurrent load caused the failures is unconfirmed: the cause was not investigated, and no timeout or assertion was changed.
+
+Read-only requests to the deployed site (no cookies, no mail): `/dashboard`, `/notes`, `/bookmarks`, `/progress`, `/admin`, `/review`, `/mock-interview` and `/interview-results/<id>` answer 307 to `/login?next=…` (the results ID is not echoed). `/auth/callback` with an invalid code, with no code, and with an off-site `next` all answer 303 to `/login?confirmation=failed`. Anonymous `/reset-password` renders 200 without granting a reset.
+
+Still needing live access with disposable accounts: ordinary-user denial of `/admin`, cross-account note/bookmark/progress/interview ID probing, refresh and expired-session behavior, confirmation resend, expired and reused recovery links, and old-password rejection after a reset.
+
+A separate production Chrome read-only check after PR96 deployed as `3070f55` used an existing signed-in ordinary-user session: requesting `/admin` rendered the expected account-unavailable 404 page. No admin action or account mutation was attempted. This verifies representative signed-in page denial; direct-action denial, cross-account probes and the other disposable-account checks above remain pending.

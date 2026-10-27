@@ -22,7 +22,7 @@ export function ProblemCard({ problem }: { problem: Problem }) {
           {problem.progress?.reviewLater && <Badge tone="warm" className="h-5 px-1.5">Review later</Badge>}
         </p>
         {problem.categories.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Topics">
-          {problem.categories.slice(0, 3).map((category) => <Badge key={category.slug} className="h-5 px-1.5">{category.name}</Badge>)}
+          {problem.categories.slice(0, 3).map((category) => <Badge key={category.slug} className="h-auto min-h-5 max-w-full px-1.5 py-0.5 whitespace-normal [overflow-wrap:anywhere]">{category.name}</Badge>)}
           {problem.categories.length > 3 && <span className="text-xs text-subtle">+{problem.categories.length - 3}</span>}
         </div>}
       </div>
