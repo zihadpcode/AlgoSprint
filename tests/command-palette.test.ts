@@ -42,3 +42,23 @@ it("cannot open a previous query's problem while the next search is debouncing",
   expect(router.push).not.toHaveBeenCalledWith("/problems/alpha-problem");
   expect(router.push).toHaveBeenCalledWith("/problems?q=Beta");
 });
+
+it("keeps keyboard-selected results in view and opens the selected destination", async () => {
+  const scroll = vi.spyOn(HTMLElement.prototype, "scrollIntoView");
+  try {
+    const input = host.querySelector<HTMLInputElement>('input[role="combobox"]')!;
+    const options = [...host.querySelectorAll<HTMLElement>('[role="option"]')];
+    for (let index = 1; index < options.length; index++) {
+      await act(() => input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true })));
+      expect(scroll.mock.contexts.at(-1)).toBe(options[index]);
+      expect(scroll).toHaveBeenLastCalledWith({ block: "nearest" });
+      expect(input.getAttribute("aria-activedescendant")).toBe(options[index].id);
+    }
+    await act(() => input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true, cancelable: true })));
+    expect(scroll.mock.contexts.at(-1)).toBe(options.at(-2));
+    await act(() => input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true })));
+    expect(router.push).toHaveBeenCalledWith("/review");
+  } finally {
+    scroll.mockRestore();
+  }
+});

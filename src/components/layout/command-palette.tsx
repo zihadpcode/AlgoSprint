@@ -30,6 +30,7 @@ export function CommandPalette() {
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState(0);
   const input = useRef<HTMLInputElement>(null);
+  const results = useRef<HTMLUListElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const listId = useId();
 
@@ -77,6 +78,11 @@ export function CommandPalette() {
   }, [visibleHits, query]);
   const current = Math.min(active, Math.max(entries.length - 1, 0));
 
+  useEffect(() => {
+    // The input keeps focus while aria-activedescendant moves through the scrollable results.
+    if (open) results.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+  }, [open, current, entries]);
+
   const go = (entry: Entry | undefined) => { if (!entry) return; close(); router.push(entry.href); };
 
   if (!open) return null;
@@ -96,7 +102,7 @@ export function CommandPalette() {
           className="h-12 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-subtle" />
         <Kbd>Esc</Kbd>
       </div>
-      <ul id={listId} role="listbox" aria-label="Results" className="max-h-[min(60vh,26rem)] overflow-y-auto p-1.5">
+      <ul ref={results} id={listId} role="listbox" aria-label="Results" className="max-h-[min(60vh,26rem)] overflow-y-auto p-1.5">
         {entries.map((entry, index) => {
           const header = index === 0 || entries[index - 1].group !== entry.group;
           return <li key={entry.id} role="presentation">

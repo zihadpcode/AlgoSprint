@@ -31,7 +31,7 @@ it("prevents duplicate saves and advances only a confirmed answer token", async 
 });
 it("keeps a late draft available to copy instead of navigating away", async () => {
   const input = await edit(); await rate("1"); mocks.action.mockResolvedValue({ success: true, ended: true, message: "Time expired" });
-  await act(async () => { save(); }); expect(input.value).toBe("My response"); expect(mocks.push).not.toHaveBeenCalled(); expect(host.textContent).toContain("remains here to copy"); expect(host.querySelector("fieldset")!.disabled).toBe(true);
+  await act(async () => { save(); }); expect(input.value).toBe("My response"); expect(mocks.push).not.toHaveBeenCalled(); expect(host.textContent).toContain("remains here to copy"); expect(input.readOnly).toBe(true); expect(host.querySelector<HTMLButtonElement>("fieldset button")!.disabled).toBe(true);
 });
 it("starts every rating unchosen and saves an untouched answer as zeros without marking it dirty", async () => {
   expect([...host.querySelectorAll("select")].every((select) => select.value === "")).toBe(true);
@@ -104,6 +104,60 @@ it("clears unsaved local recovery after explicitly finishing without recreating 
   await edit(); expect(localStorage.getItem(draftKey(scope))).not.toBeNull();
   const originalConfirm = window.confirm; window.confirm = vi.fn(() => true); mocks.action.mockResolvedValue({ success: true, ended: true, message: "Finished" });
   const finish = [...host.querySelectorAll("button")].find((button) => button.textContent === "Finish and review")!;
-  await act(async () => finish.click()); expect(mocks.push).toHaveBeenCalledWith(`/interview-results/${session.id}`); expect(localStorage.getItem(draftKey(scope))).toBeNull(); expect(host.querySelector("fieldset")!.disabled).toBe(true);
+  await act(async () => finish.click()); expect(mocks.push).toHaveBeenCalledWith(`/interview-results/${session.id}`); expect(localStorage.getItem(draftKey(scope))).toBeNull(); expect(host.querySelector<HTMLTextAreaElement>("fieldset textarea")!.readOnly).toBe(true);
   window.confirm = originalConfirm; localStorage.clear();
+});
+
+it("keeps a server-ended session locked after the next countdown tick while preserving copyable text", async () => {
+  vi.useFakeTimers();
+  try {
+    await act(async () => root.render(createElement(InterviewSession, { session: { ...session, remainingMs: 60000 } })));
+    await edit(); await rate("1");
+    mocks.action.mockResolvedValue({ success: true, ended: true, message: "This session has ended." });
+    await act(async () => save());
+    await act(() => vi.advanceTimersByTime(1000));
+    const input = host.querySelector<HTMLTextAreaElement>("fieldset textarea")!;
+    expect(host.textContent).toContain("0:00 remaining");
+    expect(input.value).toBe("My response");
+    expect(input.readOnly).toBe(true);
+    expect(input.disabled || input.closest("fieldset")!.disabled).toBe(false);
+    expect(host.querySelector<HTMLSelectElement>("fieldset select")!.disabled).toBe(true);
+    expect(host.querySelector<HTMLButtonElement>("fieldset button")!.disabled).toBe(true);
+    expect(mocks.push).not.toHaveBeenCalled();
+  } finally { vi.useRealTimers(); }
+});
+
+it("keeps expired responses keyboard-accessible for copying without allowing another save", async () => {
+  await edit();
+  await act(async () => root.render(createElement(InterviewSession, { session: { ...session, remainingMs: 0 } })));
+  // The countdown refreshes from server props on its next tick.
+  await act(() => window.dispatchEvent(new Event("focus")));
+  const input = host.querySelector<HTMLTextAreaElement>("fieldset textarea")!;
+  expect(input.value).toBe("My response");
+  expect(input.readOnly).toBe(true);
+  expect(input.disabled || input.closest("fieldset")!.disabled).toBe(false);
+  input.focus(); expect(document.activeElement).toBe(input);
+  expect(host.querySelector<HTMLButtonElement>("fieldset button")!.disabled).toBe(true);
+  expect(mocks.action).not.toHaveBeenCalled();
+});
+
+it("offers an unrestored device answer for copying when the open interview expires", async () => {
+  const { readDeviceDraft, writeDeviceDraft } = await import("@/features/drafts/storage");
+  const scope = { owner: "verified-user", kind: "interview" as const, target: session.id, revision: JSON.stringify([[session.questions[0].id, 1]]) };
+  localStorage.clear();
+  readDeviceDraft(localStorage, scope);
+  writeDeviceDraft(localStorage, scope, JSON.stringify([{ ...EMPTY_ANSWER, reasoning: "Unrestored device answer" }]), JSON.stringify([session.questions[0].token]));
+  await act(() => root.unmount()); root = createRoot(host);
+  await act(async () => root.render(createElement(InterviewSession, { session, draftOwner: scope.owner })));
+  expect([...host.querySelectorAll("button")].some((button) => button.textContent === "Restore device draft")).toBe(true);
+  await act(async () => root.render(createElement(InterviewSession, { session: { ...session, remainingMs: 0 }, draftOwner: scope.owner })));
+  await act(() => window.dispatchEvent(new Event("focus")));
+  const copy = host.querySelector<HTMLTextAreaElement>('textarea[aria-label="Device draft for copying"]')!;
+  expect(copy.value).toContain("Unrestored device answer");
+  expect(copy.readOnly).toBe(true);
+  copy.focus(); expect(document.activeElement).toBe(copy);
+  expect(host.querySelector<HTMLTextAreaElement>("fieldset textarea")!.value).toBe("");
+  expect([...host.querySelectorAll("button")].some((button) => button.textContent === "Restore device draft")).toBe(false);
+  expect(mocks.action).not.toHaveBeenCalled();
+  localStorage.clear();
 });

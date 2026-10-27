@@ -28,13 +28,17 @@ export function UserMenu({ name, email, admin = false }: { name: string; email?:
     if (!open) return;
     const onPointer = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); return; }
+      const withinMenu = root.current?.contains(event.target as Node);
+      if (event.key === "Escape") { setOpen(false); if (withinMenu) trigger.current?.focus(); return; }
+      // Tab may have moved focus beyond this disclosure while it remains open.
+      if (!withinMenu) return;
       if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
       const links = [...(root.current?.querySelectorAll<HTMLElement>("[data-menu-item]") ?? [])];
       if (!links.length) return;
       event.preventDefault();
       const index = links.indexOf(document.activeElement as HTMLElement);
-      links[(index + (event.key === "ArrowDown" ? 1 : -1) + links.length) % links.length]?.focus();
+      const next = index < 0 ? (event.key === "ArrowDown" ? 0 : links.length - 1) : (index + (event.key === "ArrowDown" ? 1 : -1) + links.length) % links.length;
+      links[next]?.focus();
     };
     document.addEventListener("pointerdown", onPointer);
     document.addEventListener("keydown", onKey);

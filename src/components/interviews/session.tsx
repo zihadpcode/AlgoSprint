@@ -38,11 +38,12 @@ export function InterviewSession({ session, draftOwner = null }: { session: Sess
   const draftScope = draftOwner ? { owner: draftOwner, kind: "interview" as const, target: session.id, revision: JSON.stringify(session.questions.map((q) => [q.id, q.prompt.revision])) } : null;
   const dirty = drafts.some((d, i) => JSON.stringify(toAnswer(d)) !== saved[i]);
   useEffect(() => {
+    if (ended) return;
     baseline.current = performance.now(); const wallStart = Date.now();
     const tick = () => setRemaining(Math.max(0, session.remainingMs - Math.max(Date.now() - wallStart, performance.now() - baseline.current!)));
     const timer = setInterval(tick, 500); window.addEventListener("focus", tick);
     return () => { clearInterval(timer); window.removeEventListener("focus", tick); };
-  }, [session.id, session.remainingMs]);
+  }, [session.id, session.remainingMs, ended]);
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => { if (dirty) event.preventDefault(); };
     window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn);
@@ -60,8 +61,7 @@ export function InterviewSession({ session, draftOwner = null }: { session: Sess
     try {
       const result = await interviewAction(operation === "save" ? { operation, id: session.id, questionId: session.questions[index!].id, token: tokens[index!], answer: toAnswer(drafts[index!]) } : { operation, id: session.id });
       setMessage(result.message);
-      if (result.success && result.ended) { if (operation === "save") { setRemaining(0); setMessage(`${result.message} Your text remains here to copy before opening the report.`); } else {
-        setEnded(true);
+      if (result.success && result.ended) { setEnded(true); if (operation === "save") { setRemaining(0); setMessage(`${result.message} Your text remains here to copy before opening the report.`); } else {
         try { if (draftScope) removeDeviceDraft(window.localStorage, draftScope); } catch { /* Storage can be blocked. */ }
         router.push(`/interview-results/${session.id}`);
       } return; }
@@ -69,6 +69,7 @@ export function InterviewSession({ session, draftOwner = null }: { session: Sess
     } catch { setMessage("Could not confirm the save. Copy your draft, then reload to check the saved version."); }
     finally { busy.current = false; setPending(false); }
   }
+  const answerLocked = seconds === 0 || ended;
   const low = seconds > 0 && seconds <= 300;
   return <div className="space-y-5">
     <div className="sticky top-14 z-30 -mx-4 border-b border-line bg-canvas/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
@@ -80,7 +81,7 @@ export function InterviewSession({ session, draftOwner = null }: { session: Sess
       <p role="status" aria-live="polite" className="empty:hidden mt-2 text-sm">{message}</p>
       {seconds === 0 && <p role="alert" className="mt-2 text-sm text-warm">Time is up. Copy any unsaved text if needed, then open the report. Only answers received before the server deadline count.</p>}
     </div>
-    <DeviceDraftRecovery scope={draftScope} value={JSON.stringify(drafts)} dirty={dirty} baseline={JSON.stringify(tokens)} disabled={pending || seconds === 0 || ended} onClear={clearDrafts} onRestore={(payload) => {
+    <DeviceDraftRecovery scope={draftScope} value={JSON.stringify(drafts)} dirty={dirty} baseline={JSON.stringify(tokens)} disabled={pending || answerLocked} copyOnly={answerLocked} onClear={clearDrafts} onRestore={(payload) => {
       const restored = interviewDraftSchema.safeParse(JSON.parse(payload));
       if (restored.success && restored.data.length === session.questions.length) setDrafts(restored.data);
     }} />
@@ -91,14 +92,14 @@ export function InterviewSession({ session, draftOwner = null }: { session: Sess
         <p className="whitespace-pre-wrap text-sm leading-7">{q.prompt.statement}</p>
         <pre className="whitespace-pre-wrap break-words rounded-lg border border-line bg-canvas p-3 text-xs leading-6 text-muted">{q.prompt.details}</pre>
       </div>
-      <fieldset disabled={pending || seconds === 0 || ended} className="min-w-0 space-y-5 p-5"><legend className="sr-only">Your explanation and self-assessment</legend>
+      <fieldset disabled={pending} className="min-w-0 space-y-5 p-5"><legend className="sr-only">Your explanation and self-assessment</legend>
         <p className="text-sm text-muted">Write your answer, then rate each area honestly. Your score comes only from the three ratings; text without a rating cannot be saved.</p>
         {DIMENSIONS.map(([field, rating, label]) => <div key={field} className="space-y-2">
           <label htmlFor={`${q.id}-${field}`} className="block text-sm font-medium">{label}</label>
-          <Textarea id={`${q.id}-${field}`} maxLength={4000} rows={5} className="font-mono text-[0.8125rem]" value={drafts[index][field]} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [field]: e.target.value } : d))} />
-          <label className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted"><span>Self-rating for {label.toLowerCase()}</span><Select className="h-8 w-auto min-w-0 text-xs" value={drafts[index][rating] ?? ""} aria-invalid={Boolean(drafts[index][field].trim()) && drafts[index][rating] === null} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [rating]: e.target.value === "" ? null : Number(e.target.value) } : d))}><option value="">Choose a rating</option><option value="0">0 — Not yet explained</option><option value="1">1 — Partial explanation</option><option value="2">2 — Clear explanation with support</option></Select></label>
+          <Textarea id={`${q.id}-${field}`} readOnly={answerLocked} maxLength={4000} rows={5} className="font-mono text-[0.8125rem]" value={drafts[index][field]} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [field]: e.target.value } : d))} />
+          <label className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted"><span>Self-rating for {label.toLowerCase()}</span><Select disabled={answerLocked} className="h-8 w-auto min-w-0 text-xs" value={drafts[index][rating] ?? ""} aria-invalid={Boolean(drafts[index][field].trim()) && drafts[index][rating] === null} onChange={(e) => setDrafts((a) => a.map((d, i) => i === index ? { ...d, [rating]: e.target.value === "" ? null : Number(e.target.value) } : d))}><option value="">Choose a rating</option><option value="0">0 — Not yet explained</option><option value="1">1 — Partial explanation</option><option value="2">2 — Clear explanation with support</option></Select></label>
         </div>)}
-        <div className="flex flex-wrap items-center gap-3"><Button onClick={() => send("save", index)}>{pending ? "Working…" : "Save answer"}</Button><span className="text-xs text-muted">{JSON.stringify(toAnswer(drafts[index])) === saved[index] ? "No unsaved changes" : "Unsaved changes"}</span></div>
+        <div className="flex flex-wrap items-center gap-3"><Button disabled={answerLocked} onClick={() => send("save", index)}>{pending ? "Working…" : "Save answer"}</Button><span className="text-xs text-muted">{JSON.stringify(toAnswer(drafts[index])) === saved[index] ? "No unsaved changes" : "Unsaved changes"}</span></div>
       </fieldset>
     </section>)}
     <div className="flex flex-wrap gap-3"><Button size="lg" disabled={pending} onClick={() => send("finish")}>{seconds === 0 ? "Open report" : "Finish and review"}</Button><Button size="lg" disabled={pending} variant="secondary" onClick={() => send("abandon")}>Abandon session</Button></div>

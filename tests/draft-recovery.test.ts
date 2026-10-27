@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { act, createElement } from "react";
+import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { DeviceDraftRecovery } from "@/components/drafts/device-draft-recovery";
@@ -76,6 +77,21 @@ it("another tab signing out or switching account disables recovery and clears cu
   await enable(); await act(() => window.dispatchEvent(new StorageEvent("storage", { key: DRAFT_OWNER_KEY, newValue: "another-user" })));
   expect(clear).toHaveBeenCalledTimes(2); expect(host.querySelector<HTMLInputElement>("input")!.checked).toBe(false);
 });
+it("cannot reenable a revoked page or overwrite the new account's device draft", async () => {
+  await render(); await enable();
+  const other = { ...scope, owner: "new-account" };
+  readDeviceDraft(localStorage, other);
+  expect(writeDeviceDraft(localStorage, other, older)).toBe(true);
+  await act(() => window.dispatchEvent(new StorageEvent("storage", { key: DRAFT_OWNER_KEY, newValue: other.owner })));
+  await render({ value: JSON.stringify({ JAVASCRIPT: "stale account edit" }) });
+  await enable();
+  expect(host.querySelector<HTMLInputElement>("input")!.disabled).toBe(true);
+  expect(host.querySelector<HTMLInputElement>("input")!.checked).toBe(false);
+  expect(localStorage.getItem(DRAFT_OWNER_KEY)).toBe(other.owner);
+  expect(localStorage.getItem(draftKey(scope))).toBeNull();
+  expect(JSON.parse(localStorage.getItem(draftKey(other))!).payload).toBe(older);
+  expect(restore).not.toHaveBeenCalled();
+});
 it("storage failures leave editing usable with a clear copy-your-work message", async () => {
   const access = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => { throw new Error("blocked"); });
   await render(); expect(host.textContent).toContain("Device storage is unavailable"); expect(host.querySelector<HTMLInputElement>("input")!.disabled).toBe(true);
@@ -84,4 +100,40 @@ it("storage failures leave editing usable with a clear copy-your-work message", 
 it("ended interviews offer copy-only local text and discard without saving or scoring", async () => {
   seed(); await render({ copyOnly: true, disabled: true }); expect(host.textContent).toContain("This interview has ended"); expect(host.querySelector("textarea")!.value).toContain("recovered work"); expect(restore).not.toHaveBeenCalled();
   expect([...host.querySelectorAll("button")].some((entry) => entry.textContent === "Restore device draft")).toBe(false); await click("Discard device draft"); expect(localStorage.getItem(draftKey(scope))).toBeNull();
+});
+
+it("does not access draft storage after its deferred load was unmounted", async () => {
+  const other = { ...scope, owner: "new-account" };
+  readDeviceDraft(localStorage, other);
+  expect(writeDeviceDraft(localStorage, other, older)).toBe(true);
+  await act(async () => {
+    flushSync(() => root.render(createElement(DeviceDraftRecovery, { scope, value, dirty: true, onRestore: restore, onClear: clear })));
+    flushSync(() => root.render(null));
+  });
+  expect(localStorage.getItem(DRAFT_OWNER_KEY)).toBe(other.owner);
+  expect(localStorage.getItem(draftKey(other))).not.toBeNull();
+});
+
+it("does not reclaim an owner marker when logout interrupts the deferred storage load", async () => {
+  await act(async () => {
+    flushSync(() => root.render(createElement(DeviceDraftRecovery, { scope, value, dirty: true, onRestore: restore, onClear: clear })));
+    clearBrowserDrafts();
+  });
+  expect(clear).toHaveBeenCalledOnce();
+  expect(localStorage.getItem(DRAFT_OWNER_KEY)).toBeNull();
+  expect(host.querySelector<HTMLInputElement>('input[type="checkbox"]')!.disabled).toBe(true);
+});
+
+it("preserves another tab's new account when ownership changes before the deferred load", async () => {
+  const other = { ...scope, owner: "new-account" };
+  await act(async () => {
+    flushSync(() => root.render(createElement(DeviceDraftRecovery, { scope, value, dirty: true, onRestore: restore, onClear: clear })));
+    readDeviceDraft(localStorage, other);
+    expect(writeDeviceDraft(localStorage, other, older)).toBe(true);
+    window.dispatchEvent(new StorageEvent("storage", { key: DRAFT_OWNER_KEY, newValue: other.owner }));
+  });
+  expect(clear).toHaveBeenCalledOnce();
+  expect(localStorage.getItem(DRAFT_OWNER_KEY)).toBe(other.owner);
+  expect(localStorage.getItem(draftKey(other))).not.toBeNull();
+  expect(host.querySelector<HTMLInputElement>('input[type="checkbox"]')!.disabled).toBe(true);
 });
