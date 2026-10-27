@@ -1,6 +1,14 @@
 # Reliability and release verification
 
-## Current checkpoint — October 22, 2026
+## Current checkpoint — October 27, 2026
+
+[PR96](https://github.com/zihadpcode/AlgoSprint/pull/96) merged the practice-reliability patch as `3070f55`, reviewed at `3f2d64a`. Both exact-head runs [40557942577](https://github.com/zihadpcode/AlgoSprint/actions/runs/40557942577) and [40557992164](https://github.com/zihadpcode/AlgoSprint/actions/runs/40557992164) passed 998 unit/component/migration tests with two optional skips and 183 PostgreSQL integration tests, plus the full validation pipeline. The merged source tree matches the reviewed head. Canonical production deployment `dpl_4bd3ECfRXZDqG8tLzCh9KLXxEwQc` is Ready for the exact merge.
+
+Production Chrome verified ArrowUp from the account trigger selects the last destination, Escape restores focus, Enter activates the search trigger, and the last keyboard-selected search result stays inside its scrolled list with the matching active-descendant ID. An existing signed-in ordinary-user session received the expected unavailable 404 at `/admin`; no account or progress data was modified. These checks do not replace live two-account or direct-admin-action acceptance. The owner selected local account checks for this pass.
+
+[Operational verification](DEPLOYMENT.md#october-27-operational-verification) records current database protection, bounded logs, a public concurrency sample, fully paginated idle-VM readback and a successful synthetic database restore. Encrypted production backup scheduling, actual remaining hosted quota, authenticated throughput and full Auth recovery remain open. Local guest accessibility checks identified two further small fixes: wrapping long topic badges and underlining a leaderboard link; their browser evidence and remaining actual-device/zoom/screen-reader checks are in [SCREENSHOTS.md](SCREENSHOTS.md).
+
+## October 22 video checkpoint
 
 The October 22 video release is `403f538` ([PR93](https://github.com/zihadpcode/AlgoSprint/pull/93)), reviewed at `7b76422`. Both exact-head runs ([39833605749](https://github.com/zihadpcode/AlgoSprint/actions/runs/39833605749), [39833652337](https://github.com/zihadpcode/AlgoSprint/actions/runs/39833652337)) and [merged-main CI39834946480](https://github.com/zihadpcode/AlgoSprint/actions/runs/39834946480) succeeded: 973 unit/component tests passed with two optional skips, plus 183 PostgreSQL integration tests, seed validation, lint, types, build, sandbox trace and both HTTP smoke suites. That release was verified on Ready canonical production deployment `dpl_EEEWm5jTjvmaJ1J5QVGjwoQA8GDH`.
 
