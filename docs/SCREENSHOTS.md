@@ -67,3 +67,22 @@ After the October 13 path seed from `b680f58`, Chrome at 1521×881 rendered [Hea
 At production `b7bf9a4`, desktop Chrome with temporary 390×844 and 320×844 viewport overrides rendered Dock Threshold without whole-page horizontal overflow: document scroll width equaled each viewport width. The expanded concept/bridge text wrapped, and the player stayed inside the card (264px and 194px wide respectively). Enter revealed the lesson and activated the 0:58 chapter; Tab moved to the next chapter button with a visible focus ring. [390px capture](screenshots/2026-10-14-video-narrow-390.jpg). Before activation no iframe was present; activation used the expected `youtube-nocookie.com` URL and `start=58`.
 
 At 320px the Monaco editor was bounded at 228px wide and both execution buttons remained inside the viewport. Code regions retain their own horizontal scrolling. Device recovery stayed off; no code, note, progress, bookmark or submission was saved. The created tab was closed and the viewport override reset. These are desktop responsive-layout and representative keyboard checks, not actual mobile input, 200% zoom, screen-reader or complete authenticated acceptance.
+
+### October 27 candidate accessibility acceptance (guest, local)
+
+Candidate `3f2d64a` plus the fix commit below, served locally with `next dev --webpack` against a disposable Postgres 17 container (same reviewed migrations and seeds, 125 published problems, in-process sandbox runner, no Supabase configuration, so guest-only). Driven by Google Chrome headless via the DevTools protocol; axe-core 4.x was run with the WCAG 2.0/2.1/2.2 A/AA tags. Desktop viewport emulation only: this is not an actual mobile-device, on-screen-keyboard or screen-reader test. The dev server's floating Next.js indicator is not product UI.
+
+| Check | Result |
+| --- | --- |
+| Whole-page horizontal overflow at 1440, 390, 320, 200% zoom (640 CSS px) and 400% zoom (320 CSS px) on `/`, `/problems`, `/problems/relay-window`, `/roadmaps`, `/login`, `/register`, `/leaderboard` | **Defect found and fixed:** `/problems` was 359px wide at 320px because a nowrap topic badge ("Object-Oriented Programming Interview Problems") in the small-screen problem card could not wrap. Rechecked: no overflow in any configuration. |
+| axe at 1440 and 320 on the same pages | **Defect found and fixed:** the "Browse problems" link in the leaderboard footnote was distinguished by color only (`link-in-text-block`, serious); it is now underlined. No other violations in guest views. |
+| Keyboard order, problem page at 1440 and 320 | Skip link first, then header, workspace tabs, statement, editor controls. Every stop showed a focus indicator; no trap. The resize separator exposes `aria-valuenow/min/max` and turns accent-colored on keyboard focus. |
+| Command palette | Opens by Ctrl/Cmd+K and from the trigger button; `aria-modal`, combobox with `aria-activedescendant`, listbox of options; 8 Tab presses stayed inside; Escape closes and returns focus to the trigger. |
+| Monaco | Tab leaves the editor to the next control, Shift+Tab re-enters, Escape keeps focus in the editor (so Tab remains the exit); no trap. |
+| Mobile menu at 320px | Escape collapses it and returns focus to the "Open menu" button. It is a disclosure, so focus is not moved into it on open. |
+| Runner status | A run's result appears in a `role="status"` `aria-live="polite"` region as text (the starter's "Not implemented" error was announced as an error, not success). |
+| Interview timer | Source inspection only (no account access): the timer is `role="timer"` (no continuous live announcements), saved/error messages use a polite status, and expiry uses a one-time `role="alert"`. Not exercised in a browser. |
+| Reduced motion | With `prefers-reduced-motion: reduce` emulated, no animations ran on the landing page and smooth scroll is off. |
+| Input font size | Real inputs/selects compute to 16px at 390px; the only 15px field is Monaco's internal IME textarea. |
+
+Still not verified: authenticated pages (dashboard, saved notes/bookmarks/review, active interview and report, admin), actual iOS/Android devices and on-screen keyboards, and any real screen reader (VoiceOver, NVDA, TalkBack). The small "← Problems" breadcrumb link is 16px tall at 390px (passes axe through the spacing exception, below the 24px target on its own); not changed. No screenshots were added to the repository because the captures contain the dev-server indicator.

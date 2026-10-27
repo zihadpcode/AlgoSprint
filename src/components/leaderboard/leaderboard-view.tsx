@@ -77,6 +77,6 @@ export function LeaderboardView({ data, signedIn, optedIn }: { data: Leaderboard
         </table>
       </section>}
     </>}
-    <p className="text-xs leading-5 text-subtle">Ranked by judge-verified solves of published problems (self-marked solves do not count). Ties go to whoever reached their latest solve first. Shows the top 100. <Link href="/problems" className="text-muted underline-offset-2 hover:text-ink hover:underline">Browse problems</Link></p>
+    <p className="text-xs leading-5 text-subtle">Ranked by judge-verified solves of published problems (self-marked solves do not count). Ties go to whoever reached their latest solve first. Shows the top 100. <Link href="/problems" className="text-muted underline underline-offset-2 hover:text-ink">Browse problems</Link></p>
   </div>;
 }

@@ -47,6 +47,14 @@ it("renders the small-screen card with the same facts", () => {
   const html = renderToStaticMarkup(createElement(ProblemCard, { problem: problem({ progress: solved }) }));
   for (const text of ["Relay &lt;b&gt;Window&lt;/b&gt;", "Medium", "25 min", "Arrays", "+0", "Review later"]) if (text !== "+0") expect(html).toContain(text);
 });
+it("lets long topic names wrap inside the small-screen card instead of widening the page", () => {
+  const long = "Object-Oriented Programming Interview Problems";
+  const html = renderToStaticMarkup(createElement(ProblemCard, { problem: problem({ categories: [{ slug: "oop", name: long }] }) }));
+  const badge = html.match(/<span class="([^"]*)">Object-Oriented/)?.[1] ?? "";
+  expect(badge).toContain("whitespace-normal");
+  expect(badge).toContain("max-w-full");
+  expect(badge).not.toContain("whitespace-nowrap");
+});
 it("lists removable chips for every active filter with plain links and a clear-all", () => {
   const filters = parseLibraryFilters({ q: "relay", difficulty: ["EASY", "HARD"], category: ["arrays"], completion: ["SOLVED"], review: "1", maxMinutes: "30", tag: "two-pointers", sort: "time" });
   const html = renderToStaticMarkup(createElement(ActiveFilters, { filters, facets }));
