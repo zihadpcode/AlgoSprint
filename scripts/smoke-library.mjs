@@ -6,6 +6,8 @@ import pg from "pg";
 
 const databaseUrl = process.env.TEST_DATABASE_URL;
 if (!databaseUrl || !new URL(databaseUrl).pathname.endsWith("_test")) throw new Error("Use a seeded, dedicated TEST_DATABASE_URL ending in _test.");
+const port = Number(process.env.SMOKE_LIBRARY_PORT ?? 3101);
+if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("SMOKE_LIBRARY_PORT must be an integer between 1 and 65535.");
 const db = new pg.Pool({ connectionString: databaseUrl, max: 1 });
 const fixtureIds = [randomUUID(), randomUUID(), randomUUID()];
 const fixtureSlugs = fixtureIds.map((id) => "qa-http-" + id);
@@ -14,8 +16,8 @@ const roadmapId = randomUUID();
 const roadmapSlug = "qa-roadmap-" + roadmapId;
 const paginationFixtureIds = [];
 const roadmapPageSize = 12;
-const origin = "http://127.0.0.1:3101";
-const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3101"], {
+const origin = `http://127.0.0.1:${port}`;
+const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", String(port)], {
   env: { ...process.env, DATABASE_URL: databaseUrl, DIRECT_URL: "", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "", APP_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
   stdio: ["ignore", "pipe", "pipe"],
 });

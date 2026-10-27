@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DRAFT_CLEAR_EVENT, DRAFT_CLEAR_KEY, DRAFT_OWNER_KEY, readDeviceDraft, removeDeviceDraft, writeDeviceDraft, type DeviceDraft, type DraftScope } from "@/features/drafts/storage";
 
@@ -17,12 +17,15 @@ function ScopedDraftRecovery({ scope, value, dirty, baseline = "", onRestore, on
   const [recovery, setRecovery] = useState<DeviceDraft | null>(null);
   const [message, setMessage] = useState("");
   const [unavailable, setUnavailable] = useState(false);
+  const cleared = useRef(false);
   const owner = scope?.owner, kind = scope?.kind, target = scope?.target, revision = scope?.revision;
   useEffect(() => {
     let mounted = true;
     // Read browser storage after hydration, never during the server render.
     async function load() {
       await Promise.resolve();
+      // A canceled page must not reclaim ownership or purge the active account's drafts.
+      if (!mounted || cleared.current) return;
       let result;
       try { result = readDeviceDraft(window.localStorage, owner && kind && target && revision ? { owner, kind, target, revision } : null); }
       catch { result = { status: "unavailable", draft: null } as const; }
@@ -34,13 +37,13 @@ function ScopedDraftRecovery({ scope, value, dirty, baseline = "", onRestore, on
   const hasRecovery = Boolean(recovery);
   useEffect(() => { onRecoveryChange?.(hasRecovery); }, [hasRecovery, onRecoveryChange]);
   useEffect(() => {
-    const cleared = () => { setEnabled(false); setRecovery(null); setMessage("Device drafts cleared. Recovery is off."); onClear(); };
-    const storageChanged = (event: StorageEvent) => { if (event.key === DRAFT_CLEAR_KEY || event.key === null || (event.key === DRAFT_OWNER_KEY && event.newValue !== owner)) cleared(); };
-    window.addEventListener(DRAFT_CLEAR_EVENT, cleared); window.addEventListener("storage", storageChanged);
-    return () => { window.removeEventListener(DRAFT_CLEAR_EVENT, cleared); window.removeEventListener("storage", storageChanged); };
+    const revokeRecovery = () => { cleared.current = true; setReady(false); setEnabled(false); setRecovery(null); setMessage("Device drafts cleared. Recovery is off. Reload this page before enabling it again."); onClear(); };
+    const storageChanged = (event: StorageEvent) => { if (event.key === DRAFT_CLEAR_KEY || event.key === null || (event.key === DRAFT_OWNER_KEY && event.newValue !== owner)) revokeRecovery(); };
+    window.addEventListener(DRAFT_CLEAR_EVENT, revokeRecovery); window.addEventListener("storage", storageChanged);
+    return () => { window.removeEventListener(DRAFT_CLEAR_EVENT, revokeRecovery); window.removeEventListener("storage", storageChanged); };
   }, [onClear, owner]);
   useEffect(() => {
-    if (!ready || !enabled || recovery || !owner || !kind || !target || !revision || disabled) return;
+    if (cleared.current || !ready || !enabled || recovery || !owner || !kind || !target || !revision || disabled) return;
     const current = { owner, kind, target, revision };
     let succeeded = false;
     try { succeeded = dirty ? writeDeviceDraft(window.localStorage, current, value, baseline) : removeDeviceDraft(window.localStorage, current); } catch { /* Blocked storage is a recoverable failure. */ }

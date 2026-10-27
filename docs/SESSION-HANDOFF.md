@@ -1,3 +1,17 @@
+# October 27 practice reliability candidate
+
+Continued from current main `71e3eea` in `AlgoSprint-practice-reliability-oct23`, branch `algosprint/practice-reliability-oct23`. The original `AlgoSprint` checkout remains on the older Python privilege-drop branch; use this candidate checkout for the next review.
+
+The pending practice patch now prevents deferred draft reads after unmount, logout or an account-switch event from reclaiming ownership or deleting the active account's local drafts. Revoked recovery stays off until reload. Ended interviews stop their countdown and keep answer text keyboard-accessible and read-only, with ratings and saves disabled. Unrestored device answers become copy-only when the open interview expires. Account-menu arrow keys stay within the disclosure and Escape preserves focus in unrelated controls; the command palette scrolls its active keyboard result into view.
+
+On Node 24.22.1, all **998 unit/component/migration tests passed, with two optional skips**, plus **183 PostgreSQL 17 integration tests** against a fresh disposable container. All 34 focused component checks passed; running them against the unchanged main components in a temporary overlay produced 12 assertion failures, confirming the regressions. ESLint, TypeScript, schema validation, seed validation, generated-fixture checks, production build, traced sandbox execution and unconfigured-account HTTP smoke passed. The full unit run used `--maxWorkers=2 --reporter=verbose` after the default run was stopped following a period without output; no cause was established. Integration checks retain the existing pg concurrent-query deprecation notices.
+
+The seeded HTTP smoke initially could not bind port 3101 because another process was using it. Its new `SMOKE_LIBRARY_PORT` setting selects an alternate local port and rejects invalid port numbers before connecting to the test database or starting a server. The rerun on port 32127 passed library/detail/roadmap links, filters, collapsed solutions, guest gates, privacy headers, hidden-payload exclusion and unpublished 404s. The disposable database was seeded with all 125 problems, 20 roadmaps and 198 video mappings for this check.
+
+Read-only production GETs for `/`, `/problems`, `/roadmaps` and `/login` returned HTTP 200 with no-store responses. These checks cover the existing deployment, not the local candidate. Deployment of this patch, real two-account ownership/session/interview checks, authenticated draft recovery, and actual mobile and screen-reader acceptance remain pending.
+
+---
+
 # October 13 queue review and video release
 
 Codex resumed and merged reviewed green PR59 (release record), PR60 (official CI action SHA pins), PR62 (Python plumbing only) and PR63 (concept video lessons). Runtime merge `2028fbd` passed final-head CI at `54c436b`: 540 unit/component/migration and 104 integration tests, full build/trace/smoke pipeline. The video migration preceded deployment, its Prisma checksum is verified, and the guarded video-only seed published 18 mappings from 14 videos. All previous 100 problems / 18 paths / 307 steps remain unchanged; repeat seed changed nothing. Actual production video playback, chapter activation and a JavaScript 2/2 public-example run passed. [VIDEO-SOLUTIONS.md](VIDEO-SOLUTIONS.md) records deployment, transaction hashes, local/production checks and the actual capture.

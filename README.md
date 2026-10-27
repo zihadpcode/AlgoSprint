@@ -50,6 +50,8 @@ npm run test:smoke
 
 `npm run test:integration` requires a dedicated empty PostgreSQL database whose name ends in `_test`; set `TEST_DATABASE_URL` to it and apply migrations there first. GitHub CI supplies PostgreSQL 17 and also runs `npm run test:smoke` against a temporary production server with accounts deliberately unconfigured. These checks do not prove live Supabase email delivery or authentication; use the manual checklist in the Phase 3 guide.
 
+The seeded HTTP check, `node scripts/smoke-library.mjs`, also requires that dedicated test database with the reviewed seeds applied. It uses local port 3101 by default; set `SMOKE_LIBRARY_PORT` to an available port when another local server is running.
+
 ## 🟨 File map
 
 | Path | Responsibility |
