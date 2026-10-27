@@ -1,6 +1,6 @@
 # October 27 parallel release and acceptance work
 
-The owner assigned release publication and operations verification to the primary workflow, and authenticated acceptance plus mobile/accessibility acceptance to parallel Claude Code sessions in isolated checkouts. The owner then selected **local checks for now** for account verification; do not block this pass on live test-account provisioning or request passwords in chat.
+Release publication and operations verification ran alongside isolated authenticated and mobile/accessibility acceptance checks. The owner selected **local checks for now** for account verification; do not block this pass on live test-account provisioning or request passwords in chat.
 
 The practice-reliability patch is committed at `3f2d64a` and merged through [PR96](https://github.com/zihadpcode/AlgoSprint/pull/96) as `3070f55`. Both exact-head CI runs passed 998 unit/component/migration tests (two optional skips) and 183 PostgreSQL integration tests plus the full pipeline. An independent read-only review found no blocker and passed 46 focused checks. The reviewed and merged source trees match. Exact canonical production deployment `dpl_4bd3ECfRXZDqG8tLzCh9KLXxEwQc` is Ready. Production Chrome passed account-menu ArrowUp/Escape and search Enter/scroll-into-view checks; an existing ordinary-user session received the expected `/admin` 404. No account data was changed.
 
@@ -10,7 +10,7 @@ Operational results: Supabase healthy, 23 RLS-protected app tables with zero bro
 
 Local auth checks passed 71 focused tests and 183 database integration tests. A separate unconstrained full run had six failures; the four affected files passed unchanged on focused rerun, and the cause remains unconfirmed. No auth defect or timeout/assertion change was introduced. Live cross-account, refreshed/expired-session and recovery-email cases remain open by the owner's local-only choice. Guest browser accessibility checks found a 359px library page at a 320px viewport from a long topic badge, plus a color-only leaderboard link; both were fixed and rechecked. Actual mobile input, true browser zoom and real screen readers remain open. The primary production Chrome check independently reproduced the pre-fix library width of 359px at 320px; its temporary viewport was reset.
 
-The original `AlgoSprint` checkout remains on the older privilege-drop branch; preserve it and its preexisting `.claude/`. Coordination notes remain ignored. Both Claude sessions completed and cleaned their owned local containers/servers. Remaining release steps for the integration candidate: reviewed publication, CI, deployment and the narrow library readback; do not infer those from the already deployed PR96.
+The original `AlgoSprint` checkout remains on the older privilege-drop branch; preserve it and its preexisting `.claude/`. Coordination notes remain ignored. Both acceptance sessions completed and cleaned their owned local containers/servers. Remaining release steps for the integration candidate: reviewed publication, CI, deployment and the narrow library readback; do not infer those from the already deployed PR96.
 
 ---
 
