@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-27",
+  "applicationCandidate": "3f2d64a4e448e92815646b61c70386c2f6148197",
+  "productionBaseline": "71e3eea24810fc1ee3e39dfc5443587d28b4bc11",
+  "productionDatabase": {
+    "status": "ACTIVE_HEALTHY",
+    "publishedProblems": 125,
+    "publishedRoadmaps": 20,
+    "appTables": 23,
+    "appTablesWithoutRls": 0,
+    "browserAppTableGrants": 0,
+    "activePythonAttempts": 0,
+    "pythonReservedCasesLast24h": 0,
+    "databaseBytes": 18214035,
+    "maxConnections": 60,
+    "currentConnections": 7
+  },
+  "preReleaseLogs": {
+    "deployment": "algosprint-brblnsmnr-zihadpcode-7061.vercel.app",
+    "startUtc": "2026-10-27T18:00:22Z",
+    "endUtc": "2026-10-27T18:15:22Z",
+    "request5xx": 0,
+    "runtimeErrorFatal": 0,
+    "paginationComplete": true,
+    "excludedIntervals": []
+  },
+  "activeSandboxes": {
+    "pagesChecked": 6,
+    "activeRows": 0,
+    "paginationComplete": true
+  },
+  "providerUsage": {
+    "verified": false,
+    "reason": "Scoped billing cost data unavailable for October 20\u201327; zero usage and remaining monthly allowance cannot be inferred."
+  },
+  "publicReadSample": {
+    "startedAt": "2026-10-27T18:17:45.883Z",
+    "endedAt": "2026-10-27T18:17:52.182Z",
+    "concurrency": 2,
+    "requests": 16,
+    "failures": 0,
+    "p50Ms": 248,
+    "p95Ms": 2031,
+    "maxMs": 2031,
+    "results": [
+      {
+        "path": "/",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 622,
+        "bytes": 71607,
+        "noStore": true
+      },
+      {
+        "path": "/login",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 689,
+        "bytes": 20744,
+        "noStore": true
+      },
+      {
+        "path": "/problems",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 1581,
+        "bytes": 126148,
+        "noStore": true
+      },
+      {
+        "path": "/roadmaps",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 719,
+        "bytes": 72527,
+        "noStore": true
+      },
+      {
+        "path": "/problems/relay-window",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 2031,
+        "bytes": 107103,
+        "noStore": true
+      },
+      {
+        "path": "/roadmaps/scan-store-reuse",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 190,
+        "bytes": 57117,
+        "noStore": true
+      },
+      {
+        "path": "/api/problem-search?q=relay",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 820,
+        "bytes": 103,
+        "noStore": true
+      },
+      {
+        "path": "/problems?page=2",
+        "round": 1,
+        "status": 200,
+        "elapsedMs": 267,
+        "bytes": 125269,
+        "noStore": true
+      },
+      {
+        "path": "/",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 155,
+        "bytes": 71607,
+        "noStore": true
+      },
+      {
+        "path": "/login",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 130,
+        "bytes": 20744,
+        "noStore": true
+      },
+      {
+        "path": "/problems",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 397,
+        "bytes": 126148,
+        "noStore": true
+      },
+      {
+        "path": "/roadmaps",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 248,
+        "bytes": 72527,
+        "noStore": true
+      },
+      {
+        "path": "/problems/relay-window",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 226,
+        "bytes": 107103,
+        "noStore": true
+      },
+      {
+        "path": "/roadmaps/scan-store-reuse",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 171,
+        "bytes": 57117,
+        "noStore": true
+      },
+      {
+        "path": "/api/problem-search?q=relay",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 101,
+        "bytes": 103,
+        "noStore": true
+      },
+      {
+        "path": "/problems?page=2",
+        "round": 2,
+        "status": 200,
+        "elapsedMs": 248,
+        "bytes": 125269,
+        "noStore": true
+      }
+    ],
+    "scope": "Public GET sample only; no authenticated submissions or scale claim"
+  },
+  "localSyntheticRestore": {
+    "source": "synthetic local PostgreSQL 17",
+    "allAppTablesEqual": 23,
+    "tables": [
+      {
+        "table": "Category",
+        "rows": 34,
+        "sha256": "76a9964794afd3194ee2e068c821afad40212a1ba1b64ab8ffe1024da950f4e1"
+      },
+      {
+        "table": "InterviewStyle",
+        "rows": 1,
+        "sha256": "4c9bc0cbe3588ed50c2057821883bb411692b845ee3867121f8fb070304ce5ec"
+      },
+      {
+        "table": "MockInterview",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "MockInterviewQuestion",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "Problem",
+        "rows": 125,
+        "sha256": "55fc505d02619c043b887b232306cd9e6d8a29a2544deb51e8a65883bf045b08"
+      },
+      {
+        "table": "ProblemCategory",
+        "rows": 296,
+        "sha256": "aaa2b9131f7f7f4fe0b0bf1f54fc1f71704fe81279e9da36263f65113c641ae3"
+      },
+      {
+        "table": "ProblemExample",
+        "rows": 250,
+        "sha256": "4cb1eb77f695c590b6d00e000aae767666f2b74ea2df72def812ac082e56f624"
+      },
+      {
+        "table": "ProblemHint",
+        "rows": 625,
+        "sha256": "731122dffb66a0396c117aa1e89e3265e9f4b6b13c6147b8caa2f8ecdbe2f00a"
+      },
+      {
+        "table": "ProblemInterviewStyle",
+        "rows": 125,
+        "sha256": "96127761fc1c4421bf1c1b38f85e3628dba0621110b722bca415f1f3edcb8ea8"
+      },
+      {
+        "table": "ProblemRelation",
+        "rows": 72,
+        "sha256": "e07e0dacddd893d622c201f748674b5263d117480c10f3a3854e228e6ea2ada6"
+      },
+      {
+        "table": "ProblemSolution",
+        "rows": 264,
+        "sha256": "e4780fd65912c2ea5dc8d98bfcc6895011f08ffb479c1b80ca0a64b03bb549f3"
+      },
+      {
+        "table": "ProblemTag",
+        "rows": 237,
+        "sha256": "3907ff865cd08cfa3ef56d3f2e1d574a27786f2c455f0a75c1c883fdbd4baf4b"
+      },
+      {
+        "table": "ProblemVideo",
+        "rows": 198,
+        "sha256": "b43586dbad23c8d8ed72655df15ad096280c64f1bd69e3d7b73f1d0b1a69d406"
+      },
+      {
+        "table": "Roadmap",
+        "rows": 20,
+        "sha256": "39ead80e7d05f441a467f18ad29989e60df7e06ee8bc2b6bcbbc0e02e0c76c8d"
+      },
+      {
+        "table": "RoadmapStep",
+        "rows": 332,
+        "sha256": "ed20a590a1e909735823809b1fc7038d2257d733bcd8cedaa6a05c4b3cd9f11d"
+      },
+      {
+        "table": "SolutionStep",
+        "rows": 614,
+        "sha256": "39233896450b0e1aa78b30964524700fad81bd8db39163758be0fb1fdb99b850"
+      },
+      {
+        "table": "StarterCode",
+        "rows": 125,
+        "sha256": "ceb5fa58883cf40d20c06ac06a1ade5a98a7042aa226a508bb13049ba65971df"
+      },
+      {
+        "table": "Tag",
+        "rows": 17,
+        "sha256": "3b50aad1a6d7d6ab4d121426b30ee8ead9f47c05d3d443d3f40bd1b18feacb7e"
+      },
+      {
+        "table": "TestCase",
+        "rows": 1014,
+        "sha256": "5d4ef4b2da7dcf3079ff71a48c673585a171ad2f6c3b8191ca55620ddf0b9f6a"
+      },
+      {
+        "table": "User",
+        "rows": 1,
+        "sha256": "e7a32eb15c987f4566e6e9a4c8da75a2f6141430fdc2ca503c8e301b93dd8df8"
+      },
+      {
+        "table": "UserNote",
+        "rows": 1,
+        "sha256": "70cb45f7693db8b3ea8049073d85f4d990ce43d6fd440709c9d328f738aefdea"
+      },
+      {
+        "table": "UserProgress",
+        "rows": 1,
+        "sha256": "1b707e657763ee1e704da83a583713cf9769e33cf93f096a9cbfbe673260744e"
+      },
+      {
+        "table": "UserSubmission",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "restoredRlsPreserved": true,
+    "migrationHistoryPreserved": true,
+    "supabaseAuthRestoreVerified": false,
+    "productionBackupVerified": false
+  },
+  "remaining": [
+    "Encrypted scheduled production backups and off-site destination/retention",
+    "Full isolated Supabase Auth and role recovery",
+    "Measured production recovery objectives",
+    "Actual remaining hosted execution quota",
+    "Authenticated concurrency and runner throughput"
+  ]
+}

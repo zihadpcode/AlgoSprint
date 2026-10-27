@@ -154,6 +154,47 @@ If a code release fails, restore the last known-good compatible Vercel deploymen
 
 Phase 16 is complete only after live setup, deployment and the required verification are recorded. Repository preparation can be merged independently while those items remain clearly pending.
 
+## October 27 operational verification
+
+The production baseline for these checks was main `71e3eea`, before publishing the practice-reliability candidate `3f2d64a`. Provider reads were explicitly scoped to Vercel project `prj_qhKaYl3Jy46DlwkzsGtOnkvhW8gR`, team `team_7eA3jsANeEllHR66QIPnyM6k`, and Supabase project `wohoooueqlfrszqjuuck`. The Vercel connector returned not-found for this resource; the existing linked CLI independently resolved the correct project and owner.
+
+| Check | Observed result | Limit of the evidence |
+| --- | --- | --- |
+| Supabase health and catalog | `ACTIVE_HEALTHY`, PostgreSQL 17; 125 published problems and 20 published paths. | A point-in-time read, not an uptime guarantee. |
+| Database protection | All 23 application tables have RLS; zero application-table grants to `anon` or `authenticated`. | Server-side owner checks still need real two-account acceptance. |
+| Connection snapshot | Seven current connections; configured database maximum 60. | Includes provider/internal connections; this is not a pooler capacity measurement. |
+| Error logs | Deployment-scoped request scan 18:00:22–18:15:22 UTC returned zero HTTP 5xx records; runtime scan over the same window returned zero error/fatal records. Both scans exhausted pagination and had no excluded intervals. | Historical errors outside these windows were not queried. |
+| Public concurrent reads | Sixteen public GETs, two at a time, over eight routes completed with HTTP 200 and no-store responses; median 248 ms, sample p95/max 2,031 ms. Expected library content and `nosniff` headers were present. | Includes network and startup effects. It does not measure authenticated queries, runner throughput or maximum capacity. |
+| Sandbox lifecycle | Six fully paginated provider-list pages contained zero active Sandbox VMs; the database had zero active Python attempts and zero reserved Python cases in the prior 24 hours. | Idle state does not prove remaining monthly quota. |
+| Provider usage | The scoped billing query reported unavailable data for October 20–27. | Do not interpret unavailable data as zero usage or an unused allowance. No hosted execution probe was started. |
+| Advisors | No ERROR findings; 24 expected default-deny RLS/no-policy INFO findings, ten unused-index INFO findings and the existing leaked-password-protection WARN. | Keep indexes and owner checks. Review [password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) against the selected plan. |
+
+The public read sample covered `/`, `/login`, `/problems`, `/roadmaps`, `/problems/relay-window`, `/roadmaps/scan-store-reuse`, `/api/problem-search?q=relay` and `/problems?page=2`, twice each. It created no accounts, submissions or VMs. Submission admission and failure messages passed the candidate's unit and PostgreSQL integration suites. Source defaults remain 60 Python case-VM reservations per user per rolling day, 150 deployment-wide and two active Python attempts; deployment overrides and remaining provider quota were not established by this check.
+
+[Machine-readable evidence](evidence/operations-2026-10-27.json) retains the read sample and synthetic restore fingerprints without account contents, credentials or browser state.
+
+### Backup and restore runbook
+
+The [current provider guidance](https://supabase.com/docs/guides/platform/backups) recommends regular off-site exports for free-tier projects; automatic daily backups are documented for paid plans. A healthy database or repeatable content seed is not a backup of account data.
+
+Before treating disaster recovery as accepted:
+
+1. Select an encrypted backup destination, retention policy and acceptable recovery-point/recovery-time objectives. Keep exports, credentials and account data outside Git, CI artifacts and public logs.
+2. From a trusted operator environment, verify the exact source project, connection/TLS settings and PostgreSQL tool compatibility. Use the documented provider export workflow; include the application schema, authentication data and migration history, plus any separately managed objects or roles needed for recovery. Database backups do not include Storage object files.
+3. Restore into a new isolated test project/database. Confirm the target identity before any restore; never rehearse over the live project. Keep outbound mail and hosted code execution disabled in the target.
+4. Compare table counts and stable row fingerprints; verify notes, saved progress, submissions, migrations, constraints, RLS and browser-role grants. Exercise sign-in, ownership, account recovery and the application HTTP smoke flow against the restored environment.
+5. Record export time, restore time, actual recovery point and test results. Retain the encrypted off-site copy and repeat the rehearsal after material schema/provider changes.
+
+On October 27, a local PostgreSQL 17 rehearsal applied all eight reviewed migrations, seeded 125 problems, 20 roadmaps and 198 video mappings, and added a synthetic user, multiline private note and bookmarked/review-later progress. `pg_dump -Fc --no-owner --no-acl` followed by `pg_restore --exit-on-error --no-owner --no-acl` into a separate empty database preserved every row across all 23 application tables, checked with sorted row comparisons and SHA-256 fingerprints. Migration-history counts and RLS were preserved. The restored database then passed the seeded library/detail/roadmap HTTP smoke check on a separate local port. The owned container and its synthetic dump were removed after verification.
+
+This rehearsal verifies the local application-schema recovery path. An encrypted scheduled production export, off-site retention, full Supabase Auth/role recovery and measured production recovery objectives remain open.
+
+### Code rollback and monitoring
+
+Before releasing, record the previous Ready production deployment and its exact commit. For an application-only regression, inspect the intended project and use the provider's rollback command against that known compatible deployment, then verify the canonical alias, public pages and affected account flow. A code rollback neither reverses a database migration nor restores deleted data. Review schema compatibility separately; prefer a reviewed forward fix for a database issue. Vercel rollback also changes automatic domain-assignment behavior, so verify how subsequent releases will be promoted before resuming them.
+
+The existing `Production health check` workflow remains the automated public monitor. Check its Actions result and repository notification settings; successful HTTP GETs do not prove email delivery, private ownership or code-runner availability. After a release, query deployment-scoped request and runtime errors with explicit time bounds and exhaust pagination. Record subscription/retention gaps instead of treating missing logs or usage as a clean result. Repeat authenticated admission/capacity checks without deliberately exhausting production quotas.
+
 ### Optional Auth IP forwarding
 
 Server-side Auth requests otherwise share the Vercel server IP rate-limit bucket. Leave `SUPABASE_AUTH_IP_FORWARDING` unset unless forwarding is configured. To opt in on Vercel, set it to `true`, provision a server-only `SUPABASE_AUTH_FORWARDING_SECRET_KEY` (`sb_secret_…`), and enable **Authentication → Rate Limits → IP Address Forwarding** in the matching Supabase project. Invalid enabled configuration fails before a provider request. The secret is used only for the current end-user Auth endpoints; Data and Auth admin calls retain the publishable key. User bearer tokens and cookies retain their existing behavior. No production setting is changed by deploying this code.
